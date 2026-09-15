@@ -772,5 +772,204 @@ export async function handleAdsOpciones(env, session) {
   await pide('paginas', `${cuenta.id}/promote_pages`, { fields: 'id,name', limit: '50' });
   await pide('instagram', `${cuenta.id}/instagram_accounts`, { fields: 'id,username', limit: '50' });
   await pide('limites', `${cuenta.id}`, { fields: 'spend_cap,amount_spent,balance,min_daily_budget,currency,funding_source_details' });
+  // El publico que YA funciono: es el que se copia al crear, y saberlo de
+  // antemano evita escribir el anuncio en el idioma equivocado.
+  try { out.publico_probado = await publicoProbado(env, cuenta, tok); }
+  catch (e) { out.publico_probado = { error: (e && e.message) || 'error' }; }
   return json(out);
+}
+
+// El publico NO se inventa: se copia del conjunto de la campana que MEJOR
+// costo por resultado tuvo (con gasto suficiente para que el dato signifique
+// algo). Si no hay historia, cae a un publico amplio de Mexico.
+const PUBLICO_FALLBACK = {
+  geo_locations: { countries: ['MX'] },
+  age_min: 25,
+  age_max: 50,
+  targeting_automation: { advantage_audience: 1 },
+};
+
+async function publicoProbado(env, cuenta, tok) {
+  let mejor = null;
+  try {
+    const r = await env.DB.prepare(
+      `SELECT campaign_id, campaign_name, SUM(gasto) g, SUM(COALESCE(resultados,0)) res
+         FROM mkt_ads_dia GROUP BY campaign_id
+        HAVING g >= 100 AND res > 0
+        ORDER BY (g / res) ASC LIMIT 1`
+    ).first();
+    mejor = r || null;
+  } catch { /* sin historia */ }
+  if (!mejor) return { targeting: PUBLICO_FALLBACK, de: null };
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${mejor.campaign_id}/adsets?` + new URLSearchParams({
+      fields: 'targeting,optimization_goal,billing_event',
+      limit: '1',
+      access_token: tok.t,
+    }));
+    const a = (r && r.data && r.data[0]) || null;
+    if (a && a.targeting) {
+      // Se limpia lo que no se puede reusar tal cual en un conjunto nuevo.
+      const t = { ...a.targeting };
+      delete t.excluded_custom_audiences;
+      delete t.custom_audiences;
+      delete t.brand_safety_content_filter_levels;
+      return { targeting: t, de: mejor.campaign_name, costo: Math.round((mejor.g / mejor.res) * 100) / 100 };
+    }
+  } catch { /* si no se puede leer, publico amplio */ }
+  return { targeting: PUBLICO_FALLBACK, de: null };
+}
+
+async function subirImagen(env, cuenta, tok, urlImagen) {
+  const res = await fetch(urlImagen);
+  if (!res || !res.ok) throw new Error(`No se pudo bajar la imagen (${res && res.status})`);
+  const blob = await res.blob();
+  const fd = new FormData();
+  fd.append('access_token', tok.t);
+  fd.append('filename', new File([blob], 'anuncio.jpg', { type: blob.type || 'image/jpeg' }));
+  const r = await fetch(`${FB_GRAPH}/${cuenta.id}/adimages`, { method: 'POST', body: fd });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error((d.error && d.error.message) || `HTTP ${r.status}`);
+  const imgs = d.images || {};
+  const primera = Object.values(imgs)[0];
+  if (!primera || !primera.hash) throw new Error('Meta no devolvió el hash de la imagen');
+  return primera.hash;
+}
+
+/**
+ * POST /ads/crear — arma campana + conjunto + creativo + anuncio, TODO PAUSADO.
+ * body: { nombre, titular, texto, descripcion, enlace, imagen_url,
+ *         presupuesto_mxn, dias, cta }
+ */
+export async function handleAdsCrear(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+
+  const pagina = String(b.page_id || '134197847330430');
+  const presupuesto = Math.max(20, Math.min(5000, Number(b.presupuesto_mxn) || 400));
+  const dias = Math.max(1, Math.min(14, Number(b.dias) || 1));
+  const enlace = String(b.enlace || 'https://ivaestudios.com/cancun-photographer');
+  const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
+  if (!b.texto || !b.imagen_url) return json({ error: 'Faltan texto o imagen_url' }, 400);
+
+  const pasos = [];
+  const pedir = async (paso, path, campos) => {
+    pasos.push(paso);
+    return fbJson(`${FB_GRAPH}/${path}`, {
+      method: 'POST',
+      body: new URLSearchParams({ ...campos, access_token: tok.t }),
+    });
+  };
+
+  try {
+    const pub = await publicoProbado(env, cuenta, tok);
+    const hash = await subirImagen(env, cuenta, tok, String(b.imagen_url));
+
+    const camp = await pedir('campaña', `${cuenta.id}/campaigns`, {
+      name: nombre,
+      objective: 'OUTCOME_TRAFFIC',
+      status: 'PAUSED',
+      special_ad_categories: '[]',
+    });
+
+    const inicio = new Date(Date.now() + 10 * 60 * 1000);          // 10 min de aire
+    const fin = new Date(inicio.getTime() + dias * 24 * 3600 * 1000);
+    const conj = await pedir('conjunto', `${cuenta.id}/adsets`, {
+      name: `${nombre} · conjunto`,
+      campaign_id: camp.id,
+      daily_budget: String(Math.round(presupuesto * 100)),
+      billing_event: 'IMPRESSIONS',
+      optimization_goal: 'LINK_CLICKS',
+      bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+      targeting: JSON.stringify(pub.targeting),
+      start_time: inicio.toISOString(),
+      end_time: fin.toISOString(),
+      status: 'PAUSED',
+    });
+
+    const story = {
+      page_id: pagina,
+      link_data: {
+        link: enlace,
+        message: String(b.texto),
+        name: String(b.titular || '').slice(0, 120) || undefined,
+        description: String(b.descripcion || '').slice(0, 200) || undefined,
+        image_hash: hash,
+        call_to_action: { type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } },
+      },
+    };
+    const creativo = await pedir('creativo', `${cuenta.id}/adcreatives`, {
+      name: `${nombre} · creativo`,
+      object_story_spec: JSON.stringify(story),
+    });
+
+    const anuncio = await pedir('anuncio', `${cuenta.id}/ads`, {
+      name: `${nombre} · anuncio`,
+      adset_id: conj.id,
+      creative: JSON.stringify({ creative_id: creativo.id }),
+      status: 'PAUSED',
+    });
+
+    await bitacora(env, {
+      quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
+      despues: `${presupuesto} MXN/día · ${dias} día(s) · PAUSADA`,
+      motivo: `Creada por IA. Público copiado de: ${pub.de || 'amplio México'}`,
+      ok: true,
+    });
+
+    return json({
+      ok: true,
+      campaign_id: camp.id,
+      adset_id: conj.id,
+      creative_id: creativo.id,
+      ad_id: anuncio.id,
+      publico_de: pub.de,
+      publico_costo: pub.costo,
+      presupuesto_mxn: presupuesto,
+      dias,
+      inicio: inicio.toISOString(),
+      fin: fin.toISOString(),
+      estado: 'PAUSADA',
+      enlace_admin: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${cuenta.account_id}&selected_campaign_ids=${camp.id}`,
+    });
+  } catch (e) {
+    const msg = (e && e.message) || 'Error';
+    await bitacora(env, { quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
+    return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos }, 502);
+  }
+}
+
+// POST /ads/encender { campaign_id } — enciende campaña, conjunto y anuncio.
+// Va aparte de crear a propósito: encender es lo que empieza a gastar.
+export async function handleAdsEncender(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const id = String(b.campaign_id || '');
+  if (!id) return json({ error: 'Falta campaign_id' }, 400);
+  const prender = async (oid) => fbJson(`${FB_GRAPH}/${oid}`, {
+    method: 'POST', body: new URLSearchParams({ status: 'ACTIVE', access_token: tok.t }),
+  });
+  try {
+    const sets = await fbJson(`${FB_GRAPH}/${id}/adsets?` + new URLSearchParams({ fields: 'id', limit: '20', access_token: tok.t }));
+    for (const s of (sets.data || [])) {
+      const ads = await fbJson(`${FB_GRAPH}/${s.id}/ads?` + new URLSearchParams({ fields: 'id', limit: '20', access_token: tok.t }));
+      for (const a of (ads.data || [])) await prender(a.id);
+      await prender(s.id);
+    }
+    await prender(id);
+    await bitacora(env, { quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'activar', campaign_id: id, antes: 'PAUSED', despues: 'ACTIVE', motivo: b.motivo || 'Encendida a mano', ok: true });
+    return json({ ok: true, campaign_id: id, estado: 'ACTIVA' });
+  } catch (e) {
+    const msg = (e && e.message) || 'Error';
+    await bitacora(env, { quien: 'persona', accion: 'activar', campaign_id: id, ok: false, error: msg });
+    return json({ error: msg }, 502);
+  }
 }
