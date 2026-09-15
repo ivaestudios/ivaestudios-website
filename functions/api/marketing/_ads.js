@@ -863,13 +863,26 @@ export async function handleAdsCrear(request, env, session) {
   const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
   if (!b.texto || !b.imagen_url) return json({ error: 'Faltan texto o imagen_url' }, 400);
 
+  // Se apunta lo que se va creando para poder DESHACERLO si un paso falla.
+  // Sin esto, cada intento fallido dejaba una campana huerfana y un conjunto
+  // colgando en la cuenta de la duena (paso de verdad: 5 intentos, 5 basuras).
   const pasos = [];
+  const creados = [];
   const pedir = async (paso, path, campos) => {
     pasos.push(paso);
-    return fbJson(`${FB_GRAPH}/${path}`, {
+    const r = await fbJson(`${FB_GRAPH}/${path}`, {
       method: 'POST',
       body: new URLSearchParams({ ...campos, access_token: tok.t }),
     });
+    if (r && r.id) creados.unshift(r.id);   // al reves: se borra de adentro afuera
+    return r;
+  };
+  const deshacer = async () => {
+    for (const id of creados) {
+      try {
+        await fetch(`${FB_GRAPH}/${id}?access_token=${encodeURIComponent(tok.t)}`, { method: 'DELETE' });
+      } catch { /* si no se puede borrar, queda pausado: nunca gasta */ }
+    }
   };
 
   try {
@@ -949,8 +962,9 @@ export async function handleAdsCrear(request, env, session) {
     });
   } catch (e) {
     const msg = (e && e.message) || 'Error';
+    await deshacer();
     await bitacora(env, { quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
-    return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos }, 400);
+    return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos, deshecho: creados.length }, 400);
   }
 }
 
