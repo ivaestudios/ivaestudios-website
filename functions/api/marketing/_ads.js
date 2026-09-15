@@ -914,9 +914,12 @@ export async function handleAdsCrear(request, env, session) {
   try {
     const pub = await publicoProbado(env, cuenta, tok);
 
+    // Un post SIN enlace no se puede optimizar para clics: Meta lo rechaza
+    // (code 100/1815520). Para esos, el objetivo honesto es la interaccion.
+    const porInteraccion = String(b.objetivo || '').toUpperCase() === 'INTERACCION';
     const camp = await pedir('campaña', `${cuenta.id}/campaigns`, {
       name: nombre,
-      objective: 'OUTCOME_TRAFFIC',
+      objective: porInteraccion ? 'OUTCOME_ENGAGEMENT' : 'OUTCOME_TRAFFIC',
       status: 'PAUSED',
       special_ad_categories: '[]',
       // Obligatorio desde 2026 cuando el presupuesto vive en el conjunto y no
@@ -933,7 +936,7 @@ export async function handleAdsCrear(request, env, session) {
       campaign_id: camp.id,
       daily_budget: String(Math.round(presupuesto * 100)),
       billing_event: 'IMPRESSIONS',
-      optimization_goal: 'LINK_CLICKS',
+      optimization_goal: porInteraccion ? 'POST_ENGAGEMENT' : 'LINK_CLICKS',
       bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
       targeting: JSON.stringify(pub.targeting),
       start_time: inicio.toISOString(),
@@ -950,11 +953,33 @@ export async function handleAdsCrear(request, env, session) {
     //  · link_data → se crea un post OCULTO nuevo con foto y textos. Es lo que
     //    querriamos (texto escrito a medida), pero Meta lo rechaza mientras la
     //    app no este publicada (code 100/1885183).
-    if (b.object_story_id) {
-      const creativoPost = await pedir('creativo', `${cuenta.id}/adcreatives`, {
-        name: `${nombre} · creativo`,
-        object_story_id: String(b.object_story_id),
-      });
+    if (b.object_story_id || b.ig_media_id) {
+      let camposCreativo = { name: `${nombre} · creativo` };
+      if (b.ig_media_id) {
+        // Como el boton "Promocionar" de Instagram: se toma el post tal cual y
+        // Meta le AGREGA el boton con enlace, aunque el post original no lleve
+        // ninguno. Necesita saber a nombre de que cuenta de Instagram habla.
+        let igActor = String(b.instagram_actor_id || '');
+        if (!igActor) {
+          try {
+            const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({
+              fields: 'instagram_business_account,connected_instagram_account',
+              access_token: tok.t,
+            }));
+            igActor = (pg.instagram_business_account && pg.instagram_business_account.id)
+              || (pg.connected_instagram_account && pg.connected_instagram_account.id) || '';
+          } catch { /* sin esto, Meta lo dira con todas sus letras */ }
+        }
+        camposCreativo = {
+          ...camposCreativo,
+          object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_actor_id: igActor } : {}) }),
+          source_instagram_media_id: String(b.ig_media_id),
+          ...(porInteraccion ? {} : { call_to_action: JSON.stringify({ type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } }) }),
+        };
+      } else {
+        camposCreativo.object_story_id = String(b.object_story_id);
+      }
+      const creativoPost = await pedir('creativo', `${cuenta.id}/adcreatives`, camposCreativo);
       const anuncioPost = await pedir('anuncio', `${cuenta.id}/ads`, {
         name: `${nombre} · anuncio`,
         adset_id: conj.id,
