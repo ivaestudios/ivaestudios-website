@@ -58,7 +58,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
-import { handleYtLogin, handleYtCallback, handleYtEstado, publicarEnYouTube } from './_youtube.js';
+import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -5725,6 +5725,7 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'yt') {
     if (path === '/yt/login' && method === 'GET') return handleYtLogin(request, env, session, url);
     if (path === '/yt/estado' && method === 'GET') return handleYtEstado(env, session, url);
+    if (path === '/yt/disconnect' && method === 'POST') return handleYtDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
 

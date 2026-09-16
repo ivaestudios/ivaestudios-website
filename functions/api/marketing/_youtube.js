@@ -36,6 +36,7 @@
 
 const YT_AUTH = 'https://accounts.google.com/o/oauth2/v2/auth';
 const YT_TOKEN = 'https://oauth2.googleapis.com/token';
+const YT_REVOKE = 'https://oauth2.googleapis.com/revoke';
 const YT_API = 'https://www.googleapis.com/youtube/v3';
 const YT_UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/videos';
 // upload = subir el video; readonly = poder decir a qué canal se subirá.
@@ -152,7 +153,7 @@ export async function tokenYouTubeVigente(env, clientId) {
   if (!c || !c.yt_access_token) throw new Error('La marca no tiene YouTube conectado (ficha del cliente → Conectar YouTube).');
   const vence = c.yt_access_expires_at ? Date.parse(c.yt_access_expires_at.replace(' ', 'T') + 'Z') : 0;
   if (vence && vence - Date.now() > 5 * 60 * 1000) return c.yt_access_token;
-  if (!c.yt_refresh_token) throw new Error('El permiso de YouTube caducó y no hay refresh — reconecta la marca desde su ficha.');
+  if (!c.yt_refresh_token) throw new Error('El permiso de YouTube caducó y no hay refresh, reconecta la marca desde su ficha.');
   const t = await (await fetch(YT_TOKEN, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -165,7 +166,7 @@ export async function tokenYouTubeVigente(env, clientId) {
     const motivo = String(t.error || '');
     throw new Error(/invalid_grant/.test(motivo)
       ? 'Google revocó el permiso de YouTube de esta marca (pasa si la app quedó en modo "Testing": ahí el permiso muere a los 7 días). Reconéctala desde su ficha.'
-      : 'Google no renovó el permiso de YouTube — reconecta la marca desde su ficha. (' + (t.error_description || motivo) + ')');
+      : 'Google no renovó el permiso de YouTube, reconecta la marca desde su ficha. (' + (t.error_description || motivo) + ')');
   }
   await env.DB.prepare(
     `UPDATE mkt_clients SET yt_access_token = ?, yt_refresh_token = ?,
@@ -195,6 +196,52 @@ export async function handleYtEstado(env, session, url) {
   });
 }
 
+// POST /yt/disconnect { client_id } (staff) — desconectar la marca de YouTube.
+//
+// ⚠️ NO basta con borrar los tokens de nuestra base: la politica de los
+// Servicios de la API de YouTube (y la revision de cumplimiento de Google)
+// exige que la persona pueda RETIRAR el permiso desde la propia app, no solo
+// desde myaccount.google.com. Por eso primero se REVOCA en Google y despues se
+// limpia aqui. Revocar el refresh token tumba tambien todos los access tokens
+// que salieron de el.
+//
+// La revocacion se intenta, pero no manda: si Google contesta mal (el permiso
+// ya lo habia quitado la persona a mano, o la red falla), igual se limpia la
+// marca. Dejar el token guardado despues de que alguien pidio desconectar
+// seria lo peor de los dos mundos.
+export async function handleYtDisconnect(request, env, session) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const clientId = b.client_id || '';
+  if (!clientId) return json({ error: 'Falta client_id' }, 400);
+
+  const c = await env.DB.prepare(
+    'SELECT yt_refresh_token, yt_access_token FROM mkt_clients WHERE id = ?'
+  ).bind(clientId).first();
+  if (!c) return json({ error: 'Cliente no encontrado' }, 404);
+
+  let revocado = false;
+  const token = c.yt_refresh_token || c.yt_access_token;
+  if (token) {
+    try {
+      const r = await fetch(YT_REVOKE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ token }),
+      });
+      revocado = r.ok;
+    } catch { /* la limpieza local sigue pasando */ }
+  }
+
+  await env.DB.prepare(
+    `UPDATE mkt_clients SET yt_channel_id = NULL, yt_channel_title = NULL, yt_access_token = NULL,
+     yt_refresh_token = NULL, yt_access_expires_at = NULL, yt_connected_at = NULL,
+     updated_at = datetime('now') WHERE id = ?`
+  ).bind(clientId).run();
+
+  return json({ ok: true, revocado });
+}
+
 // Traduce los errores de la API de YouTube al idioma de la oficina.
 function mensajeYouTube(data, status) {
   const e = (data && data.error) || {};
@@ -203,10 +250,10 @@ function mensajeYouTube(data, status) {
   if (razon === 'quotaExceeded' || /quota/i.test(base)) {
     return 'YouTube ya no acepta más subidas hoy: la cuota gratis del proyecto alcanza para ~6 videos al día y se reinicia a medianoche (hora del Pacífico).';
   }
-  if (razon === 'youtubeSignupRequired') return 'Esa cuenta de Google no tiene canal de YouTube — créalo y reconecta la marca.';
+  if (razon === 'youtubeSignupRequired') return 'Esa cuenta de Google no tiene canal de YouTube: créalo y reconecta la marca.';
   if (razon === 'uploadLimitExceeded') return 'El canal llegó a su límite de subidas del día (lo pone YouTube, no nosotros). Se reintenta mañana.';
-  if (razon === 'forbidden' || status === 403) return 'YouTube rechazó la subida con este permiso — reconecta la marca desde su ficha (' + base + ').';
-  if (status === 401) return 'El permiso de YouTube de la marca caducó — reconéctala desde su ficha.';
+  if (razon === 'forbidden' || status === 403) return 'YouTube rechazó la subida con este permiso, reconecta la marca desde su ficha (' + base + ').';
+  if (status === 401) return 'El permiso de YouTube de la marca caducó, reconéctala desde su ficha.';
   if (/invalidVideoMetadata|invalidTitle|invalidDescription/i.test(razon)) return 'YouTube rechazó el título o la descripción (sin < ni >, título ≤100 caracteres).';
   return base;
 }
@@ -271,7 +318,7 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
   const bytes = await vid.arrayBuffer();
   if (!bytes.byteLength) throw new Error('El video del almacén llegó vacío.');
   if (bytes.byteLength > YT_MAX_BYTES) {
-    throw new Error('El video pesa ' + Math.round(bytes.byteLength / 1048576) + ' MB y el tope para subir desde la app son 64 MB — comprímelo antes de programarlo.');
+    throw new Error('El video pesa ' + Math.round(bytes.byteLength / 1048576) + ' MB y el tope para subir desde la app son 64 MB, comprímelo antes de programarlo.');
   }
 
   // Paso 1: la metadata. Devuelve el Location donde van los bytes.

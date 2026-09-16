@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609151941';
-import { icon, iconMarca } from '../shell/icons.js?v=202609151941';
-import { T } from '../shell/i18n.js?v=202609151941';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609151941';
-import { confirmar } from '../shell/sheet.js?v=202609151941';
-import { openEditClient, openNewClient } from '../shell/clientswitcher.js?v=202609151941';
+} from '../api.js?v=202609161420';
+import { icon, iconMarca } from '../shell/icons.js?v=202609161420';
+import { T } from '../shell/i18n.js?v=202609161420';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609161420';
+import { confirmar } from '../shell/sheet.js?v=202609161420';
+import { openEditClient, openNewClient } from '../shell/clientswitcher.js?v=202609161420';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609151941';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609151941';
+import { errorCard } from '../ui/states.js?v=202609161420';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609161420';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609151941';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609161420';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609151941';
+} from '../lib/video-upload.js?v=202609161420';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1972,8 +1972,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609151941');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609151941');
+        const mod = await import('../lib/pdf-contenido.js?v=202609161420');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609161420');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

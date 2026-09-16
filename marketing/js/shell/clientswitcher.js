@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609151941';
-import { openSheet } from './sheet.js?v=202609151941';
-import { toast } from './toast.js?v=202609151941';
-import * as store from './store.js?v=202609151941';
-import { icon } from './icons.js?v=202609151941';
-import { T, isEN } from './i18n.js?v=202609151941';
+import { api, el } from '../api.js?v=202609161420';
+import { openSheet } from './sheet.js?v=202609161420';
+import { toast } from './toast.js?v=202609161420';
+import * as store from './store.js?v=202609161420';
+import { icon } from './icons.js?v=202609161420';
+import { T, isEN } from './i18n.js?v=202609161420';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
@@ -348,7 +348,31 @@ export function openEditClient(client, { selectClient } = {}) {
                   },
                 }, [icon('spark', 16), el('span', { text: T('Conectar TikTok', 'Connect TikTok') })]),
             client.yt_channel_title
-              ? el('div', { class: 'cs-igrow', text: '▶️ ' + client.yt_channel_title })
+              // Desconectar YouTube tiene que vivir AQUI, no en myaccount.google.com:
+              // la revision de cumplimiento de YouTube pide que el permiso se pueda
+              // retirar desde la propia app, y el backend ademas lo REVOCA en Google.
+              ? el('div', { class: 'cs-igrow' }, [
+                  el('span', { text: '▶️ ' + client.yt_channel_title }),
+                  el('button', {
+                    class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
+                    onclick: async (e) => {
+                      e.currentTarget.disabled = true;
+                      const r = await fetch('/api/marketing/yt/disconnect', {
+                        method: 'POST', credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ client_id: client.id }),
+                      });
+                      if (r.ok) {
+                        await store.refreshClientCounts();
+                        toast(T('YouTube desconectado y el permiso retirado en Google.', 'YouTube disconnected and access revoked at Google.'), { type: 'success' });
+                        close({ source: 'yt' });
+                      } else {
+                        e.currentTarget.disabled = false;
+                        toast(T('No se pudo desconectar YouTube.', 'Could not disconnect YouTube.'), { type: 'error' });
+                      }
+                    },
+                  }),
+                ])
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
