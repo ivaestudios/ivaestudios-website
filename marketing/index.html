@@ -19,12 +19,12 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609161641">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609161641">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609161641">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609161659">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609161659">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609161659">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609161641">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609161641">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609161659">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609161659">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -61,7 +61,10 @@
     /* Pie legal de la pantalla de entrada */
     .pie-legal {
       display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-      gap: 10px; padding: 26px 18px 34px; font-size: 13px;
+      gap: 10px; padding: 18px 18px 26px; font-size: 13px;
+      /* .auth-wrap mide 100dvh, asi que un pie normal cae bajo el pliegue y
+         nadie lo ve. Se sube dentro de esa pantalla. */
+      margin-top: -70px; position: relative; z-index: 2;
     }
     .pie-legal a { color: inherit; opacity: .72; text-decoration: none; }
     .pie-legal a:hover { opacity: 1; text-decoration: underline; }
@@ -277,7 +280,7 @@
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202609161641"></script>
+  <script src="/marketing/js/login-en.js?v=202609161659"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';
