@@ -43,6 +43,9 @@
       h1, h2, h3, strong { color: #000; }
       .sub, .muted { color: #444; }
       a { color: #111; text-decoration: underline; }
+      /* En papel/PDF un enlace pierde su destino. Para una auditoria (y para
+         cualquiera que imprima) el destino tiene que verse escrito. */
+      a[href^="http"]::after { content: " <" attr(href) ">"; font-size: .85em; word-break: break-all; }
       .mark { background: #E24DA0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .yt, .cero { background: #fff; border: 1px solid #999; }
       .yt h2, .cero h2 { color: #000; }

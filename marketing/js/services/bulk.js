@@ -30,11 +30,11 @@
 // con scope=all. El frontend funciona con ambos backends.
 // ============================================================================
 
-import { api } from '../api.js?v=202609161438';
-import { toast } from '../shell/toast.js?v=202609161438';
-import * as store from '../shell/store.js?v=202609161438';
-import { addDaysISO } from '../lib/dates.js?v=202609161438';
-import { T } from '../shell/i18n.js?v=202609161438';
+import { api } from '../api.js?v=202609161514';
+import { toast } from '../shell/toast.js?v=202609161514';
+import * as store from '../shell/store.js?v=202609161514';
+import { addDaysISO } from '../lib/dates.js?v=202609161514';
+import { T } from '../shell/i18n.js?v=202609161514';
 
 const BULK_UPDATE_ENDPOINT = '/posts/bulk-update';
 const BULK_DELETE_ENDPOINT = '/posts/bulk-delete';
