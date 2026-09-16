@@ -19,9 +19,9 @@
 // publicador del backend).
 // ============================================================================
 
-import { el, api } from '../api.js?v=202609161710';
-import { T } from '../shell/i18n.js?v=202609161710';
-import { openSheet } from '../shell/sheet.js?v=202609161710';
+import { el, api } from '../api.js?v=202609161713';
+import { T } from '../shell/i18n.js?v=202609161713';
+import { openSheet } from '../shell/sheet.js?v=202609161713';
 
 // Fila de opción única (radio) con el mismo lenguaje visual de los pickers.
 function filaOpcion({ label, sub, activa, onPick }) {
@@ -141,7 +141,7 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
           return;
         }
         if (!d.conectado) {
-          cuenta.textContent = d.error || T('Esta marca no tiene TikTok conectado — hazlo desde su ficha.', 'This brand has no TikTok connected yet.');
+          cuenta.textContent = d.error || T('Esta marca no tiene TikTok conectado, hazlo desde su ficha.', 'This brand has no TikTok connected yet.');
           return;
         }
         cuenta.textContent = `${T('Se publicará en', 'Will publish to')}: ${d.nickname || d.username || T('la cuenta conectada', 'the connected account')}` +
@@ -241,7 +241,7 @@ export function openYouTubeSheet(ed, { onSaved } = {}) {
         }
         if (!d.conectado) {
           canal.textContent = d.configurada
-            ? T('Esta marca no tiene YouTube conectado — hazlo desde su ficha.', 'This brand has no YouTube connected yet.')
+            ? T('Esta marca no tiene YouTube conectado, hazlo desde su ficha.', 'This brand has no YouTube connected yet.')
             : T('Falta configurar la app de YouTube en Cloudflare (YT_CLIENT_ID y YT_CLIENT_SECRET).', 'The YouTube app is not configured in Cloudflare yet.');
           return;
         }
