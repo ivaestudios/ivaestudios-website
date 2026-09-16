@@ -1121,8 +1121,12 @@ export async function handleAdsEncender(request, env, session) {
   }
 }
 
-// POST /ads/apagar { campaign_id } — pausa la campaña (los conjuntos y
-// anuncios se quedan como estén: pausar arriba ya detiene la entrega).
+// POST /ads/apagar { campaign_id } — apaga campaña, conjuntos y anuncios.
+//
+// Pausar solo la campaña YA detiene la entrega, pero deja los conjuntos y
+// anuncios en ACTIVO por debajo. Eso se lee como "sigue prendida" cuando se
+// mira el detalle, y al reactivar la campaña arrancaría todo de golpe sin que
+// nadie lo haya pedido. Espejo exacto de /ads/encender.
 export async function handleAdsApagar(request, env, session) {
   if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
   const tok = await kvJson(env, 'ads_token');
@@ -1131,8 +1135,17 @@ export async function handleAdsApagar(request, env, session) {
   try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
   const id = String(b.campaign_id || '');
   if (!id) return json({ error: 'Falta campaign_id' }, 400);
+  const apagar = async (oid) => fbJson(`${FB_GRAPH}/${oid}`, {
+    method: 'POST', body: new URLSearchParams({ status: 'PAUSED', access_token: tok.t }),
+  });
   try {
-    await fbJson(`${FB_GRAPH}/${id}`, { method: 'POST', body: new URLSearchParams({ status: 'PAUSED', access_token: tok.t }) });
+    await apagar(id);
+    const sets = await fbJson(`${FB_GRAPH}/${id}/adsets?` + new URLSearchParams({ fields: 'id', limit: '20', access_token: tok.t }));
+    for (const st of (sets.data || [])) {
+      const ads = await fbJson(`${FB_GRAPH}/${st.id}/ads?` + new URLSearchParams({ fields: 'id', limit: '20', access_token: tok.t }));
+      for (const a of (ads.data || [])) await apagar(a.id);
+      await apagar(st.id);
+    }
     await bitacora(env, { quien: b.quien === 'ia' ? 'ia' : 'persona', accion: 'pausar', campaign_id: id, antes: 'ACTIVE', despues: 'PAUSED', motivo: b.motivo || 'Apagada desde la app', ok: true });
     return json({ ok: true, campaign_id: id, estado: 'PAUSADA' });
   } catch (e) {
