@@ -35,6 +35,22 @@
     .muted { color: #9A9AA8; font-size: 14px; }
     .en { border-top: 1px solid #26262F; margin-top: 52px; padding-top: 28px; }
     strong { color: #fff; }
+
+    /* Impresion: el tema oscuro se vuelve ilegible en papel y en PDF porque el
+       navegador no imprime los fondos. Aqui se invierte a negro sobre blanco. */
+    @media print {
+      body { background: #fff; color: #111; padding: 0; }
+      h1, h2, h3, strong { color: #000; }
+      .sub, .muted { color: #444; }
+      a { color: #111; text-decoration: underline; }
+      .mark { background: #E24DA0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .yt, .cero { background: #fff; border: 1px solid #999; }
+      .yt h2, .cero h2 { color: #000; }
+      th, td { border-bottom: 1px solid #bbb; }
+      th { color: #000; }
+      .en { border-top: 1px solid #999; }
+      section, .yt, .cero { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
