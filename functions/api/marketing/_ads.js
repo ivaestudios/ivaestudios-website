@@ -252,7 +252,21 @@ export async function handleAdsCampanas(env, session, url) {
   const tok = await kvJson(env, 'ads_token');
   if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const dias = Math.min(90, Math.max(1, parseInt(url.searchParams.get('dias') || '7', 10) || 7));
-  const preset = dias <= 1 ? 'today' : (dias <= 7 ? 'last_7d' : (dias <= 14 ? 'last_14d' : (dias <= 30 ? 'last_30d' : 'last_90d')));
+  // ⚠️ Los `date_preset` de Meta (last_7d, last_30d…) NO incluyen HOY. Con
+  // ellos, una campaña que está gastando en este momento sale en blanco, que es
+  // justo cuando más se quiere ver. Por eso va rango explícito hasta hoy, con
+  // el reloj de la CUENTA (Meta cierra el día con ese, no con el del servidor).
+  const hoy = (() => {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: cuenta.timezone || 'America/Mexico_City',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+      }).format(new Date());
+    } catch { return new Date().toISOString().slice(0, 10); }
+  })();
+  const d0 = new Date(`${hoy}T12:00:00Z`);
+  d0.setUTCDate(d0.getUTCDate() - (dias - 1));
+  const desde = d0.toISOString().slice(0, 10);
   try {
     const d = await fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
       fields: [
@@ -261,12 +275,12 @@ export async function handleAdsCampanas(env, session, url) {
         // El presupuesto puede vivir en la CAMPANA o en sus CONJUNTOS. Sin esto,
         // una campana con 400/dia en el conjunto se pintaba "sin presupuesto".
         'adsets.limit(10){daily_budget,lifetime_budget,status}',
-        `insights.date_preset(${preset}){spend,impressions,reach,clicks,ctr,cpc,cpm,actions,cost_per_action_type,frequency}`,
+        `insights.time_range({'since':'${desde}','until':'${hoy}'}){spend,impressions,reach,clicks,ctr,cpc,cpm,actions,cost_per_action_type,frequency}`,
       ].join(','),
       limit: '100',
       access_token: tok.t,
     }));
-    return json({ cuenta, dias, preset, campanas: (d && d.data) || [] });
+    return json({ cuenta, dias, desde, hasta: hoy, campanas: (d && d.data) || [] });
   } catch (e) {
     return json({ error: (e && e.message) || 'No se pudo leer las campañas' }, 502);
   }
