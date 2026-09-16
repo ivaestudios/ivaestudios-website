@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150123';
-import { icon } from '../shell/icons.js?v=202609150123';
-import { T, isEN } from '../shell/i18n.js?v=202609150123';
+import { el, clear, toast } from '../api.js?v=202609151941';
+import { icon } from '../shell/icons.js?v=202609151941';
+import { T, isEN } from '../shell/i18n.js?v=202609151941';
 
 const VIEW_ID = 'pauta';
 
@@ -112,7 +112,10 @@ function tarjetaCampana(c, moneda) {
 
   const estado = String(c.effective_status || c.status || '').toUpperCase();
   const activa = estado === 'ACTIVE';
-  const gasto = ins ? (Number(ins.spend) || 0) : 0;
+  // ⚠️ NO llamarle `gasto`: hay una funcion `gasto()` que formatea dinero y la
+  // variable la tapaba dentro de esta funcion. Solo reventaba cuando la campana
+  // SI tenia numeros, que es justo cuando la tarjeta importa.
+  const gastoNum = ins ? (Number(ins.spend) || 0) : 0;
 
   const accion = async (ruta, btn, txtCargando, ok) => {
     btn.disabled = true;
@@ -146,7 +149,7 @@ function tarjetaCampana(c, moneda) {
   botones.push(bPrender);
   // Borrar SOLO si nunca gastó: con gasto, el historial es lo que sirve para
   // decidir, y borrarlo lo tira a la basura. El backend lo vuelve a comprobar.
-  if (!gasto) {
+  if (!gastoNum) {
     const bBorrar = el('button', {
       class: 'btn btn-sm pauta-card__del', type: 'button',
       text: T('Borrar', 'Delete'),
@@ -319,7 +322,10 @@ async function render() {
 
   if (recientes.length) {
     lista.appendChild(el('div', { class: 'pauta-sec', text: T('Nuevas, sin gastar todavía', 'New, nothing spent yet') }));
-    for (const c of recientes) lista.appendChild(tarjetaCampana(c, moneda));
+    for (const c of recientes) {
+      try { lista.appendChild(tarjetaCampana(c, moneda)); }
+      catch (e) { console.error('[pauta] tarjeta', c && c.id, e); }
+    }
     if (conGasto.length) lista.appendChild(el('div', { class: 'pauta-sec', text: T('Con gasto en este periodo', 'With spend in this period') }));
   }
 
@@ -329,7 +335,12 @@ async function render() {
       'Try a wider range above.',
     )));
   }
-  for (const c of conGasto) lista.appendChild(tarjetaCampana(c, moneda));
+  // Una tarjeta que reviente no puede llevarse la lista entera por delante:
+  // asi fue como un error de una variable dejo la pantalla vacia sin avisar.
+  for (const c of conGasto) {
+    try { lista.appendChild(tarjetaCampana(c, moneda)); }
+    catch (e) { console.error('[pauta] tarjeta', c && c.id, e); }
+  }
 
   if (sinGasto.length) {
     const masHost = el('div', { class: 'pauta-mas' });
@@ -486,7 +497,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150123';
+  link.href = '/marketing/css/pauta.css?v=202609151941';
   document.head.appendChild(link);
 }
 
