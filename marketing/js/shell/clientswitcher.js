@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609161659';
-import { openSheet } from './sheet.js?v=202609161659';
-import { toast } from './toast.js?v=202609161659';
-import * as store from './store.js?v=202609161659';
-import { icon } from './icons.js?v=202609161659';
-import { T, isEN } from './i18n.js?v=202609161659';
+import { api, el } from '../api.js?v=202609161710';
+import { openSheet } from './sheet.js?v=202609161710';
+import { toast } from './toast.js?v=202609161710';
+import * as store from './store.js?v=202609161710';
+import { icon } from './icons.js?v=202609161710';
+import { T, isEN } from './i18n.js?v=202609161710';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
@@ -305,7 +305,7 @@ export function openEditClient(client, { selectClient } = {}) {
             el('label', { class: 'label', text: T('Instagram (métricas para el reporte)', 'Instagram (metrics for the report)') }),
             client.ig_username
               ? el('div', { class: 'cs-igrow' }, [
-                  el('span', { class: 'cs-igok', text: `✅ @${client.ig_username} ${T('conectado', 'connected')}` }),
+                  el('span', { class: 'cs-igok', text: `✅ Instagram · @${client.ig_username}` }),
                   el('button', {
                     class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
                     onclick: async (e) => {
@@ -328,7 +328,7 @@ export function openEditClient(client, { selectClient } = {}) {
                   },
                 }, [icon('camera', 16), el('span', { text: T('Conectar Instagram', 'Connect Instagram') })]),
             client.fb_page_name
-              ? el('div', { class: 'cs-igrow', text: '📘 ' + client.fb_page_name })
+              ? el('div', { class: 'cs-igrow', text: 'Facebook · ' + client.fb_page_name })
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
@@ -338,7 +338,7 @@ export function openEditClient(client, { selectClient } = {}) {
                   },
                 }, [icon('link', 16), el('span', { text: T('Conectar Facebook', 'Connect Facebook') })]),
             client.tt_username
-              ? el('div', { class: 'cs-igrow', text: '🎵 ' + client.tt_username })
+              ? el('div', { class: 'cs-igrow', text: 'TikTok · ' + client.tt_username })
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
@@ -352,7 +352,7 @@ export function openEditClient(client, { selectClient } = {}) {
               // la revision de cumplimiento de YouTube pide que el permiso se pueda
               // retirar desde la propia app, y el backend ademas lo REVOCA en Google.
               ? el('div', { class: 'cs-igrow' }, [
-                  el('span', { text: '▶️ ' + client.yt_channel_title }),
+                  el('span', { text: 'YouTube · ' + client.yt_channel_title }),
                   el('button', {
                     class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
                     onclick: async (e) => {
