@@ -19,12 +19,12 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609161514">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609161514">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609161514">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609161641">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609161641">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609161641">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609161514">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609161514">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609161641">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609161641">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -58,6 +58,15 @@
     .puerta b { display:block; font-size:14px; color:var(--text,#ECECF1); margin-bottom:3px; }
     .puerta span { font-size:12px; line-height:1.45; }
     @media (max-width:380px) { .puertas { grid-template-columns:1fr; } }
+    /* Pie legal de la pantalla de entrada */
+    .pie-legal {
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+      gap: 10px; padding: 26px 18px 34px; font-size: 13px;
+    }
+    .pie-legal a { color: inherit; opacity: .72; text-decoration: none; }
+    .pie-legal a:hover { opacity: 1; text-decoration: underline; }
+    .pie-legal span { opacity: .38; }
+
 </style>
 </head>
 <body>
@@ -189,7 +198,7 @@
           <input type="checkbox" id="sgEula" class="eula__box" required>
           <span class="eula__txt">
             Acepto los <a href="/marketing/terminos" target="_blank" rel="noopener">Términos de Uso</a>
-            y el <a href="/privacy-policy" target="_blank" rel="noopener">Aviso de Privacidad</a>.
+            y el <a href="/marketing/privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>.
             Entiendo que hay <strong>tolerancia cero al contenido ofensivo y a los usuarios abusivos</strong>,
             y que el contenido que incumpla se elimina y la cuenta se desactiva.
           </span>
@@ -252,11 +261,23 @@
     </section>
   </main>
 
+  <!-- Pie legal SIEMPRE visible en la pantalla de entrada. No es adorno: la
+       revision de cumplimiento de YouTube (y las tiendas) exigen poder llegar
+       al aviso de privacidad desde la pagina principal, sin tener que abrir el
+       formulario de registro. -->
+  <footer class="pie-legal">
+    <a href="/marketing/privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>
+    <span aria-hidden="true">·</span>
+    <a href="/marketing/terminos" target="_blank" rel="noopener">Términos de Uso</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://ivaestudios.com" target="_blank" rel="noopener">IVAE Estudios</a>
+  </footer>
+
   <div class="toast-host" role="status" aria-live="polite"></div>
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202609161514"></script>
+  <script src="/marketing/js/login-en.js?v=202609161641"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';
