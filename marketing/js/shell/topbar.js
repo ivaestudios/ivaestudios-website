@@ -10,19 +10,19 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609190114';
-import * as store from './store.js?v=202609190114';
-import { openSheet, pickFrom } from './sheet.js?v=202609190114';
-import { toast } from './toast.js?v=202609190114';
-import { icon } from './icons.js?v=202609190114';
-import { openClientSwitcher } from './clientswitcher.js?v=202609190114';
-import { T, isEN, setLang } from './i18n.js?v=202609190114';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609191545';
+import * as store from './store.js?v=202609191545';
+import { openSheet, pickFrom } from './sheet.js?v=202609191545';
+import { toast } from './toast.js?v=202609191545';
+import { icon } from './icons.js?v=202609191545';
+import { openClientSwitcher } from './clientswitcher.js?v=202609191545';
+import { T, isEN, setLang } from './i18n.js?v=202609191545';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609190114';
-import { getTheme, setTheme } from './theme.js?v=202609190114';
-import * as version from './version.js?v=202609190114';
-import * as tienda from './tienda.js?v=202609190114';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609190114';
+import { abrirBloqueados } from './moderacion.js?v=202609191545';
+import { getTheme, setTheme } from './theme.js?v=202609191545';
+import * as version from './version.js?v=202609191545';
+import * as tienda from './tienda.js?v=202609191545';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609191545';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -800,9 +800,12 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
   function showClientCredentials({ brand, email, password }) {
     const url = 'https://ivaestudios.com/marketing/client';
+    // El cliente también usa la app (2026-09-19): en iPhone la baja de App
+    // Store; en Android o computadora entra por el enlace, sin instalar nada.
+    const app = tienda.APP_STORE_URL;
     const msg = T(
-      `Hola! Ya está listo tu calendario de contenido de ${brand.name}.\n\nEntra aquí para verlo y aprobarlo: ${url}\nUsuario: ${email}\nContraseña: ${password}\n\nVas a ver tu calendario por meses y puedes aprobar o pedir cambios en cada publicación.`,
-      `Hi! Your ${brand.name} content calendar is ready.\n\nSign in here to view and approve it: ${url}\nUsername: ${email}\nPassword: ${password}\n\nYou'll see your calendar by month and you can approve or request changes on each post.`,
+      `Hola! Ya está listo tu calendario de contenido de ${brand.name}.\n\nDescarga la app IVAE Marketing en tu iPhone: ${app}\nEn Android o computadora entra aquí: ${url}\n\nUsuario: ${email}\nContraseña: ${password}\n\nVas a ver tu calendario por meses y puedes aprobar o pedir cambios en cada publicación. Te llega un aviso cuando tengas algo por revisar.`,
+      `Hi! Your ${brand.name} content calendar is ready.\n\nDownload the IVAE Marketing app on your iPhone: ${app}\nOn Android or a computer, sign in here: ${url}\n\nUsername: ${email}\nPassword: ${password}\n\nYou'll see your calendar by month and you can approve or request changes on each post. You get a notification when something needs your review.`,
     );
     openSheet({
       title: T('Acceso listo', 'Access ready'),
@@ -810,7 +813,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       build(body, close) {
         body.append(
           el('p', { class: 'acct-intro', text: T(`Comparte estos datos con ${brand.name}. La contraseña se muestra una sola vez.`, `Share these details with ${brand.name}. The password is shown only once.`) }),
-          credRow('Portal', url),
+          credRow(T('App para iPhone', 'iPhone app'), app),
+          credRow(T('Android o computadora', 'Android or computer'), url),
           credRow(T('Usuario', 'Username'), email),
           credRow(T('Contraseña', 'Password'), password || '—'),
           el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Copiar mensaje para enviar', 'Copy message to send'), onclick: async () => { await copyText(msg); toast(T('Mensaje copiado. Pégalo en WhatsApp.', 'Message copied. Paste it into WhatsApp.'), { type: 'success' }); } }),
