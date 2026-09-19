@@ -18,9 +18,9 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202609161713';
-import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202609161713';
-import { T } from '../shell/i18n.js?v=202609161713';
+} from '../api.js?v=202609181920';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202609181920';
+import { T } from '../shell/i18n.js?v=202609181920';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 

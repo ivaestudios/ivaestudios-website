@@ -19,8 +19,8 @@
 //   - 401 a mitad de sesion: toast breve + redirect al login (sin atrapamiento).
 // ============================================================================
 
-import { api, parseDate, ymd } from '../api.js?v=202609161713';
-import { toast } from '../shell/toast.js?v=202609161713';
+import { api, parseDate, ymd } from '../api.js?v=202609181920';
+import { toast } from '../shell/toast.js?v=202609181920';
 
 const TAB_KEY = 'mkt.portal.tab';
 const DETAIL_TTL = 60 * 1000;   // cache de GET /posts/:id
