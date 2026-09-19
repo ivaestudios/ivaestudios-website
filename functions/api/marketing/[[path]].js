@@ -1858,8 +1858,12 @@ async function handleCreateUser(request, env, session) {
   if (role !== 'team' && role !== 'client') return json({ error: "role must be 'team' or 'client'" }, 400);
   if (role === 'client') {
     if (!client_id) return json({ error: 'client_id required for a client login' }, 400);
-    const c = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(client_id).first();
-    if (!c) return json({ error: 'client_id does not exist' }, 400);
+    // El acceso de cliente solo se amarra a una marca de TU workspace. Sin
+    // esto, una agencia que conociera el id de una marca ajena podía colgarle
+    // un login (el candado del router lo dejaba en 403, pero no debe existir).
+    if (!(await marcaEsDeMiWorkspace(env, session, client_id))) {
+      return json({ error: 'client_id does not exist' }, 400);
+    }
   }
 
   const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(em).first();
