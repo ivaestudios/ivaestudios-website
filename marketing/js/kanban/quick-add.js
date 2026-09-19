@@ -14,9 +14,9 @@
 // en el store; aqui solo toast de exito).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609190055';
-import { icon } from '../shell/icons.js?v=202609190055';
-import { T } from '../shell/i18n.js?v=202609190055';
+import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609190102';
+import { icon } from '../shell/icons.js?v=202609190102';
+import { T } from '../shell/i18n.js?v=202609190102';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');

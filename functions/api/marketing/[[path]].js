@@ -1344,10 +1344,11 @@ async function handleSignup(request, env) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const name = String((bodyObj || {}).name || '').trim();
   const brand = String((bodyObj || {}).brand || '').trim();
-  // DOS PUERTAS (2026-09-14): quien se registra dice si viene por su marca o
-  // por su agencia. Las dos abren un workspace propio y aislado; cambia el
-  // tipo (para los planes y el onboarding) y la primera marca que se crea.
-  const tipo = String((bodyObj || {}).tipo || 'marca').toLowerCase() === 'agencia' ? 'agencia' : 'marca';
+  // Toda cuenta que se crea sola es de AGENCIA (regla de Vianey, 2026-09-19).
+  // Lo único que no es agencia son los accesos que esa agencia les da a sus
+  // propios clientes (POST /users, role 'client'). Se ignora cualquier `tipo`
+  // que mande una versión vieja de la pantalla.
+  const tipo = 'agencia';
   const email = String((bodyObj || {}).email || '').trim().toLowerCase();
   const password = String((bodyObj || {}).password || '');
   if (!name || !brand || !email || !password) return json({ error: 'Nombre, marca, email y contraseña son obligatorios.' }, 400);

@@ -19,12 +19,12 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609190055">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609190055">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609190055">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609190102">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609190102">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609190102">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609190055">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609190055">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609190102">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609190102">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -46,18 +46,6 @@
     .eula__txt a { color:#E24DA0; text-decoration:underline; }
     .eula__txt strong { color:var(--text,#ECECF1); }
     .btn-primary[disabled] { opacity:.45; cursor:not-allowed; }
-    /* LAS DOS PUERTAS del registro: una marca que se maneja sola no necesita
-       lo mismo que una agencia que lleva clientes. Se elige antes de escribir
-       nada, porque cambia lo que se crea del otro lado. */
-    .puertas { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 var(--s-5); }
-    .puerta { display:block; text-align:left; padding:13px 14px; border-radius:12px; cursor:pointer;
-      border:1px solid var(--border,#26262F); background:rgba(255,255,255,.03);
-      color:var(--text-dim,#9A9AA8); font:inherit; transition:border-color .15s, background .15s; }
-    .puerta:hover { border-color:#3A3A4A; }
-    .puerta.is-on { border-color:#E24DA0; background:rgba(226,77,160,.10); color:var(--text,#ECECF1); }
-    .puerta b { display:block; font-size:14px; color:var(--text,#ECECF1); margin-bottom:3px; }
-    .puerta span { font-size:12px; line-height:1.45; }
-    @media (max-width:380px) { .puertas { grid-template-columns:1fr; } }
     /* El cliente de una agencia NO crea cuenta: su agencia le da el acceso.
        Sin este aviso, el cliente que baja la app y toca "Crear cuenta" termina
        en un espacio vacío suyo en vez del calendario de su agencia. */
@@ -175,16 +163,6 @@
           <p><b>¿Tu agencia te dio acceso?</b>No crees cuenta. Entra con el usuario que te mandó.</p>
           <button type="button" id="sgSoyCliente">Entrar</button>
         </div>
-        <div class="puertas" role="radiogroup" aria-label="Tipo de cuenta">
-          <button type="button" class="puerta is-on" id="pAgencia" role="radio" aria-checked="true">
-            <b>Para mi agencia</b>
-            <span>Llevo el contenido de varios clientes.</span>
-          </button>
-          <button type="button" class="puerta" id="pMarca" role="radio" aria-checked="false">
-            <b>Para mi marca</b>
-            <span>Llevo el contenido de mi negocio.</span>
-          </button>
-        </div>
         <div class="field">
           <label class="label" for="sgName">Tu nombre</label>
           <div class="input-wrap"><input class="input" id="sgName" type="text" autocomplete="name" placeholder="Ana Pérez" required></div>
@@ -295,7 +273,7 @@
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202609190055"></script>
+  <script src="/marketing/js/login-en.js?v=202609190102"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';
@@ -542,7 +520,11 @@
       toggleSetup.hidden = view !== 'login';
       if (view === 'signup') {
         titleEl.textContent = demoEN ? 'Create your account' : 'Crea tu cuenta';
-        pintarPuertas();
+        // Toda cuenta que se crea sola es de AGENCIA (regla de Vianey 2026-09-19).
+        // Lo único que no es agencia son los accesos que ella les da a sus clientes.
+        subEl.textContent = demoEN
+          ? 'Your agency, your clients, each in its place. Free in 30 seconds.'
+          : 'Tu agencia, tus clientes, cada uno en su lugar. Gratis en 30 segundos.';
         toSignup.textContent = demoEN ? 'Already have an account? Sign in' : '¿Ya tienes cuenta? Inicia sesión';
         document.getElementById('sgName').focus();
       } else if (view === 'forgot') {
@@ -573,35 +555,8 @@
       sgEulaBox.addEventListener('change', syncEula);
       syncEula();
     }
-    // Las dos puertas: cambian lo que se crea y el texto del campo de marca.
-    // La app es para agencias, así que la puerta de agencia viene encendida.
-    let tipoCuenta = 'agencia';
-    const TXT_PUERTA = demoEN ? {
-      agencia: ['Your first client', 'Aurora Cafe', 'Your agency, your clients, each in its place. Free in 30 seconds.'],
-      marca: ['Your brand or business', 'Aurora Cafe', 'Your brand, your content calendar. Free in 30 seconds.'],
-    } : {
-      agencia: ['Tu primer cliente', 'Café Aurora', 'Tu agencia, tus clientes, cada uno en su lugar. Gratis en 30 segundos.'],
-      marca: ['Tu marca o negocio', 'Café Aurora', 'Tu marca, tu calendario de contenido. Gratis en 30 segundos.'],
-    };
-    function pintarPuertas() {
-      const pM = document.getElementById('pMarca');
-      const pA = document.getElementById('pAgencia');
-      if (!pM || !pA) return;
-      const agencia = tipoCuenta === 'agencia';
-      const [etiqueta, ejemplo, sub] = TXT_PUERTA[tipoCuenta];
-      pM.classList.toggle('is-on', !agencia); pM.setAttribute('aria-checked', String(!agencia));
-      pA.classList.toggle('is-on', agencia);  pA.setAttribute('aria-checked', String(agencia));
-      const lbl = document.getElementById('sgBrandLabel');
-      const campo = document.getElementById('sgBrand');
-      if (lbl) lbl.textContent = etiqueta;
-      if (campo) campo.placeholder = ejemplo;
-      if (subEl && !signupForm.hidden) subEl.textContent = sub;
-    }
-    document.getElementById('pMarca').addEventListener('click', () => { tipoCuenta = 'marca'; pintarPuertas(); });
-    document.getElementById('pAgencia').addEventListener('click', () => { tipoCuenta = 'agencia'; pintarPuertas(); });
     // El cliente invitado regresa al login con un toque.
     document.getElementById('sgSoyCliente').addEventListener('click', () => showView('login'));
-    pintarPuertas();
 
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -618,7 +573,7 @@
       const b = document.getElementById('sgBtn');
       b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
       try {
-        const user = await api.post('/auth/signup', { name, brand, email, password, tipo: tipoCuenta, eula_accepted: true, eula_version: '2026-08' });
+        const user = await api.post('/auth/signup', { name, brand, email, password, tipo: 'agencia', eula_accepted: true, eula_version: '2026-08' });
         toast('¡Bienvenido, ' + name.split(' ')[0] + '! Tu espacio está listo.', 'success', 2000);
         goToApp(user);
       } catch (err) {
