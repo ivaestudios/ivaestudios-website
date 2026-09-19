@@ -1467,6 +1467,7 @@ tr.meses-row--ph td {
 .pp-paso__txt span { font-size: 12.5px; line-height: 1.5; color: var(--text-dim); }
 .pp-paso--ok .pp-paso__txt b { color: var(--text-dim); }
 .pp-paso .btn { flex: none; align-self: center; }
+.pp-espera { margin-bottom: 4px; }
 .pp-otra {
   margin-top: 14px; padding: 10px 0 0; border: 0; border-top: 1px solid var(--border);
   background: none; color: var(--brand); font: inherit; font-size: 13px; font-weight: 600;
@@ -1476,5 +1477,9 @@ tr.meses-row--ph td {
 @media (max-width: 560px) {
   .pp-card { margin: 14px 0; padding: 18px 16px 14px; }
   .pp-paso { flex-wrap: wrap; }
+  /* El texto ocupa todo el renglón junto al circulito y el botón baja al
+     siguiente. Con flex-basis auto el texto medía su frase entera y brincaba
+     DEBAJO del circulito (medido en iPhone, 2026-09-19). */
+  .pp-paso__txt { flex-basis: calc(100% - 34px); }
   .pp-paso .btn { margin-left: 34px; }
 }

@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609190102';
-import { icon, iconMarca } from '../shell/icons.js?v=202609190102';
-import { T } from '../shell/i18n.js?v=202609190102';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609190102';
-import { confirmar } from '../shell/sheet.js?v=202609190102';
-import { openEditClient, openNewClient } from '../shell/clientswitcher.js?v=202609190102';
+} from '../api.js?v=202609190110';
+import { icon, iconMarca } from '../shell/icons.js?v=202609190110';
+import { T } from '../shell/i18n.js?v=202609190110';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609190110';
+import { confirmar } from '../shell/sheet.js?v=202609190110';
+import { openNewClient } from '../shell/clientswitcher.js?v=202609190110';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609190102';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609190102';
+import { errorCard } from '../ui/states.js?v=202609190110';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609190110';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609190102';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609190110';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609190102';
+} from '../lib/video-upload.js?v=202609190110';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1972,8 +1972,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609190102');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609190102');
+        const mod = await import('../lib/pdf-contenido.js?v=202609190110');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609190110');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -1996,12 +1996,32 @@ function buildPdfContenidoBtn(key, rows) {
 }
 
 // Los tres pasos del primer día. Solo aparece con el calendario 100% vacío.
+// 2026-09-19: el camino que SÍ funciona para cualquier agencia es darle acceso
+// a su cliente, llenar el mes y que el cliente lo apruebe. Antes el paso 1 era
+// "Conecta la cuenta" y prometía que "la app publica sola", pero Meta aún no
+// aprueba publicar en cuentas que no son de IVAE; y la agencia no tenía pista
+// de dónde darle acceso a su cliente (vivía escondido en el menú de su foto).
 function buildPrimerosPasos(key) {
   const st = ctx.store.getState();
   const { activeClientId } = st;
   const marca = (st.clients || []).find((c) => c.id === activeClientId) || null;
-  const conectada = !!(marca && (marca.ig_username || marca.fb_page_name || marca.tt_username || marca.yt_channel_title));
   const esCliente = isClientRole();
+
+  // El cliente NO arma nada: espera a que su agencia le prepare el mes.
+  if (esCliente) {
+    return el('div', { class: 'meses-empty pp-card' }, [
+      el('h3', { class: 'pp-t', text: T('Tu mes se está preparando', 'Your month is being prepared') }),
+      el('p', { class: 'pp-s pp-espera', text: T(
+        'Tu agencia está armando tu contenido. Cuando esté listo te aparece aquí y te avisamos para que lo revises y lo apruebes con un toque.',
+        'Your agency is putting your content together. When it is ready it shows up here and we let you know, so you can review and approve it with one tap.') }),
+    ]);
+  }
+
+  // ¿Esta marca ya tiene acceso de cliente? La lista de usuarios se carga sola
+  // la primera vez; al llegar, la vista se vuelve a pintar (suscrita a 'users').
+  const users = st.users;
+  if (!Array.isArray(users) && ctx.store.loadUsers) ctx.store.loadUsers().catch(() => {});
+  const conAcceso = Array.isArray(users) && users.some((u) => u.role === 'client' && u.client_id === activeClientId);
 
   const fila = (hecho, titulo, sub, boton) => el('div', { class: 'pp-paso' + (hecho ? ' pp-paso--ok' : '') }, [
     el('span', { class: 'pp-paso__n', text: hecho ? '✓' : '' }),
@@ -2014,27 +2034,27 @@ function buildPrimerosPasos(key) {
 
   const kids = [
     el('h3', { class: 'pp-t', text: T('Empieza aquí', 'Start here') }),
-    el('p', { class: 'pp-s', text: T('Tres pasos y la app publica sola.', 'Three steps and the app publishes on its own.') }),
+    el('p', { class: 'pp-s', text: T('Tres pasos para que tu cliente apruebe su mes desde el teléfono.', 'Three steps so your client approves their month from their phone.') }),
   ];
 
   kids.push(fila(
-    conectada,
-    T('1 · Conecta la cuenta', '1 · Connect the account'),
-    T('Instagram, y si quieres Facebook, TikTok o YouTube. Sin esto la app no puede publicar por ti.',
-      'Instagram, plus Facebook, TikTok or YouTube if you want. Without this the app cannot publish for you.'),
-    marca && !esCliente ? el('button', {
+    conAcceso,
+    T('1 · Dale acceso a tu cliente', '1 · Give your client access'),
+    T('Le creas su usuario y entra a ver solo su calendario, nada de tus otras marcas.',
+      'You create their login and they only see their own calendar, none of your other brands.'),
+    marca ? el('button', {
       class: 'btn btn-primary btn-sm', type: 'button',
-      text: T('Conectar', 'Connect'),
-      onclick: () => openEditClient(marca, { selectClient: (id) => ctx.selectClient && ctx.selectClient(id) }),
+      text: T('Crear acceso', 'Create access'),
+      onclick: () => window.dispatchEvent(new CustomEvent('mkt:crear-acceso', { detail: { clientId: marca.id } })),
     }) : null,
   ));
 
   kids.push(fila(
     false,
-    T('2 · Llena tu mes', '2 · Fill your month'),
+    T('2 · Llena el mes', '2 · Fill the month'),
     T('Deja que la IA lo escriba con la voz de la marca, o agrégalo tú con Nueva línea.',
       'Let the AI write it in the brand voice, or add it yourself with New row.'),
-    esCliente ? null : el('button', {
+    el('button', {
       class: 'btn btn-sm', type: 'button',
       text: T('Generar mes (IA)', 'Generate month (AI)'),
       onclick: () => {
@@ -2046,19 +2066,17 @@ function buildPrimerosPasos(key) {
 
   kids.push(fila(
     false,
-    T('3 · Apruébalo y olvídate', '3 · Approve it and forget it'),
-    T('Ponle fecha y hora, márcalo Programado, y a esa hora sale solo a las cuentas conectadas.',
-      'Set a date and time, mark it Scheduled, and it goes out on its own to the connected accounts.'),
+    T('3 · Tu cliente lo aprueba', '3 · Your client approves it'),
+    T('Le llega el aviso, revisa cada pieza y la aprueba o te pide cambios con un toque.',
+      'They get a notification, review each piece and approve it or ask for changes with one tap.'),
     null,
   ));
 
-  if (!esCliente) {
-    kids.push(el('button', {
-      class: 'pp-otra', type: 'button',
-      text: T('¿Llevas varias marcas? Agrega la siguiente', 'Managing several brands? Add the next one'),
-      onclick: () => openNewClient({ selectClient: (id) => ctx.selectClient && ctx.selectClient(id) }),
-    }));
-  }
+  kids.push(el('button', {
+    class: 'pp-otra', type: 'button',
+    text: T('¿Llevas varias marcas? Agrega la siguiente', 'Managing several brands? Add the next one'),
+    onclick: () => openNewClient({ selectClient: (id) => ctx.selectClient && ctx.selectClient(id) }),
+
 
   return el('div', { class: 'meses-empty pp-card' }, kids);
 }
@@ -2189,8 +2207,9 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // rejilla vacía con ocho botones del mismo peso y ninguna pista de por
     // dónde empezar; lo único que se le ofrecía era "agrega una línea", que es
     // justo la acción que menos enseña lo que hace la app. Aquí van los tres
-    // pasos en orden, y el primero es el que de verdad enciende el producto:
-    // conectar la cuenta. La tarjeta se va sola en cuanto hay una pieza.
+    // pasos en orden (acceso del cliente, llenar el mes, aprobación). Al
+    // cliente le dice que su agencia le está preparando el mes. La tarjeta se
+    // va sola en cuanto hay una pieza.
     const paso = buildPrimerosPasos(key);
     if (paso) bodyKids.push(paso);
   } else if (Object.values(getFilters()).some(Boolean)) {
@@ -2869,7 +2888,8 @@ export default {
     host.appendChild(rootEl);
 
     unsubs.push(
-      ctx.store.subscribe(['posts', 'loading', 'activeClientId', 'clients', 'postsError'], scheduleRender),
+      // 'users': la tarjeta de primeros pasos palomea "Dale acceso a tu cliente".
+      ctx.store.subscribe(['posts', 'loading', 'activeClientId', 'clients', 'postsError', 'users'], scheduleRender),
       // Regla anti popovers huerfanos: antes de procesar posts:changed se
       // cierran sheets/pickers abiertos (su anchor pudo dejar de existir).
       // OJO: si el evento viene de una mutación de ESTA vista que resolvió

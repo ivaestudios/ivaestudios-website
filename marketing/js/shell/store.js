@@ -27,8 +27,8 @@
 //   'view:applied'.
 // ============================================================================
 
-import { api, toast } from '../api.js?v=202609190102';
-import { T } from './i18n.js?v=202609190102';
+import { api, toast } from '../api.js?v=202609190110';
+import { T } from './i18n.js?v=202609190110';
 
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
 
