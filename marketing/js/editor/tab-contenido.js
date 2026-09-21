@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609211337';
-import { pickFrom } from '../shell/sheet.js?v=202609211337';
-import * as store from '../shell/store.js?v=202609211337';
-import * as checklistService from '../services/checklist.js?v=202609211337';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609211337';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube } from './canales.js?v=202609211337';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609211337';
-import { T } from '../shell/i18n.js?v=202609211337';
+} from '../api.js?v=202609211346';
+import { pickFrom } from '../shell/sheet.js?v=202609211346';
+import * as store from '../shell/store.js?v=202609211346';
+import * as checklistService from '../services/checklist.js?v=202609211346';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609211346';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609211346';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609211346';
+import { T } from '../shell/i18n.js?v=202609211346';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -255,6 +255,13 @@ export function mount(host, ed) {
     render: (v) => v.appendChild(el('span', { text: resumenYouTube(post()) })),
     onTap: () => openYouTubeSheet(ed, { onSaved: () => { sincronizarCanales(); } }),
   });
+  // Ya subido: la app lee el video DE VUELTA en el canal y ensena lo que
+  // YouTube contesta (canal, privacidad, fecha) sin abrir YouTube Studio.
+  const rYouTubeVideo = rowButton({
+    label: T('El video en YouTube', 'The video on YouTube'),
+    render: (v) => v.appendChild(el('span', { text: T('Ver lo que dice el canal', 'See what the channel says') })),
+    onTap: () => openYouTubeVideoSheet(ed),
+  });
 
   // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
   // error solo vivía en la columna y en un aviso que se pierde en la lista.
@@ -265,7 +272,8 @@ export function mount(host, ed) {
     const p = post();
     rTikTokOpts.el.hidden = !p.also_tiktok;
     rYouTubeOpts.el.hidden = !p.also_youtube;
-    try { rTikTokOpts.refresh(); rYouTubeOpts.refresh(); } catch { /* noop */ }
+    rYouTubeVideo.el.hidden = !p.yt_video_id;
+    try { rTikTokOpts.refresh(); rYouTubeOpts.refresh(); rYouTubeVideo.refresh(); } catch { /* noop */ }
     const fallos = [
       p.fb_error ? `Facebook: ${p.fb_error}` : null,
       p.tt_error ? `TikTok: ${p.tt_error}` : null,
@@ -326,13 +334,13 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rNotas, ...personRows]),
+    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, avisoCanales]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 

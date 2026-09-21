@@ -196,6 +196,48 @@ export async function handleYtEstado(env, session, url) {
   });
 }
 
+// GET /yt/video?client_id=…&video_id=… (staff) — LEER DE VUELTA el video en el
+// canal (videos.list, part=snippet,status,contentDetails; cuesta 1 unidad de
+// cuota). Sirve para que el equipo confirme DESDE LA APP que la subida quedó
+// en el canal correcto y con la privacidad correcta, sin tener que abrir
+// YouTube Studio: la misma regla de la casa que con Meta, todo desde la app.
+export async function handleYtVideo(env, session, url) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  const clientId = url.searchParams.get('client_id') || '';
+  const videoId = String(url.searchParams.get('video_id') || '').trim();
+  if (!/^[A-Za-z0-9_-]{5,24}$/.test(videoId)) return json({ error: 'Falta el id del video.' }, 400);
+  const c = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!c) return json({ error: 'Cliente no encontrado' }, 404);
+  let tok;
+  try {
+    tok = await tokenYouTubeVigente(env, clientId);
+  } catch (e) {
+    return json({ error: (e && e.message) || 'Esta marca no tiene YouTube conectado.' }, 422);
+  }
+  const r = await fetch(`${YT_API}/videos?part=snippet,status,contentDetails&id=${encodeURIComponent(videoId)}`, {
+    headers: { Authorization: `Bearer ${tok}` },
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) return json({ error: mensajeYouTube(d, r.status) }, 422);
+  const v = (d.items || [])[0];
+  if (!v) return json({ error: 'YouTube ya no encuentra ese video en el canal.' }, 404);
+  const sn = v.snippet || {};
+  const st = v.status || {};
+  const th = sn.thumbnails || {};
+  return json({
+    id: v.id,
+    titulo: sn.title || '',
+    canal: sn.channelTitle || '',
+    canal_id: sn.channelId || '',
+    privacidad: st.privacyStatus || '',
+    para_ninos: st.madeForKids === true,
+    subido: sn.publishedAt || '',
+    duracion: (v.contentDetails || {}).duration || '',
+    miniatura: (th.medium || th.default || {}).url || '',
+    url: 'https://youtu.be/' + v.id,
+  });
+}
+
 // POST /yt/disconnect { client_id } (staff) — desconectar la marca de YouTube.
 //
 // ⚠️ NO basta con borrar los tokens de nuestra base: la politica de los

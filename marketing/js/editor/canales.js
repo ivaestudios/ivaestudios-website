@@ -19,9 +19,9 @@
 // publicador del backend).
 // ============================================================================
 
-import { el, api } from '../api.js?v=202609211337';
-import { T } from '../shell/i18n.js?v=202609211337';
-import { openSheet } from '../shell/sheet.js?v=202609211337';
+import { el, api } from '../api.js?v=202609211346';
+import { T } from '../shell/i18n.js?v=202609211346';
+import { openSheet } from '../shell/sheet.js?v=202609211346';
 
 // Fila de opción única (radio) con el mismo lenguaje visual de los pickers.
 function filaOpcion({ label, sub, activa, onPick }) {
@@ -252,6 +252,65 @@ export function openYouTubeSheet(ed, { onSaved } = {}) {
             'Until YouTube approves the project, everything uploads as PRIVATE even if you pick public: the video waits in YouTube Studio.',
           );
         }
+      })();
+    },
+  });
+}
+
+// ── YOUTUBE: el video ya en el canal ─────────────────────────────────────────
+// Después de publicar, la app LEE DE VUELTA el video en el canal (videos.list)
+// y enseña lo que YouTube contesta: canal, título, privacidad y fecha. Es la
+// regla de la casa (todo desde la app, no desde el panel del proveedor) y de
+// paso es la prueba de que la subida por API quedó donde debía.
+export function openYouTubeVideoSheet(ed) {
+  const post = ed.getPost() || {};
+  const videoId = post.yt_video_id || '';
+  openSheet({
+    title: T('El video en YouTube', 'The video on YouTube'),
+    mode: 'form',
+    build(body, close) {
+      const estado = el('p', { class: 'help', text: T('Leyendo el canal…', 'Reading the channel…') });
+      const datos = el('div', { class: 'edsection__rows' });
+      const abrir = el('a', {
+        class: 'btn btn-primary sheet-cta', target: '_blank', rel: 'noopener',
+        href: 'https://youtu.be/' + videoId, text: T('Abrir en YouTube', 'Open on YouTube'),
+      });
+      const fila = (etiqueta, valor) => el('div', { class: 'edrow' }, [
+        el('span', { class: 'edrow__main' }, [
+          el('span', { class: 'edrow__label', text: etiqueta }),
+          el('span', { class: 'edrow__sub', text: valor }),
+        ]),
+      ]);
+      body.append(
+        estado,
+        datos,
+        el('div', { class: 'sheet__footer' }, [
+          el('button', { class: 'btn', type: 'button', text: T('Cerrar', 'Close'), onclick: () => close({ source: 'cancel' }) }),
+          abrir,
+        ]),
+      );
+      (async () => {
+        let d;
+        try {
+          d = await api.get(`/yt/video?client_id=${encodeURIComponent(post.client_id)}&video_id=${encodeURIComponent(videoId)}`);
+        } catch (e) {
+          estado.textContent = (e && e.message) || T('No se pudo leer el video en YouTube.', 'Could not read the video on YouTube.');
+          return;
+        }
+        const privacidades = {
+          public: T('Público: cualquiera lo ve', 'Public: anyone can watch it'),
+          unlisted: T('Oculto: solo con el enlace', 'Unlisted: link only'),
+          private: T('Privado: solo el canal', 'Private: channel only'),
+        };
+        estado.textContent = T('YouTube confirma que el video está en el canal:', 'YouTube confirms the video is on the channel:');
+        datos.append(
+          fila(T('Canal', 'Channel'), d.canal || '—'),
+          fila(T('Título', 'Title'), d.titulo || '—'),
+          fila(T('Quién puede verlo', 'Who can watch it'), privacidades[d.privacidad] || d.privacidad || '—'),
+          fila(T('Contenido para niños', 'Made for kids'), d.para_ninos ? T('Sí', 'Yes') : T('No', 'No')),
+          fila(T('Subido', 'Uploaded'), d.subido ? new Date(d.subido).toLocaleString() : '—'),
+          fila('ID', d.id || videoId),
+        );
       })();
     },
   });
