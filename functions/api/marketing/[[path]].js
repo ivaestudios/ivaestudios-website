@@ -5901,6 +5901,22 @@ async function route(request, env, authCtx) {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleUploadPortada(request, env, parts[1]);
   }
+  // ── CONECTOR DE IA (Claude / ChatGPT), UNO POR AGENCIA ──────────────────
+  // Cada agencia crea el suyo y solo alcanza SUS marcas. Nunca se mezclan:
+  // la llave nace con el workspace de quien la crea y el servidor MCP filtra
+  // todas sus consultas por ese workspace.
+  if (parts[0] === 'mcp' && parts[1] === 'claves') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    if (parts.length === 2 && method === 'GET') return handleMcpClavesList(env, session, url);
+    if (parts.length === 2 && method === 'POST') return handleMcpClaveCrear(request, env, session);
+    if (parts.length === 3 && parts[2] === 'revocar' && method === 'POST') return handleMcpClaveRevocar(request, env, session);
+    return json({ error: 'Not found' }, 404);
+  }
+  if (parts[0] === 'mcp' && parts[1] === 'clave-acceso' && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleMcpClaveAcceso(request, env, session);
+  }
+
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     // SOLO ESTE CANAL (21-sep-2026): la hoja manda la lista EXACTA de cuentas
@@ -6741,4 +6757,105 @@ export async function onRequest(context) {
     } catch { /* tabla ausente o BD caída — se ignora */ }
     return json({ error: 'Internal error: ' + (e && e.message ? e.message : 'unknown') }, 500);
   }
+}
+
+
+// ── CONECTOR DE IA POR AGENCIA ───────────────────────────────────────────────
+// Pedido de Vianey (21-sep-2026): "cada uno tiene que tener su propio conector,
+// no pueden mezclarse conectores de las agencias, es de mucho cuidado".
+// La llave se guarda en mkt_mcp_keys CON su workspace_id; el servidor MCP
+// (functions/api/mcp/[[path]].js) filtra por ese workspace en cada consulta de
+// marca, así que una llave jamás puede nombrar ni tocar una marca de otra
+// agencia, ni pidiéndola por su nombre exacto.
+async function handleMcpClavesList(env, session, url) {
+  const ws = wsDeSesion(session);
+  const origin = new URL(url).origin;
+  let rows = [];
+  try {
+    const r = await env.DB.prepare(
+      `SELECT k.token, k.label, k.client_id, COALESCE(k.readonly, 0) AS readonly,
+              COALESCE(k.revoked, 0) AS revoked, k.created_at, c.name AS client_name
+         FROM mkt_mcp_keys k
+         LEFT JOIN mkt_clients c ON c.id = k.client_id
+        WHERE COALESCE(k.workspace_id, 'ivae') = ?
+        ORDER BY k.created_at DESC`
+    ).bind(ws).all();
+    rows = (r && r.results) || [];
+  } catch { rows = []; }
+  let tieneClave = false;
+  try {
+    const p = await env.DB.prepare(
+      "SELECT 1 AS x FROM mkt_mcp_pass WHERE workspace_id = ? AND COALESCE(revoked, 0) = 0 LIMIT 1"
+    ).bind(ws).first();
+    tieneClave = !!p;
+  } catch { tieneClave = false; }
+  return json({
+    claves: rows.map((k) => ({
+      token: k.token,
+      url: `${origin}/api/mcp/${k.token}`,
+      label: k.label || null,
+      client_id: k.client_id || null,
+      client_name: k.client_name || null,
+      readonly: !!k.readonly,
+      revoked: !!k.revoked,
+      created_at: k.created_at,
+    })),
+    tiene_clave_acceso: tieneClave,
+  });
+}
+
+async function handleMcpClaveCrear(request, env, session) {
+  let b; try { b = await request.json(); } catch { b = {}; }
+  const ws = wsDeSesion(session);
+  const label = String((b && b.label) || '').trim().slice(0, 120) || null;
+  const readonly = (b && b.readonly) ? 1 : 0;
+  let clientId = (b && b.client_id) ? String(b.client_id).slice(0, 64) : null;
+  // Una llave fijada a una marca SOLO puede fijarse a una marca propia.
+  if (clientId && !(await marcaEsDeMiWorkspace(env, session, clientId))) {
+    return json({ error: 'Esa marca no es de tu agencia.' }, 400);
+  }
+  const token = randomId() + randomId();   // 64 hex, muy por encima del mínimo
+  try {
+    await env.DB.prepare(
+      'INSERT INTO mkt_mcp_keys (token, label, client_id, readonly, workspace_id) VALUES (?, ?, ?, ?, ?)'
+    ).bind(token, label, clientId, readonly, ws).run();
+  } catch (e) {
+    return json({ error: 'No se pudo crear el conector. ' + ((e && e.message) || '') }, 422);
+  }
+  const origin = new URL(request.url).origin;
+  return json({ ok: true, token, url: `${origin}/api/mcp/${token}` });
+}
+
+async function handleMcpClaveRevocar(request, env, session) {
+  let b; try { b = await request.json(); } catch { b = {}; }
+  const token = String((b && b.token) || '').trim();
+  if (!token) return json({ error: 'Falta el conector a revocar.' }, 400);
+  const ws = wsDeSesion(session);
+  const r = await env.DB.prepare(
+    "UPDATE mkt_mcp_keys SET revoked = 1 WHERE token = ? AND COALESCE(workspace_id, 'ivae') = ?"
+  ).bind(token, ws).run();
+  if (!r || !r.meta || r.meta.changes !== 1) return json({ error: 'Ese conector no es de tu agencia.' }, 404);
+  return json({ ok: true });
+}
+
+// La CLAVE del conector es la que se escribe en la pantalla de autorización de
+// Claude (flujo OAuth). Es por agencia y se guarda solo su hash SHA-256: ni
+// nosotros la podemos leer después, solo cambiarla.
+async function handleMcpClaveAcceso(request, env, session) {
+  let b; try { b = await request.json(); } catch { b = {}; }
+  const pw = String((b && b.clave) || '');
+  if (pw.length < 8) return json({ error: 'La clave debe tener al menos 8 caracteres.' }, 400);
+  const ws = wsDeSesion(session);
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const hash = [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  try {
+    // Una clave viva por agencia: la anterior se retira.
+    await env.DB.prepare('UPDATE mkt_mcp_pass SET revoked = 1 WHERE workspace_id = ?').bind(ws).run();
+    await env.DB.prepare(
+      'INSERT OR REPLACE INTO mkt_mcp_pass (hash, workspace_id, label, revoked) VALUES (?, ?, ?, 0)'
+    ).bind(hash, ws, (session.name || '').slice(0, 80) || null).run();
+  } catch (e) {
+    return json({ error: 'No se pudo guardar la clave. ' + ((e && e.message) || '') }, 422);
+  }
+  return json({ ok: true });
 }

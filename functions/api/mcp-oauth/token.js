@@ -6,11 +6,14 @@ const REFRESH_TTL = 60 * 60 * 24 * 365; // 1 año
 
 export function onRequestOptions() { return corsPreflight(); }
 
-async function issueTokens(env) {
+// El workspace viaja del código al access token y de ahí a cada refresh: si se
+// perdiera, el token caería a 'ivae' y una agencia vería lo que no es suyo.
+async function issueTokens(env, workspaceId) {
+  const ws = workspaceId || 'ivae';
   const access = 'at_' + randHex(28);
   const refresh = 'rt_' + randHex(28);
-  await putOAuth(env, 'token', access, { scope: 'mcp' }, ACCESS_TTL);
-  await putOAuth(env, 'refresh', refresh, { scope: 'mcp' }, REFRESH_TTL);
+  await putOAuth(env, 'token', access, { scope: 'mcp', workspace_id: ws }, ACCESS_TTL);
+  await putOAuth(env, 'refresh', refresh, { scope: 'mcp', workspace_id: ws }, REFRESH_TTL);
   return { access, refresh };
 }
 
@@ -34,7 +37,7 @@ export async function onRequestPost({ request, env }) {
     const challenge = await sha256b64url(verifier);
     if (challenge !== rec.code_challenge) return json({ error: 'invalid_grant', error_description: 'PKCE no coincide.' }, 400);
 
-    const { access, refresh } = await issueTokens(env);
+    const { access, refresh } = await issueTokens(env, rec.workspace_id);
     return json({ access_token: access, token_type: 'Bearer', expires_in: ACCESS_TTL, refresh_token: refresh, scope: 'mcp' });
   }
 
@@ -43,7 +46,7 @@ export async function onRequestPost({ request, env }) {
     const rec = await getOAuth(env, 'refresh', rt);
     if (!rec) return json({ error: 'invalid_grant', error_description: 'refresh_token inválido o expirado.' }, 400);
     await delOAuth(env, 'refresh', rt); // rotación
-    const { access, refresh } = await issueTokens(env);
+    const { access, refresh } = await issueTokens(env, rec.workspace_id);
     return json({ access_token: access, token_type: 'Bearer', expires_in: ACCESS_TTL, refresh_token: refresh, scope: 'mcp' });
   }
 

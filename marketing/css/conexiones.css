@@ -124,3 +124,43 @@
   font-size: var(--fs-2);
   line-height: 1.5;
 }
+
+/* ── Conecta tu IA: el conector MCP de ESTA agencia ───────────────────────── */
+.cx-ia{
+  border:1px solid var(--line, #e6e3ee); border-radius:16px; padding:18px 18px 16px;
+  background:var(--surface, #fff); margin:0 0 22px; display:grid; gap:12px;
+}
+.cx-ia__head{ display:flex; align-items:center; gap:9px; }
+.cx-ia__ico{ display:inline-flex; width:28px; height:28px; border-radius:9px; align-items:center; justify-content:center;
+  background:color-mix(in srgb, var(--brand, #b5179e) 12%, transparent); color:var(--brand, #b5179e); }
+.cx-ia__title{ font-size:16px; font-weight:700; margin:0; }
+.cx-ia__sub{ font-size:13.5px; line-height:1.55; color:var(--text-dim, #6b7280); margin:0; max-width:74ch; }
+.cx-ia__cargando{ padding:14px 0; }
+.cx-ia__lista{ display:grid; gap:10px; }
+.cx-ia__fila{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+  border:1px solid var(--line, #e6e3ee); border-radius:12px; padding:11px 13px;
+  background:var(--surface-2, #faf9fc);
+}
+.cx-ia__datos{ display:grid; gap:4px; min-width:0; flex:1 1 320px; }
+.cx-ia__label{ font-size:12.5px; font-weight:600; }
+.cx-ia__url{
+  font-family:ui-monospace, Menlo, monospace; font-size:12px; color:var(--text-dim, #6b7280);
+  overflow-wrap:anywhere; word-break:break-all; line-height:1.45;
+}
+.cx-ia__acciones{ display:flex; gap:7px; flex-wrap:wrap; }
+.cx-ia__off{ color:#9b2c2c; }
+.cx-ia__aviso{
+  font-size:12.5px; line-height:1.55; margin:0; padding:10px 12px; border-radius:10px;
+  background:color-mix(in srgb, #d97706 10%, transparent); color:var(--text, #1f2430);
+}
+.cx-ia__pasos{ display:grid; gap:8px; }
+.cx-ia__paso{ display:grid; grid-template-columns:78px 1fr; gap:10px; font-size:12.5px; line-height:1.5; }
+.cx-ia__paso b{ font-weight:700; }
+.cx-ia__paso span{ color:var(--text-dim, #6b7280); }
+.cx-ia__crear{ justify-self:start; }
+@media (max-width:560px){
+  .cx-ia__paso{ grid-template-columns:1fr; gap:2px; }
+  .cx-ia__acciones{ width:100%; }
+  .cx-ia__acciones .btn{ flex:1 1 auto; }
+}

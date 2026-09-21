@@ -78,16 +78,20 @@ export async function onRequestPost({ request, env }) {
   const v = await validate(env, params);
   if (!v.ok) return htmlRes(page({ params, error: v.error }), 400);
 
-  if (!(await checkPassword(env, password))) {
+  const dueno = await checkPassword(env, password);
+  if (!dueno) {
     return htmlRes(page({ params, error: 'Clave incorrecta. Intenta de nuevo.' }), 401);
   }
 
-  // Clave correcta -> emite código de autorización (válido 10 min) ligado al PKCE + redirect_uri.
+  // Clave correcta -> emite código de autorización (válido 10 min) ligado al
+  // PKCE + redirect_uri, y CON EL WORKSPACE de la clave: el token que salga de
+  // este código solo alcanza las marcas de esa agencia.
   const code = randHex(24);
   await putOAuth(env, 'code', code, {
     code_challenge: params.code_challenge,
     redirect_uri: params.redirect_uri,
     client_id: params.client_id,
+    workspace_id: dueno.workspaceId,
   }, 600);
 
   const back = new URL(params.redirect_uri);

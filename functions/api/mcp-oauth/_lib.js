@@ -65,9 +65,22 @@ export async function delOAuth(env, kind, id) {
 }
 
 // Verifica la clave de acceso (la "contraseña" del conector) contra el hash en D1.
+// La clave del conector es POR AGENCIA (tabla mkt_mcp_pass, solo el hash).
+// Devuelve el workspace al que pertenece la clave, o null si no existe: de ahí
+// sale el alcance del token, y por eso el Claude de una agencia no puede ver
+// el calendario de otra. La clave vieja (mkt_mcp_oauth config/password) sigue
+// valiendo y cuenta como la de IVAE.
 export async function checkPassword(env, password) {
+  const pw = String(password || '');
+  if (!pw) return null;
+  const h = await sha256hex(pw);
+  try {
+    const row = await env.DB.prepare(
+      "SELECT workspace_id FROM mkt_mcp_pass WHERE hash = ? AND COALESCE(revoked, 0) = 0 LIMIT 1"
+    ).bind(h).first();
+    if (row) return { workspaceId: row.workspace_id || 'ivae' };
+  } catch { /* la tabla puede no existir todavía: cae al camino viejo */ }
   const cfg = await getOAuth(env, 'config', 'password');
-  if (!cfg || !cfg.hash) return false;
-  const h = await sha256hex(String(password || ''));
-  return h === cfg.hash;
+  if (cfg && cfg.hash && cfg.hash === h) return { workspaceId: 'ivae' };
+  return null;
 }

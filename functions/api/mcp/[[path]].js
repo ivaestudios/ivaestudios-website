@@ -177,7 +177,8 @@ async function getKey(env, token) {
   if (t.length < MIN_TOKEN_LEN) return null;
   try {
     return await env.DB.prepare(
-      'SELECT token, client_id, COALESCE(readonly, 0) AS readonly FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0 LIMIT 1'
+      `SELECT token, client_id, COALESCE(readonly, 0) AS readonly, COALESCE(workspace_id, 'ivae') AS workspace_id
+         FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0 LIMIT 1`
     ).bind(t).first();
   } catch {
     return null; // si la tabla no existe -> rechaza (fail closed)
@@ -185,28 +186,38 @@ async function getKey(env, token) {
 }
 
 // ── Resolución de marca ──────────────────────────────────────────────────────
-async function brandById(env, id) {
-  return env.DB.prepare('SELECT id, name, slug, instagram_handle FROM mkt_clients WHERE id = ? AND archived = 0 LIMIT 1').bind(id).first();
+// ⚠️ FRONTERA DE AGENCIA (2026-09-21): toda consulta de marca lleva el
+// workspace de la llave. Una llave de la agencia A no puede ver, nombrar ni
+// tocar una marca de la agencia B, ni siquiera pidiéndola por nombre exacto.
+// Sin esto, una llave "global" veía TODAS las marcas de la base.
+function wsDe(scope) { return (scope && scope.workspaceId) || 'ivae'; }
+
+async function brandById(env, id, scope) {
+  return env.DB.prepare(
+    `SELECT id, name, slug, instagram_handle FROM mkt_clients
+      WHERE id = ? AND archived = 0 AND COALESCE(workspace_id, 'ivae') = ? LIMIT 1`
+  ).bind(id, wsDe(scope)).first();
 }
-async function resolveBrandArg(env, brand) {
+async function resolveBrandArg(env, brand, scope) {
   const b = String(brand || '').trim();
   if (!b) return null;
   const noAt = b.replace(/^@/, '');
+  const ws = wsDe(scope);
   let row = await env.DB.prepare(
     `SELECT id, name, slug, instagram_handle FROM mkt_clients
-       WHERE archived = 0 AND (
+       WHERE archived = 0 AND COALESCE(workspace_id, 'ivae') = ?4 AND (
          id = ?1 OR slug = ?1 COLLATE NOCASE OR name = ?1 COLLATE NOCASE
          OR instagram_handle = ?1 COLLATE NOCASE OR instagram_handle = ?2 COLLATE NOCASE
          OR instagram_handle = ?3 COLLATE NOCASE
        ) LIMIT 1`
-  ).bind(b, noAt, '@' + noAt).first();
+  ).bind(b, noAt, '@' + noAt, ws).first();
   if (row) return row;
   const like = '%' + noAt + '%';
   const res = await env.DB.prepare(
     `SELECT id, name, slug, instagram_handle FROM mkt_clients
-       WHERE archived = 0 AND (name LIKE ?1 COLLATE NOCASE OR slug LIKE ?1 COLLATE NOCASE
+       WHERE archived = 0 AND COALESCE(workspace_id, 'ivae') = ?2 AND (name LIKE ?1 COLLATE NOCASE OR slug LIKE ?1 COLLATE NOCASE
          OR instagram_handle LIKE ?1 COLLATE NOCASE) LIMIT 3`
-  ).bind(like).all();
+  ).bind(like, ws).all();
   const rows = (res && res.results) || [];
   return rows.length === 1 ? rows[0] : null;
 }
@@ -215,15 +226,15 @@ async function resolveBrandArg(env, brand) {
 // conflicto para que el handler responda con un error claro.
 async function brandFor(env, scope, brandArg) {
   if (scope && scope.clientId) {
-    const pinned = await brandById(env, scope.clientId);
+    const pinned = await brandById(env, scope.clientId, scope);
     const arg = String(brandArg || '').trim();
     if (pinned && arg) {
-      const wanted = await resolveBrandArg(env, brandArg);
+      const wanted = await resolveBrandArg(env, brandArg, scope);
       if (wanted && wanted.id !== pinned.id) return { __conflict: true, pinned, wanted };
     }
     return pinned;
   }
-  return resolveBrandArg(env, brandArg);
+  return resolveBrandArg(env, brandArg, scope);
 }
 function brandConflictErr(brand) {
   return toolErr(
@@ -235,14 +246,15 @@ function brandConflictErr(brand) {
 // ── Handlers de cada herramienta ─────────────────────────────────────────────
 async function listBrands(env, scope) {
   if (scope && scope.clientId) {
-    const b = await brandById(env, scope.clientId);
+    const b = await brandById(env, scope.clientId, scope);
     return b
       ? toolText(`Este conector está fijado a la marca: ${b.name}${b.instagram_handle ? ` (${b.instagram_handle})` : ''} — slug: ${b.slug}. Todo lo que crees/edites irá a esta marca.`)
       : toolErr('La marca de este conector ya no existe.');
   }
   const res = await env.DB.prepare(
-    'SELECT name, slug, instagram_handle FROM mkt_clients WHERE archived = 0 ORDER BY name'
-  ).all();
+    `SELECT name, slug, instagram_handle FROM mkt_clients
+      WHERE archived = 0 AND COALESCE(workspace_id, 'ivae') = ? ORDER BY name`
+  ).bind(wsDe(scope)).all();
   const rows = (res && res.results) || [];
   if (!rows.length) return toolText('No hay marcas registradas.');
   const lines = rows.map((r) => `• ${r.name}${r.instagram_handle ? ` (${r.instagram_handle})` : ''} — slug: ${r.slug}`);
@@ -333,9 +345,12 @@ async function createPost(env, scope, args) {
 async function getPost(env, scope, args) {
   const postId = String(args.post_id || '').trim();
   if (!postId) return toolErr('Falta post_id. Usa list_posts para ver los IDs de los posts.');
-  let sql = 'SELECT p.*, c.name AS brand_name FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id WHERE p.id = ?1';
-  const binds = [postId];
-  if (scope && scope.clientId) { sql += ' AND p.client_id = ?2'; binds.push(scope.clientId); }
+  // El JOIN filtra por workspace: un post de otra agencia no existe para esta llave.
+  let sql = `SELECT p.*, c.name AS brand_name FROM mkt_posts p
+               JOIN mkt_clients c ON c.id = p.client_id
+              WHERE p.id = ?1 AND COALESCE(c.workspace_id, 'ivae') = ?2`;
+  const binds = [postId, wsDe(scope)];
+  if (scope && scope.clientId) { sql += ' AND p.client_id = ?3'; binds.push(scope.clientId); }
   const p = await env.DB.prepare(sql).bind(...binds).first();
   if (!p) {
     return toolErr(scope && scope.clientId
@@ -373,10 +388,16 @@ async function updatePost(env, scope, args) {
   // Verifica que el post exista y pertenezca a la marca permitida por la clave.
   let post;
   if (scope && scope.clientId) {
-    post = await env.DB.prepare('SELECT id, client_id, title FROM mkt_posts WHERE id = ? AND client_id = ?').bind(postId, scope.clientId).first();
+    post = await env.DB.prepare(
+      `SELECT p.id, p.client_id, p.title FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
+        WHERE p.id = ? AND p.client_id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
+    ).bind(postId, scope.clientId, wsDe(scope)).first();
     if (!post) return toolErr('Ese post no existe en esta marca (o el ID es incorrecto).');
   } else {
-    post = await env.DB.prepare('SELECT id, client_id, title FROM mkt_posts WHERE id = ?').bind(postId).first();
+    post = await env.DB.prepare(
+      `SELECT p.id, p.client_id, p.title FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
+        WHERE p.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
+    ).bind(postId, wsDe(scope)).first();
     if (!post) return toolErr('No encontré un post con ese ID.');
   }
 
@@ -541,18 +562,21 @@ async function rpc(msg, env, scope) {
 
 // ── Auth OAuth (Bearer) ──────────────────────────────────────────────────────
 // claude.ai obtiene un access token vía OAuth (ver functions/api/mcp-oauth/*) y
-// lo manda como "Authorization: Bearer ...". Token global -> alcance de todas las
-// marcas (la marca se indica por llamada / por las instrucciones del proyecto).
+// lo manda como "Authorization: Bearer ...". El token NACE con el workspace de
+// la clave que se escribió en la pantalla de autorización: alcanza todas las
+// marcas DE ESA AGENCIA y ninguna más.
 async function validBearer(env, authHeader) {
-  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) return false;
+  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) return null;
   const tok = authHeader.replace(/^Bearer\s+/i, '').trim();
-  if (!tok) return false;
+  if (!tok) return null;
   try {
-    const row = await env.DB.prepare('SELECT expires_at FROM mkt_mcp_oauth WHERE kind = ? AND id = ?').bind('token', tok).first();
-    if (!row) return false;
-    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) return false;
-    return true;
-  } catch { return false; }
+    const row = await env.DB.prepare('SELECT data, expires_at FROM mkt_mcp_oauth WHERE kind = ? AND id = ?').bind('token', tok).first();
+    if (!row) return null;
+    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) return null;
+    let data = {};
+    try { data = JSON.parse(row.data || '{}'); } catch { data = {}; }
+    return { workspaceId: data.workspace_id || 'ivae' };
+  } catch { return null; }
 }
 function unauthorized(origin) {
   return new Response(JSON.stringify(rpcErr(null, -32001, 'Unauthorized')), {
@@ -574,16 +598,18 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,Authorization' } });
   }
 
-  // Auth: (1) Bearer OAuth -> global; (2) token-en-ruta (capability URL) -> por marca.
+  // Auth: (1) Bearer OAuth; (2) token-en-ruta (capability URL). Las DOS llevan
+  // workspace: ninguna llave sale de su agencia.
   let scope = null;
-  if (await validBearer(env, request.headers.get('Authorization'))) {
-    scope = { clientId: null };
+  const bearer = await validBearer(env, request.headers.get('Authorization'));
+  if (bearer) {
+    scope = { clientId: null, workspaceId: bearer.workspaceId };
   } else {
     const token = Array.isArray(params.path) ? params.path[0] : params.path;
     const key = token ? await getKey(env, token) : null;
     // readonly=1 -> llave de SOLO LECTURA (p.ej. para el cliente de una marca):
     // solo expone list_brands/list_posts/get_post; nada de crear/editar/descargar.
-    if (key) scope = { clientId: key.client_id || null, readonly: !!key.readonly };
+    if (key) scope = { clientId: key.client_id || null, readonly: !!key.readonly, workspaceId: key.workspace_id || 'ivae' };
   }
   if (!scope) return unauthorized(origin); // 401 + WWW-Authenticate dispara el OAuth de claude.ai
 
