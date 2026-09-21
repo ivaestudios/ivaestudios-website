@@ -5906,14 +5906,16 @@ async function route(request, env, authCtx) {
   // la llave nace con el workspace de quien la crea y el servidor MCP filtra
   // todas sus consultas por ese workspace.
   if (parts[0] === 'mcp' && parts[1] === 'claves') {
-    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    // SOLO la dueña de la agencia: el enlace ES la credencial (quien lo tiene
+    // entra al calendario completo), así que no lo ve ni el equipo ni el cliente.
+    if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
     if (parts.length === 2 && method === 'GET') return handleMcpClavesList(env, session, url);
     if (parts.length === 2 && method === 'POST') return handleMcpClaveCrear(request, env, session);
     if (parts.length === 3 && parts[2] === 'revocar' && method === 'POST') return handleMcpClaveRevocar(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
   if (parts[0] === 'mcp' && parts[1] === 'clave-acceso' && method === 'POST') {
-    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
     return handleMcpClaveAcceso(request, env, session);
   }
 
@@ -6849,11 +6851,28 @@ async function handleMcpClaveAcceso(request, env, session) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
   const hash = [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('');
   try {
-    // Una clave viva por agencia: la anterior se retira.
-    await env.DB.prepare('UPDATE mkt_mcp_pass SET revoked = 1 WHERE workspace_id = ?').bind(ws).run();
+    // ⚠️ El hash es la LLAVE PRIMARIA de la tabla: si dos agencias eligen la
+    // misma clave ("marketing123"), un INSERT OR REPLACE se la QUITARÍA a la
+    // primera y su conector pasaría a autorizar a la segunda. Por eso se
+    // rechaza antes, aunque la fila ajena esté revocada.
+    const choque = await env.DB.prepare(
+      'SELECT workspace_id FROM mkt_mcp_pass WHERE hash = ?'
+    ).bind(hash).first();
+    if (choque && choque.workspace_id !== ws) {
+      return json({ error: 'Esa clave ya está en uso. Elige otra.' }, 409);
+    }
+    // Una clave viva por agencia: la anterior se BORRA (revocarla no basta,
+    // la fila seguiría ocupando su hash).
+    await env.DB.prepare('DELETE FROM mkt_mcp_pass WHERE workspace_id = ?').bind(ws).run();
     await env.DB.prepare(
-      'INSERT OR REPLACE INTO mkt_mcp_pass (hash, workspace_id, label, revoked) VALUES (?, ?, ?, 0)'
+      'INSERT INTO mkt_mcp_pass (hash, workspace_id, label, revoked) VALUES (?, ?, ?, 0)'
     ).bind(hash, ws, (session.name || '').slice(0, 80) || null).run();
+    // La clave VIEJA de IVAE vivía en mkt_mcp_oauth (config/password) y
+    // checkPassword todavía la acepta como respaldo: si no se borra aquí,
+    // cambiar la clave no revocaría nada.
+    if (ws === 'ivae') {
+      await env.DB.prepare("DELETE FROM mkt_mcp_oauth WHERE kind = 'config' AND id = 'password'").run();
+    }
   } catch (e) {
     return json({ error: 'No se pudo guardar la clave. ' + ((e && e.message) || '') }, 422);
   }

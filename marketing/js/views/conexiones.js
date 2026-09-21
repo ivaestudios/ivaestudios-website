@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText } from '../api.js?v=202609211519';
-import { icon } from '../shell/icons.js?v=202609211519';
-import { T, isEN } from '../shell/i18n.js?v=202609211519';
+import { el, clear, toast, api, copyText } from '../api.js?v=202609211529';
+import { icon } from '../shell/icons.js?v=202609211529';
+import { T, isEN } from '../shell/i18n.js?v=202609211529';
 
 const VIEW_ID = 'conexiones';
 
@@ -26,6 +26,8 @@ const INVITACION = () => T(
 );
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
+// El conector es una CREDENCIAL: solo la dueña de la agencia (admin) lo ve.
+function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); }
 
 // Clientes que SÍ ven esta sección en su portal (pedido 2026-08-27: solo
 // Regeneris). MISMA lista en shell.js y topbar.js — cámbialas juntas.
@@ -285,8 +287,8 @@ function render() {
       ) }),
   ]));
 
-  // El conector de IA es del EQUIPO de la agencia, no del cliente.
-  if (!cliente) rootEl.appendChild(seccionIA());
+  // El conector de IA lo maneja la DUEÑA de la agencia: el enlace es la llave.
+  if (esAdmin()) rootEl.appendChild(seccionIA());
 
   const clients = (ctx.store.getState().clients || []).filter((c) => !c.archived);
   if (!clients.length) {
@@ -308,7 +310,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202609211519';
+  link.href = '/marketing/css/conexiones.css?v=202609211529';
   document.head.appendChild(link);
 }
 
@@ -321,7 +323,7 @@ export default {
     host.appendChild(rootEl);
     unsubs.push(ctx.store.subscribe(['clients'], render));
     render();
-    if (!isClient()) cargarIA();
+    if (esAdmin()) cargarIA();
   },
   unmount() {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
