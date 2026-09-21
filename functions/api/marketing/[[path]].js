@@ -5902,7 +5902,21 @@ async function route(request, env, authCtx) {
   }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
-    return handlePublicarPieza(env, parts[1], session);
+    // SOLO ESTE CANAL (21-sep-2026): la hoja manda la lista EXACTA de cuentas
+    // a las que se quiere publicar. Publicar en la cuenta equivocada no se
+    // deshace (Instagram no tiene API para borrar), asi que el destino lo
+    // elige la persona, no los interruptores que la pieza traiga encendidos.
+    // Sin cuerpo (pantalla vieja) = comportamiento de siempre.
+    let canales = null;
+    try {
+      const bodyPub = await request.json();
+      if (bodyPub && Array.isArray(bodyPub.canales)) {
+        canales = bodyPub.canales
+          .map((c) => String(c || '').toLowerCase().trim())
+          .filter((c) => ['instagram', 'facebook', 'tiktok', 'youtube'].includes(c));
+      }
+    } catch { /* sin cuerpo: todos los canales encendidos, como antes */ }
+    return handlePublicarPieza(env, parts[1], session, canales);
   }
 
   return json({ error: 'Not found' }, 404);
@@ -6130,7 +6144,8 @@ async function avisarAdmins(env, { type, post, body, link }) {
   } catch { /* un aviso jamás tumba una publicación */ }
 }
 
-async function extraTikTok(env, post, session) {
+async function extraTikTok(env, post, session, permitido = true) {
+  if (!permitido) return null;
   if (Number(post.also_tiktok) !== 1 || post.tt_post_id) return null;
   try {
     const videoUrlTt = await videoFirmadoDePieza(env, post);
@@ -6152,7 +6167,8 @@ async function extraTikTok(env, post, session) {
   }
 }
 
-async function extraYouTube(env, post, session) {
+async function extraYouTube(env, post, session, permitido = true) {
+  if (!permitido) return null;
   if (Number(post.also_youtube) !== 1 || post.yt_video_id) return null;
   try {
     const videoUrlYt = await videoFirmadoDePieza(env, post);
@@ -6381,7 +6397,11 @@ async function handleCronPublicar(request, env) {
 
 // PUBLICAR AHORA (staff): la misma máquina del cron, para una pieza concreta,
 // sin esperar el reloj — y la forma de probar la tubería pieza por pieza.
-async function handlePublicarPieza(env, postId, session) {
+async function handlePublicarPieza(env, postId, session, canales = null) {
+  // canales = null -> todo lo que la pieza traiga encendido (como siempre).
+  // canales = ['youtube'] -> SOLO YouTube, aunque el Instagram este conectado.
+  if (canales && canales.length === 0) return json({ error: 'Elige al menos una cuenta.' }, 400);
+  const quiere = (canal) => !canales || canales.includes(canal);
   const post = await env.DB.prepare(
     `SELECT p.*, c.name AS client_name, c.ig_user_id, c.ig_username, c.ig_access_token
      FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id WHERE p.id = ?`
@@ -6408,13 +6428,17 @@ async function handlePublicarPieza(env, postId, session) {
   // MARCA SIN INSTAGRAM pero con otros canales encendidos (caso real:
   // WASICAFE, 2026-08-27, que solo tenía Facebook). Desde 2026-09-13 cubre los
   // tres: Facebook, TikTok y YouTube — el mismo criterio que el reloj.
-  const sinInstagram = !post.ig_user_id || !post.ig_access_token;
-  const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1;
+  const igConectado = !!post.ig_user_id && !!post.ig_access_token;
+  const igOmitidoPorEleccion = igConectado && !quiere('instagram');
+  const sinInstagram = !igConectado || igOmitidoPorEleccion;
+  const pideOtroCanal = (Number(post.also_facebook) === 1 && quiere('facebook'))
+    || (Number(post.also_tiktok) === 1 && quiere('tiktok'))
+    || (Number(post.also_youtube) === 1 && quiere('youtube'));
   if (sinInstagram && pideOtroCanal) {
     let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id;
     let ultimoError = null;
     let fbSolo = null;
-    if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+    if (Number(post.also_facebook) === 1 && quiere('facebook') && !post.fb_post_id) {
       try {
         const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
         const videoUrlFb = await videoFirmadoDePieza(env, post);
@@ -6432,13 +6456,20 @@ async function handlePublicarPieza(env, postId, session) {
         fbSolo = { ok: false, error: ultimoError };
       }
     }
-    const ttSolo = await extraTikTok(env, post, session);
+    const ttSolo = await extraTikTok(env, post, session, quiere('tiktok'));
     if (ttSolo && ttSolo.ok) algoSalio = true; else if (ttSolo) ultimoError = ttSolo.error;
-    const ytSolo = await extraYouTube(env, post, session);
+    const ytSolo = await extraYouTube(env, post, session, quiere('youtube'));
     if (ytSolo && ytSolo.ok) algoSalio = true; else if (ytSolo) ultimoError = ytSolo.error;
     if (!algoSalio) {
       await soltarCandado();
       return json({ error: ultimoError || 'No se pudo publicar en ningún canal.' }, 422);
+    }
+    if (igOmitidoPorEleccion) {
+      // Instagram se apago A PROPOSITO: la pieza NO queda "publicada", sigue
+      // pendiente de su Instagram (y de su hora, si la tiene). Marcarla como
+      // publicada aqui la borraria de la fila del reloj en silencio.
+      await soltarCandado();
+      return json({ ok: true, parcial: true, fb: fbSolo, tt: ttSolo, yt: ytSolo });
     }
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
@@ -6461,7 +6492,7 @@ async function handlePublicarPieza(env, postId, session) {
     // camino manual (cazado armando el App Review de pages_manage_posts,
     // 2026-08-27). Mismo contrato que el cron: jamás bloquea el OK de IG.
     let fb = null;
-    if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+    if (Number(post.also_facebook) === 1 && quiere('facebook') && !post.fb_post_id) {
       try {
         const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
         const videoUrlFb = await videoFirmadoDePieza(env, post);
@@ -6480,8 +6511,8 @@ async function handlePublicarPieza(env, postId, session) {
     }
     // TIKTOK y YOUTUBE: el botón manual hace LO MISMO que el reloj (antes
     // ignoraba TikTok por completo).
-    const tt = await extraTikTok(env, post, session);
-    const yt = await extraYouTube(env, post, session);
+    const tt = await extraTikTok(env, post, session, quiere('tiktok'));
+    const yt = await extraYouTube(env, post, session, quiere('youtube'));
     return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt });
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);

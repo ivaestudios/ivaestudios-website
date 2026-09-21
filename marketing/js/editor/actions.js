@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609191545';
-import { T } from '../shell/i18n.js?v=202609191545';
-import { icon } from '../shell/icons.js?v=202609191545';
-import { openSheet } from '../shell/sheet.js?v=202609191545';
-import * as store from '../shell/store.js?v=202609191545';
-import * as cl from '../services/checklist.js?v=202609191545';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609211337';
+import { T } from '../shell/i18n.js?v=202609211337';
+import { icon } from '../shell/icons.js?v=202609211337';
+import { openSheet } from '../shell/sheet.js?v=202609211337';
+import * as store from '../shell/store.js?v=202609211337';
+import * as cl from '../services/checklist.js?v=202609211337';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -249,23 +249,52 @@ export function openDeleteConfirm(ed) {
 }
 
 
-// ── Publicar ahora ───────────────────────────────────────────────────────────
-// La misma maquina del cron para UNA pieza: Instagram al instante y, si la
-// pieza trae "tambien en Facebook", tambien la pagina conectada de la marca.
+// ── Publicar ahora ──────────────────────────────────────────────────
+// La misma maquina del cron para UNA pieza. Desde el 21-sep-2026 la hoja
+// NOMBRA cada cuenta a la que va a salir (@usuario de Instagram, pagina de
+// Facebook, canal de YouTube) y deja apagar la que no se quiera: una prueba
+// de YouTube ya se publicó sin querer en el Instagram de IVAE, y eso no se
+// deshace porque Instagram no tiene forma de borrar por API.
 export function openPublishNowSheet(ed) {
   openSheet({
     title: T('Publicar ahora', 'Publish now'),
     mode: 'form',
     build(body, close) {
       let busy = false;
+      const post = ed.getPost() || {};
+      const cli = (store.getState().clients || []).find((c) => c.id === post.client_id) || null;
+
+      // Destinos REALES de esta pieza: el Instagram conectado de la marca mas
+      // los canales extra que la pieza traiga encendidos.
+      const destinos = [];
+      if (cli) {
+        if (cli.ig_username) {
+          destinos.push({ key: 'instagram', label: 'Instagram', cuenta: '@' + String(cli.ig_username).replace(/^@/, ''), on: true });
+        }
+        if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+          destinos.push({ key: 'facebook', label: 'Facebook', cuenta: cli.fb_page_name || T('página conectada', 'connected page'), on: true });
+        }
+        if (Number(post.also_tiktok) === 1 && !post.tt_post_id) {
+          destinos.push({ key: 'tiktok', label: 'TikTok', cuenta: cli.tt_username ? '@' + String(cli.tt_username).replace(/^@/, '') : T('cuenta conectada', 'connected account'), on: true });
+        }
+        if (Number(post.also_youtube) === 1 && !post.yt_video_id) {
+          destinos.push({ key: 'youtube', label: 'YouTube', cuenta: cli.yt_channel_title || T('canal conectado', 'connected channel'), on: true });
+        }
+      }
+
       const pubBtn = el('button', {
         class: 'btn btn-primary sheet-cta', type: 'button', text: T('Publicar', 'Publish'),
         onclick: async () => {
           if (busy) return;
+          const elegidos = destinos.filter((d) => d.on).map((d) => d.key);
+          if (destinos.length && !elegidos.length) return;
           busy = true;
           pubBtn.dataset.loading = 'true';
           try {
-            const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/publicar`, {});
+            // Sin destinos resueltos (ficha de la marca no cargada) se manda
+            // vacio: el servidor hace lo de siempre.
+            const cuerpo = destinos.length ? { canales: elegidos } : {};
+            const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/publicar`, cuerpo);
             close({ source: 'done' });
             // El resumen dice EXACTAMENTE a dónde salió y a dónde no: con
             // cuatro canales, un "Publicado" a secas ya no informa nada.
@@ -288,11 +317,49 @@ export function openPublishNowSheet(ed) {
           }
         },
       });
-      body.append(
-        el('p', { class: 'help', text: T(
+      const resumen = el('p', { class: 'help' });
+      const pintarResumen = () => {
+        const elegidos = destinos.filter((d) => d.on);
+        resumen.textContent = elegidos.length
+          ? `${T('Sale AHORA en', 'It goes out NOW to')}: ${elegidos.map((d) => `${d.cuenta} (${d.label})`).join(', ')}.`
+          : T('No hay ninguna cuenta elegida.', 'No account selected.');
+        pubBtn.disabled = !elegidos.length;
+      };
+
+      function switchRow(d) {
+        const knob = el('span', { class: 'edswitch__knob' });
+        const track = el('span', { class: 'edswitch', 'aria-hidden': 'true' }, [knob]);
+        const row = el('button', {
+          class: 'edrow edrow--switch', type: 'button', role: 'switch',
+          onclick: () => { d.on = !d.on; sync(); pintarResumen(); },
+        }, [
+          el('span', { class: 'edrow__main' }, [
+            el('span', { class: 'edrow__label', text: d.label }),
+            el('span', { class: 'edrow__sub', text: d.cuenta }),
+          ]),
+          track,
+        ]);
+        const sync = () => {
+          row.setAttribute('aria-checked', d.on ? 'true' : 'false');
+          track.classList.toggle('is-on', d.on);
+        };
+        sync();
+        return row;
+      }
+      if (destinos.length) {
+        body.append(
+          el('div', { class: 'edsection__rows' }, destinos.map(switchRow)),
+          resumen,
+          el('p', { class: 'help', text: T('Apaga la cuenta en la que NO quieras que salga. Una publicación no se puede deshacer.', 'Switch off any account you do NOT want. A publication cannot be undone.') }),
+        );
+        pintarResumen();
+      } else {
+        body.append(el('p', { class: 'help', text: T(
           'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube).',
           "The piece publishes NOW to the brand's connected Instagram, plus any extra channels switched on (Facebook, TikTok, YouTube).",
-        ) }),
+        ) }));
+      }
+      body.append(
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           pubBtn,
