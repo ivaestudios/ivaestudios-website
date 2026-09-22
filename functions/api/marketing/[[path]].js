@@ -6192,6 +6192,16 @@ async function extraYouTube(env, post, session, permitido = true) {
   try {
     const videoUrlYt = await videoFirmadoDePieza(env, post);
     const ry = await publicarEnYouTube(env, { clientId: post.client_id, post, videoUrl: videoUrlYt });
+    // Video grande: se subió un tramo y el reloj lo continúa. NO es un error,
+    // así que no se escribe en yt_error (eso pinta la alerta roja del editor).
+    if (ry && ry.pendiente) {
+      await env.DB.prepare("UPDATE mkt_posts SET yt_error = NULL, updated_at = datetime('now') WHERE id = ?").bind(post.id).run();
+      await logActivity(env, {
+        client_id: post.client_id, post_id: post.id, session, action: 'post.publicando_yt',
+        detail: `Subiendo a YouTube: ${ry.pct}% . La app lo continúa sola.`,
+      });
+      return { ok: false, pendiente: true, pct: ry.pct };
+    }
     await env.DB.prepare("UPDATE mkt_posts SET yt_video_id = ?, yt_error = NULL, updated_at = datetime('now') WHERE id = ?")
       .bind(ry.ytVideoId, post.id).run();
     await logActivity(env, {
@@ -6401,6 +6411,26 @@ async function publicarPendientes(env) {
   return resultados;
 }
 
+// SUBIDAS GRANDES DE YOUTUBE: una pieza con un video de varios GB no cabe en
+// una sola petición (Cloudflare corta a los ~100 s), así que la subida guarda
+// dónde se quedó en mkt_kv y aquí se continúa UNA por vuelta del reloj. Con
+// varias marcas subiendo a la vez, van avanzando por turnos.
+async function reanudarSubidasYouTube(env) {
+  let fila = null;
+  try {
+    fila = await env.DB.prepare("SELECT key, value FROM mkt_kv WHERE key LIKE 'yt_up:%' LIMIT 1").first();
+  } catch { return null; }
+  if (!fila) return null;
+  const postId = String(fila.key).slice(6);
+  const limpiar = async () => {
+    try { await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind(fila.key).run(); } catch { /* noop */ }
+  };
+  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  if (!post || post.yt_video_id || Number(post.also_youtube) !== 1) { await limpiar(); return null; }
+  const r = await extraYouTube(env, post, { user_id: null, name: 'Programador IVAE' });
+  return { post_id: postId, ...(r || {}) };
+}
+
 async function handleCronPublicar(request, env) {
   if (!env.MKT_CRON_SECRET) return json({ error: 'Cron no configurado' }, 503);
   const auth = request.headers.get('Authorization') || '';
@@ -6408,7 +6438,9 @@ async function handleCronPublicar(request, env) {
   try {
     await vigilarReloj(env);
     const resultados = await publicarPendientes(env);
-    return json({ ok: true, procesadas: resultados.length, resultados });
+    let youtube = null;
+    try { youtube = await reanudarSubidasYouTube(env); } catch (e) { youtube = { error: (e && e.message) || 'fallo' }; }
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }

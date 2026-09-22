@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609211529';
-import { T } from '../shell/i18n.js?v=202609211529';
-import { icon } from '../shell/icons.js?v=202609211529';
-import { openSheet } from '../shell/sheet.js?v=202609211529';
-import * as store from '../shell/store.js?v=202609211529';
-import * as cl from '../services/checklist.js?v=202609211529';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609221409';
+import { T } from '../shell/i18n.js?v=202609221409';
+import { icon } from '../shell/icons.js?v=202609221409';
+import { openSheet } from '../shell/sheet.js?v=202609221409';
+import * as store from '../shell/store.js?v=202609221409';
+import * as cl from '../services/checklist.js?v=202609221409';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -300,12 +300,21 @@ export function openPublishNowSheet(ed) {
             // cuatro canales, un "Publicado" a secas ya no informa nada.
             const salio = [];
             const fallo = [];
+            const subiendo = [];
             if (r && r.media_id) salio.push('Instagram');
             if (r && r.fb) (r.fb.ok ? salio : fallo).push('Facebook');
             if (r && r.tt) (r.tt.ok ? salio : fallo).push(r.tt.ok && r.tt.modo === 'buzon' ? T('TikTok (a su buzón)', 'TikTok (to its inbox)') : 'TikTok');
-            if (r && r.yt) (r.yt.ok ? salio : fallo).push(r.yt.ok && r.yt.modo !== 'publico' ? T('YouTube (en privado)', 'YouTube (private)') : 'YouTube');
+            // YouTube con video grande: no terminó en esta petición, pero NO
+            // falló. El reloj la continúa sola, así que se dice tal cual.
+            const ytPend = r && r.yt && r.yt.pendiente;
+            if (ytPend) subiendo.push(`${T('YouTube', 'YouTube')} (${r.yt.pct || 0}%)`);
+            else if (r && r.yt) (r.yt.ok ? salio : fallo).push(
+              r.yt.ok && r.yt.modo === 'oculto' ? T('YouTube (oculto)', 'YouTube (unlisted)')
+                : r.yt.ok && r.yt.modo !== 'publico' ? T('YouTube (en privado)', 'YouTube (private)')
+                  : 'YouTube');
             ed.ctx.toast(
-              (salio.length ? `${T('Publicado en', 'Published to')} ${salio.join(', ')}.` : T('No salió en ningún canal.', 'It did not go out anywhere.'))
+              (salio.length ? `${T('Publicado en', 'Published to')} ${salio.join(', ')}.` : (subiendo.length ? '' : T('No salió en ningún canal.', 'It did not go out anywhere.')))
+                + (subiendo.length ? ` ${T('Subiendo a', 'Uploading to')} ${subiendo.join(', ')}, la app lo termina sola.` : '')
                 + (fallo.length ? ` ${T('Falló', 'Failed')}: ${fallo.join(', ')}.` : ''),
               { type: fallo.length ? 'info' : 'success' },
             );

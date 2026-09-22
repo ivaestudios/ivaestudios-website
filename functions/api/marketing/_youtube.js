@@ -41,7 +41,12 @@ const YT_API = 'https://www.googleapis.com/youtube/v3';
 const YT_UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/videos';
 // upload = subir el video; readonly = poder decir a qué canal se subirá.
 const YT_SCOPE = 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly';
-const YT_MAX_BYTES = 64 * 1024 * 1024;   // el Worker tiene 128 MB de memoria
+// Pedazo de subida: múltiplo de 256 KB (lo exige el protocolo resumable) y lo
+// bastante chico para no acercarse a los 128 MB de memoria del Worker.
+const YT_CHUNK = 8 * 1024 * 1024;
+// Cloudflare corta una petición a los ~100 s: se trabaja 70 y lo que falte lo
+// continúa el reloj en la siguiente vuelta.
+const YT_PRESUPUESTO_MS = 70 * 1000;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -333,10 +338,51 @@ function etiquetasYouTube(post) {
   return out.slice(0, 15);
 }
 
+// Categorías de YouTube: la persona la elige por pieza; sin elección, People
+// & Blogs (22), que es lo que se usaba fijo hasta hoy.
+const YT_CATEGORIAS = ['1', '2', '10', '15', '17', '19', '20', '22', '23', '24', '25', '26', '27', '28'];
+function categoriaYouTube(elec) {
+  const c = String((elec && elec.category_id) || '').trim();
+  return YT_CATEGORIAS.includes(c) ? c : '22';
+}
+
+// El peso del archivo SIN bajarlo: HEAD y, si el almacén no lo contesta, un
+// Range de un byte (el Content-Range trae el total).
+async function pesoDelVideo(url) {
+  try {
+    const h = await fetch(url, { method: 'HEAD' });
+    const n = Number(h.headers.get('content-length') || 0);
+    if (h.ok && n > 0) return n;
+  } catch { /* seguimos con el Range */ }
+  try {
+    const r = await fetch(url, { headers: { Range: 'bytes=0-0' } });
+    const cr = r.headers.get('content-range') || '';
+    const m = cr.match(/\/(\d+)\s*$/);
+    if (m) return Number(m[1]);
+  } catch { /* nada */ }
+  return 0;
+}
+
+// Dónde se quedó la subida de una pieza (para continuarla en otra corrida).
+async function subidaGuardada(env, postId) {
+  try {
+    const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind('yt_up:' + postId).first();
+    return row ? JSON.parse(row.value || '{}') : null;
+  } catch { return null; }
+}
+async function guardarSubida(env, postId, data) {
+  try { await kvSet(env, 'yt_up:' + postId, JSON.stringify(data)); } catch { /* noop */ }
+}
+async function olvidarSubida(env, postId) {
+  try { await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind('yt_up:' + postId).run(); } catch { /* noop */ }
+}
+
 /**
- * Sube UNA pieza al canal de YouTube de su marca. Devuelve { ytVideoId, modo }.
- * modo 'publico' | 'privado' (privado = esperando la auditoría o porque la
- * persona lo eligió así).
+ * Sube UNA pieza al canal de YouTube de su marca.
+ * Devuelve { ytVideoId, modo } cuando terminó, o { pendiente: true, pct }
+ * cuando el video es grande y se quedó a medias: el estado vive en mkt_kv y
+ * el reloj continúa la subida en la siguiente vuelta.
+ * modo 'publico' | 'oculto' | 'privado', leído del canal DESPUÉS de subir.
  */
 export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
   if (!videoUrl) throw new Error('La pieza no tiene video para YouTube (YouTube solo acepta video).');
@@ -355,55 +401,107 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
   // COPPA: la declaración "es contenido para niños" la hace una persona.
   const paraNinos = elec.made_for_kids === true;
 
-  const vid = await fetch(videoUrl);
-  if (!vid.ok) throw new Error('No se pudo leer el video del almacén (' + vid.status + ').');
-  const bytes = await vid.arrayBuffer();
-  if (!bytes.byteLength) throw new Error('El video del almacén llegó vacío.');
-  if (bytes.byteLength > YT_MAX_BYTES) {
-    throw new Error('El video pesa ' + Math.round(bytes.byteLength / 1048576) + ' MB y el tope para subir desde la app son 64 MB, comprímelo antes de programarlo.');
+  // ── EL TAMAÑO DEL VIDEO (22-sep-2026) ─────────────────────────────────────
+  // Antes se cargaba el archivo ENTERO en memoria del Worker (arrayBuffer) y
+  // por eso había un tope de 64 MB. Para canales de YouTube de verdad, con
+  // videos largos en alta, eso no sirve. Ahora se sube POR PEDAZOS: cada
+  // trozo se pide al almacén con un Range y se manda con Content-Range, así
+  // en memoria nunca hay más de un pedazo.
+  //
+  // Y como una petición de Cloudflare se corta a los ~100 s, la subida GUARDA
+  // DÓNDE SE QUEDÓ (mkt_kv, clave yt_up:<post>) y el reloj la continúa en la
+  // siguiente vuelta. Un video de varios GB entra en varias corridas sin que
+  // nadie tenga que estar mirando.
+  const total = await pesoDelVideo(videoUrl);
+  if (!total) throw new Error('No se pudo leer el video del almacén (¿sigue ahí?).');
+
+  const guardado = await subidaGuardada(env, post.id);
+  let destino = guardado && guardado.uri ? guardado.uri : null;
+  let subido = guardado && guardado.uri ? Number(guardado.offset || 0) : 0;
+
+  if (!destino) {
+    // Paso 1: la metadata. Devuelve el Location donde van los bytes.
+    const meta = {
+      snippet: {
+        title: tituloYouTube(post),
+        description: descripcionYouTube(post),
+        tags: etiquetasYouTube(post),
+        categoryId: categoriaYouTube(elec),
+        defaultLanguage: 'es',
+        defaultAudioLanguage: 'es',
+      },
+      status: {
+        privacyStatus: privacidad,
+        selfDeclaredMadeForKids: paraNinos,
+        embeddable: true,
+      },
+    };
+    const init = await fetch(`${YT_UPLOAD}?uploadType=resumable&part=snippet,status`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${tok}`,
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Upload-Content-Length': String(total),
+        'X-Upload-Content-Type': 'video/*',
+      },
+      body: JSON.stringify(meta),
+    });
+    if (!init.ok) {
+      const d = await init.json().catch(() => ({}));
+      throw new Error(mensajeYouTube(d, init.status));
+    }
+    destino = init.headers.get('location') || init.headers.get('Location');
+    if (!destino) throw new Error('YouTube no devolvió el destino de subida.');
+    subido = 0;
+    await guardarSubida(env, post.id, { uri: destino, offset: 0, total });
   }
 
-  // Paso 1: la metadata. Devuelve el Location donde van los bytes.
-  const meta = {
-    snippet: {
-      title: tituloYouTube(post),
-      description: descripcionYouTube(post),
-      tags: etiquetasYouTube(post),
-      categoryId: '22',                 // People & Blogs
-      defaultLanguage: 'es',
-      defaultAudioLanguage: 'es',
-    },
-    status: {
-      privacyStatus: privacidad,
-      selfDeclaredMadeForKids: paraNinos,
-      embeddable: true,
-    },
-  };
-  const init = await fetch(`${YT_UPLOAD}?uploadType=resumable&part=snippet,status`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${tok}`,
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Upload-Content-Length': String(bytes.byteLength),
-      'X-Upload-Content-Type': 'video/mp4',
-    },
-    body: JSON.stringify(meta),
-  });
-  if (!init.ok) {
-    const d = await init.json().catch(() => ({}));
-    throw new Error(mensajeYouTube(d, init.status));
-  }
-  const destino = init.headers.get('location') || init.headers.get('Location');
-  if (!destino) throw new Error('YouTube no devolvió el destino de subida.');
+  // Paso 2: los bytes, pedazo por pedazo, con un presupuesto de tiempo.
+  const t0 = Date.now();
+  let hecho = null;
+  while (subido < total) {
+    const fin = Math.min(subido + YT_CHUNK, total) - 1;
+    const parte = await fetch(videoUrl, { headers: { Range: `bytes=${subido}-${fin}` } });
+    if (!parte.ok && parte.status !== 206) throw new Error('El almacén cortó el video en ' + Math.round(subido / 1048576) + ' MB (' + parte.status + ').');
+    const buf = await parte.arrayBuffer();
+    if (!buf.byteLength) throw new Error('El almacén devolvió un pedazo vacío.');
 
-  // Paso 2: los bytes, en una sola tirada (nuestros videos son chicos).
-  const up = await fetch(destino, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'video/mp4', 'Content-Length': String(bytes.byteLength) },
-    body: bytes,
-  });
-  const d = await up.json().catch(() => ({}));
-  if (!up.ok) throw new Error(mensajeYouTube(d, up.status));
+    const put = await fetch(destino, {
+      method: 'PUT',
+      headers: {
+        'Content-Length': String(buf.byteLength),
+        'Content-Range': `bytes ${subido}-${subido + buf.byteLength - 1}/${total}`,
+      },
+      body: buf,
+    });
+    if (put.status === 308) {
+      // "Resume Incomplete": YouTube dice hasta dónde tiene. Ese rango MANDA.
+      const rango = put.headers.get('range') || put.headers.get('Range');
+      const m = rango && rango.match(/bytes=0-(\d+)/);
+      subido = m ? Number(m[1]) + 1 : subido + buf.byteLength;
+      await guardarSubida(env, post.id, { uri: destino, offset: subido, total });
+    } else if (put.ok) {
+      hecho = await put.json().catch(() => ({}));
+      break;
+    } else if (put.status === 404 || put.status === 410) {
+      // La sesión caducó (YouTube las guarda una semana): se empieza de nuevo.
+      await olvidarSubida(env, post.id);
+      throw new Error('La subida a YouTube caducó a medio camino, se vuelve a intentar desde cero.');
+    } else {
+      const d = await put.json().catch(() => ({}));
+      throw new Error(mensajeYouTube(d, put.status));
+    }
+    // Presupuesto: dejar la petición viva. Lo que falte lo sigue el reloj.
+    if (Date.now() - t0 > YT_PRESUPUESTO_MS && subido < total) {
+      return { pendiente: true, pct: Math.round((subido / total) * 100) };
+    }
+  }
+  if (!hecho) {
+    // Se acabaron los bytes pero YouTube no cerró: preguntarle en la siguiente.
+    return { pendiente: true, pct: 100 };
+  }
+  await olvidarSubida(env, post.id);
+  const d = hecho;
   const ytVideoId = d.id || '';
   if (!ytVideoId) throw new Error('YouTube no confirmó el id del video.');
 
