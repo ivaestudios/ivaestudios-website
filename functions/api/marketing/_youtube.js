@@ -406,5 +406,24 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
   if (!up.ok) throw new Error(mensajeYouTube(d, up.status));
   const ytVideoId = d.id || '';
   if (!ytVideoId) throw new Error('YouTube no confirmó el id del video.');
-  return { ytVideoId, modo: privacidad === 'public' ? 'publico' : privacidad === 'unlisted' ? 'oculto' : 'privado' };
+
+  // LA VERDAD, NO LO QUE PEDIMOS (22-sep-2026): YouTube aprobó el proyecto
+  // pero avisó que el cambio tarda HASTA 72 HORAS en propagarse; mientras
+  // tanto puede seguir forzando privado aunque pidamos público. Antes el
+  // estado salía de lo que pedimos, así que la app habría dicho "publicado en
+  // YouTube" con el video en privado. Se relee con videos.list (1 unidad de
+  // cuota) y se reporta lo que el canal DE VERDAD tiene.
+  let real = privacidad;
+  try {
+    const ver = await fetch(`${YT_API}/videos?part=status&id=${encodeURIComponent(ytVideoId)}`, {
+      headers: { Authorization: `Bearer ${tok}` },
+    });
+    if (ver.ok) {
+      const dv = await ver.json();
+      const st = ((dv.items || [])[0] || {}).status || {};
+      if (st.privacyStatus) real = st.privacyStatus;
+    }
+  } catch { /* si la relectura falla, nos quedamos con lo pedido */ }
+
+  return { ytVideoId, modo: real === 'public' ? 'publico' : real === 'unlisted' ? 'oculto' : 'privado' };
 }
