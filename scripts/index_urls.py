@@ -40,6 +40,12 @@ DEFAULT_URLS = [
     # Location pages
     "https://ivaestudios.com/cancun-photographer",
     "https://ivaestudios.com/cancun-wedding-photographer",
+    "https://ivaestudios.com/mayakoba-wedding-photographer",
+    "https://ivaestudios.com/playa-del-carmen-wedding-photographer",
+    "https://ivaestudios.com/playa-mujeres-wedding-photographer",
+    "https://ivaestudios.com/cancun-wedding-videographer",
+    "https://ivaestudios.com/es/videografo-bodas-cancun",
+    "https://ivaestudios.com/es/fotografo-bodas-playa-mujeres",
     "https://ivaestudios.com/riviera-maya-wedding-photographer",
     "https://ivaestudios.com/es/fotografo-bodas-cancun",
     "https://ivaestudios.com/riviera-maya-photographer",
@@ -58,13 +64,8 @@ DEFAULT_URLS = [
     "https://ivaestudios.com/comparison/luxury-photographers-cancun",
     "https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun",
     # Standalone
-    "https://ivaestudios.com/outfit-guide",
-    "https://ivaestudios.com/es/guia-vestuario",
     # Blog indexes
-    "https://ivaestudios.com/blog",
-    "https://ivaestudios.com/es/blog",
     # SMM (redirect retargeted)
-    "https://ivaestudios.com/es/manejo-redes-sociales",
 ]
 
 

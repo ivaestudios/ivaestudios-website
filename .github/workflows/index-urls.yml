@@ -3,6 +3,8 @@ name: SEO — Index URLs
 # Auto-fires on push to main when user-facing content changes.
 # Also supports manual runs from the Actions tab with a custom URL list.
 on:
+  schedule:
+    - cron: '15 7 * * *'   # 07:15 UTC, justo tras el reinicio de la cuota diaria del Indexing API
   push:
     branches: [main]
     paths:
@@ -51,7 +53,7 @@ jobs:
           # dirigidos desde el Mac recibian QUOTA al instante. En un push solo se
           # mandan los HTML que cambiaron en ese push, con tope de 40; la lista
           # por defecto queda para las corridas manuales sin argumentos.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "schedule" ]; then
             if [ -n "${{ github.event.inputs.urls }}" ]; then
               python scripts/index_urls.py ${{ github.event.inputs.urls }}
             else
