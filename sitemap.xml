@@ -1367,17 +1367,23 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/10-preguntas-fotografo-bodas-antes-reservar</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/10-questions-wedding-photographer-before-booking</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/10-questions-wedding-photographer-before-booking"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/10-preguntas-fotografo-bodas-antes-reservar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/10-questions-wedding-photographer-before-booking"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/10-preguntas-fotografo-bodas-antes-reservar</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/10-questions-wedding-photographer-before-booking"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/10-preguntas-fotografo-bodas-antes-reservar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/10-questions-wedding-photographer-before-booking"/>
   </url>
 
   <url>
@@ -1389,13 +1395,6 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/adults-only-vs-family-resort-wedding-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/aeropuerto-cancun-vs-tulum-invitados</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -1420,6 +1419,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/politica-ia-fotos-reales-fotografia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/politica-ia-fotos-reales-fotografia</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/politica-ia-fotos-reales-fotografia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit"/>
   </url>
 
   <url>
@@ -1542,6 +1554,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/bacalar-couples-photo-session-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-bacalar-laguna"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/bacalar-couples-photo-session-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-parejas-bacalar-laguna</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/bacalar-couples-photo-session-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-bacalar-laguna"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/bacalar-couples-photo-session-guide"/>
   </url>
 
   <url>
@@ -1610,6 +1635,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-months-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejor-mes-fotografia-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-months-photography-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/mejor-mes-fotografia-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-months-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejor-mes-fotografia-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-months-photography-cancun"/>
   </url>
 
   <url>
@@ -1789,17 +1827,13 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/boda-fin-de-semana-cobertura-3-dias</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boutique-vs-todo-incluido-fotos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico"/>
   </url>
 
   <url>
@@ -1807,6 +1841,9 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boutique-vs-todo-incluido-fotos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico"/>
   </url>
 
   <url>
@@ -1842,6 +1879,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-cenote-photoshoot-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-foto-cenote-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-cenote-photoshoot-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/guia-foto-cenote-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-cenote-photoshoot-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-foto-cenote-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-cenote-photoshoot-guide"/>
   </url>
 
   <url>
@@ -1987,13 +2037,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/ceremonia-maya-chaman-fotos-riviera-maya</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/chatbots-ia-atencion-cliente-negocios-cancun</loc>
     <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -2127,27 +2170,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/costo-boda-destino-mexico-desglose-2026</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/costo-fotografia-bodas-cancun-2026</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/costo-sesion-familiar-lujo-cancun-2026</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/couples-boudoir-riviera-maya-what-to-expect</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -2200,6 +2222,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/aeropuerto-cancun-vs-tulum-invitados"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/aeropuerto-cancun-vs-tulum-invitados</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/aeropuerto-cancun-vs-tulum-invitados"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026"/>
   </url>
 
   <url>
@@ -2212,13 +2247,6 @@
   <url>
     <loc>https://ivaestudios.com/blog/dental-clinic-social-media-mexico</loc>
     <lastmod>2026-09-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/dentro-boda-lujo-mayakoba-caso-estudio</loc>
-    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2303,6 +2331,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-wedding-photographer-timeline"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/timeline-fotografo-boda-destino"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-wedding-photographer-timeline"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/timeline-fotografo-boda-destino</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-wedding-photographer-timeline"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/timeline-fotografo-boda-destino"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-wedding-photographer-timeline"/>
   </url>
 
   <url>
@@ -2406,6 +2447,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/drone-photography-cancun-resorts"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-drone-cancun-resorts"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/drone-photography-cancun-resorts"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-drone-cancun-resorts</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/drone-photography-cancun-resorts"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-drone-cancun-resorts"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/drone-photography-cancun-resorts"/>
   </url>
 
   <url>
@@ -2490,13 +2544,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/entrega-fotos-boda-1-a-3-dias</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/errores-hoteles-redes-sociales-cancun</loc>
     <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -2506,13 +2553,6 @@
   <url>
     <loc>https://ivaestudios.com/blog/errores-marketing-digital-negocios-cancun</loc>
     <lastmod>2026-09-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/estilo-fotografo-lujo-editorial-vs-documental</loc>
-    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2670,13 +2710,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/faq-fotografia-destino-mexico-30-preguntas</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/father-son-photo-session-riviera-maya</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -2716,52 +2749,23 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/flying-with-wedding-dress-to-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/viajar-con-vestido-novia-a-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/flying-with-wedding-dress-to-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/viajar-con-vestido-novia-a-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/flying-with-wedding-dress-to-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/viajar-con-vestido-novia-a-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/flying-with-wedding-dress-to-cancun"/>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/flytographer-vs-booking-a-studio-directly</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/fotografia-drone-cancun-resorts</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/fotografo-bodas-indias-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/fotografo-bodas-judias-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/fotografo-local-mexico-vs-fotografo-extranjero</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/fotografo-resort-vs-fotografo-externo-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/galeria-muestra-boda-cancun-60-imagenes</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -2812,6 +2816,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/grand-velas-riviera-maya-wedding-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-en-grand-velas-riviera-maya-guia-de-planeacion"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/grand-velas-riviera-maya-wedding-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/boda-en-grand-velas-riviera-maya-guia-de-planeacion</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/grand-velas-riviera-maya-wedding-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-en-grand-velas-riviera-maya-guia-de-planeacion"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/grand-velas-riviera-maya-wedding-guide"/>
   </url>
 
   <url>
@@ -2826,18 +2843,24 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/que-usar-novio-padrinos-boda-playa"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/que-usar-novio-padrinos-boda-playa</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/que-usar-novio-padrinos-boda-playa"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire"/>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/guia-branding-negocios-tulum</loc>
     <lastmod>2026-09-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/guia-foto-cenote-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3009,6 +3032,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/how-to-invite-guests-destination-wedding-save-the-dates"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/invitaciones-boda-de-destino-tiempos-save-the-dates-rsvp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/how-to-invite-guests-destination-wedding-save-the-dates"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/invitaciones-boda-de-destino-tiempos-save-the-dates-rsvp</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/how-to-invite-guests-destination-wedding-save-the-dates"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/invitaciones-boda-de-destino-tiempos-save-the-dates-rsvp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/how-to-invite-guests-destination-wedding-save-the-dates"/>
   </url>
 
   <url>
@@ -3064,6 +3100,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/in-suite-couples-session-private-pool-suite"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-en-suite-parejas-hotel-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/in-suite-couples-session-private-pool-suite"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-en-suite-parejas-hotel-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/in-suite-couples-session-private-pool-suite"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-en-suite-parejas-hotel-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/in-suite-couples-session-private-pool-suite"/>
   </url>
 
   <url>
@@ -3071,6 +3120,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/inah-photo-permits-tulum-chichen-itza"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/permisos-inah-fotos-zonas-arqueologicas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/inah-photo-permits-tulum-chichen-itza"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/permisos-inah-fotos-zonas-arqueologicas</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/inah-photo-permits-tulum-chichen-itza"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/permisos-inah-fotos-zonas-arqueologicas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/inah-photo-permits-tulum-chichen-itza"/>
   </url>
 
   <url>
@@ -3078,6 +3140,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/indian-wedding-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-bodas-indias-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/indian-wedding-photographer-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-bodas-indias-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/indian-wedding-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-bodas-indias-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/indian-wedding-photographer-cancun"/>
   </url>
 
   <url>
@@ -3085,6 +3160,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/dentro-boda-lujo-mayakoba-caso-estudio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/dentro-boda-lujo-mayakoba-caso-estudio</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/dentro-boda-lujo-mayakoba-caso-estudio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study"/>
   </url>
 
   <url>
@@ -3126,6 +3214,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/isla-mujeres-couples-photo-session-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-isla-mujeres-guia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/isla-mujeres-couples-photo-session-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-parejas-isla-mujeres-guia</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/isla-mujeres-couples-photo-session-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-isla-mujeres-guia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/isla-mujeres-couples-photo-session-guide"/>
   </url>
 
   <url>
@@ -3136,17 +3237,23 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/ivae-studios-prensa-cobertura-medios</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/ivae-studios-press-media-coverage</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/ivae-studios-press-media-coverage"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/ivae-studios-prensa-cobertura-medios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/ivae-studios-press-media-coverage"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/ivae-studios-prensa-cobertura-medios</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/ivae-studios-press-media-coverage"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/ivae-studios-prensa-cobertura-medios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/ivae-studios-press-media-coverage"/>
   </url>
 
   <url>
@@ -3154,6 +3261,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/jewish-wedding-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-bodas-judias-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/jewish-wedding-photographer-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-bodas-judias-mexico</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/jewish-wedding-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-bodas-judias-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/jewish-wedding-photographer-mexico"/>
   </url>
 
   <url>
@@ -3256,6 +3376,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-sesion-familiar-lujo-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/costo-sesion-familiar-lujo-cancun-2026</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-sesion-familiar-lujo-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
   </url>
 
   <url>
@@ -3270,6 +3403,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/estilo-fotografo-lujo-editorial-vs-documental"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/estilo-fotografo-lujo-editorial-vs-documental</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/estilo-fotografo-lujo-editorial-vs-documental"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary"/>
   </url>
 
   <url>
@@ -3408,13 +3554,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mayan-shaman-ceremony-photographed"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/ceremonia-maya-chaman-fotos-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mayan-shaman-ceremony-photographed"/>
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/mejor-mes-fotografia-cancun</loc>
+    <loc>https://ivaestudios.com/es/blog/ceremonia-maya-chaman-fotos-riviera-maya</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mayan-shaman-ceremony-photographed"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/ceremonia-maya-chaman-fotos-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mayan-shaman-ceremony-photographed"/>
   </url>
 
   <url>
@@ -3422,6 +3574,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-pros-cons"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-local-mexico-vs-fotografo-extranjero"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-pros-cons"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-local-mexico-vs-fotografo-extranjero</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-pros-cons"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-local-mexico-vs-fotografo-extranjero"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-pros-cons"/>
   </url>
 
   <url>
@@ -3429,6 +3594,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-destination-photography-faq"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/faq-fotografia-destino-mexico-30-preguntas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-destination-photography-faq"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/faq-fotografia-destino-mexico-30-preguntas</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-destination-photography-faq"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/faq-fotografia-destino-mexico-30-preguntas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-destination-photography-faq"/>
   </url>
 
   <url>
@@ -3436,6 +3614,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-boda-destino-mexico-desglose-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/costo-boda-destino-mexico-desglose-2026</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-boda-destino-mexico-desglose-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026"/>
   </url>
 
   <url>
@@ -3450,6 +3641,9 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-number-one-destination-wedding-country"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mexico-primer-destino-bodas-datos-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-number-one-destination-wedding-country"/>
   </url>
 
   <url>
@@ -3457,6 +3651,9 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/mexico-number-one-destination-wedding-country"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mexico-primer-destino-bodas-datos-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/mexico-number-one-destination-wedding-country"/>
   </url>
 
   <url>
@@ -3464,6 +3661,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/micro-wedding-photographer-cancun-tulum"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-micro-bodas-cancun-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/micro-wedding-photographer-cancun-tulum"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-micro-bodas-cancun-tulum</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/micro-wedding-photographer-cancun-tulum"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-micro-bodas-cancun-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/micro-wedding-photographer-cancun-tulum"/>
   </url>
 
   <url>
@@ -3488,17 +3698,23 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/minimoon-riviera-maya-itinerario-fotos</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/minimoon-riviera-maya-itinerario-fotos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/minimoon-riviera-maya-itinerario-fotos</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/minimoon-riviera-maya-itinerario-fotos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary"/>
   </url>
 
   <url>
@@ -3619,13 +3835,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/permisos-inah-fotos-zonas-arqueologicas</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/pesos-or-dollars-in-cancun-currency-guide</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -3694,20 +3903,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/playas-publicas-zofemat-fotos-boda</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/politica-ia-fotos-reales-fotografia</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/printed-album-from-vacation-gallery</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -3726,6 +3921,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/proposal-photography-packages-cost-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/cuanto-cuesta-un-fotografo-de-propuesta-en-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/proposal-photography-packages-cost-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/cuanto-cuesta-un-fotografo-de-propuesta-en-cancun-2026</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/proposal-photography-packages-cost-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/cuanto-cuesta-un-fotografo-de-propuesta-en-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/proposal-photography-packages-cost-cancun"/>
   </url>
 
   <url>
@@ -3753,6 +3961,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/public-beach-zofemat-wedding-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/playas-publicas-zofemat-fotos-boda"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/public-beach-zofemat-wedding-photos"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/playas-publicas-zofemat-fotos-boda</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/public-beach-zofemat-wedding-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/playas-publicas-zofemat-fotos-boda"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/public-beach-zofemat-wedding-photos"/>
   </url>
 
   <url>
@@ -3764,13 +3985,6 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/puerto-morelos-couples-photo-session</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/que-usar-novio-padrinos-boda-playa</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -3801,6 +4015,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/rain-and-wind-backup-plan-couples-session"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-lluvia-viento-plan-b"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/rain-and-wind-backup-plan-couples-session"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-parejas-lluvia-viento-plan-b</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/rain-and-wind-backup-plan-couples-session"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-lluvia-viento-plan-b"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/rain-and-wind-backup-plan-couples-session"/>
   </url>
 
   <url>
@@ -3864,6 +4091,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-resort-vs-fotografo-externo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-resort-vs-fotografo-externo-mexico</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-resort-vs-fotografo-externo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico"/>
   </url>
 
   <url>
@@ -3939,6 +4179,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/galeria-muestra-boda-cancun-60-imagenes"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/galeria-muestra-boda-cancun-60-imagenes</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/galeria-muestra-boda-cancun-60-imagenes"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images"/>
   </url>
 
   <url>
@@ -4011,21 +4264,7 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/es/blog/sesion-bautizo-primera-comunion-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-en-suite-parejas-hotel-cancun</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -4053,38 +4292,23 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-parejas-bacalar-laguna</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-parejas-isla-mujeres-guia</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-parejas-lluvia-viento-plan-b</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/sesion-parejas-valladolid-colonial</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
   </url>
 
   <url>
@@ -4245,20 +4469,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/timeline-foto-boda-8-10-12-horas</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/timeline-fotografo-boda-destino</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/blog/tipping-in-mexico-resorts-guide-for-tourists</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -4398,20 +4608,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/valladolid-colonial-couples-photo-session"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-valladolid-colonial"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/valladolid-colonial-couples-photo-session"/>
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/blog/viajar-con-vestido-novia-a-cancun</loc>
+    <loc>https://ivaestudios.com/es/blog/sesion-parejas-valladolid-colonial</loc>
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/es/blog/vianey-diaz-fotografa-lujo-trayectoria</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/valladolid-colonial-couples-photo-session"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-parejas-valladolid-colonial"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/valladolid-colonial-couples-photo-session"/>
   </url>
 
   <url>
@@ -4419,6 +4628,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/vianey-diaz-fotografa-lujo-trayectoria"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/vianey-diaz-fotografa-lujo-trayectoria</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/vianey-diaz-fotografa-lujo-trayectoria"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey"/>
   </url>
 
   <url>
@@ -4467,6 +4689,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/timeline-foto-boda-8-10-12-horas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/timeline-foto-boda-8-10-12-horas</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/timeline-foto-boda-8-10-12-horas"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours"/>
   </url>
 
   <url>
@@ -4474,6 +4709,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photo-delivery-speed-comparison"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/entrega-fotos-boda-1-a-3-dias"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photo-delivery-speed-comparison"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/entrega-fotos-boda-1-a-3-dias</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photo-delivery-speed-comparison"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/entrega-fotos-boda-1-a-3-dias"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photo-delivery-speed-comparison"/>
   </url>
 
   <url>
@@ -4501,6 +4749,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photography-cancun-cost-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-fotografia-bodas-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photography-cancun-cost-2026"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/costo-fotografia-bodas-cancun-2026</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photography-cancun-cost-2026"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/costo-fotografia-bodas-cancun-2026"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photography-cancun-cost-2026"/>
   </url>
 
   <url>
@@ -4528,6 +4789,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-weekend-3-day-photo-coverage"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-fin-de-semana-cobertura-3-dias"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-weekend-3-day-photo-coverage"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/boda-fin-de-semana-cobertura-3-dias</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-weekend-3-day-photo-coverage"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-fin-de-semana-cobertura-3-dias"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-weekend-3-day-photo-coverage"/>
   </url>
 
   <url>
