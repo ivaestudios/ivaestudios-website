@@ -547,9 +547,10 @@ def _git_lastmod_map(root):
 def lastmod_for(abs_path):
     """Return YYYY-MM-DD of the last significant change (git), else mtime."""
     global _GIT_LASTMOD
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if _GIT_LASTMOD is None:
-        _GIT_LASTMOD = _git_lastmod_map(ROOT)
-    rel = os.path.relpath(abs_path, ROOT).replace(os.sep, "/")
+        _GIT_LASTMOD = _git_lastmod_map(repo_root)
+    rel = os.path.relpath(abs_path, repo_root).replace(os.sep, "/")
     if rel in _GIT_LASTMOD:
         return _GIT_LASTMOD[rel]
     ts = os.path.getmtime(abs_path)  # not in git yet: brand-new file
