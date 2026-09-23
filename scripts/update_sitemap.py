@@ -199,6 +199,7 @@ BLOG_EN_TO_ES = {
 PAGE_EN_TO_ES = {
     "/": "/es/",
     "/about": "/es/acerca-de",
+    "/playa-mujeres-wedding-photographer": "/es/fotografo-bodas-playa-mujeres",
     "/blog": "/es/blog",
     "/cancun-photographer": "/es/fotografo-cancun",
     "/riviera-maya-photographer": "/es/fotografo-riviera-maya",
