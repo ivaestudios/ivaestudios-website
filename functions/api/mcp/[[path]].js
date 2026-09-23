@@ -47,6 +47,18 @@ const TEXT_FIELDS = ['title', 'hook', 'body', 'cta', 'caption', 'hashtags', 'alt
 
 // Normaliza un campo URL (inspo/video). Tolera links sin protocolo (les pone https://).
 // { skip:true } = no enviado (no tocar) · { value:null } = vaciar · { value } = URL válida · { err:true } = inválida.
+// Hora de publicación HH:MM (24 h). undefined = no vino · '' = vaciar · null = inválida.
+function normHora(v) {
+  if (v == null) return undefined;
+  const raw = String(v).trim();
+  if (raw === '') return '';
+  const m = raw.match(/^(\d{1,2})[:.h ]?(\d{2})$/);
+  if (!m) return null;
+  const hh = Number(m[1]); const mm = Number(m[2]);
+  if (!(hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59)) return null;
+  return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+
 function normUrl(v) {
   if (v == null) return { skip: true };
   let raw = String(v).trim();
@@ -65,6 +77,7 @@ const POST_FIELDS_SCHEMA = {
   content_type: { type: 'string', enum: CONTENT_TYPES, description: 'Tipo (reel, carrusel, foto, historia…).' },
   status: { type: 'string', enum: STATUSES, description: 'Estado del pipeline (idea, guion, revision…).' },
   publish_date: { type: 'string', description: 'Fecha de publicación AAAA-MM-DD (ubica el post en el mes del calendario). También acepta AAAA-MM (día 1).' },
+  publish_time: { type: 'string', description: 'HORA de publicación HH:MM en 24 h, hora de Cancún. SIN hora la pieza NO se publica sola: se queda en el calendario esperando. Cadena vacía para quitarla.' },
   hook: { type: 'string', description: 'HOOK del guion (gancho inicial).' },
   body: { type: 'string', description: 'CUERPO del guion.' },
   cta: { type: 'string', description: 'CTA / llamado a la acción.' },
@@ -107,7 +120,7 @@ const TOOLS = [
   },
   {
     name: 'create_post',
-    description: 'Crea un post/guion NUEVO en el calendario. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. También puedes poner el link de inspiración/referencia (inspo_url) y el link del video/asset final (video_url). La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
+    description: 'Crea un post/guion NUEVO en el calendario. Con publish_date y publish_time queda PROGRAMADO: el reloj de la app lo publica solo ese dia a esa hora. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. También puedes poner el link de inspiración/referencia (inspo_url) y el link del video/asset final (video_url). La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -269,7 +282,7 @@ async function listPosts(env, scope, args) {
       ? 'La marca de este conector ya no existe.'
       : `No encontré la marca "${args.brand || ''}". Llama list_brands para ver los nombres exactos.`);
   }
-  let sql = 'SELECT id, title, content_type, status, publish_date, hook, caption, inspo_url FROM mkt_posts WHERE client_id = ?1';
+  let sql = 'SELECT id, title, content_type, status, publish_date, publish_time, hook, caption, inspo_url FROM mkt_posts WHERE client_id = ?1';
   const binds = [brand.id];
   if (args.month) {
     if (!YM_RE.test(args.month)) return toolErr('El mes debe ser AAAA-MM (ej. 2026-07).');
@@ -283,7 +296,8 @@ async function listPosts(env, scope, args) {
   const lines = rows.map((r) => {
     const cap = (r.caption && String(r.caption).trim()) ? 'caption: ✓' : 'caption: FALTA';
     const inspo = (r.inspo_url && String(r.inspo_url).trim()) ? ` — inspo: ${String(r.inspo_url).trim()}` : '';
-    return `• [id: ${r.id}] ${r.publish_date || 'sin fecha'} — [${r.content_type}/${r.status}] ${r.title} — ${cap}${r.hook ? ` — hook: ${String(r.hook).slice(0, 50)}` : ''}${inspo}`;
+    const hora = r.publish_time ? ` ${r.publish_time}` : ' (sin hora: no se publica sola)';
+    return `• [id: ${r.id}] ${r.publish_date || 'sin fecha'}${hora} — [${r.content_type}/${r.status}] ${r.title} — ${cap}${r.hook ? ` — hook: ${String(r.hook).slice(0, 50)}` : ''}${inspo}`;
   });
   return toolText(`${rows.length} post(s) en ${brand.name}${args.month ? ` (${args.month})` : ''}. Usa el ID con update_post para editar:\n${lines.join('\n')}`);
 }
@@ -320,6 +334,9 @@ async function createPost(env, scope, args) {
   const cols = ['id', 'client_id', 'title', 'content_type', 'status', 'platform'];
   const vals = [id, brand.id, title, content_type, status, platform];
   if (publish_date) { cols.push('publish_date'); vals.push(publish_date); }
+  const hora = normHora(args.publish_time);
+  if (hora === null) return toolErr('publish_time debe ser una hora HH:MM de 24 horas (ej. 09:00 o 19:30).');
+  if (hora) { cols.push('publish_time'); vals.push(hora); }
   if (grabacion != null) { cols.push('grabacion'); vals.push(grabacion); }
   for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null && String(args[f]) !== '') { cols.push(f); vals.push(clip(args[f])); }
@@ -338,7 +355,8 @@ async function createPost(env, scope, args) {
   return toolText(
     `Guion creado en ${brand.name} ✓\n` +
     `• Título: ${title}\n• Tipo: ${content_type}\n• Estado: ${status}\n` +
-    `• Fecha: ${publish_date || 'sin fecha'} (mes: ${mes})\n• ID: ${id}`
+    `• Fecha: ${publish_date || 'sin fecha'} (mes: ${mes})\n` +
+    `• Hora: ${hora || 'SIN HORA, no se publica sola'}\n• ID: ${id}`
   );
 }
 
@@ -361,7 +379,7 @@ async function getPost(env, scope, args) {
   return toolText([
     `Post de ${p.brand_name} — ID ${p.id}`,
     `• Título: ${S(p.title)}`,
-    `• Fecha: ${p.publish_date || 'sin fecha'} · Tipo: ${p.content_type} · Estado: ${p.status} · Plataforma: ${p.platform || 'Instagram'}${p.grabacion ? ` · Grabación: ${p.grabacion}` : ''}`,
+    `• Fecha: ${p.publish_date || 'sin fecha'} · Hora: ${p.publish_time || 'sin hora (no se publica sola)'} · Tipo: ${p.content_type} · Estado: ${p.status} · Plataforma: ${p.platform || 'Instagram'}${p.grabacion ? ` · Grabación: ${p.grabacion}` : ''}`,
     '',
     `HOOK:\n${S(p.hook)}`,
     '',
@@ -424,6 +442,11 @@ async function updatePost(env, scope, args) {
     const d = normDate(args.publish_date != null ? args.publish_date : args.month);
     if (d === undefined) return toolErr('La fecha debe ser AAAA-MM-DD, o el mes AAAA-MM (o vacío para quitarla).');
     sets.push('publish_date = ?'); vals.push(d === '' ? null : d); changed.push('fecha');
+  }
+  if (args.publish_time != null) {
+    const h = normHora(args.publish_time);
+    if (h === null) return toolErr('publish_time debe ser una hora HH:MM de 24 horas (ej. 09:00 o 19:30).');
+    sets.push('publish_time = ?'); vals.push(h === '' ? null : h); changed.push(h === '' ? 'hora (quitada, ya no se publica sola)' : 'hora');
   }
   if (args.grabacion != null && args.grabacion !== '') {
     const g = Number(args.grabacion);
