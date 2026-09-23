@@ -479,9 +479,80 @@ def changefreq_for(path):
     return "monthly"
 
 
+LASTMOD_MIN_LINES = 20  # a change smaller than this does not bump lastmod
+_GIT_LASTMOD = None
+
+
+def _git_lastmod_map(root):
+    """Map repo-relative path -> date of the last SIGNIFICANT change.
+
+    Significant = a commit that added+deleted at least LASTMOD_MIN_LINES lines
+    of that file. Mass edits (anchor text, review counts, hreflang tags) touch
+    hundreds of pages but do not change what a reader gets, so they must not
+    make every URL claim "modified today": Google stops trusting lastmod when
+    almost every entry carries the same date. Uncommitted work with a big diff
+    is dated today, because it is about to be committed.
+    """
+    import subprocess
+
+    out = {}
+    try:
+        log = subprocess.run(
+            ["git", "log", "--no-renames", "--numstat", "--format=@@%cs"],
+            cwd=root, capture_output=True, text=True, check=True,
+        ).stdout
+    except Exception:
+        return out
+    fecha, last_any = None, {}
+    for line in log.splitlines():
+        if line.startswith("@@"):
+            fecha = line[2:]
+            continue
+        parts = line.split("\t")
+        if len(parts) != 3:
+            continue
+        added, deleted, path = parts
+        last_any.setdefault(path, fecha)
+        if path in out:
+            continue
+        try:
+            n = int(added) + int(deleted)
+        except ValueError:
+            n = LASTMOD_MIN_LINES  # binary: count it
+        if n >= LASTMOD_MIN_LINES:
+            out[path] = fecha
+    for path, fecha in last_any.items():
+        out.setdefault(path, fecha)
+    hoy = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+    try:
+        wt = subprocess.run(
+            ["git", "diff", "--numstat", "HEAD"],
+            cwd=root, capture_output=True, text=True, check=True,
+        ).stdout
+        for line in wt.splitlines():
+            parts = line.split("\t")
+            if len(parts) != 3:
+                continue
+            try:
+                n = int(parts[0]) + int(parts[1])
+            except ValueError:
+                n = LASTMOD_MIN_LINES
+            if n >= LASTMOD_MIN_LINES:
+                out[parts[2]] = hoy
+    except Exception:
+        pass
+    return out
+
+
 def lastmod_for(abs_path):
-    """Return YYYY-MM-DD for the file's mtime (UTC)."""
-    ts = os.path.getmtime(abs_path)
+    """Return YYYY-MM-DD of the last significant change (git), else mtime."""
+    global _GIT_LASTMOD
+    if _GIT_LASTMOD is None:
+        _GIT_LASTMOD = _git_lastmod_map(ROOT)
+    rel = os.path.relpath(abs_path, ROOT).replace(os.sep, "/")
+    if rel in _GIT_LASTMOD:
+        return _GIT_LASTMOD[rel]
+    ts = os.path.getmtime(abs_path)  # not in git yet: brand-new file
     return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
 
 
