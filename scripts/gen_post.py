@@ -111,6 +111,17 @@ def generar(plantilla, d):
                   lambda m: m.group(1) + f'<h3>{d["enlaces_titulo"]}</h3><div class="il-grid">{il}</div>' + m.group(2),
                   body, count=1, flags=re.S)
 
+    # En la plantilla el FAQ y los enlaces viven DENTRO de <article>, y el
+    # reemplazo del articulo (arriba) se los lleva por delante. Si tras las
+    # sustituciones no quedan, se vuelven a meter antes de </article>.
+    # Descubierto el 2026-09-22: 12 posts salian con FAQPage en el JSON-LD
+    # y sin ninguna pregunta visible.
+    faq_html = f'<section class="faq-block" id="faq"><h2>{d["faq_titulo"]}</h2>{faq}</section>'
+    il_html = f'<section class="internal-links"><h3>{d["enlaces_titulo"]}</h3><div class="il-grid">{il}</div></section>'
+    if 'class="faq-block"' not in body:
+        body = body.replace("</article>", faq_html + "</article>", 1)
+    if 'class="internal-links"' not in body:
+        body = body.replace("</article>", il_html + "</article>", 1)
     if d.get("hero_img"):
         body = re.sub(r'(<div class="post-hero-ph">.*?<img src=")[^"]*(")', lambda m: m.group(1) + d["hero_img"] + m.group(2), body, count=1, flags=re.S)
         body = re.sub(r'(<div class="post-hero-ph">.*?<img [^>]*alt=")[^"]*(")', lambda m: m.group(1) + d["hero_alt"] + m.group(2), body, count=1, flags=re.S)
