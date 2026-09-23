@@ -398,7 +398,13 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
   const pedida = ['public', 'unlisted', 'private'].includes(elec.privacy_status) ? elec.privacy_status : 'private';
   const privacidad = auditada ? pedida : 'private';
 
-  // COPPA: la declaración "es contenido para niños" la hace una persona.
+  // COPPA: la declaración "es contenido para niños" la hace UNA PERSONA, nunca
+  // la app ni la IA. A YouTube se lo dijimos por escrito en la auditoría, así
+  // que aquí se EXIGE: sin declarar, no se sube. Antes se asumía "no" en
+  // silencio, que es justo lo que prometimos no hacer.
+  if (elec.made_for_kids !== true && elec.made_for_kids !== false) {
+    throw new Error('Falta declarar si el video es contenido para niños (lo exige YouTube). Ábrelo en Opciones de YouTube y elígelo.');
+  }
   const paraNinos = elec.made_for_kids === true;
 
   // ── EL TAMAÑO DEL VIDEO (22-sep-2026) ─────────────────────────────────────

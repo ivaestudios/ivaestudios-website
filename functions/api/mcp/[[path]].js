@@ -47,6 +47,21 @@ const TEXT_FIELDS = ['title', 'hook', 'body', 'cta', 'caption', 'hashtags', 'alt
 
 // Normaliza un campo URL (inspo/video). Tolera links sin protocolo (les pone https://).
 // { skip:true } = no enviado (no tocar) · { value:null } = vaciar · { value } = URL válida · { err:true } = inválida.
+// Canales extra: la marca tiene que tenerlos CONECTADOS. Devuelve el mensaje
+// de error si no, o null si todo bien.
+async function faltaConexion(env, brandId, args) {
+  const pide = { youtube: args.youtube === true, tiktok: args.tiktok === true, facebook: args.facebook === true };
+  if (!pide.youtube && !pide.tiktok && !pide.facebook) return null;
+  const c = await env.DB.prepare(
+    'SELECT yt_access_token, tt_access_token, fb_access_token FROM mkt_clients WHERE id = ?'
+  ).bind(brandId).first().catch(() => null);
+  if (!c) return 'No pude leer las conexiones de la marca.';
+  if (pide.youtube && !c.yt_access_token) return 'Esta marca no tiene YouTube conectado todavía. Conéctalo en la app (ficha de la marca) y vuelve a pedirlo.';
+  if (pide.tiktok && !c.tt_access_token) return 'Esta marca no tiene TikTok conectado todavía.';
+  if (pide.facebook && !c.fb_access_token) return 'Esta marca no tiene Facebook conectado todavía.';
+  return null;
+}
+
 // Hora de publicación HH:MM (24 h). undefined = no vino · '' = vaciar · null = inválida.
 function normHora(v) {
   if (v == null) return undefined;
@@ -88,6 +103,9 @@ const POST_FIELDS_SCHEMA = {
   video_url: { type: 'string', description: 'Link del VIDEO / asset final (columna "Video final"): URL del video. Cadena vacía para quitarlo.' },
   platform: { type: 'string', enum: PLATFORMS, description: 'Plataforma (default Instagram).' },
   grabacion: { type: 'integer', description: 'Prioridad de grabación 1-5 (1 = más urgente).' },
+  youtube: { type: 'boolean', description: 'Enciende el canal de YouTube de la marca para esta pieza (sube el video al canal a la hora programada). La marca debe tener YouTube conectado. OJO: antes de que suba, una PERSONA tiene que declarar en la app si el video es contenido para niños, lo exige YouTube.' },
+  tiktok: { type: 'boolean', description: 'Enciende el TikTok conectado de la marca para esta pieza.' },
+  facebook: { type: 'boolean', description: 'Enciende la página de Facebook conectada de la marca para esta pieza.' },
 };
 
 const TOOLS = [
@@ -337,6 +355,11 @@ async function createPost(env, scope, args) {
   const hora = normHora(args.publish_time);
   if (hora === null) return toolErr('publish_time debe ser una hora HH:MM de 24 horas (ej. 09:00 o 19:30).');
   if (hora) { cols.push('publish_time'); vals.push(hora); }
+  const faltaC = await faltaConexion(env, brand.id, args);
+  if (faltaC) return toolErr(faltaC);
+  for (const [arg, col] of [['youtube', 'also_youtube'], ['tiktok', 'also_tiktok'], ['facebook', 'also_facebook']]) {
+    if (args[arg] != null) { cols.push(col); vals.push(args[arg] ? 1 : 0); }
+  }
   if (grabacion != null) { cols.push('grabacion'); vals.push(grabacion); }
   for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null && String(args[f]) !== '') { cols.push(f); vals.push(clip(args[f])); }
@@ -356,7 +379,9 @@ async function createPost(env, scope, args) {
     `Guion creado en ${brand.name} ✓\n` +
     `• Título: ${title}\n• Tipo: ${content_type}\n• Estado: ${status}\n` +
     `• Fecha: ${publish_date || 'sin fecha'} (mes: ${mes})\n` +
-    `• Hora: ${hora || 'SIN HORA, no se publica sola'}\n• ID: ${id}`
+    `• Hora: ${hora || 'SIN HORA, no se publica sola'}\n` +
+    (args.youtube === true ? '• YouTube: encendido. Falta que una persona declare en la app si es contenido para niños, si no YouTube no lo acepta.\n' : '') +
+    `• ID: ${id}`
   );
 }
 
@@ -442,6 +467,14 @@ async function updatePost(env, scope, args) {
     const d = normDate(args.publish_date != null ? args.publish_date : args.month);
     if (d === undefined) return toolErr('La fecha debe ser AAAA-MM-DD, o el mes AAAA-MM (o vacío para quitarla).');
     sets.push('publish_date = ?'); vals.push(d === '' ? null : d); changed.push('fecha');
+  }
+  const faltaC2 = await faltaConexion(env, post.client_id, args);
+  if (faltaC2) return toolErr(faltaC2);
+  for (const [arg, col, etiqueta] of [['youtube', 'also_youtube', 'YouTube'], ['tiktok', 'also_tiktok', 'TikTok'], ['facebook', 'also_facebook', 'Facebook']]) {
+    if (args[arg] != null) {
+      sets.push(`${col} = ?`); vals.push(args[arg] ? 1 : 0);
+      changed.push(args[arg] ? `${etiqueta} encendido` : `${etiqueta} apagado`);
+    }
   }
   if (args.publish_time != null) {
     const h = normHora(args.publish_time);
