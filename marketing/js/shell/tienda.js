@@ -23,7 +23,7 @@
 // esta misma web y se actualiza sola. Avisarle de la tienda seria mentira.
 // ============================================================================
 
-import { api } from '../api.js?v=202609231830';
+import { api } from '../api.js?v=202609231833';
 
 // La ficha nunca cambia de direccion (app id 6796458308).
 export const APP_STORE_URL = 'https://apps.apple.com/mx/app/ivae-marketing/id6796458308';

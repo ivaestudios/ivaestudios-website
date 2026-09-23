@@ -118,10 +118,13 @@
 .bj-chat__head .bj-avatar { width: 36px; height: 36px; font-size: 12px; }
 .bj-chat__quien { flex: 1; min-width: 0; }
 .bj-chat__nombre { font-weight: 700; font-size: var(--fs-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bj-chat__meta { display: flex; align-items: center; gap: 6px; font-size: var(--fs-1); margin-top: 2px; min-width: 0; }
+.bj-chat__meta { display: flex; align-items: center; gap: 6px; font-size: var(--fs-1); margin-top: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.bj-chat__meta::-webkit-scrollbar { display: none; }
+.bj-chat__meta > * { flex: none; }
+.bj-chat__user { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bj-etapa {
   appearance: none; flex: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
-  min-height: 36px; padding: 0 6px 0 4px; border-radius: var(--r-pill); background: transparent; border: 1px solid transparent; color: var(--text-dim); font: inherit;
+  min-height: 28px; padding: 0 4px 0 2px; border-radius: var(--r-pill); background: transparent; border: 1px solid transparent; color: var(--text-dim); font: inherit;
 }
 .bj-etapa:hover { border-color: var(--border); background: var(--surface); }
 .bj-back { flex: none; }
