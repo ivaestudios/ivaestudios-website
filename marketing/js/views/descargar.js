@@ -9,9 +9,9 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609221409';
-import { icon } from '../shell/icons.js?v=202609221409';
-import { T } from '../shell/i18n.js?v=202609221409';
+import { api, el, clear, toast } from '../api.js?v=202609222346';
+import { icon } from '../shell/icons.js?v=202609222346';
+import { T } from '../shell/i18n.js?v=202609222346';
 
 const VIEW_ID = 'descargar';
 
@@ -124,7 +124,7 @@ function render() {
   rootEl.append(
     el('div', { class: 'dl-head' }, [
       el('h1', { class: 'dl-title', text: T('Descargar contenido', 'Download content') }),
-      el('p', { class: 'dl-sub', text: T('Instagram · TikTok · Pinterest · YouTube — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.', 'Instagram · TikTok · Pinterest · YouTube — videos, photos and carousels, watermark-free and in the highest quality. Just paste the link.') }),
+      el('p', { class: 'dl-sub', text: T('Instagram, TikTok, Pinterest y YouTube: videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.', 'Instagram, TikTok, Pinterest and YouTube: videos, photos and carousels, watermark-free and in the highest quality. Just paste the link.') }),
     ]),
     form,
     chips,
@@ -137,7 +137,7 @@ function renderHint() {
   clear(resultEl);
   resultEl.appendChild(el('div', { class: 'dl-hint' }, [
     icon('download', 30),
-    el('p', { text: T('Pega un link arriba y descarga el video, la foto o el carrusel — limpio, sin marca de agua.', 'Paste a link above and download the video, photo or carousel — clean, no watermark.') }),
+    el('p', { text: T('Pega un link arriba y descarga el video, la foto o el carrusel, limpio y sin marca de agua.', 'Paste a link above and download the video, photo or carousel, clean and with no watermark.') }),
     el('p', { class: 'muted small', text: T('Descarga contenido tuyo o de tus clientes; tú decides qué re-subir.', 'Download your own or your clients\' content; you decide what to re-upload.') }),
   ]));
 }
@@ -237,7 +237,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202609221409';
+  link.href = '/marketing/css/descargar.css?v=202609222346';
   document.head.appendChild(link);
 }
 

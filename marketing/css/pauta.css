@@ -23,12 +23,16 @@
 }
 .pauta-aviso svg { flex: none; color: var(--warn); margin-top: 1px; }
 
-.pauta-grid { display: grid; gap: var(--s-3, 12px); margin-top: var(--s-4, 16px); }
+.pauta-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3, 12px); margin-top: var(--s-4, 16px); }
+/* min-width:0: sin esto la tarjeta crece al ancho de su nombre (nowrap) y en
+   390px se salia 85px de la pantalla (auditoria 2026-09-22). */
+.pauta-grid > * { min-width: 0; }
 @media (min-width: 720px) {
   .pauta-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 }
 
 .pauta-card {
+  min-width: 0; max-width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--r-lg, 16px);
   background: var(--surface);

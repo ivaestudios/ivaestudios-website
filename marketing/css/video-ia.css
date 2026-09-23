@@ -10,7 +10,12 @@
 .via-aviso p { margin: 6px 0 0; color: var(--text-dim); line-height: 1.45; }
 .via-gasto { font-size: var(--fs-2); color: var(--text-dim); text-align: center; margin-bottom: 14px; }
 .via-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 14px; }
-.via-row { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.via-row { display: flex; gap: 8px; align-items: center; min-width: 0; flex-wrap: wrap; }
+/* En 390px el selector quedaba en "Tomar la escena de u" y el boton se salia
+   de su pastilla: cada uno toma su renglon completo (auditoria 2026-09-22). */
+@media (max-width: 479px) {
+  .via-row > .via-select, .via-row > .btn { flex: 1 1 100%; width: 100%; justify-content: center; }
+}
 .via-row > * { min-width: 0; }
 .via-select { flex: 1 1 auto; min-width: 0; max-width: 100%; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; font: inherit; }
 .via-prompt { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; font: inherit; line-height: 1.45; resize: vertical; }

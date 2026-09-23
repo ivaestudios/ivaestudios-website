@@ -174,6 +174,14 @@ BLOG_EN_TO_ES = {
     "sunset-wedding-photography-best-times-cancun": "fotografia-boda-atardecer-mejores-horas-cancun",
     "black-and-white-vs-color-wedding-photography": "fotografia-boda-blanco-negro-vs-color",
     "welcome-dinner-rehearsal-wedding-photography": "fotografia-cena-bienvenida-ensayo-boda",
+    # Ola 2026-09-22: costos, paquetes, foto y video, y gemelos ES de dos posts EN
+    "how-much-does-a-wedding-videographer-cost-cancun-2026": "cuanto-cuesta-un-videografo-de-bodas-en-cancun-2026",
+    "tulum-wedding-cost-2026": "costo-boda-tulum-2026",
+    "riviera-maya-wedding-cost-2026": "costo-boda-riviera-maya-2026",
+    "wedding-photography-packages-what-they-include-2026": "paquetes-de-fotografia-de-boda-que-incluyen-2026",
+    "cancun-wedding-photographer-and-videographer-one-team": "fotografo-y-videografo-de-bodas-cancun-un-solo-equipo",
+    "secrets-vs-dreams-resort-wedding-comparison": "secrets-vs-dreams-cual-es-mejor-para-tu-boda",
+    "is-isla-mujeres-safe-for-tourists": "es-seguro-isla-mujeres-para-turistas",
 }
 
 # Top-level EN page slug ↔ Spanish page slug (under es/<slug>).

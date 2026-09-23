@@ -232,6 +232,11 @@
 .dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 160px; min-width: 120px; }
 @media (max-width: 539px) {
   .dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 100%; min-width: 0; }
+  /* Los 3 botones + el basurero no caben en 390px: la fila envuelve y el
+     basurero se queda al final en vez de salirse de la pantalla (auditoria
+     2026-09-22: quedaba 7-19px fuera y no se podia borrar desde el celular). */
+  .dlv-card__foot.is-staff .dlv-card__actions { flex: 1 1 100%; flex-wrap: wrap; min-width: 0; }
+  .dlv-card__foot.is-staff .dlv-del { margin-left: auto; }
 }
 
 .dlv-del {
