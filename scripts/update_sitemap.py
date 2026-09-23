@@ -479,48 +479,85 @@ def changefreq_for(path):
     return "monthly"
 
 
-LASTMOD_MIN_LINES = 20  # a change smaller than this does not bump lastmod
+LASTMOD_MASS_EDIT_FILES = 60  # a commit touching more HTML files than this is a mass edit
+LASTMOD_MIN_LINES = 3         # in a normal commit: a title or a paragraph
+LASTMOD_MIN_BYTES = 300       # in a normal commit: a real sentence or a link block
+LASTMOD_HUGE_BYTES = 8000     # in ANY commit: a gallery or a new section
 _GIT_LASTMOD = None
 
 
 def _git_lastmod_map(root):
     """Map repo-relative path -> date of the last SIGNIFICANT change.
 
-    Significant = a commit that added+deleted at least LASTMOD_MIN_LINES lines
-    of that file. Mass edits (anchor text, review counts, hreflang tags) touch
-    hundreds of pages but do not change what a reader gets, so they must not
-    make every URL claim "modified today": Google stops trusting lastmod when
-    almost every entry carries the same date. Uncommitted work with a big diff
-    is dated today, because it is about to be committed.
+    The pages are written one line per section, so line counts cannot tell a
+    26-photo gallery (+1 -1) from an anchor-text tweak (+1 -1), and byte
+    deltas alone flag every site-wide markup change. Rule: a file's lastmod is
+    the newest commit where the file was added, or moved LASTMOD_HUGE_BYTES or
+    more, or (when the commit touched at most LASTMOD_MASS_EDIT_FILES HTML
+    files) changed LASTMOD_MIN_LINES lines or LASTMOD_MIN_BYTES bytes. Mass
+    edits (anchor text, cache bumps, hreflang tags) therefore do not make every
+    URL claim "modified today", which is when Google stops trusting lastmod.
+    Uncommitted work that passes the normal-commit test is dated today.
     """
     import subprocess
 
     out = {}
     try:
         log = subprocess.run(
-            ["git", "log", "--no-renames", "--numstat", "--format=@@%cs"],
+            ["git", "log", "--no-renames", "--raw", "--numstat", "--abbrev=40",
+             "--format=@@%cs"],
             cwd=root, capture_output=True, text=True, check=True,
         ).stdout
     except Exception:
         return out
-    fecha, last_any = None, {}
+    commits = []  # [fecha, {path: [old, new, status, lines]}]
     for line in log.splitlines():
         if line.startswith("@@"):
-            fecha = line[2:]
+            commits.append([line[2:], {}])
+            continue
+        if not commits:
+            continue
+        files = commits[-1][1]
+        if line.startswith(":"):
+            head, _, path = line.partition("\t")
+            parts = head.split()
+            if len(parts) >= 5 and path.endswith(".html"):
+                files[path] = [parts[2], parts[3], parts[4], 0]
             continue
         parts = line.split("\t")
-        if len(parts) != 3:
-            continue
-        added, deleted, path = parts
-        last_any.setdefault(path, fecha)
-        if path in out:
-            continue
+        if len(parts) == 3 and parts[2] in files:
+            try:
+                files[parts[2]][3] = int(parts[0]) + int(parts[1])
+            except ValueError:
+                files[parts[2]][3] = LASTMOD_MIN_LINES
+    ids = sorted({b for _, files in commits for v in files.values()
+                  for b in v[:2] if set(b) != {"0"}})
+    sizes = {}
+    if ids:
         try:
-            n = int(added) + int(deleted)
-        except ValueError:
-            n = LASTMOD_MIN_LINES  # binary: count it
-        if n >= LASTMOD_MIN_LINES:
-            out[path] = fecha
+            cf = subprocess.run(
+                ["git", "cat-file", "--batch-check=%(objectname) %(objectsize)"],
+                cwd=root, input="\n".join(ids) + "\n", capture_output=True,
+                text=True, check=True,
+            ).stdout
+            for l in cf.splitlines():
+                a = l.split()
+                if len(a) == 2 and a[1].isdigit():
+                    sizes[a[0]] = int(a[1])
+        except Exception:
+            pass
+    last_any = {}
+    for fecha, files in commits:  # newest first
+        mass = len(files) > LASTMOD_MASS_EDIT_FILES
+        for path, (old, new, status, n_lines) in files.items():
+            last_any.setdefault(path, fecha)
+            if path in out:
+                continue
+            delta = abs(sizes.get(new, 0) - sizes.get(old, 0))
+            if (status.startswith("A") or delta >= LASTMOD_HUGE_BYTES
+                    or (not mass and (n_lines >= LASTMOD_MIN_LINES
+                                      or delta >= LASTMOD_MIN_BYTES))):
+                out[path] = fecha
     for path, fecha in last_any.items():
         out.setdefault(path, fecha)
     hoy = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
@@ -529,16 +566,24 @@ def _git_lastmod_map(root):
             ["git", "diff", "--numstat", "HEAD"],
             cwd=root, capture_output=True, text=True, check=True,
         ).stdout
-        for line in wt.splitlines():
-            parts = line.split("\t")
-            if len(parts) != 3:
-                continue
-            try:
-                n = int(parts[0]) + int(parts[1])
-            except ValueError:
-                n = LASTMOD_MIN_LINES
-            if n >= LASTMOD_MIN_LINES:
-                out[parts[2]] = hoy
+        rows = [l.split("\t") for l in wt.splitlines()]
+        rows = [r for r in rows if len(r) == 3 and r[2].endswith(".html")]
+        if len(rows) <= LASTMOD_MASS_EDIT_FILES:
+            for added, deleted, path in rows:
+                try:
+                    n = int(added) + int(deleted)
+                except ValueError:
+                    n = LASTMOD_MIN_LINES
+                delta = 0
+                try:
+                    head_size = int(subprocess.run(
+                        ["git", "cat-file", "-s", "HEAD:" + path], cwd=root,
+                        capture_output=True, text=True, check=True).stdout.strip())
+                    delta = abs(os.path.getsize(os.path.join(root, path)) - head_size)
+                except Exception:
+                    pass
+                if n >= LASTMOD_MIN_LINES or delta >= LASTMOD_MIN_BYTES:
+                    out[path] = hoy
     except Exception:
         pass
     return out
