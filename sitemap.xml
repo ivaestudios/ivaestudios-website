@@ -726,7 +726,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/vianey-diaz</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -798,7 +798,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografo-bodas-judias-destino-mexico</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/jewish-destination-wedding-photographer-mexico"/>
@@ -1273,7 +1273,7 @@
 
   <url>
     <loc>https://ivaestudios.com/vacantes</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1297,7 +1297,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/venues</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/venues"/>
@@ -1307,7 +1307,7 @@
 
   <url>
     <loc>https://ivaestudios.com/vianey-diaz</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1816,6 +1816,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-sargassum-seaweed-season-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/temporada-de-sargazo-en-cancun-cuando-esta-limpia-la-playa"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-sargassum-seaweed-season-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/temporada-de-sargazo-en-cancun-cuando-esta-limpia-la-playa</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-sargassum-seaweed-season-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/temporada-de-sargazo-en-cancun-cuando-esta-limpia-la-playa"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-sargassum-seaweed-season-guide"/>
   </url>
 
   <url>
@@ -3058,6 +3071,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/legal-vs-symbolic-wedding-mexico-foreigners"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-legal-o-simbolica-en-mexico-guia-para-extranjeros"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/legal-vs-symbolic-wedding-mexico-foreigners"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/boda-legal-o-simbolica-en-mexico-guia-para-extranjeros</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/legal-vs-symbolic-wedding-mexico-foreigners"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/boda-legal-o-simbolica-en-mexico-guia-para-extranjeros"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/legal-vs-symbolic-wedding-mexico-foreigners"/>
   </url>
 
   <url>
@@ -3467,6 +3493,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/pesos-or-dollars-in-cancun-currency-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/pesos-o-dolares-en-cancun-guia-de-dinero"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/pesos-or-dollars-in-cancun-currency-guide"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/pesos-o-dolares-en-cancun-guia-de-dinero</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/pesos-or-dollars-in-cancun-currency-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/pesos-o-dolares-en-cancun-guia-de-dinero"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/pesos-or-dollars-in-cancun-currency-guide"/>
   </url>
 
   <url>
@@ -3683,6 +3722,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/riviera-maya-vs-playa-del-carmen-difference"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/riviera-maya-vs-playa-del-carmen-cual-es-la-diferencia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/riviera-maya-vs-playa-del-carmen-difference"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/riviera-maya-vs-playa-del-carmen-cual-es-la-diferencia</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/riviera-maya-vs-playa-del-carmen-difference"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/riviera-maya-vs-playa-del-carmen-cual-es-la-diferencia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/riviera-maya-vs-playa-del-carmen-difference"/>
   </url>
 
   <url>
@@ -4022,6 +4074,19 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tipping-in-mexico-resorts-guide-for-tourists"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/propinas-en-mexico-guia-para-resorts-y-servicios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/tipping-in-mexico-resorts-guide-for-tourists"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/blog/propinas-en-mexico-guia-para-resorts-y-servicios</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tipping-in-mexico-resorts-guide-for-tourists"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/propinas-en-mexico-guia-para-resorts-y-servicios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/tipping-in-mexico-resorts-guide-for-tourists"/>
   </url>
 
   <url>
@@ -4401,7 +4466,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/locaciones/hyatt-ziva-cancun/</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/venues/hyatt-ziva-cancun/"/>
@@ -4421,7 +4486,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/locaciones/jw-marriott-cancun/</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/venues/jw-marriott-cancun/"/>
@@ -4431,7 +4496,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/locaciones/le-blanc-spa-cancun/</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/le-blanc-cancun-wedding-photographer"/>

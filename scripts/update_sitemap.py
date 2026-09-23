@@ -174,6 +174,11 @@ BLOG_EN_TO_ES = {
     "sunset-wedding-photography-best-times-cancun": "fotografia-boda-atardecer-mejores-horas-cancun",
     "black-and-white-vs-color-wedding-photography": "fotografia-boda-blanco-negro-vs-color",
     "welcome-dinner-rehearsal-wedding-photography": "fotografia-cena-bienvenida-ensayo-boda",
+    "cancun-sargassum-seaweed-season-guide": "temporada-de-sargazo-en-cancun-cuando-esta-limpia-la-playa",
+    "pesos-or-dollars-in-cancun-currency-guide": "pesos-o-dolares-en-cancun-guia-de-dinero",
+    "legal-vs-symbolic-wedding-mexico-foreigners": "boda-legal-o-simbolica-en-mexico-guia-para-extranjeros",
+    "tipping-in-mexico-resorts-guide-for-tourists": "propinas-en-mexico-guia-para-resorts-y-servicios",
+    "riviera-maya-vs-playa-del-carmen-difference": "riviera-maya-vs-playa-del-carmen-cual-es-la-diferencia",
     # Ola 2026-09-22: costos, paquetes, foto y video, y gemelos ES de dos posts EN
     "how-much-does-a-wedding-videographer-cost-cancun-2026": "cuanto-cuesta-un-videografo-de-bodas-en-cancun-2026",
     "tulum-wedding-cost-2026": "costo-boda-tulum-2026",
