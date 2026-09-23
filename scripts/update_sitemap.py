@@ -174,6 +174,7 @@ BLOG_EN_TO_ES = {
     "sunset-wedding-photography-best-times-cancun": "fotografia-boda-atardecer-mejores-horas-cancun",
     "black-and-white-vs-color-wedding-photography": "fotografia-boda-blanco-negro-vs-color",
     "welcome-dinner-rehearsal-wedding-photography": "fotografia-cena-bienvenida-ensayo-boda",
+    "drone-wedding-photos-mexico-afac-rules": "permisos-dron-bodas-mexico-afac",
     "micro-wedding-photographer-cancun-tulum": "fotografo-micro-bodas-cancun-tulum",
     "how-to-invite-guests-destination-wedding-save-the-dates": "invitaciones-boda-de-destino-tiempos-save-the-dates-rsvp",
     "grand-velas-riviera-maya-wedding-guide": "boda-en-grand-velas-riviera-maya-guia-de-planeacion",
