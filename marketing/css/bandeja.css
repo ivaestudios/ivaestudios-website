@@ -122,6 +122,8 @@
 .bj-chat__meta::-webkit-scrollbar { display: none; }
 .bj-chat__meta > * { flex: none; }
 .bj-chat__user { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* En el teléfono el @usuario cede el lugar a la etapa (que sí se toca). */
+@media (max-width: 599px) { .bj-chat__user { display: none; } }
 .bj-etapa {
   appearance: none; flex: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
   min-height: 28px; padding: 0 4px 0 2px; border-radius: var(--r-pill); background: transparent; border: 1px solid transparent; color: var(--text-dim); font: inherit;

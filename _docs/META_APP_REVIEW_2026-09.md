@@ -178,3 +178,56 @@ the user selected after the Meta login flow shown in the screencast.
 por correo, no por el panel (igual que pasó con Google Play). Y `[skip ci]` no
 tiene nada que ver aquí, pero sí: no toques el permiso aprobado
 `instagram_business_basic`, que es el que sostiene el reporte en producción.
+
+---
+
+## Anexo 23-sep-2026 — Bandeja (comentarios, DMs, Messenger)
+
+Permisos agregados a la app este día (todos quedaron "Listo para la prueba";
+falta pedir acceso avanzado en Revisión de la app):
+`instagram_business_manage_comments`, `instagram_business_manage_messages`,
+`Human Agent`, `pages_manage_engagement`, `pages_manage_metadata`,
+`pages_read_user_content`. `pages_messaging` vive en el caso de uso
+**Messenger** (hay que agregarlo con "Agregar casos de uso").
+
+Textos para el formulario (inglés, listos para pegar). Cada uno describe
+QUÉ hace la app con el permiso y CÓMO lo verá el revisor en el video.
+
+**instagram_business_manage_comments**
+IVAE Marketing is a scheduling and community-management tool used by marketing
+agencies for the brands they manage. With this permission the app reads the
+comments left on the brand's Instagram posts and lets the agency reply to them
+in public, hide a comment, or mark it as handled, from the "Inbox" screen. The
+video shows: Instagram login, the Inbox, a real comment on a brand post, the
+reply typed and published from the app, and the reply visible on Instagram.
+
+**instagram_business_manage_messages**
+The Inbox shows the direct messages the brand receives on Instagram and lets
+the agency answer them from the app (text replies, one thread per person),
+including a private reply to a comment. The video shows: Instagram login, a
+message received by the brand appearing in the Inbox, the answer sent from the
+app, and the same answer visible in the Instagram conversation.
+
+**Human Agent**
+Agencies answer on business hours, so many replies happen more than 24 hours
+after the person wrote. When Meta rejects a standard reply for being outside
+the window, the app retries the same message with the human_agent tag, only
+for human replies typed by a person in the Inbox (never automated).
+
+**pages_manage_engagement**
+Lets the agency reply in public to comments left on the brand's Facebook Page
+posts from the Inbox, and hide a comment. Same flow as Instagram, on the Page.
+
+**pages_read_user_content**
+Needed to read the comments that people leave on the Page's posts so they can
+be listed in the Inbox (without it the Page token only returns the Page's own
+comments).
+
+**pages_manage_metadata**
+Used once, when a brand connects its Page, to subscribe the Page to the app's
+webhooks (feed comments and Messenger messages) so new items reach the Inbox
+in real time.
+
+**pages_messaging** (caso de uso Messenger)
+Shows Messenger conversations of the brand's Page in the Inbox and lets the
+agency answer them from the app.
