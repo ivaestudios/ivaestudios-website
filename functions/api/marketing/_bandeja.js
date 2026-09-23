@@ -748,6 +748,9 @@ async function sugerirRespuesta(env, c, { tipo, canal, texto, autor, historial }
 }
 
 // ── API DEL PANEL (staff) ────────────────────────────────────────────────────
+// OJO: nunca contestar 502 desde aquí: Cloudflare reemplaza los 5xx del origen
+// por su página 'error code: 502' y el JSON con la explicación se pierde. Los
+// fallos de Meta o de Claude van como 422 con {error}.
 // La marca de cada conversación/comentario tiene que ser del workspace de la
 // sesión: se comprueba en cada consulta por id, no solo por ?client_id.
 async function convDeMiWs(env, ws, convId) {
@@ -878,7 +881,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       } catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, conv.canal);
         await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: session.user_id, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300) });
-        return json({ error: ex.msg, ventana: !!ex.ventana, permiso: !!ex.permiso }, 502);
+        return json({ error: ex.msg, ventana: !!ex.ventana, permiso: !!ex.permiso }, 422);
       }
       // Un renglón por pieza enviada, con su mid (así el eco de Meta no duplica).
       const piezas = partirTexto(texto, LIM_TEXTO[conv.canal] || 1900);
@@ -898,7 +901,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       try {
         const sugerencia = await sugerirRespuesta(env, c, { tipo: 'mensaje', canal: conv.canal, historial });
         return json({ sugerencia });
-      } catch (e) { return json({ error: e.message || 'No se pudo sugerir.' }, 502); }
+      } catch (e) { return json({ error: e.message || 'No se pudo sugerir.' }, 422); }
     }
     return json({ error: 'Not found' }, 404);
   }
@@ -935,7 +938,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       try { r = await responderComentario(c, cm, texto, modo); }
       catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, cm.canal);
-        return json({ error: ex.msg, permiso: !!ex.permiso }, 502);
+        return json({ error: ex.msg, permiso: !!ex.permiso }, 422);
       }
       await env.DB.prepare(
         `UPDATE mkt_comentarios SET atendido = 1, respuesta = ?, respuesta_id = COALESCE(?, respuesta_id), respondido_en = datetime('now'), respondido_por = ?,
@@ -963,7 +966,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       const b = await leerJson(request);
       const oculto = b.oculto !== false;
       try { await ocultarComentario(c, cm, oculto); }
-      catch (e) { const ex = explicarError(e, cm.canal); return json({ error: ex.msg, permiso: !!ex.permiso }, 502); }
+      catch (e) { const ex = explicarError(e, cm.canal); return json({ error: ex.msg, permiso: !!ex.permiso }, 422); }
       await env.DB.prepare('UPDATE mkt_comentarios SET oculto = ?, atendido = CASE WHEN ? THEN 1 ELSE atendido END WHERE id = ?').bind(oculto ? 1 : 0, oculto ? 1 : 0, cm.id).run();
       return json({ ok: true, oculto });
     }
@@ -972,7 +975,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       try {
         const sugerencia = await sugerirRespuesta(env, c, { tipo: 'comentario', canal: cm.canal, texto: cm.texto, autor: cm.autor });
         return json({ sugerencia });
-      } catch (e) { return json({ error: e.message || 'No se pudo sugerir.' }, 502); }
+      } catch (e) { return json({ error: e.message || 'No se pudo sugerir.' }, 422); }
     }
     return json({ error: 'Not found' }, 404);
   }
@@ -1003,7 +1006,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       h.set('x-content-type-options', 'nosniff');
       return new Response(res.body, { status: 200, headers: h });
     } catch (e) {
-      return json({ error: 'No se pudo bajar el adjunto: ' + String(e && e.message).slice(0, 120) }, 502);
+      return json({ error: 'No se pudo bajar el adjunto: ' + String(e && e.message).slice(0, 120) }, 422);
     }
   }
 
@@ -1014,7 +1017,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     try {
       const r = await sondearBandeja(env, { clientId: c.id });
       return json({ ok: true, resultado: r[0] || null });
-    } catch (e) { return json({ error: (e && e.message) || 'Fallo del sondeo' }, 502); }
+    } catch (e) { return json({ error: (e && e.message) || 'Fallo del sondeo' }, 422); }
   }
 
   // ── Suscribir webhooks de una marca ──

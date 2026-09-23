@@ -23,11 +23,13 @@
 .bj-gear { flex: none; }
 .bj-canales { display: flex; flex-wrap: wrap; gap: 6px; }
 .bj-canal {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: var(--fs-1); font-weight: 600; color: var(--text-mute);
-  border: 1px solid var(--border); border-radius: var(--r-pill); padding: 4px 10px;
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font-size: 11.5px; font-weight: 600; color: var(--text-mute);
+  border: 1px solid var(--border); border-radius: var(--r-pill); padding: 3px 9px;
   background: var(--surface);
 }
+/* En el teléfono los tres estados van en una sola línea que se desliza. */
+@media (max-width: 599px) { .bj-canales { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .bj-canales::-webkit-scrollbar { display: none; } }
 .bj-canal.is-on { color: var(--text); border-color: color-mix(in srgb, #22c55e 45%, var(--border)); }
 .bj-canal.is-on svg { color: #22c55e; }
 .bj-canal__off { color: var(--text-mute); font-weight: 500; }
@@ -117,7 +119,11 @@
 .bj-chat__quien { flex: 1; min-width: 0; }
 .bj-chat__nombre { font-weight: 700; font-size: var(--fs-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bj-chat__meta { display: flex; align-items: center; gap: 6px; font-size: var(--fs-1); margin-top: 2px; min-width: 0; }
-.bj-etapa { min-height: 36px; max-width: 132px; font-size: 13px; padding: 0 8px; }
+.bj-etapa {
+  appearance: none; flex: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+  min-height: 36px; padding: 0 6px 0 4px; border-radius: var(--r-pill); background: transparent; border: 1px solid transparent; color: var(--text-dim); font: inherit;
+}
+.bj-etapa:hover { border-color: var(--border); background: var(--surface); }
 .bj-back { flex: none; }
 
 .bj-msgs { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 12px 6px; display: grid; gap: 6px; align-content: start; overscroll-behavior: contain; }

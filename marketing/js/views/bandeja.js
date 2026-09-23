@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, fmtDateTime, initials, copyText } from '../api.js?v=202609231825';
-import { toast } from '../shell/toast.js?v=202609231825';
-import { icon } from '../shell/icons.js?v=202609231825';
-import { T, isEN } from '../shell/i18n.js?v=202609231825';
+import { api, el, clear, timeAgo, fmtDateTime, initials, copyText } from '../api.js?v=202609231830';
+import { toast } from '../shell/toast.js?v=202609231830';
+import { icon } from '../shell/icons.js?v=202609231830';
+import { T, isEN } from '../shell/i18n.js?v=202609231830';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -311,8 +311,12 @@ function chat() {
       el('div', { class: 'bj-chat__nombre', text: nombreDe(v) }),
       el('div', { class: 'bj-chat__meta' }, [chipCanal(v.canal), v.username && v.nombre ? el('span', { class: 'muted', text: '@' + v.username }) : null].filter(Boolean)),
     ]),
-    el('select', { class: 'select bj-etapa', 'aria-label': T('Etapa', 'Stage'), onchange: (e) => cambiarEtapa(v, e.target.value) },
-      ETAPAS.map((k) => el('option', { value: k, text: ETAPA_TXT[k](), selected: v.etapa === k }))),
+    // Etapa como chip tocable (abre un picker): un <select> no cabía junto al
+    // nombre en el teléfono y lo dejaba en "A..".
+    el('button', { type: 'button', class: 'bj-etapa', 'aria-label': T('Cambiar etapa', 'Change stage'), onclick: async (e) => {
+      const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
+      if (nueva && nueva !== v.etapa) { await cambiarEtapa(v, nueva); pintarCuerpo(); }
+    } }, [chipEtapa(v.etapa), icon('down', 14)]),
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Ficha de la persona', 'Person card'), onclick: () => abrirFicha(v) }, [icon('user', 18)]),
   ]);
 
@@ -714,7 +718,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202609231825';
+  link.href = '/marketing/css/bandeja.css?v=202609231830';
   document.head.appendChild(link);
 }
 
