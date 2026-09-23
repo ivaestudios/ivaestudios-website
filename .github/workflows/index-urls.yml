@@ -29,7 +29,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,8 +45,27 @@ jobs:
         env:
           GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
         run: |
-          if [ -n "${{ github.event.inputs.urls }}" ]; then
-            python scripts/index_urls.py ${{ github.event.inputs.urls }}
+          # Medido el 2026-09-23: este flujo corrio 12 veces en un dia (cada push
+          # que toca un .html) y cada vez mandaba las MISMAS 26 URLs por defecto:
+          # 312 envios repetidos, la cuota diaria de 200 entera, y los envios
+          # dirigidos desde el Mac recibian QUOTA al instante. En un push solo se
+          # mandan los HTML que cambiaron en ese push, con tope de 40; la lista
+          # por defecto queda para las corridas manuales sin argumentos.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ github.event.inputs.urls }}" ]; then
+              python scripts/index_urls.py ${{ github.event.inputs.urls }}
+            else
+              python scripts/index_urls.py
+            fi
           else
-            python scripts/index_urls.py
+            ANTES="${{ github.event.before }}"
+            if ! git cat-file -e "$ANTES" 2>/dev/null; then ANTES="${{ github.sha }}~1"; fi
+            CAMBIADOS=$(git diff --name-only --diff-filter=AM "$ANTES" "${{ github.sha }}" -- '*.html' \
+              | grep -vE '(^|/)(_|tools/|marketing/|preview|index-preview|-preview)' \
+              | grep -vE '^(404|admin|accessibility-statement|privacy-policy)\.html$' \
+              | sed -E 's|^index\.html$||; s|^es/index\.html$|es/|; s|\.html$||' \
+              | sed -E 's|^|https://ivaestudios.com/|' | head -40)
+            if [ -z "$CAMBIADOS" ]; then echo "Sin HTML cambiado en este push: no se gasta cuota."; exit 0; fi
+            echo "$CAMBIADOS" | sed 's/^/  /'
+            python scripts/index_urls.py $CAMBIADOS
           fi
