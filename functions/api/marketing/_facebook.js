@@ -19,6 +19,8 @@
 // Sin ellos, todo responde con un aviso amable de qué falta.
 // ============================================================================
 
+import { suscribirTrasConectar } from './_bandeja.js';
+
 const FB_AUTH = 'https://www.facebook.com/v23.0/dialog/oauth';
 const FB_GRAPH = 'https://graph.facebook.com/v23.0';
 const FB_RUPLOAD = 'https://rupload.facebook.com/video-upload/v23.0';
@@ -178,6 +180,8 @@ async function guardarPagina(env, clientId, page) {
   await env.DB.prepare(
     `UPDATE mkt_clients SET fb_page_id = ?, fb_page_name = ?, fb_access_token = ?, fb_connected_at = datetime('now') WHERE id = ?`
   ).bind(page.id, page.name || '', page.access_token, clientId).run();
+  // Bandeja: suscribe la página a los webhooks (comentarios y Messenger).
+  await suscribirTrasConectar(env, clientId);
 }
 
 function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c])); }

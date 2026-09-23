@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202609222346';
+import { isEN, T } from './shell/i18n.js?v=202609231825';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -324,6 +324,8 @@ export const NOTIF_TYPE_LABELS = {
   aprobacion:    T('Aprobación', 'Approval'),
   cambios:       T('Cambios pedidos', 'Changes requested'), // mismo termino que APPROVALS.changes y el boton "Pedir cambios"
   comentario:    T('Comentario', 'Comment'),
+  mensaje:       T('Mensaje', 'Message'),           // bandeja: DM de IG / Messenger / WhatsApp
+  seguimiento:   T('Seguimiento', 'Follow-up'),     // bandeja: CRM, fecha de seguimiento
   mencion:       T('Mención', 'Mention'),
   asignacion:    T('Asignación', 'Assignment'),
   recordatorio:  T('Recordatorio', 'Reminder'),

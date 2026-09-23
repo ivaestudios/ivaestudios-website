@@ -58,6 +58,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
+import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos } from './_bandeja.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
@@ -4181,6 +4182,10 @@ async function handleCron(request, env) {
       }
     } catch (e) { pauta = { ok: false, error: (e && e.message) || 'error' }; }
 
+    // Bandeja: avisos de seguimiento que tocan hoy (CRM). Best-effort.
+    let seguimientos = 0;
+    try { seguimientos = await avisarSeguimientos(env); } catch (e) { if (!isMissingTableError(e)) console.error('[mkt cron seguimientos]', e && e.message); }
+
     // Medicion del almacenamiento en R2 para la barra del panel de Agencia.
     // Se hace AQUI (una vez al dia, sin nadie esperando) para que abrir Inicio
     // lea siempre cache tibia y nunca pague el recorrido del bucket.
@@ -4210,7 +4215,8 @@ async function handleCron(request, env) {
       pruned: (result && result.pruned) || { notifications: 0, runs: 0, sessions: 0 },
       backup,
       storage,
-      pauta
+      pauta,
+      seguimientos
     });
   } catch (e) {
     if (isMissingTableError(e)) return json({ error: 'Migracion 004 pendiente' }, 409);
@@ -5291,6 +5297,9 @@ async function route(request, env, authCtx) {
   if (path === '/tt/callback' && method === 'GET') return handleTtCallback(request, env, url);
   if (path === '/yt/callback' && method === 'GET') return handleYtCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
+  // Webhook de Meta (Instagram, página, WhatsApp): sin cookie, firmado con el
+  // App Secret. El GET es la verificación de Meta; el POST trae los eventos.
+  if (path === '/webhook/meta') return handleWebhookMeta(request, env, url, authCtx && authCtx.waitUntil);
 
   // ── HEALTH (público; para monitores externos: ¿responde la app y la BD?) ──
   if (path === '/health' && method === 'GET') {
@@ -5439,6 +5448,12 @@ async function route(request, env, authCtx) {
         return json({ error: 'Forbidden' }, 403);
       }
     }
+  }
+
+  // ── BANDEJA (staff): comentarios, mensajes y CRM por marca ──
+  if (parts[0] === 'bandeja') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return guardTables(() => handleBandeja(request, env, session, url, parts));
   }
 
   // Bandeja de moderación (staff): Apple exige actuar en menos de 24 h.
@@ -6440,7 +6455,11 @@ async function handleCronPublicar(request, env) {
     const resultados = await publicarPendientes(env);
     let youtube = null;
     try { youtube = await reanudarSubidasYouTube(env); } catch (e) { youtube = { error: (e && e.message) || 'fallo' }; }
-    return json({ ok: true, procesadas: resultados.length, resultados, youtube });
+    // Bandeja: sondeo de comentarios y mensajes (respaldo de los webhooks).
+    // Best-effort y acotado: unas marcas por corrida, las más olvidadas primero.
+    let bandeja = null;
+    try { bandeja = await sondearBandeja(env); } catch (e) { bandeja = { error: (e && e.message) || 'fallo' }; }
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }
@@ -6757,6 +6776,8 @@ export async function onRequest(context) {
     const rewrittenReq = new Request(rewrittenUrl, request);
     // authCtx recoge la cookie renovada (sliding session) que produce getSession.
     const authCtx = {};
+    // El webhook de Meta contesta 200 al instante y procesa después.
+    if (typeof context.waitUntil === 'function') authCtx.waitUntil = (p) => context.waitUntil(p);
     const res = await route(rewrittenReq, env, authCtx);
     if (authCtx.setCookie && res) {
       try {

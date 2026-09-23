@@ -19,25 +19,25 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609222346';
-import { setRoleDefault } from './theme.js?v=202609222346';
-import { vigilarSegmentados } from './segfade.js?v=202609222346';
-import * as store from './store.js?v=202609222346';
-import * as prefs from './prefs.js?v=202609222346';
-import * as router from './router.js?v=202609222346';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609222346';
-import { toast } from './toast.js?v=202609222346';
-import { icon } from './icons.js?v=202609222346';
-import * as iconsMod from './icons.js?v=202609222346';
-import { createTopbar } from './topbar.js?v=202609222346';
-import { createBottomNav } from './bottomnav.js?v=202609222346';
-import { createSearch } from './search.js?v=202609222346';
-import { createNotifications } from './notifications.js?v=202609222346';
-import { T } from './i18n.js?v=202609222346';
-import * as version from './version.js?v=202609222346';
-import * as tienda from './tienda.js?v=202609222346';
-import * as pickers from '../ui/pickers.js?v=202609222346';
-import * as dnd from '../ui/dnd.js?v=202609222346';
+import { api, el, clear } from '../api.js?v=202609231825';
+import { setRoleDefault } from './theme.js?v=202609231825';
+import { vigilarSegmentados } from './segfade.js?v=202609231825';
+import * as store from './store.js?v=202609231825';
+import * as prefs from './prefs.js?v=202609231825';
+import * as router from './router.js?v=202609231825';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609231825';
+import { toast } from './toast.js?v=202609231825';
+import { icon } from './icons.js?v=202609231825';
+import * as iconsMod from './icons.js?v=202609231825';
+import { createTopbar } from './topbar.js?v=202609231825';
+import { createBottomNav } from './bottomnav.js?v=202609231825';
+import { createSearch } from './search.js?v=202609231825';
+import { createNotifications } from './notifications.js?v=202609231825';
+import { T } from './i18n.js?v=202609231825';
+import * as version from './version.js?v=202609231825';
+import * as tienda from './tienda.js?v=202609231825';
+import * as pickers from '../ui/pickers.js?v=202609231825';
+import * as dnd from '../ui/dnd.js?v=202609231825';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -79,6 +79,7 @@ const CONTENT_LABELS = {
   carrusel: T('Carrusel', 'Carousel'),
   descargar: T('Descargar', 'Download'),
   'video-ia': T('Video IA', 'AI video'),
+  bandeja: T('Bandeja', 'Inbox'),
   tablero: T('Tablero', 'Board'),
   tabla: T('Tabla', 'Table'),
   timeline: 'Timeline',
@@ -178,7 +179,8 @@ function updateSubhead() {
   // mismo seg (staff siempre; cliente si su marca está aprobada): el seg se
   // queda visible ahí para poder regresar a Calendario/Cuadrícula.
   const isContent = CONTENT_VIEWS.includes(view)
-    || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true));
+    || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
+    || (view === 'bandeja' && !isClientRole());
   subheadSeg.hidden = !isContent;
   const hasSlot = subheadSlot.children.length > 0;
   const show = isContent || hasSlot;
@@ -213,6 +215,9 @@ function buildSubhead(root) {
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
   // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
   if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
+  // Bandeja (comentarios + mensajes + CRM): solo staff. Misma razón: en el
+  // teléfono este seg es la única puerta.
+  if (!isClientRole()) segViews.push('bandeja');
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
     subheadSeg.appendChild(el('button', {

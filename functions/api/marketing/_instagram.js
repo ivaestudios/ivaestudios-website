@@ -6,6 +6,8 @@
 // caché 6h en mkt_ig_metrics. Sin META_APP_ID/SECRET responde aviso amable.
 // ============================================================================
 
+import { suscribirTrasConectar } from './_bandeja.js';
+
 const AUTH = 'https://www.instagram.com/oauth/authorize';
 const TOKEN = 'https://api.instagram.com/oauth/access_token';
 const BASE = 'https://graph.instagram.com';
@@ -17,7 +19,10 @@ const GRAPH = `${BASE}/v23.0`;
 // content_publish (2026-08-15): las marcas que se (re)conecten ya otorgan
 // publicar — el programador lo necesita. Tokens viejos siguen sirviendo para
 // insights; para programar, reconectar la marca una vez.
-const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish';
+// manage_comments + manage_messages (2026-09-23): la Bandeja lee y contesta
+// comentarios y DMs con el token de la marca. En modo desarrollo solo sirven
+// para cuentas con rol en la app; para el público hace falta la App Review.
+const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish,instagram_business_manage_comments,instagram_business_manage_messages';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -151,6 +156,8 @@ export async function handleIgCallback(request, env, url) {
       "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(cuentaId, username, token, st.c).run();
     await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch(() => {});
+    // Bandeja: que Meta nos mande los comentarios y DMs de esta cuenta.
+    await suscribirTrasConectar(env, st.c);
 
     return html(
       `<h1>✅ ${username ? '@' + username : 'Instagram'} ${T('conectado', 'connected')}</h1>`
