@@ -13,12 +13,12 @@
 // - Inbox-zero calido cuando ya no hay nada que revisar.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202609241154';
-import { toast } from '../shell/toast.js?v=202609241154';
-import { openSheet } from '../shell/sheet.js?v=202609241154';
-import * as store from './store.js?v=202609241154';
-import { igCard, ICONS } from './igcard.js?v=202609241154';
-import { openThreadSheet } from './thread.js?v=202609241154';
+import { el, clear } from '../api.js?v=202609241204';
+import { toast } from '../shell/toast.js?v=202609241204';
+import { openSheet } from '../shell/sheet.js?v=202609241204';
+import * as store from './store.js?v=202609241204';
+import { igCard, ICONS } from './igcard.js?v=202609241204';
+import { openThreadSheet } from './thread.js?v=202609241204';
 
 let hostEl = null;
 let openDetailFn = null;

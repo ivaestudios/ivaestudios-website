@@ -54,6 +54,7 @@ import { handleEstudios } from './_estudios.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
+import { leerEntregable, escribirCopy } from './_entregable-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
@@ -5681,6 +5682,11 @@ async function route(request, env, authCtx) {
         if (method === 'GET') return handleServeDeliverablePoster(request, env, session, id);
         return json({ error: 'Method not allowed' }, 405);
       }
+      // Entregable → pieza del calendario con guion/copy/hashtags de la IA (staff).
+      if (parts.length === 3 && parts[2] === 'al-calendario' && method === 'POST') {
+        if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+        return handleDeliverableAlCalendario(env, session, parts[1]);
+      }
       // Comentarios/cambios del cliente: /deliverables/:id/comments
       if (parts.length === 3 && parts[2] === 'comments') {
         const id = parts[1];
@@ -6685,6 +6691,80 @@ async function handleGenerarMes(request, env, session) {
     await logActivity(env, { client_id: clientId, post_id: id, session, action: 'post.create', detail: `${p.title} (mes IA)` });
   }
   return json({ ok: true, creadas: creadas.length, posts: creadas });
+}
+
+// ENTREGABLE → CALENDARIO (pedido de Vianey 2026-09-24). Crea la pieza en el
+// mes del entregable, la vincula (post_id) y, si se puede, la IA LEE el video
+// (Gemini) y ESCRIBE guion, copy, hashtags y alt (Claude con la voz de la
+// marca). Si la IA falla, la pieza igual se crea: eso nunca bloquea.
+async function handleDeliverableAlCalendario(env, session, dlvId) {
+  const d = await env.DB.prepare(
+    `SELECT d.*, c.name AS client_name, c.brief AS client_brief, w.type AS ws_type
+     FROM mkt_deliverables d JOIN mkt_clients c ON c.id = d.client_id
+     LEFT JOIN mkt_workspaces w ON w.id = c.workspace_id
+     WHERE d.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
+  ).bind(dlvId, wsDeSesion(session)).first();
+  if (!d) return json({ error: 'Entregable no encontrado.' }, 404);
+  if (d.post_id) {
+    const ya = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(d.post_id).first();
+    if (ya) return json({ ok: true, ya_estaba: true, post: ya });
+  }
+  const month = /^\d{4}-\d{2}$/.test(String(d.month || '')) ? d.month : new Date().toISOString().slice(0, 7);
+  // Primer día libre del mes (desde hoy si es el mes en curso).
+  const hoy = new Date(Date.now() - 5 * 3600e3).toISOString().slice(0, 10);
+  const [y, m] = month.split('-').map(Number);
+  const diasMes = new Date(y, m, 0).getDate();
+  const ocup = await env.DB.prepare('SELECT publish_date FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ?').bind(d.client_id, `${month}-%`).all();
+  const usados = new Set((ocup.results || []).map((r) => Number(String(r.publish_date).slice(8, 10))));
+  let dia = hoy.slice(0, 7) === month ? Math.min(diasMes, Number(hoy.slice(8, 10)) + 1) : 1;
+  while (usados.has(dia) && dia < diasMes) dia++;
+  const publishDate = `${month}-${String(dia).padStart(2, '0')}`;
+  const tipo = d.type === 'carrusel' ? 'carrusel' : 'reel';
+  const esCreador = d.ws_type === 'creador';
+  const id = randomId();
+  await env.DB.prepare(
+    `INSERT INTO mkt_posts (id, client_id, created_by, title, status, approval_state, client_visible, publish_date, content_type)
+     VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)`
+  ).bind(id, d.client_id, session.user_id, (d.title || (tipo === 'reel' ? 'Reel' : 'Carrusel')).slice(0, 90),
+    esCreador ? 'aprobado' : 'revision', esCreador ? 1 : 0, publishDate, tipo).run();
+  await env.DB.prepare("UPDATE mkt_deliverables SET post_id = ?, updated_at = datetime('now') WHERE id = ?").bind(id, d.id).run();
+  await logActivity(env, { client_id: d.client_id, post_id: id, session, action: 'post.create', detail: `${d.title || tipo} (desde Entregables)` });
+
+  // La IA: leer + escribir. Cualquier tropiezo se devuelve como ia.error.
+  const ia = { ok: false, error: null };
+  try {
+    let bytes = null, mime = null;
+    if (d.video_ext && env.R2_BUCKET) {
+      const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.${d.video_ext}`);
+      if (obj) { bytes = await obj.arrayBuffer(); mime = d.video_ext === 'mov' ? 'video/quicktime' : d.video_ext === 'webm' ? 'video/webm' : 'video/mp4'; }
+    } else if (d.poster_ok && env.R2_BUCKET) {
+      const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.poster.jpg`);
+      if (obj) { bytes = await obj.arrayBuffer(); mime = 'image/jpeg'; }
+    }
+    if (!bytes) throw new Error('El entregable no tiene video ni imagen que leer.');
+    const lectura = await leerEntregable(env, { bytes, mime });
+    const voz = await env.DB.prepare(
+      `SELECT content_type, title, hook, caption FROM mkt_posts
+       WHERE client_id = ? AND id != ? AND COALESCE(caption, '') != '' ORDER BY publish_date DESC LIMIT 12`
+    ).bind(d.client_id, id).all();
+    const ejemplos = (voz.results || []).map((p) =>
+      `· ${p.content_type || 'reel'} | ${(p.title || '').slice(0, 60)} | ${(p.hook || '').slice(0, 90)} | ${(p.caption || '').replace(/\s+/g, ' ').slice(0, 220)}`
+    ).join('\n') || '(marca nueva: sin piezas previas, usa un tono profesional cálido, cercano y local)';
+    const copy = await escribirCopy(env, { marca: d.client_name, brief: String(d.client_brief || '').slice(0, 600), ejemplos, tipo, titulo: d.title || '', lectura });
+    const generico = !d.title || /^(reel|hist\.?|historia|post|video|carrusel)\s*\d*$/i.test(String(d.title).trim());
+    const transcripcion = String(lectura.transcripcion || '').trim();
+    const notas = transcripcion ? `Transcripción (IA): ${transcripcion}`.slice(0, 4000) : null;
+    await env.DB.prepare(
+      `UPDATE mkt_posts SET title = ?, hook = ?, body = ?, cta = ?, caption = ?, hashtags = ?, alt_text = ?,
+        notes_team = COALESCE(notes_team, ?), updated_at = datetime('now') WHERE id = ?`
+    ).bind(generico && copy.title ? copy.title : (d.title || copy.title), copy.hook, copy.body, copy.cta, copy.caption, copy.hashtags, copy.alt_text, notas, id).run();
+    await logActivity(env, { client_id: d.client_id, post_id: id, session, action: 'post.update', detail: 'guion, copy y hashtags escritos por la IA desde el video' });
+    ia.ok = true;
+  } catch (e) {
+    ia.error = ((e && e.message) || 'La IA no pudo leer el video.').slice(0, 300);
+  }
+  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
+  return json({ ok: true, post, ia });
 }
 
 // Busca fotos en Pinterest por texto, o cosecha las imágenes de un pin si lo

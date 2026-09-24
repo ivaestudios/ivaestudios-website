@@ -43,7 +43,7 @@ function binario(dataUrl, extra = {}) {
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 }
-function saJson(env) {
+export function saJson(env) {
   if (!env.GOOGLE_SA_JSON) return null;
   try {
     const sa = JSON.parse(env.GOOGLE_SA_JSON);
@@ -66,7 +66,7 @@ function pemADer(pem) {
   return out.buffer;
 }
 let _tok = null;
-async function tokenGoogle(env) {
+export async function tokenGoogle(env) {
   const ahora = Math.floor(Date.now() / 1000);
   if (_tok && _tok.expira > ahora + 60) return _tok.valor;
   const sa = saJson(env);

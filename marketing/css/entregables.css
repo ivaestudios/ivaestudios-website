@@ -170,6 +170,9 @@
 .dlv-card__foot { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
 .dlv-card__title { flex: 1; min-width: 0; font-size: var(--fs-2, 14px); font-weight: 600; color: var(--text, #ECECF1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dlv-card__actions { display: flex; align-items: center; gap: 6px; flex: none; }
+/* Entregable → calendario con IA: botón a lo ancho, debajo de las acciones */
+.dlv-alcal { flex: 1 1 100%; justify-content: center; margin-top: 6px; }
+.dlv-alcal[disabled] { opacity: .7; cursor: progress; }
 
 .dlv-dl {
   display: inline-flex; align-items: center; gap: 5px;

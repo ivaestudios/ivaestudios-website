@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609241154';
-import { icon } from '../shell/icons.js?v=202609241154';
-import { T } from '../shell/i18n.js?v=202609241154';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609241154';
+import { api, el, clear, toast } from '../api.js?v=202609241204';
+import { icon } from '../shell/icons.js?v=202609241204';
+import { T } from '../shell/i18n.js?v=202609241204';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609241204';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609241154';
+import { moderarComentario } from '../shell/moderacion.js?v=202609241204';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609241154';
+import { errorCard } from '../ui/states.js?v=202609241204';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609241154';
+} from '../lib/video-upload.js?v=202609241204';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609241154';
+  link.href = '/marketing/css/entregables.css?v=202609241204';
   document.head.appendChild(link);
 }
 
@@ -445,6 +445,33 @@ function pickSwapFile(it) {
   // Respaldo para navegadores sin evento 'cancel' (Safari viejo): al volver el
   // foco a la ventana el selector ya se cerró; si no hubo archivo, se limpia.
   window.addEventListener('focus', () => { setTimeout(() => { if (!input.files || !input.files.length) drop(); }, 400); }, { once: true });
+}
+
+// Entregable → pieza del calendario. El servidor crea la pieza, la vincula y
+// deja que la IA lea el video y escriba guion/copy/hashtags; si la IA falla,
+// la pieza existe igual y se avisa. Tarda lo que tarde en leer el video.
+async function alCalendario(it, btn) {
+  const label = btn.querySelector('span');
+  const original = label ? label.textContent : '';
+  btn.disabled = true;
+  if (label) label.textContent = T('Leyendo el video…', 'Reading the video…');
+  try {
+    const r = await api.post(`/deliverables/${encodeURIComponent(it.id)}/al-calendario`, {});
+    const post = r && r.post;
+    const abrir = post ? { label: T('Abrir', 'Open'), onAction: () => { location.hash = `#/post/${encodeURIComponent(post.id)}?cliente=${encodeURIComponent(it.client_id)}`; } } : undefined;
+    if (r && r.ia && r.ia.ok) {
+      ctx.toast(T('Pieza creada en el calendario con guion, copy y hashtags. Revísala y prográmala.', 'Piece created in the calendar with script, copy and hashtags. Review it and schedule it.'), { type: 'success', action: abrir });
+    } else {
+      const porque = r && r.ia && r.ia.error ? ` ${r.ia.error}` : '';
+      ctx.toast(T('Pieza creada en el calendario, pero la IA no pudo escribir los textos.', 'Piece created in the calendar, but the AI could not write the texts.') + porque, { type: 'info', action: abrir });
+    }
+    try { await ctx.store.loadPosts(it.client_id); } catch { /* la vista Calendario la recarga sola */ }
+    await load();
+  } catch (e) {
+    ctx.toast((e && e.message) || T('No se pudo crear la pieza.', 'Could not create the piece.'), { type: 'error' });
+    btn.disabled = false;
+    if (label) label.textContent = original;
+  }
 }
 
 // Hoja para la nota opcional del aviso. Devuelve el texto (puede ser ''), o
@@ -1961,7 +1988,13 @@ function buildItem(it, staff) {
         }, [icon('refresh', 16), el('span', { text: hasVideo ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video') })]) : null,
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), disabled: busy || null, onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
-    ]);
+      // Sin pieza en el calendario: un toque la crea en el mes del entregable y
+      // la IA lee el video y le escribe guion, copy y hashtags (pedido 2026-09-24).
+      (staff && !it.post_id && hasVideo) ? el('button', {
+        class: 'btn btn--primary dlv-alcal', type: 'button',
+        onclick: (e) => alCalendario(it, e.currentTarget),
+      }, [icon('calendar', 16), el('span', { text: T('Agregar al calendario (IA)', 'Add to calendar (AI)') })]) : null,
+    ].filter(Boolean));
     // foot + comentarios en un lado: en móvil van debajo del video; en escritorio
     // (CSS ≥768px) este lado se coloca AL COSTADO del video para leer el comentario.
     card.appendChild(el('div', { class: 'dlv-card__side' }, [foot, buildComments(it, staff)]));
@@ -2212,10 +2245,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609241154');
+        const mod = await import('../lib/pdf-entregables.js?v=202609241204');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609241154');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609241204');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
