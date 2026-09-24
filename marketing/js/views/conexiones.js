@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText } from '../api.js?v=202609240058';
-import { icon } from '../shell/icons.js?v=202609240058';
-import { T, isEN } from '../shell/i18n.js?v=202609240058';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202609240212';
+import { icon } from '../shell/icons.js?v=202609240212';
+import { T, isEN } from '../shell/i18n.js?v=202609240212';
 
 const VIEW_ID = 'conexiones';
 
@@ -113,7 +113,8 @@ function tarjeta(c) {
     }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
-    fb ? null : (cliente
+    // El creador conecta SU página él mismo: no hay dueño a quien invitar.
+    (fb || esCreador()) ? null : (cliente
       ? el('p', { class: 'cx-nota', text: T(
           'Te enviamos una solicitud de acceso a tu página de Facebook. Apruébala en: tu página → Configuración → Acceso a la página → Solicitudes pendientes → Aprobar. Con eso quedará conectada.',
           'We sent an access request to your Facebook Page. Approve it at: your Page → Settings → Page access → Pending requests → Approve. That will complete the connection.'
@@ -293,6 +294,11 @@ function render() {
         'Las redes de tu marca conectadas a tu portal. Verde = publicando y midiendo en automático.',
         'Your brand networks connected to your portal. Green = auto-publishing and measuring.'
       )
+      : esCreador()
+      ? T(
+        'Tus redes por marca. Verde = publica en automático. Conecta Instagram, tu página de Facebook y tu canal de YouTube con tus propias cuentas.',
+        'Your networks per brand. Green = auto-publishing. Connect Instagram, your Facebook Page and your YouTube channel with your own accounts.'
+      )
       : T(
         'El semáforo de redes por marca. Verde = publica en automático. Si falta Facebook: conéctalo si administras la página, o copia la invitación y mándasela al dueño (solo tiene que picar Aprobar).',
         'The per-brand network status. Green = auto-publishing. If Facebook is missing: connect it if you manage the Page, or copy the invite and send it to the owner (they just tap Approve).'
@@ -322,7 +328,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202609240058';
+  link.href = '/marketing/css/conexiones.css?v=202609240212';
   document.head.appendChild(link);
 }
 

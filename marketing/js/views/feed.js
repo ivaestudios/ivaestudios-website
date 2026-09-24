@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609240058';
-import { T, isEN } from '../shell/i18n.js?v=202609240058';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609240058';
+import { el, clear, api, toast } from '../api.js?v=202609240212';
+import { T, isEN } from '../shell/i18n.js?v=202609240212';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609240212';
 
 const VIEW_ID = 'feed';
 
@@ -851,7 +851,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609240058';
+  link.href = '/marketing/css/feed.css?v=202609240212';
   document.head.appendChild(link);
 }
 

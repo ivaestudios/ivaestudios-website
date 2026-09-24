@@ -10,19 +10,19 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609240058';
-import * as store from './store.js?v=202609240058';
-import { openSheet, pickFrom } from './sheet.js?v=202609240058';
-import { toast } from './toast.js?v=202609240058';
-import { icon } from './icons.js?v=202609240058';
-import { openClientSwitcher } from './clientswitcher.js?v=202609240058';
-import { T, isEN, setLang } from './i18n.js?v=202609240058';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202609240212';
+import * as store from './store.js?v=202609240212';
+import { openSheet, pickFrom } from './sheet.js?v=202609240212';
+import { toast } from './toast.js?v=202609240212';
+import { icon } from './icons.js?v=202609240212';
+import { openClientSwitcher } from './clientswitcher.js?v=202609240212';
+import { T, isEN, setLang } from './i18n.js?v=202609240212';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609240058';
-import { getTheme, setTheme } from './theme.js?v=202609240058';
-import * as version from './version.js?v=202609240058';
-import * as tienda from './tienda.js?v=202609240058';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609240058';
+import { abrirBloqueados } from './moderacion.js?v=202609240212';
+import { getTheme, setTheme } from './theme.js?v=202609240212';
+import * as version from './version.js?v=202609240212';
+import * as tienda from './tienda.js?v=202609240212';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609240212';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -83,7 +83,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     ? el('div', { class: 'tb-client tb-client--static' }, [clientDot, clientName])
     : el('button', {
         class: 'tb-client', type: 'button',
-        'aria-label': T('Cambiar de cliente', 'Switch client'), 'aria-haspopup': 'dialog',
+        'aria-label': esCreador() ? T('Cambiar de marca', 'Switch brand') : T('Cambiar de cliente', 'Switch client'), 'aria-haspopup': 'dialog',
         onclick: () => openClientSwitcher({ anchor: clientBtn, selectClient }),
       }, [clientDot, clientName, icon('down', 16)]);
 
@@ -453,7 +453,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
           ...(me && me.role !== 'client' ? [
             accountRow('users', T('Equipo', 'Team'), () => { close(); openTeamSheet(); }),
-            accountRow('link', T('Accesos de cliente', 'Client access'), () => { close(); openClientAccessSheet(); }),
+            // El creador de contenido no tiene clientes: sin accesos de cliente.
+            ...(esCreador() ? [] : [accountRow('link', T('Accesos de cliente', 'Client access'), () => { close(); openClientAccessSheet(); })]),
             accountRow('activity', T('Actividad', 'Activity'), () => { close(); openActivitySheet(); }),
           ] : []),
           // Antes este renglon abria la LISTA de avisos, o sea que "ajustes" no

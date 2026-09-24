@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609240058';
-import { openSheet } from './sheet.js?v=202609240058';
-import { toast } from './toast.js?v=202609240058';
-import * as store from './store.js?v=202609240058';
-import { icon } from './icons.js?v=202609240058';
-import { T, isEN } from './i18n.js?v=202609240058';
+import { api, el, esCreador } from '../api.js?v=202609240212';
+import { openSheet } from './sheet.js?v=202609240212';
+import { toast } from './toast.js?v=202609240212';
+import * as store from './store.js?v=202609240212';
+import { icon } from './icons.js?v=202609240212';
+import { T, isEN } from './i18n.js?v=202609240212';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
@@ -61,7 +61,7 @@ export function openClientSwitcher({ anchor = null, selectClient }) {
   const visibles = clients.filter((c) => !c.archived);
 
   openSheet({
-    title: T('Tus clientes', 'Your clients'),
+    title: esCreador() ? T('Tus marcas', 'Your brands') : T('Tus clientes', 'Your clients'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -92,14 +92,17 @@ export function openClientSwitcher({ anchor = null, selectClient }) {
         const onEdit = isStaff ? (c) => { close({ source: 'edit' }); openEditClient(c, { selectClient }); } : null;
         for (const c of matches) list.appendChild(clientRow(c, activeClientId, pick, onEdit));
         if (!matches.length) {
-          list.appendChild(el('div', { class: 'cs-empty', text: f ? T('Ningún cliente coincide.', 'No clients match.') : T('Aún no hay clientes.', 'No clients yet.') }));
+          list.appendChild(el('div', { class: 'cs-empty', text: f
+            ? (esCreador() ? T('Ninguna marca coincide.', 'No brands match.') : T('Ningún cliente coincide.', 'No clients match.'))
+            : (esCreador() ? T('Aún no hay marcas.', 'No brands yet.') : T('Aún no hay clientes.', 'No clients yet.')) }));
         }
       };
 
       if (visibles.length > 8) {
         const input = el('input', {
           class: 'input cs-filter', type: 'search',
-          placeholder: T('Filtrar clientes', 'Filter clients'), 'aria-label': T('Filtrar clientes', 'Filter clients'),
+          placeholder: esCreador() ? T('Filtrar marcas', 'Filter brands') : T('Filtrar clientes', 'Filter clients'),
+          'aria-label': esCreador() ? T('Filtrar marcas', 'Filter brands') : T('Filtrar clientes', 'Filter clients'),
           oninput: (e) => renderList(e.target.value),
         });
         body.appendChild(el('div', { class: 'cs-filter-wrap' }, [input]));
@@ -113,7 +116,7 @@ export function openClientSwitcher({ anchor = null, selectClient }) {
           el('button', {
             class: 'btn cs-new', type: 'button',
             onclick: () => { close({ source: 'new' }); openNewClient({ selectClient }); },
-          }, [icon('plus', 18), T('Nuevo cliente', 'New client')]),
+          }, [icon('plus', 18), esCreador() ? T('Nueva marca', 'New brand') : T('Nuevo cliente', 'New client')]),
         ]));
       }
     },
@@ -125,10 +128,10 @@ const PRESET_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#22c55e', '#f59e0b', '#
 
 export function openNewClient({ selectClient } = {}) {
   openSheet({
-    title: T('Nuevo cliente', 'New client'),
+    title: esCreador() ? T('Nueva marca', 'New brand') : T('Nuevo cliente', 'New client'),
     mode: 'form',
     build(body, close) {
-      const nameIn = el('input', { class: 'input', type: 'text', placeholder: T('Nombre del cliente', 'Client name'), maxlength: '80' });
+      const nameIn = el('input', { class: 'input', type: 'text', placeholder: esCreador() ? T('Nombre de la marca o canal', 'Brand or channel name') : T('Nombre del cliente', 'Client name'), maxlength: '80' });
       const igIn = el('input', { class: 'input', type: 'text', placeholder: T('@cuenta (opcional)', '@handle (optional)'), maxlength: '60' });
       const colorIn = el('input', { class: 'cs-color', type: 'color', value: PRESET_COLORS[0], 'aria-label': T('Color de marca', 'Brand color') });
 
@@ -140,10 +143,10 @@ export function openNewClient({ selectClient } = {}) {
         })
       ));
 
-      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear cliente', 'Create client') });
+      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: esCreador() ? T('Crear marca', 'Create brand') : T('Crear cliente', 'Create client') });
       saveBtn.addEventListener('click', async () => {
         const name = nameIn.value.trim();
-        if (!name) { toast(T('Escribe el nombre del cliente.', 'Enter the client name.'), { type: 'error' }); nameIn.focus(); return; }
+        if (!name) { toast(esCreador() ? T('Escribe el nombre de la marca.', 'Enter the brand name.') : T('Escribe el nombre del cliente.', 'Enter the client name.'), { type: 'error' }); nameIn.focus(); return; }
         saveBtn.disabled = true;
         try {
           const created = await api.post('/clients', {
@@ -293,7 +296,8 @@ export function openEditClient(client, { selectClient } = {}) {
           el('div', { class: 'cs-color-row' }, [colorIn, presets]),
         ]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Logo (para el reporte)', 'Logo (for the report)') }), logoIn]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Correo del cliente', 'Client email') }), mailIn]),
+        // El creador no tiene cliente al que escribirle: ese campo no va.
+        esCreador() ? null : el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Correo del cliente', 'Client email') }), mailIn]),
         el('div', { class: 'field' }, [
           el('label', { class: 'label', text: T('Columnas de notas (personas)', 'Note columns (people)') }),
           el('p', { class: 'cs-notehint', text: T('Cada nombre es una columna "Notas …" en el calendario de esta marca.', 'Each name is a "Notes …" column in this brand\'s calendar.') }),

@@ -770,8 +770,20 @@ async function handleMe(session, env) {
     eula_version: EULA_VERSION,
     // Apple 5.1.1(v): la app debe decir la VERDAD sobre qué se borra. Dueño
     // (marca de auto-registro) = cae todo; invitado o staff = solo su cuenta.
-    is_owner: await esDuenioDeSuMarca(env, session)
+    is_owner: await esDuenioDeSuMarca(env, session),
+    // 'agencia' | 'creador': el shell esconde el chrome de agencia (accesos de
+    // cliente, invitación al dueño de la página) cuando es creador.
+    workspace_type: await tipoDeWorkspace(env, session.user_id)
   });
+}
+
+async function tipoDeWorkspace(env, userId) {
+  try {
+    const r = await env.DB.prepare(
+      'SELECT w.type AS t FROM mkt_users u LEFT JOIN mkt_workspaces w ON w.id = u.workspace_id WHERE u.id = ?'
+    ).bind(userId).first();
+    return r && r.t === 'creador' ? 'creador' : 'agencia';
+  } catch { return 'agencia'; }
 }
 
 async function handleChangePassword(request, env, session) {
@@ -1345,11 +1357,12 @@ async function handleSignup(request, env) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const name = String((bodyObj || {}).name || '').trim();
   const brand = String((bodyObj || {}).brand || '').trim();
-  // Toda cuenta que se crea sola es de AGENCIA (regla de Vianey, 2026-09-19).
-  // Lo único que no es agencia son los accesos que esa agencia les da a sus
-  // propios clientes (POST /users, role 'client'). Se ignora cualquier `tipo`
-  // que mande una versión vieja de la pantalla.
-  const tipo = 'agencia';
+  // Dos tipos de cuenta (pedido de Vianey 2026-09-24): AGENCIA (varios
+  // clientes, cada uno con su acceso) o CREADOR de contenido (su marca o canal,
+  // sin accesos de cliente: la app le habla de "marcas", no de "clientes").
+  // Los accesos que una agencia da a sus clientes siguen siendo POST /users
+  // con role 'client'. Cualquier otro valor cae en 'agencia'.
+  const tipo = (bodyObj || {}).tipo === 'creador' ? 'creador' : 'agencia';
   const email = String((bodyObj || {}).email || '').trim().toLowerCase();
   const password = String((bodyObj || {}).password || '');
   if (!name || !brand || !email || !password) return json({ error: 'Nombre, marca, email y contraseña son obligatorios.' }, 400);

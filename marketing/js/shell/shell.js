@@ -19,25 +19,25 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609240058';
-import { setRoleDefault } from './theme.js?v=202609240058';
-import { vigilarSegmentados } from './segfade.js?v=202609240058';
-import * as store from './store.js?v=202609240058';
-import * as prefs from './prefs.js?v=202609240058';
-import * as router from './router.js?v=202609240058';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609240058';
-import { toast } from './toast.js?v=202609240058';
-import { icon } from './icons.js?v=202609240058';
-import * as iconsMod from './icons.js?v=202609240058';
-import { createTopbar } from './topbar.js?v=202609240058';
-import { createBottomNav } from './bottomnav.js?v=202609240058';
-import { createSearch } from './search.js?v=202609240058';
-import { createNotifications } from './notifications.js?v=202609240058';
-import { T } from './i18n.js?v=202609240058';
-import * as version from './version.js?v=202609240058';
-import * as tienda from './tienda.js?v=202609240058';
-import * as pickers from '../ui/pickers.js?v=202609240058';
-import * as dnd from '../ui/dnd.js?v=202609240058';
+import { api, el, clear } from '../api.js?v=202609240212';
+import { setRoleDefault } from './theme.js?v=202609240212';
+import { vigilarSegmentados } from './segfade.js?v=202609240212';
+import * as store from './store.js?v=202609240212';
+import * as prefs from './prefs.js?v=202609240212';
+import * as router from './router.js?v=202609240212';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609240212';
+import { toast } from './toast.js?v=202609240212';
+import { icon } from './icons.js?v=202609240212';
+import * as iconsMod from './icons.js?v=202609240212';
+import { createTopbar } from './topbar.js?v=202609240212';
+import { createBottomNav } from './bottomnav.js?v=202609240212';
+import { createSearch } from './search.js?v=202609240212';
+import { createNotifications } from './notifications.js?v=202609240212';
+import { T } from './i18n.js?v=202609240212';
+import * as version from './version.js?v=202609240212';
+import * as tienda from './tienda.js?v=202609240212';
+import * as pickers from '../ui/pickers.js?v=202609240212';
+import * as dnd from '../ui/dnd.js?v=202609240212';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -671,6 +671,9 @@ export async function boot() {
   // portal de solo lectura. Marca el body para ocultar el chrome de agencia
   // (Equipo, Accesos de cliente, etc.). El backend limita todo a SU marca.
   if (me.role === 'client') document.body.classList.add('is-client');
+  // Creador de contenido: misma app, sin el chrome de agencia (accesos de
+  // cliente, "tu cliente aprueba", invitación al dueño de la página).
+  if (me.workspace_type === 'creador') document.body.classList.add('is-creador');
   setRoleDefault();          // TODOS arrancan en claro (si no eligieron); limpia la llave vieja del default por rol
 
   // ── EULA obligatorio (Apple guideline 1.2 — rechazo del 6-ago-2026) ───────

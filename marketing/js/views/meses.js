@@ -25,24 +25,24 @@
 // ============================================================================
 
 import {
-  el, clear, copyText, clearClipboard, api, isClientRole, ymd,
+  el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609240058';
-import { icon, iconMarca } from '../shell/icons.js?v=202609240058';
-import { T } from '../shell/i18n.js?v=202609240058';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609240058';
-import { confirmar } from '../shell/sheet.js?v=202609240058';
-import { openNewClient } from '../shell/clientswitcher.js?v=202609240058';
+} from '../api.js?v=202609240212';
+import { icon, iconMarca } from '../shell/icons.js?v=202609240212';
+import { T } from '../shell/i18n.js?v=202609240212';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609240212';
+import { confirmar } from '../shell/sheet.js?v=202609240212';
+import { openNewClient } from '../shell/clientswitcher.js?v=202609240212';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609240058';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609240058';
+import { errorCard } from '../ui/states.js?v=202609240212';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609240212';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609240058';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609240212';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609240058';
+} from '../lib/video-upload.js?v=202609240212';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1972,8 +1972,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609240058');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609240058');
+        const mod = await import('../lib/pdf-contenido.js?v=202609240212');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609240212');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -2031,6 +2031,48 @@ function buildPrimerosPasos(key) {
     ]),
     hecho ? null : boton,
   ]);
+
+  // CREADOR de contenido (2026-09-24): no tiene cliente al que darle acceso.
+  // Sus tres pasos son conectar sus redes, llenar el mes y dejar que el reloj
+  // publique solo a la hora de cada pieza.
+  if (esCreador()) {
+    const redes = marca && (marca.ig_username || marca.fb_page_name || marca.yt_channel_title);
+    const irAConexiones = () => {
+      location.hash = '#/conexiones' + (activeClientId && activeClientId !== 'todos' ? `?cliente=${encodeURIComponent(activeClientId)}` : '');
+    };
+    return el('div', { class: 'meses-empty pp-card' }, [
+      el('h3', { class: 'pp-t', text: T('Empieza aquí', 'Start here') }),
+      el('p', { class: 'pp-s', text: T('Tres pasos para que tu contenido salga solo, a su hora.', 'Three steps so your content goes out on its own, on time.') }),
+      fila(
+        !!redes,
+        T('1 · Conecta tus redes', '1 · Connect your networks'),
+        T('Instagram, tu página de Facebook y tu canal de YouTube, con tus propias cuentas.',
+          'Instagram, your Facebook Page and your YouTube channel, with your own accounts.'),
+        el('button', { class: 'btn btn-primary btn-sm', type: 'button', text: T('Conectar', 'Connect'), onclick: irAConexiones }),
+      ),
+      fila(
+        false,
+        T('2 · Llena el mes', '2 · Fill the month'),
+        T('Deja que la IA lo escriba con tu voz, o agrégalo tú con Nueva línea.',
+          'Let the AI write it in your voice, or add it yourself with New row.'),
+        el('button', {
+          class: 'btn btn-sm', type: 'button',
+          text: T('Generar mes (IA)', 'Generate month (AI)'),
+          onclick: () => {
+            const mes = /^\d{4}-\d{2}$/.test(String(key)) ? key : new Date().toISOString().slice(0, 7);
+            if (activeClientId && activeClientId !== 'todos') abrirDialogoMesIa(mes, activeClientId);
+          },
+        }),
+      ),
+      fila(
+        false,
+        T('3 · Programa y listo', '3 · Schedule and done'),
+        T('Cada pieza con fecha, hora y su video o imagen, en estado "Programado": la app la publica sola.',
+          'Each piece with a date, a time and its video or image, in "Scheduled" status: the app publishes it on its own.'),
+        null,
+      ),
+    ]);
+  }
 
   const kids = [
     el('h3', { class: 'pp-t', text: T('Empieza aquí', 'Start here') }),

@@ -19,12 +19,12 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609240058">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609240058">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609240058">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609240212">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609240212">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609240212">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609240058">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609240058">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609240212">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609240212">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -57,6 +57,17 @@
     .ya-invitado button { flex:none; background:none; border:1.5px solid var(--border,#26262F); border-radius:999px;
       color:var(--text,#ECECF1); font:inherit; font-size:13px; font-weight:700; padding:8px 14px; cursor:pointer; }
     .ya-invitado button:hover { border-color:#E24DA0; }
+    /* ¿Creador o agencia? (2026-09-24). Dos tarjetas grandes: la respuesta
+       decide qué chrome ve la persona (el creador no tiene "clientes"). */
+    .sg-tipo { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .sg-tipo__opt { position:relative; display:block; cursor:pointer; }
+    .sg-tipo__opt input { position:absolute; opacity:0; width:1px; height:1px; }
+    .sg-tipo__card { display:block; min-height:var(--tap,44px); padding:12px 12px 11px; border-radius:12px;
+      border:1.5px solid var(--border,#26262F); background:rgba(255,255,255,.03); }
+    .sg-tipo__card b { display:block; font-size:13.5px; color:var(--text,#ECECF1); margin-bottom:3px; }
+    .sg-tipo__card small { display:block; font-size:12px; line-height:1.4; color:var(--text-dim,#9A9AA8); }
+    .sg-tipo__opt input:checked + .sg-tipo__card { border-color:#E24DA0; box-shadow:0 0 0 1px #E24DA0 inset; }
+    .sg-tipo__opt input:focus-visible + .sg-tipo__card { outline:2px solid #E24DA0; outline-offset:2px; }
     /* Pie legal de la pantalla de entrada */
     .pie-legal {
       display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
@@ -162,6 +173,19 @@
         <div class="ya-invitado">
           <p><b>¿Tu agencia te dio acceso?</b>No crees cuenta. Entra con el usuario que te mandó.</p>
           <button type="button" id="sgSoyCliente">Entrar</button>
+        </div>
+        <div class="field">
+          <span class="label" id="sgTipoLabel">¿Qué eres?</span>
+          <div class="sg-tipo" role="radiogroup" aria-labelledby="sgTipoLabel">
+            <label class="sg-tipo__opt">
+              <input type="radio" name="sgTipo" value="creador">
+              <span class="sg-tipo__card"><b>Creador de contenido</b><small>Tu marca o canal, tu calendario, tus redes.</small></span>
+            </label>
+            <label class="sg-tipo__opt">
+              <input type="radio" name="sgTipo" value="agencia">
+              <span class="sg-tipo__card"><b>Agencia de marketing</b><small>Varios clientes, cada uno con su acceso.</small></span>
+            </label>
+          </div>
         </div>
         <div class="field">
           <label class="label" for="sgName">Tu nombre</label>
@@ -273,7 +297,7 @@
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202609240058"></script>
+  <script src="/marketing/js/login-en.js?v=202609240212"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';
@@ -520,11 +544,11 @@
       toggleSetup.hidden = view !== 'login';
       if (view === 'signup') {
         titleEl.textContent = demoEN ? 'Create your account' : 'Crea tu cuenta';
-        // Toda cuenta que se crea sola es de AGENCIA (regla de Vianey 2026-09-19).
-        // Lo único que no es agencia son los accesos que ella les da a sus clientes.
+        // Agencia o creador de contenido: la tarjeta de arriba lo pregunta
+        // (2026-09-24). Los clientes de una agencia no crean cuenta: ella les da acceso.
         subEl.textContent = demoEN
-          ? 'Your agency, your clients, each in its place. Free in 30 seconds.'
-          : 'Tu agencia, tus clientes, cada uno en su lugar. Gratis en 30 segundos.';
+          ? 'Your content, planned and published from one place. Free in 30 seconds.'
+          : 'Tu contenido, planeado y publicado desde un solo lugar. Gratis en 30 segundos.';
         toSignup.textContent = demoEN ? 'Already have an account? Sign in' : '¿Ya tienes cuenta? Inicia sesión';
         document.getElementById('sgName').focus();
       } else if (view === 'forgot') {
@@ -558,6 +582,17 @@
     // El cliente invitado regresa al login con un toque.
     document.getElementById('sgSoyCliente').addEventListener('click', () => showView('login'));
 
+    // ¿Creador o agencia? La respuesta cambia la etiqueta del segundo campo:
+    // el creador escribe su marca o canal; la agencia, su primer cliente.
+    const tipoElegido = () => { const r = document.querySelector('input[name="sgTipo"]:checked'); return r ? r.value : ''; };
+    document.querySelectorAll('input[name="sgTipo"]').forEach((r) => r.addEventListener('change', () => {
+      const creador = tipoElegido() === 'creador';
+      const lab = document.getElementById('sgBrandLabel');
+      const inp = document.getElementById('sgBrand');
+      if (lab) lab.textContent = creador ? (demoEN ? 'Your brand or channel' : 'Tu marca o canal') : (demoEN ? 'Your first client' : 'Tu primer cliente');
+      if (inp) inp.placeholder = creador ? 'Sixsac' : 'Café Aurora';
+    }));
+
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
@@ -565,6 +600,8 @@
       const brand = document.getElementById('sgBrand').value.trim();
       const email = document.getElementById('sgEmail').value.trim();
       const password = document.getElementById('sgPass').value;
+      const tipo = tipoElegido();
+      if (!tipo) { showError(demoEN ? 'Tell us if you are a content creator or a marketing agency.' : 'Dinos si eres creador de contenido o agencia de marketing.'); return; }
       if (!name || !brand || !email || !password) { showError('Completa todos los campos.'); return; }
       if (password.length < 8) { showError('La contraseña debe tener al menos 8 caracteres.'); return; }
       // Apple 1.2: sin aceptación afirmativa no se crea la cuenta.
@@ -573,7 +610,7 @@
       const b = document.getElementById('sgBtn');
       b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
       try {
-        const user = await api.post('/auth/signup', { name, brand, email, password, tipo: 'agencia', eula_accepted: true, eula_version: '2026-08' });
+        const user = await api.post('/auth/signup', { name, brand, email, password, tipo, eula_accepted: true, eula_version: '2026-08' });
         toast('¡Bienvenido, ' + name.split(' ')[0] + '! Tu espacio está listo.', 'success', 2000);
         goToApp(user);
       } catch (err) {

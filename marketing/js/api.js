@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202609240058';
+import { isEN, T } from './shell/i18n.js?v=202609240212';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -79,6 +79,9 @@ export const api = {
 // pantallas (editor, calendario, meses) usen EL MISMO criterio de rol y no se
 // dupliquen candados. Ojo: el front solo esconde; el backend es quien manda.
 export function isClientRole() { return document.body.classList.contains('is-client'); }
+// Cuenta de CREADOR de contenido (workspace_type 'creador'): sin accesos de
+// cliente ni invitaciones al dueño de la página; la app habla de "marcas".
+export function esCreador() { return document.body.classList.contains('is-creador'); }
 
 // ── DOM builder ─────────────────────────────────────────────────────────────
 // el('div', {class:'card', onclick:fn, dataset:{id:'x'}}, [child, 'text', ...])
