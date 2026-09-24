@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609240215';
-import { pickFrom } from '../shell/sheet.js?v=202609240215';
-import * as store from '../shell/store.js?v=202609240215';
-import * as checklistService from '../services/checklist.js?v=202609240215';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609240215';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609240215';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609240215';
-import { T } from '../shell/i18n.js?v=202609240215';
+} from '../api.js?v=202609241154';
+import { pickFrom } from '../shell/sheet.js?v=202609241154';
+import * as store from '../shell/store.js?v=202609241154';
+import * as checklistService from '../services/checklist.js?v=202609241154';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609241154';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609241154';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609241154';
+import { T } from '../shell/i18n.js?v=202609241154';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -76,6 +76,22 @@ export function mount(host, ed) {
       const next = await ctx.pickers.pickDate({ current: post().publish_date, anchor });
       if (next === null) return;
       ed.setField('publish_date', next || null, { immediate: true });
+      refreshAll();
+    },
+  });
+
+  // ── Hora (2026-09-24): sin hora el reloj no publica; antes no existía el campo.
+  const rHora = rowButton({
+    label: T('Hora de publicación', 'Publish time'),
+    render: (v) => {
+      const h = post().publish_time;
+      if (h) v.appendChild(el('span', { class: 'edrow__date', text: `${String(h).slice(0, 5)} · Cancún` }));
+      else v.appendChild(emptyValue(T('Sin hora', 'No time')));
+    },
+    onTap: async (anchor) => {
+      const next = await ctx.pickers.pickTime({ current: post().publish_time, anchor });
+      if (next === null) return;
+      ed.setField('publish_time', next || null, { immediate: true });
       refreshAll();
     },
   });
@@ -333,11 +349,11 @@ export function mount(host, ed) {
   const esCliente = isClientRole();
 
   rows.push(
-    rEstado, rFecha, rPlataforma, rTipo, rInspo, rVideo,
+    rEstado, rFecha, rHora, rPlataforma, rTipo, rInspo, rVideo,
     ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rNotas, ...personRows]),
   );
 
-  addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el]);
+  addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
   if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, avisoCanales]);

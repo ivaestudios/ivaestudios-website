@@ -576,6 +576,11 @@ function validateEffortPoints(v) {
 function invalidPublishDate(v) {
   return v != null && v !== '' && (typeof v !== 'string' || !YMD_RE.test(v));
 }
+// publish_time: HH:MM (24 h, hora de Cancún). El reloj compara texto contra
+// ahoraCancun().hora, así que un "7:30" o "19:00:00" jamás publicaría.
+function invalidPublishTime(v) {
+  return v != null && v !== '' && (typeof v !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(v));
+}
 
 // Detect "migration not applied yet" errors so new endpoints can answer 404
 // (the v2 shell hides the bell / new views on 404 — clean degradation).
@@ -2718,6 +2723,9 @@ async function handleCreatePost(request, env, session) {
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'publish_date') && invalidPublishDate(bodyObj.publish_date)) {
     return json({ error: 'Fecha invalida, usa AAAA-MM-DD' }, 400);
   }
+  if (Object.prototype.hasOwnProperty.call(bodyObj, 'publish_time') && invalidPublishTime(bodyObj.publish_time)) {
+    return json({ error: 'Hora invalida, usa HH:MM' }, 400);
+  }
 
   // MISMO candado que el PATCH: crear era una puerta trasera para escribir
   // campos internos (status='publicado', client_visible=0, notes_team,
@@ -2909,6 +2917,9 @@ async function handlePatchPost(request, env, session, postId) {
   if (bodyObj.priority != null && !PRIORITIES.includes(bodyObj.priority)) return json({ error: 'Invalid priority' }, 400);
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'publish_date') && invalidPublishDate(bodyObj.publish_date)) {
     return json({ error: 'Fecha invalida, usa AAAA-MM-DD' }, 400);
+  }
+  if (Object.prototype.hasOwnProperty.call(bodyObj, 'publish_time') && invalidPublishTime(bodyObj.publish_time)) {
+    return json({ error: 'Hora invalida, usa HH:MM' }, 400);
   }
 
   // Rol CLIENTE: rechaza (no ignora en silencio) los campos internos.

@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609240215';
-import { icon, iconMarca } from '../shell/icons.js?v=202609240215';
-import { T } from '../shell/i18n.js?v=202609240215';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609240215';
-import { confirmar } from '../shell/sheet.js?v=202609240215';
-import { openNewClient } from '../shell/clientswitcher.js?v=202609240215';
+} from '../api.js?v=202609241154';
+import { icon, iconMarca } from '../shell/icons.js?v=202609241154';
+import { T } from '../shell/i18n.js?v=202609241154';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609241154';
+import { confirmar } from '../shell/sheet.js?v=202609241154';
+import { openNewClient } from '../shell/clientswitcher.js?v=202609241154';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609240215';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609240215';
+import { errorCard } from '../ui/states.js?v=202609241154';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609241154';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609240215';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609241154';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609240215';
+} from '../lib/video-upload.js?v=202609241154';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -624,13 +624,30 @@ async function onPickPlatform(post, anchor) {
     v ? `${T('Plataforma:', 'Platform:')} ${v}.` : T('Plataforma quitada.', 'Platform removed.'));
 }
 
+// El chip de fecha abre "Programar publicación": día + hora + redes en un
+// solo lugar (pedido de Vianey 2026-09-24: "solo me deja el día"). Guardar
+// deja los campos; Programar además pone la pieza en 'programado' para que
+// el reloj la publique sola a esa hora en las redes elegidas.
 async function onPickDate(post, anchor) {
-  const cur = post.publish_date || null;
-  const v = await ctx.pickers.pickDate({ current: cur, anchor });
-  if (v == null || v === cur || (v === '' && !cur)) return;
-  // '' = quitar fecha (la fila pasa a la seccion "Sin mes"); 'YYYY-MM-DD' = mover.
-  patchWithUndo(post, { publish_date: v || null }, { publish_date: cur },
-    v ? `${T('Fecha:', 'Date:')} ${fmtDate(v, { day: 'numeric', month: 'long' })}.` : T('Fecha quitada.', 'Date removed.'));
+  const st = ctx.store.getState();
+  const client = (st.clients || []).find((c) => c.id === post.client_id) || null;
+  const r = await ctx.pickers.pickSchedule({ post, client, anchor, canProgram: !isClientRole() });
+  if (!r || !r.fields) return;
+  const fields = {};
+  const prev = {};
+  for (const [k, v] of Object.entries(r.fields)) {
+    const antes = post[k] == null ? null : post[k];
+    const cambia = (k === 'publish_date' || k === 'publish_time') ? (antes || null) !== (v || null) : Number(antes || 0) !== Number(v || 0);
+    if (cambia) { fields[k] = v; prev[k] = antes; }
+  }
+  if (r.programar && post.status !== 'programado') { fields.status = 'programado'; prev.status = post.status || null; }
+  if (!Object.keys(fields).length) return;
+  const f = r.fields;
+  const cuando = f.publish_date ? `${fmtDate(f.publish_date, { day: 'numeric', month: 'long' })}${f.publish_time ? ' · ' + f.publish_time : ''}` : '';
+  const msg = r.programar
+    ? `${T('Programada:', 'Scheduled:')} ${cuando}.`
+    : (f.publish_date ? `${T('Fecha:', 'Date:')} ${cuando}.` : T('Fecha quitada.', 'Date removed.'));
+  patchWithUndo(post, fields, prev, msg);
 }
 
 // ── Edicion inline de texto (titulo, captions, notas por persona) ────────────
@@ -1160,10 +1177,10 @@ function buildRow(post, noteLabels) {
   const tdDate = el('td', { class: 'meses-td meses-td--date' }, [
     cellButton(
       post.publish_date
-        ? el('span', { class: 'meses-date', text: fmtDate(post.publish_date, { day: 'numeric', month: 'long' }) })
-        : el('span', { class: 'meses-empty', text: T('Fecha', 'Date') }),
+        ? el('span', { class: 'meses-date', text: fmtDate(post.publish_date, { day: 'numeric', month: 'long' }) + (post.publish_time ? ` · ${String(post.publish_time).slice(0, 5)}` : '') })
+        : el('span', { class: 'meses-empty', text: T('Programar', 'Schedule') }),
       (a) => onPickDate(post, a),
-      post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}` : T('Asignar fecha', 'Set date'),
+      post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}${post.publish_time ? ' ' + post.publish_time : ''}` : T('Programar publicación', 'Schedule post'),
     ),
   ]);
 
@@ -1401,9 +1418,9 @@ function buildMobileItem(post, noteLabels) {
   // publica), luego tipo y estado, y al final plataforma/grabación.
   const chips = el('div', { class: 'meses-item__chips' }, [
     mobileChip({
-      text: post.publish_date ? fmtDate(post.publish_date) : T('Fecha', 'Date'),
+      text: post.publish_date ? fmtDate(post.publish_date) + (post.publish_time ? ` · ${String(post.publish_time).slice(0, 5)}` : '') : T('Programar', 'Schedule'),
       ghost: !post.publish_date,
-      aria: post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}` : T('Asignar fecha', 'Set date'),
+      aria: post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}${post.publish_time ? ' ' + post.publish_time : ''}` : T('Programar publicación', 'Schedule post'),
       onTap: (a) => onPickDate(post, a),
     }),
     mobileChip({
@@ -1972,8 +1989,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609240215');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609240215');
+        const mod = await import('../lib/pdf-contenido.js?v=202609241154');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609241154');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
