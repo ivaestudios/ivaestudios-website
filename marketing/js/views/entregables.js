@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609241204';
-import { icon } from '../shell/icons.js?v=202609241204';
-import { T } from '../shell/i18n.js?v=202609241204';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609241204';
+import { api, el, clear, toast } from '../api.js?v=202609241218';
+import { icon } from '../shell/icons.js?v=202609241218';
+import { T } from '../shell/i18n.js?v=202609241218';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609241218';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609241204';
+import { moderarComentario } from '../shell/moderacion.js?v=202609241218';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609241204';
+import { errorCard } from '../ui/states.js?v=202609241218';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609241204';
+} from '../lib/video-upload.js?v=202609241218';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609241204';
+  link.href = '/marketing/css/entregables.css?v=202609241218';
   document.head.appendChild(link);
 }
 
@@ -454,7 +454,7 @@ async function alCalendario(it, btn) {
   const label = btn.querySelector('span');
   const original = label ? label.textContent : '';
   btn.disabled = true;
-  if (label) label.textContent = T('Leyendo el video…', 'Reading the video…');
+  if (label) label.textContent = it.type === 'carrusel' ? T('Leyendo los slides…', 'Reading the slides…') : T('Leyendo el video…', 'Reading the video…');
   try {
     const r = await api.post(`/deliverables/${encodeURIComponent(it.id)}/al-calendario`, {});
     const post = r && r.post;
@@ -2068,7 +2068,13 @@ function buildItem(it, staff) {
       staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       tiraIn,
     ]),
-  ]);
+    // Carrusel sin pieza: la IA lee la TIRA (todos los slides) y escribe el
+    // guion slide por slide, el copy y los hashtags (mismo flujo que el reel).
+    (staff && !it.post_id && it.poster_url) ? el('button', {
+      class: 'btn btn--primary dlv-alcal', type: 'button',
+      onclick: (e) => alCalendario(it, e.currentTarget),
+    }, [icon('calendar', 16), el('span', { text: T('Agregar al calendario (IA)', 'Add to calendar (AI)') })]) : null,
+  ].filter(Boolean));
   return el('div', { class: 'dlv-card dlv-card--carrusel' }, [
     main,
     el('div', { class: 'dlv-card__side' }, [buildComments(it, staff)]),
@@ -2245,10 +2251,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609241204');
+        const mod = await import('../lib/pdf-entregables.js?v=202609241218');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609241204');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609241218');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

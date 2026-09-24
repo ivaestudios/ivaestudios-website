@@ -176,6 +176,7 @@ Entrega SIEMPRE con la herramienta entregar_copy.`;
 function usuarioCopy({ tipo, titulo, lectura, ejemplos, brief }) {
   const partes = [];
   partes.push(`PIEZA: ${tipo}${titulo ? ` · título interno actual: "${titulo}"` : ''}.`);
+  if (tipo === 'carrusel') partes.push('Es un CARRUSEL: la imagen es la tira completa con todos los slides en orden. El body va slide por slide ("Slide 1: …", "Slide 2: …") con el texto real de cada uno; el hook es el texto de la portada.');
   if (brief) partes.push(`BRIEF DE LA MARCA: ${brief}`);
   partes.push(`LO QUE LA IA VIO Y OYÓ:\n${JSON.stringify(lectura, null, 1).slice(0, 9000)}`);
   partes.push(`VOZ REAL de la marca — sus últimas piezas (tipo | título | gancho | caption):\n${ejemplos}`);
