@@ -3,16 +3,16 @@
 //
 // Pedido de la dueña (2026-08-27, "que las empresas sean más fáciles de
 // conectar"): UN tablero con el semáforo de redes de cada marca. Tarjeta por
-// marca con estado de Instagram y Facebook, botón de conectar cuando falta, y
+// marca con estado de Instagram, Facebook y YouTube, botón de conectar cuando falta, y
 // "Copiar invitación": el mensaje de WhatsApp listo para que el dueño de la
 // página apruebe la solicitud de acceso (Meta exige ese "sí" una vez por
 // página; ver guía en memoria del proyecto). Los datos ya viajan en la lista
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText } from '../api.js?v=202609231840';
-import { icon } from '../shell/icons.js?v=202609231840';
-import { T, isEN } from '../shell/i18n.js?v=202609231840';
+import { el, clear, toast, api, copyText } from '../api.js?v=202609240058';
+import { icon } from '../shell/icons.js?v=202609240058';
+import { T, isEN } from '../shell/i18n.js?v=202609240058';
 
 const VIEW_ID = 'conexiones';
 
@@ -40,7 +40,9 @@ async function conectar(kind, clientId) {
   const url = `/api/marketing/${kind}/login?client_id=${encodeURIComponent(clientId)}${isEN ? '&lang=en' : ''}`;
   const r = await fetch(url, { credentials: 'include', redirect: 'manual' });
   if (r.status === 503) {
-    toast(T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
+    toast(kind === 'yt'
+      ? T('Falta configurar la app de YouTube (pídeme la guía).', 'YouTube still needs setup (ask me for the guide).')
+      : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
     return;
   }
   window.location.href = url;
@@ -77,6 +79,7 @@ function tarjeta(c) {
   const cliente = isClient();
   const ig = c.ig_username ? '@' + c.ig_username : null;
   const fb = c.fb_page_name || null;
+  const yt = c.yt_channel_title || null;
   const completa = !!(ig && fb);
   return el('article', { class: 'cx-card' + (completa ? ' cx-card--full' : '') }, [
     el('header', { class: 'cx-card__head' }, [
@@ -99,6 +102,15 @@ function tarjeta(c) {
       conectado: !!fb, detalle: fb ? `${fb} ✓` : '',
       onConnect: () => conectar('fb', c.id),
     }),
+    // YouTube (pedido 2026-09-24: "en Conexiones debería aparecer la opción de
+    // conectar YouTube"). Mismo flujo que la ficha de la marca (/yt/login con
+    // la cuenta de Google del canal). El cliente no puede conectar YouTube
+    // (el backend responde 403), así que a él solo se le muestra si ya está.
+    (yt || !cliente) ? filaRed({
+      nombre: 'YouTube', icono: 'play',
+      conectado: !!yt, detalle: yt ? `${yt} ✓` : '',
+      onConnect: cliente ? null : () => conectar('yt', c.id),
+    }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
     fb ? null : (cliente
@@ -310,7 +322,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202609231840';
+  link.href = '/marketing/css/conexiones.css?v=202609240058';
   document.head.appendChild(link);
 }
 
