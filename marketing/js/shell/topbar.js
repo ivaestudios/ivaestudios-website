@@ -10,19 +10,19 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202609240212';
-import * as store from './store.js?v=202609240212';
-import { openSheet, pickFrom } from './sheet.js?v=202609240212';
-import { toast } from './toast.js?v=202609240212';
-import { icon } from './icons.js?v=202609240212';
-import { openClientSwitcher } from './clientswitcher.js?v=202609240212';
-import { T, isEN, setLang } from './i18n.js?v=202609240212';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202609240215';
+import * as store from './store.js?v=202609240215';
+import { openSheet, pickFrom } from './sheet.js?v=202609240215';
+import { toast } from './toast.js?v=202609240215';
+import { icon } from './icons.js?v=202609240215';
+import { openClientSwitcher } from './clientswitcher.js?v=202609240215';
+import { T, isEN, setLang } from './i18n.js?v=202609240215';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609240212';
-import { getTheme, setTheme } from './theme.js?v=202609240212';
-import * as version from './version.js?v=202609240212';
-import * as tienda from './tienda.js?v=202609240212';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609240212';
+import { abrirBloqueados } from './moderacion.js?v=202609240215';
+import { getTheme, setTheme } from './theme.js?v=202609240215';
+import * as version from './version.js?v=202609240215';
+import * as tienda from './tienda.js?v=202609240215';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609240215';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -171,7 +171,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   }, [icon('search', 22)]);
 
   const deskSearch = el('input', {
-    class: 'input tb-search', type: 'search', placeholder: T('Buscar contenido o clientes', 'Search content or clients'),
+    class: 'input tb-search', type: 'search', placeholder: esCreador() ? T('Buscar contenido o marcas', 'Search content or brands') : T('Buscar contenido o clientes', 'Search content or clients'),
     'aria-label': T('Buscar', 'Search'), readonly: true,
     onfocus: () => { deskSearch.blur(); openSearch(deskSearch); },
     onclick: () => openSearch(deskSearch),

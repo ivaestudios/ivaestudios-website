@@ -15,12 +15,12 @@
 // - Cierre: Esc, Cancelar, backdrop o boton atras (capa history).
 // ============================================================================
 
-import { api, el, clear, statusBadge, chip, fmtDate } from '../api.js?v=202609240212';
-import * as store from './store.js?v=202609240212';
-import * as prefs from './prefs.js?v=202609240212';
-import { pushLayer } from './router.js?v=202609240212';
-import { icon } from './icons.js?v=202609240212';
-import { T } from './i18n.js?v=202609240212';
+import { api, el, clear, statusBadge, chip, fmtDate, esCreador } from '../api.js?v=202609240215';
+import * as store from './store.js?v=202609240215';
+import * as prefs from './prefs.js?v=202609240215';
+import { pushLayer } from './router.js?v=202609240215';
+import { icon } from './icons.js?v=202609240215';
+import { T } from './i18n.js?v=202609240215';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -50,8 +50,8 @@ export function createSearch({ router, selectClient }) {
 
     const input = el('input', {
       class: 'gs-input', type: 'search',
-      placeholder: T('Buscar contenido o clientes', 'Search content or clients'),
-      'aria-label': T('Buscar contenido o clientes', 'Search content or clients'),
+      placeholder: esCreador() ? T('Buscar contenido o marcas', 'Search content or brands') : T('Buscar contenido o clientes', 'Search content or clients'),
+      'aria-label': esCreador() ? T('Buscar contenido o marcas', 'Search content or brands') : T('Buscar contenido o clientes', 'Search content or clients'),
       autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
     });
     const cancelBtn = el('button', {
