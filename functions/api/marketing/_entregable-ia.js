@@ -152,8 +152,8 @@ const ESQUEMA_COPY = {
     hook: { type: 'string', description: 'El gancho que detiene el scroll (≤120 caracteres). En reel, la primera frase que se dice o se lee.' },
     body: { type: 'string', description: 'El GUION de la pieza tal como quedó grabada: lo que se dice y se muestra, ordenado, en 3-6 líneas hablables. Nada de acotaciones de producción.' },
     cta: { type: 'string', description: 'El cierre accionable (≤120 caracteres).' },
-    caption: { type: 'string', description: 'El copy FINAL de Instagram listo para pegar: gancho propio, párrafos cortos, 1-3 emojis por párrafo, cierra con el CTA. SIN hashtags.' },
-    hashtags: { type: 'string', description: '8-14 hashtags relevantes separados por espacio, mezcla de locales y de nicho.' },
+    caption: { type: 'string', description: 'El copy FINAL de Instagram, escrito para que ESTE video se encuentre en la búsqueda: la primera línea nombra el tema con las palabras que la gente teclea, luego párrafos cortos con lo que de verdad enseña el video, y cierra con el CTA. SIN hashtags dentro.' },
+    hashtags: { type: 'string', description: 'EXACTAMENTE 5 hashtags, separados por espacio, los más buscados de ESTE tema. Ni uno más.' },
     alt_text: { type: 'string', description: 'Texto alternativo SEO de la pieza (≤200 caracteres): qué se ve, para quién y dónde, sin hashtags.' },
   },
   required: ['title', 'hook', 'body', 'cta', 'caption', 'hashtags', 'alt_text'],
@@ -166,7 +166,8 @@ REGLAS DURAS DE LA CASA:
 - Español mexicano natural, en el idioma de las piezas previas de la marca (si no hay piezas, español). Aunque el video esté en otro idioma, el copy va en el idioma de la marca. PROHIBIDOS los clichés de IA: "desbloquea", "eleva tu", "sumérgete", "descubre el poder", "no te pierdas", cohetes en exceso.
 - PROHIBIDO el guion largo (—) y el punto y coma: usa punto, coma o dos puntos.
 - El guion (body) describe la pieza REAL: lo que se dijo y lo que se ve, en orden. No inventes frases que no estén en la transcripción ni datos que no aparezcan (cifras, nombres, premios, testimonios).
-- Caption = copy final de Instagram: arranca con un gancho propio, párrafos cortos separados por saltos de línea, 1-3 emojis bien puestos por párrafo, y cierra con el CTA. Sin hashtags dentro.
+- Caption = copy final de Instagram Y pieza de SEO: la PRIMERA línea dice de qué trata el video con las palabras que la gente busca (Instagram y Google leen el caption), sin adivinanzas ni "mira esto". Luego párrafos cortos con lo que el video realmente enseña, 1-3 emojis bien puestos por párrafo, y cierra con el CTA. Sin hashtags dentro, sin relleno, sin repetir la misma palabra clave más de tres veces.
+- Hashtags: EXACTAMENTE 5, los que la gente de verdad busca para ESTE tema (2 del tema, 2 del nicho o del público, 1 local o de marca). Ni uno más: cinco bien elegidos pesan más que veinte genéricos.
 - CTA: la invitación al DM va DESPUÉS de plantear el valor o la pregunta ("...y si quieres X, escríbeme", "agenda tu valoración"). JAMÁS pedir comentarios ni "comenta la palabra".
 - Si la marca ofrece un servicio y el video lo muestra, el copy lo vende con naturalidad; si es un detrás de cámaras o educativo, el copy educa y cierra con una invitación suave.
 
@@ -214,13 +215,16 @@ export async function escribirCopy(env, { marca, brief, ejemplos, tipo, titulo, 
     if (!tool || !tool.input) { ultimo = new Error('Claude no entregó los textos.'); continue; }
     const t = tool.input;
     const limpio = (s, n) => String(s || '').replace(/—/g, ',').replace(/;/g, ',').trim().slice(0, n);
+    // Regla de la casa (Vianey, 24-sep-2026): CINCO hashtags, no más. Si la IA
+    // se pasa, se recortan aquí: el número no depende de que obedezca.
+    const cinco = (s) => (String(s || '').match(/#[^\s#]+/g) || []).slice(0, 5).join(' ');
     return {
       title: limpio(t.title, 90),
       hook: limpio(t.hook, 200),
       body: limpio(t.body, 4000),
       cta: limpio(t.cta, 200),
       caption: limpio(t.caption, 4000),
-      hashtags: limpio(t.hashtags, 400),
+      hashtags: cinco(limpio(t.hashtags, 400)),
       alt_text: limpio(t.alt_text, 300),
     };
   }
