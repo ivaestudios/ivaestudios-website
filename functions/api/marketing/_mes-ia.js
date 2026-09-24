@@ -37,7 +37,7 @@ const ESQUEMA = {
           body: { type: 'string', description: 'Reel: el desarrollo del guion, 2-4 frases hablables (~20-35s). Carrusel: "Slide 2 — ...\\nSlide 3 — ..." hasta el slide 6, una línea por slide. Post: 1-2 frases de contexto de la imagen.' },
           cta: { type: 'string', description: 'El cierre accionable (≤120 caracteres).' },
           caption: { type: 'string', description: 'El copy FINAL de Instagram listo para pegar: con emojis, saltos de línea, y el CTA integrado. NO incluir hashtags aquí.' },
-          hashtags: { type: 'string', description: '8-14 hashtags relevantes separados por espacio, mezclando locales y de nicho.' },
+          hashtags: { type: 'string', description: 'EXACTAMENTE 5 hashtags separados por espacio: los más buscados de ESE tema (2 del tema, 2 del nicho o del público, 1 local o de marca). Ni uno más.' },
         },
         required: ['dia', 'content_type', 'title', 'hook', 'body', 'cta', 'caption', 'hashtags'],
       },
@@ -102,7 +102,9 @@ function sanear(input, { year, monthNum, ocupados, n }) {
       body: String(p.body || '').trim(),
       cta: String(p.cta || '').trim().slice(0, 200),
       caption,
-      hashtags: String(p.hashtags || '').trim().slice(0, 400),
+      // Cinco hashtags, regla de la casa (Vianey, 24-sep-2026): se recortan
+      // aquí para que el número no dependa de que el modelo obedezca.
+      hashtags: (String(p.hashtags || '').match(/#[^\s#]+/g) || []).slice(0, 5).join(' '),
     });
     if (limpias.length >= n) break;
   }
