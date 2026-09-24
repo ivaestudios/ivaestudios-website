@@ -12,11 +12,12 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText, clearClipboard } from '../api.js?v=202609241218';
-import { icon } from '../shell/icons.js?v=202609241218';
-import { makeTextarea } from './fields.js?v=202609241218';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202609241218';
-import { T } from '../shell/i18n.js?v=202609241218';
+import { el, copyText, clearClipboard, api } from '../api.js?v=202609241406';
+import { icon } from '../shell/icons.js?v=202609241406';
+import { makeTextarea } from './fields.js?v=202609241406';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202609241406';
+import { pickFrom } from '../shell/sheet.js?v=202609241406';
+import { T } from '../shell/i18n.js?v=202609241406';
 
 // Copiar "nada" deja el portapapeles VACÍO: si se deja intacto, el siguiente
 // pegado suelta el caption de OTRA pieza y eso acaba publicado en el Instagram
@@ -372,11 +373,48 @@ export function mount(host, ed) {
     ctx.toast(ok ? T('Guion copiado.', 'Script copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
 
+  // ── La IA lee el video y escribe los textos (pedido 2026-09-24) ─────────
+  // Reemplaza gancho, guion, CTA, caption, hashtags y alt con lo que la IA ve y
+  // oye en el video de la pieza (entregable vinculado o video subido). Solo
+  // staff: el cliente no reescribe el contenido de su agencia.
+  const esStaff = (ed.getMe().role || '') !== 'client';
+  async function leerVideoIA(btn) {
+    const tiene = [post.hook, post.body, post.caption, post.hashtags].some((v) => String(v || '').trim());
+    if (tiene) {
+      const r = await pickFrom({
+        title: T('La IA va a reemplazar el guion, el copy y los hashtags de esta pieza con lo que vea en el video.', 'The AI will replace this piece\'s script, copy and hashtags with what it sees in the video.'),
+        anchor: btn,
+        options: [
+          { value: 'si', label: T('Sí, reescribir con IA', 'Yes, rewrite with AI') },
+          { value: 'no', label: T('Cancelar', 'Cancel') },
+        ],
+      });
+      if (r !== 'si') return;
+    }
+    const label = btn.querySelector('span');
+    btn.disabled = true;
+    if (label) label.textContent = T('Leyendo el video…', 'Reading the video…');
+    try {
+      await ed.flush();
+      const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/ia-desde-video`, {});
+      if (r && r.post && ed.replaceSnapshot) ed.replaceSnapshot(r.post);
+      ctx.toast(T('Listo: guion, copy y hashtags escritos desde el video. Revísalos.', 'Done: script, copy and hashtags written from the video. Review them.'), { type: 'success' });
+      // Repintar la pestaña con los textos nuevos.
+      root.remove();
+      mount(host, ed);
+    } catch (e) {
+      ctx.toast((e && e.message) || T('La IA no pudo leer el video.', 'The AI could not read the video.'), { type: 'error' });
+      btn.disabled = false;
+      if (label) label.textContent = T('Leer el video con IA', 'Read the video with AI');
+    }
+  }
+
   root.appendChild(el('div', { class: 'edcopy-row' }, [
+    esStaff ? el('button', { class: 'btn btn-primary', type: 'button', onclick: (e) => leerVideoIA(e.currentTarget) }, [icon('spark', 16), el('span', { text: T('Leer el video con IA', 'Read the video with AI') })]) : null,
     el('button', { class: 'btn', type: 'button', onclick: copyCaption }, [icon('copy', 16), T('Copiar caption', 'Copy caption')]),
     el('button', { class: 'btn', type: 'button', onclick: copyCaptionTags }, [icon('copy', 16), T('Copiar caption + hashtags', 'Copy caption + hashtags')]),
     el('button', { class: 'btn', type: 'button', onclick: copyScript }, [icon('copy', 16), T('Copiar guion completo', 'Copy full script')]),
-  ]));
+  ].filter(Boolean)));
 
   host.appendChild(root);
 

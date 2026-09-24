@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609241218';
-import { T } from '../shell/i18n.js?v=202609241218';
-import { icon } from '../shell/icons.js?v=202609241218';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609241218';
-import * as store from '../shell/store.js?v=202609241218';
-import * as cl from '../services/checklist.js?v=202609241218';
-import { createAutosave } from './autosave.js?v=202609241218';
-import { textExpand } from '../ui/pickers.js?v=202609241218';
-import { openActionsMenu } from './actions.js?v=202609241218';
-import { mount as mountContenido } from './tab-contenido.js?v=202609241218';
-import { mount as mountGuion } from './tab-guion.js?v=202609241218';
-import { mount as mountChecklist } from './tab-checklist.js?v=202609241218';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202609241218';
-import { mount as mountActividad } from './tab-actividad.js?v=202609241218';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609241406';
+import { T } from '../shell/i18n.js?v=202609241406';
+import { icon } from '../shell/icons.js?v=202609241406';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609241406';
+import * as store from '../shell/store.js?v=202609241406';
+import * as cl from '../services/checklist.js?v=202609241406';
+import { createAutosave } from './autosave.js?v=202609241406';
+import { textExpand } from '../ui/pickers.js?v=202609241406';
+import { openActionsMenu } from './actions.js?v=202609241406';
+import { mount as mountContenido } from './tab-contenido.js?v=202609241406';
+import { mount as mountGuion } from './tab-guion.js?v=202609241406';
+import { mount as mountChecklist } from './tab-checklist.js?v=202609241406';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202609241406';
+import { mount as mountActividad } from './tab-actividad.js?v=202609241406';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -104,6 +104,17 @@ const ed = {
   },
   flush() { return autosave ? autosave.flush() : Promise.resolve(true); },
   discardChanges() { autosave?.clearDirty(); },
+  // El servidor reescribió la pieza (p. ej. la IA leyó el video): el snapshot
+  // nuevo trae el updated_at correcto, si no el siguiente autosave daría 409.
+  replaceSnapshot(serverPost) {
+    if (!serverPost || serverPost.id !== postId) return;
+    autosave?.clearDirty();
+    snapshot = serverPost;
+    store.upsertPost(serverPost);
+    store.emit('post:updated', { id: postId, fields: Object.keys(serverPost) });
+    store.emit('posts:changed');
+    refreshHeader();
+  },
   refreshHeader,
   setTabBadge,
   openApprovalPicker,

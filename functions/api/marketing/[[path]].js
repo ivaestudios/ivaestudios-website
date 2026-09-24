@@ -5946,6 +5946,11 @@ async function route(request, env, authCtx) {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleUploadPortada(request, env, parts[1]);
   }
+  // La IA lee el video de una pieza que ya existe y reescribe sus textos.
+  if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'ia-desde-video' && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return guardTables(() => handlePostIaDesdeVideo(env, session, parts[1]));
+  }
   // ── CONECTOR DE IA (Claude / ChatGPT), UNO POR AGENCIA ──────────────────
   // Cada agencia crea el suyo y solo alcanza SUS marcas. Nunca se mezclan:
   // la llave nace con el workspace de quien la crea y el servidor MCP filtra
@@ -6731,40 +6736,85 @@ async function handleDeliverableAlCalendario(env, session, dlvId) {
   await logActivity(env, { client_id: d.client_id, post_id: id, session, action: 'post.create', detail: `${d.title || tipo} (desde Entregables)` });
 
   // La IA: leer + escribir. Cualquier tropiezo se devuelve como ia.error.
+  const ia = await iaEscribirPieza(env, session, {
+    postId: id, clientId: d.client_id, clientName: d.client_name, brief: d.client_brief, tipo, titulo: d.title || '',
+    medio: await medioDeEntregable(env, d),
+  });
+  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
+  return json({ ok: true, post, ia });
+}
+
+// El video (o la tira del carrusel) de un entregable, como bytes + mime.
+async function medioDeEntregable(env, d) {
+  if (!d || !env.R2_BUCKET) return null;
+  if (d.video_ext) {
+    const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.${d.video_ext}`);
+    if (obj) return { bytes: await obj.arrayBuffer(), mime: d.video_ext === 'mov' ? 'video/quicktime' : d.video_ext === 'webm' ? 'video/webm' : 'video/mp4' };
+  }
+  if (d.poster_ok) {
+    const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.poster.jpg`);
+    if (obj) return { bytes: await obj.arrayBuffer(), mime: 'image/jpeg' };
+  }
+  return null;
+}
+
+// Lee el medio con Gemini y escribe los textos con Claude (voz de la marca).
+// Devuelve { ok, error }; nunca lanza: la pieza existe con o sin textos.
+async function iaEscribirPieza(env, session, { postId, clientId, clientName, brief, tipo, titulo, medio }) {
   const ia = { ok: false, error: null };
   try {
-    let bytes = null, mime = null;
-    if (d.video_ext && env.R2_BUCKET) {
-      const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.${d.video_ext}`);
-      if (obj) { bytes = await obj.arrayBuffer(); mime = d.video_ext === 'mov' ? 'video/quicktime' : d.video_ext === 'webm' ? 'video/webm' : 'video/mp4'; }
-    } else if (d.poster_ok && env.R2_BUCKET) {
-      const obj = await env.R2_BUCKET.get(`marketing/deliverable/${d.id}.poster.jpg`);
-      if (obj) { bytes = await obj.arrayBuffer(); mime = 'image/jpeg'; }
-    }
-    if (!bytes) throw new Error('El entregable no tiene video ni imagen que leer.');
-    const lectura = await leerEntregable(env, { bytes, mime });
+    if (!medio || !medio.bytes) throw new Error('La pieza no tiene video ni imagen que leer.');
+    const lectura = await leerEntregable(env, { bytes: medio.bytes, mime: medio.mime });
     const voz = await env.DB.prepare(
       `SELECT content_type, title, hook, caption FROM mkt_posts
        WHERE client_id = ? AND id != ? AND COALESCE(caption, '') != '' ORDER BY publish_date DESC LIMIT 12`
-    ).bind(d.client_id, id).all();
+    ).bind(clientId, postId).all();
     const ejemplos = (voz.results || []).map((p) =>
       `· ${p.content_type || 'reel'} | ${(p.title || '').slice(0, 60)} | ${(p.hook || '').slice(0, 90)} | ${(p.caption || '').replace(/\s+/g, ' ').slice(0, 220)}`
     ).join('\n') || '(marca nueva: sin piezas previas, usa un tono profesional cálido, cercano y local)';
-    const copy = await escribirCopy(env, { marca: d.client_name, brief: String(d.client_brief || '').slice(0, 600), ejemplos, tipo, titulo: d.title || '', lectura });
-    const generico = !d.title || /^(reel|hist\.?|historia|post|video|carrusel)\s*\d*$/i.test(String(d.title).trim());
+    const copy = await escribirCopy(env, { marca: clientName, brief: String(brief || '').slice(0, 600), ejemplos, tipo, titulo: titulo || '', lectura });
+    const generico = !titulo || /^(reel|hist\.?|historia|post|video|carrusel)\s*\d*$/i.test(String(titulo).trim());
     const transcripcion = String(lectura.transcripcion || '').trim();
     const notas = transcripcion ? `Transcripción (IA): ${transcripcion}`.slice(0, 4000) : null;
     await env.DB.prepare(
       `UPDATE mkt_posts SET title = ?, hook = ?, body = ?, cta = ?, caption = ?, hashtags = ?, alt_text = ?,
         notes_team = COALESCE(notes_team, ?), updated_at = datetime('now') WHERE id = ?`
-    ).bind(generico && copy.title ? copy.title : (d.title || copy.title), copy.hook, copy.body, copy.cta, copy.caption, copy.hashtags, copy.alt_text, notas, id).run();
-    await logActivity(env, { client_id: d.client_id, post_id: id, session, action: 'post.update', detail: 'guion, copy y hashtags escritos por la IA desde el video' });
+    ).bind(generico && copy.title ? copy.title : (titulo || copy.title), copy.hook, copy.body, copy.cta, copy.caption, copy.hashtags, copy.alt_text, notas, postId).run();
+    await logActivity(env, { client_id: clientId, post_id: postId, session, action: 'post.update', detail: 'guion, copy y hashtags escritos por la IA desde el video' });
     ia.ok = true;
   } catch (e) {
     ia.error = ((e && e.message) || 'La IA no pudo leer el video.').slice(0, 300);
   }
-  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
-  return json({ ok: true, post, ia });
+  return ia;
+}
+
+// PIEZA YA EN EL CALENDARIO → la IA lee su video (entregable vinculado, video
+// subido a la pieza o tira del carrusel) y reescribe guion, copy y hashtags.
+async function handlePostIaDesdeVideo(env, session, postId) {
+  const p = await env.DB.prepare(
+    `SELECT p.id, p.client_id, p.title, p.content_type, c.name AS client_name, c.brief AS client_brief
+     FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
+     WHERE p.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
+  ).bind(postId, wsDeSesion(session)).first();
+  if (!p) return json({ error: 'Pieza no encontrada.' }, 404);
+  let medio = null;
+  const d = await env.DB.prepare(
+    `SELECT id, type, video_ext, poster_ok FROM mkt_deliverables WHERE post_id = ?
+     ORDER BY (video_ext IS NOT NULL) DESC, updated_at DESC LIMIT 1`
+  ).bind(postId).first();
+  if (d) medio = await medioDeEntregable(env, d);
+  if (!medio && env.R2_BUCKET) {
+    for (const ext of ['mp4', 'mov', 'webm']) {
+      const obj = await env.R2_BUCKET.get(`marketing/video/${postId}.${ext}`);
+      if (obj) { medio = { bytes: await obj.arrayBuffer(), mime: ext === 'mov' ? 'video/quicktime' : ext === 'webm' ? 'video/webm' : 'video/mp4' }; break; }
+    }
+  }
+  if (!medio) return json({ error: 'Esta pieza no tiene video ni tira que leer: súbelo primero (en la pieza o en Entregables).' }, 422);
+  const tipo = p.content_type === 'carrusel' ? 'carrusel' : (p.content_type || 'reel');
+  const ia = await iaEscribirPieza(env, session, { postId, clientId: p.client_id, clientName: p.client_name, brief: p.client_brief, tipo, titulo: p.title || '', medio });
+  if (!ia.ok) return json({ error: ia.error }, 422);
+  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  return json({ ok: true, post });
 }
 
 // Busca fotos en Pinterest por texto, o cosecha las imágenes de un pin si lo
