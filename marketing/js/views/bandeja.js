@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251419';
-import { toast } from '../shell/toast.js?v=202609251419';
-import { icon, iconMarca } from '../shell/icons.js?v=202609251419';
-import { T, isEN } from '../shell/i18n.js?v=202609251419';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251423';
+import { toast } from '../shell/toast.js?v=202609251423';
+import { icon, iconMarca } from '../shell/icons.js?v=202609251423';
+import { T, isEN } from '../shell/i18n.js?v=202609251423';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -750,7 +750,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202609251419';
+  link.href = '/marketing/css/bandeja.css?v=202609251423';
   document.head.appendChild(link);
 }
 

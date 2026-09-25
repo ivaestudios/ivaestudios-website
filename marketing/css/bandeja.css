@@ -317,13 +317,18 @@ video.bj-adj { max-height: 320px; width: 100%; }
    quedaban arriba y al chat le sobraban 300px de alto: el campo de escribir
    caía fuera de la pantalla y había que adivinar dónde estaba. */
 @media (max-width: 899px) {
-  .bj-root.is-chat { padding: 0; gap: 0; }
+  /* Medido en el teléfono (390x844): la vista arranca a 120px = barra superior
+     (56) + pestañas (48) + el padding de 16 del contenedor del shell, y abajo
+     la barra de navegación se come 56. Con margen negativo el chat va de borde
+     a borde, como WhatsApp. */
+  .bj-root.is-chat { padding: 0; gap: 0; margin: -16px -20px; }
   .bj-root.is-chat .bj-head,
   .bj-root.is-chat .bj-seg,
   .bj-root.is-chat .bj-filtros-wrap { display: none; }
   .bj-root.is-chat .bj-chat__in {
-    height: calc(100dvh - var(--topbar-h2) - var(--nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    border-radius: 0; border-left: 0; border-right: 0;
+    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h) - var(--nav-h) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+    border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0;
   }
   /* El chip del canal ya se ve en el avatar: en el móvil manda la etapa. */
   .bj-chat__canal { display: none; }
