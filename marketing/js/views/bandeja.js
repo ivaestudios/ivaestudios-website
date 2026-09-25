@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, fmtDateTime, initials, copyText } from '../api.js?v=202609241406';
-import { toast } from '../shell/toast.js?v=202609241406';
-import { icon } from '../shell/icons.js?v=202609241406';
-import { T, isEN } from '../shell/i18n.js?v=202609241406';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251407';
+import { toast } from '../shell/toast.js?v=202609251407';
+import { icon } from '../shell/icons.js?v=202609251407';
+import { T, isEN } from '../shell/i18n.js?v=202609251407';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -55,9 +55,12 @@ const ETAPA_TXT = {
   perdido: () => T('Perdido', 'Lost'),
 };
 const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cliente: '#22c55e', perdido: '#6b7280' };
-const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook' };
-const CANAL_ICO = { instagram: 'instagram', messenger: 'facebook', facebook: 'facebook', whatsapp: 'send' };
-const CANAL_COLOR = { instagram: '#e1306c', messenger: '#0084ff', facebook: '#1877f2', whatsapp: '#25d366' };
+const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook', tiktok: 'TikTok' };
+const CANAL_ICO = { instagram: 'instagram', messenger: 'facebook', facebook: 'facebook', whatsapp: 'send', tiktok: 'tiktok' };
+// Un color por app (Vianey, 25-sep-2026): Messenger celeste, Instagram rosado,
+// WhatsApp verde, TikTok plomo oscuro. Mismos valores que --net-* en bandeja.css.
+const CANAL_COLOR = { instagram: '#E1306C', messenger: '#0084FF', facebook: '#0084FF', whatsapp: '#25D366', tiktok: '#3A3A45' };
+const colorDe = (canal) => CANAL_COLOR[canal] || 'var(--brand)';
 
 const clienteActivo = () => {
   const st = ctx.store.getState();
@@ -67,7 +70,7 @@ const esAdmin = () => ((ctx.store.getState().me || {}).role === 'admin');
 const cid = () => (clienteActivo() || {}).id || '';
 
 function chipCanal(c) {
-  return el('span', { class: 'chip bj-chip-canal', style: { '--c': CANAL_COLOR[c] || 'var(--text-dim)' } }, [
+  return el('span', { class: 'chip bj-chip-canal', style: { '--c': colorDe(c) } }, [
     icon(CANAL_ICO[c] || 'link', 12), el('span', { class: 'chip__txt', text: CANAL_TXT[c] || c }),
   ]);
 }
@@ -269,8 +272,17 @@ function listaConvs() {
   const ul = el('div', { class: 'bj-convs', role: 'list' });
   for (const v of convs) {
     const activa = convAbierta && convAbierta.conversacion.id === v.id;
-    ul.appendChild(el('button', { type: 'button', role: 'listitem', class: 'bj-conv' + (v.no_leidos ? ' is-unread' : '') + (activa ? ' is-active' : ''), onclick: () => abrirConv(v.id) }, [
-      el('span', { class: 'bj-avatar', style: { '--c': CANAL_COLOR[v.canal] } }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icon(CANAL_ICO[v.canal] || 'link', 11)])]),
+    // Fila estilo WhatsApp: filo de color de la app, avatar con su ícono,
+    // nombre + hora arriba, último mensaje + globo de no leídos abajo. La etapa
+    // del CRM vive como un punto de color, para no competir con el mensaje.
+    ul.appendChild(el('button', {
+      type: 'button', role: 'listitem',
+      class: 'bj-conv' + (v.no_leidos ? ' is-unread' : '') + (activa ? ' is-active' : ''),
+      style: { '--c': colorDe(v.canal) },
+      'aria-label': `${nombreDe(v)} · ${CANAL_TXT[v.canal] || v.canal}${v.no_leidos ? ` · ${v.no_leidos} ${T('sin leer', 'unread')}` : ''}`,
+      onclick: () => abrirConv(v.id),
+    }, [
+      el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icon(CANAL_ICO[v.canal] || 'link', 11)])]),
       el('span', { class: 'bj-conv__txt' }, [
         el('span', { class: 'bj-conv__fila' }, [
           el('span', { class: 'bj-conv__nombre', text: nombreDe(v) }),
@@ -278,7 +290,9 @@ function listaConvs() {
         ]),
         el('span', { class: 'bj-conv__fila' }, [
           el('span', { class: 'bj-conv__ultimo', text: v.ultimo_texto || '' }),
-          v.no_leidos ? el('span', { class: 'bj-conv__n', text: String(v.no_leidos) }) : chipEtapa(v.etapa),
+          v.no_leidos
+            ? el('span', { class: 'bj-conv__n', text: String(v.no_leidos) })
+            : el('span', { class: 'bj-conv__etapa', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' }, title: (ETAPA_TXT[v.etapa] || (() => v.etapa))() }),
         ]),
       ]),
     ]));
@@ -304,9 +318,9 @@ function bajarChat(instantaneo) {
 function chat() {
   const { conversacion: v, mensajes } = convAbierta;
   const cerrada = horasDesde(v.ultimo_cliente_en) > 24;
-  const head = el('header', { class: 'bj-chat__head' }, [
+  const head = el('header', { class: 'bj-chat__head', style: { '--c': colorDe(v.canal) } }, [
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-back', 'aria-label': T('Volver a la lista', 'Back to the list'), onclick: () => { convAbierta = null; pintarCuerpo(); } }, [icon('left', 20)]),
-    el('span', { class: 'bj-avatar', style: { '--c': CANAL_COLOR[v.canal] } }, [el('span', { text: initials(nombreDe(v)) })]),
+    el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icon(CANAL_ICO[v.canal] || 'link', 11)])]),
     el('div', { class: 'bj-chat__quien' }, [
       el('div', { class: 'bj-chat__nombre', text: nombreDe(v) }),
       // Segundo renglón: canal, @usuario y la etapa como chip tocable (abre un
@@ -339,7 +353,7 @@ function chat() {
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
   const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', onclick: () => sugerirConv(v, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
-  const btnEnviar = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: () => enviar(v, ta) }, [icon('send', 14), ' ' + T('Enviar', 'Send')]);
+  const btnEnviar = el('button', { type: 'button', class: 'bj-enviar', 'aria-label': T('Enviar', 'Send'), title: T('Enviar', 'Send'), onclick: () => enviar(v, ta) }, [icon('send', 19)]);
   composerEl = el('div', { class: 'bj-composer' }, [
     cerrada ? el('p', { class: 'bj-aviso', text: v.canal === 'whatsapp'
       ? T('Han pasado más de 24 h desde su último mensaje: WhatsApp puede rechazar el envío hasta que vuelva a escribir.', 'More than 24 h since their last message: WhatsApp may reject the send until they write again.')
@@ -347,7 +361,14 @@ function chat() {
     el('div', { class: 'bj-composer__fila' }, [ta, el('div', { class: 'bj-composer__btns' }, [btnIA, btnEnviar])]),
   ].filter(Boolean));
 
-  return el('div', { class: 'bj-chat__in' }, [head, msgsEl, composerEl]);
+  return el('div', { class: 'bj-chat__in', style: { '--c': colorDe(v.canal) } }, [head, msgsEl, composerEl]);
+}
+
+// 14:05 — la hora sola, como en WhatsApp (la fecha ya la da el separador de día).
+function horaCorta(iso) {
+  const d = new Date(String(iso || '').replace(' ', 'T') + (String(iso || '').includes('Z') ? '' : 'Z'));
+  if (isNaN(d)) return String(iso || '').slice(11, 16);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function fmtDia(ymd) {
@@ -370,12 +391,12 @@ function burbuja(m) {
     hijos.push(el('span', { class: 'muted', text: ({ share: T('Compartió una publicación', 'Shared a post'), story_mention: T('Te mencionó en una historia', 'Mentioned you in a story') }[m.adjunto_tipo] || T('Adjunto', 'Attachment')) }));
   }
   if (m.texto) hijos.push(el('span', { class: 'bj-burbuja__txt', text: m.texto }));
-  const pie = [el('span', { text: fmtDateTime(m.creado) })];
+  const pie = [el('span', { text: horaCorta(m.creado) })];
   if (salida && m.autor_nombre && m.autor_nombre !== 'Meta') pie.unshift(el('span', { text: m.autor_nombre + ' · ' }));
   if (m.estado === 'error') pie.push(el('span', { class: 'bj-burbuja__err', text: ' · ' + T('No se envió', 'Not sent') + (m.error ? ': ' + m.error : '') }));
+  // La hora va DENTRO de la burbuja (como WhatsApp), no debajo.
   return el('div', { class: 'bj-burbuja' + (salida ? ' is-out' : ' is-in') + (m.estado === 'error' ? ' is-error' : '') }, [
-    el('div', { class: 'bj-burbuja__cuerpo' }, hijos),
-    el('div', { class: 'bj-burbuja__pie' }, pie),
+    el('div', { class: 'bj-burbuja__cuerpo' }, [...hijos, el('div', { class: 'bj-burbuja__pie' }, pie)]),
   ]);
 }
 
@@ -722,7 +743,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202609241406';
+  link.href = '/marketing/css/bandeja.css?v=202609251407';
   document.head.appendChild(link);
 }
 

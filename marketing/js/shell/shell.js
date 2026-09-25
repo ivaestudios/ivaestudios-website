@@ -19,25 +19,25 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609241406';
-import { setRoleDefault } from './theme.js?v=202609241406';
-import { vigilarSegmentados } from './segfade.js?v=202609241406';
-import * as store from './store.js?v=202609241406';
-import * as prefs from './prefs.js?v=202609241406';
-import * as router from './router.js?v=202609241406';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609241406';
-import { toast } from './toast.js?v=202609241406';
-import { icon } from './icons.js?v=202609241406';
-import * as iconsMod from './icons.js?v=202609241406';
-import { createTopbar } from './topbar.js?v=202609241406';
-import { createBottomNav } from './bottomnav.js?v=202609241406';
-import { createSearch } from './search.js?v=202609241406';
-import { createNotifications } from './notifications.js?v=202609241406';
-import { T } from './i18n.js?v=202609241406';
-import * as version from './version.js?v=202609241406';
-import * as tienda from './tienda.js?v=202609241406';
-import * as pickers from '../ui/pickers.js?v=202609241406';
-import * as dnd from '../ui/dnd.js?v=202609241406';
+import { api, el, clear } from '../api.js?v=202609251407';
+import { setRoleDefault } from './theme.js?v=202609251407';
+import { vigilarSegmentados } from './segfade.js?v=202609251407';
+import * as store from './store.js?v=202609251407';
+import * as prefs from './prefs.js?v=202609251407';
+import * as router from './router.js?v=202609251407';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609251407';
+import { toast } from './toast.js?v=202609251407';
+import { icon } from './icons.js?v=202609251407';
+import * as iconsMod from './icons.js?v=202609251407';
+import { createTopbar } from './topbar.js?v=202609251407';
+import { createBottomNav } from './bottomnav.js?v=202609251407';
+import { createSearch } from './search.js?v=202609251407';
+import { createNotifications } from './notifications.js?v=202609251407';
+import { T } from './i18n.js?v=202609251407';
+import * as version from './version.js?v=202609251407';
+import * as tienda from './tienda.js?v=202609251407';
+import * as pickers from '../ui/pickers.js?v=202609251407';
+import * as dnd from '../ui/dnd.js?v=202609251407';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
