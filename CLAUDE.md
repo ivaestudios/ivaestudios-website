@@ -192,11 +192,13 @@ or external account access. Listed in priority order:
    (`21.1619, -86.8515`) but the GBP pin may be in Riviera Maya
    (`20.4785722, -87.0756298`). Pick one canonical address (street + lat/lng)
    and we propagate.
-3. **Cloudflare Turnstile sitekey.** `marketing-intake.html` currently has
-   the placeholder `0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD`. Go to
-   Cloudflare → Turnstile → create a widget for `ivaestudios.com`, paste
-   the real sitekey here, and add the secret as `TURNSTILE_SECRET_KEY` in
-   GitHub Secrets + Cloudflare Pages env.
+3. ~~**Cloudflare Turnstile sitekey.**~~ DONE 2026-09-25. Widget "IVAE
+   Marketing - formulario de brief" (managed, domains `ivaestudios.com` +
+   `ivaestudios-website.pages.dev`), sitekey `0x4AAAAAAFD1QIwySjNEhcdF` live in
+   `marketing-intake.html`, secret stored as `TURNSTILE_SECRET_KEY` in Pages
+   (production). From now on the endpoint REJECTS submissions without a valid
+   token — before this it accepted everything, because the server only verifies
+   when that secret exists.
 4. **Resend domain verification + API key.** The marketing-intake form
    sends via Resend to `info@ivaestudios.com`. Verify `ivaestudios.com`
    in Resend (DKIM + SPF + DMARC), generate an API key, store as

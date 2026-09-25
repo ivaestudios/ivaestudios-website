@@ -58,20 +58,16 @@ a fake/invalid placeholder, and never swap or unify them.
 
 ---
 
-## 3. Cloudflare Turnstile placeholder sitekey
+## 3. Cloudflare Turnstile — DONE (2026-09-25)
 
-In `/marketing-intake.html` (around line 1065):
+Nothing left to do here. The widget exists ("IVAE Marketing - formulario de
+brief", managed mode, domains `ivaestudios.com` + `ivaestudios-website.pages.dev`),
+its sitekey `0x4AAAAAAFD1QIwySjNEhcdF` is live in `/marketing-intake.html`, and
+the secret is stored as `TURNSTILE_SECRET_KEY` in Cloudflare Pages (production).
 
-```
-data-sitekey="0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD"
-```
-
-Steps:
-1. Cloudflare dashboard → Turnstile → create a widget for `ivaestudios.com`.
-2. Paste the real sitekey into `/marketing-intake.html`.
-3. Add the matching secret as `TURNSTILE_SECRET_KEY` in:
-   - GitHub → Settings → Secrets → Actions
-   - Cloudflare Pages → Environment Variables
+Worth knowing: until that secret existed the endpoint accepted every submission,
+because `functions/api/marketing-intake.js` only verifies the token when
+`env.TURNSTILE_SECRET_KEY` is set. Briefs were arriving, but unprotected.
 
 ---
 

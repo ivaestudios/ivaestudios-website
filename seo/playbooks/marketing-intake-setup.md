@@ -54,6 +54,10 @@ Click "Save and deploy". Pages will redeploy with the secrets injected.
 
 ### Step 4 — Update the form with Turnstile site key (2 min)
 
+> ALREADY DONE (2026-09-25). The live sitekey is `0x4AAAAAAFD1QIwySjNEhcdF`
+> and the secret is in Pages. Steps below are kept as the recipe; do not
+> re-run them unless the widget is being replaced.
+
 1. Open `/marketing-intake.html`
 2. Find this line:
    ```html

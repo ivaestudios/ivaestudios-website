@@ -284,12 +284,12 @@ These are the hard blockers no agent can resolve without human input or
 external account access:
 1. Phone `+52 990 204 6514` (invalid area code, 77 schema instances)
 2. GBP coordinates / single canonical address
-3. **Cloudflare Turnstile sitekey** in `marketing-intake.html` (currently
-   the placeholder `0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD`) +
-   `TURNSTILE_SECRET_KEY` GH Secret
-4. **Resend domain verification + `RESEND_API_KEY`** GH Secret
-5. Real client testimonials (3 placeholders in `index.html` + `es/index.html`)
-6. Real GBP separate profile for IVAE Marketing
+3. **Resend domain verification + `RESEND_API_KEY`** GH Secret
+4. Real client testimonials (3 placeholders in `index.html` + `es/index.html`)
+5. Real GBP separate profile for IVAE Marketing
+
+RESOLVED: Cloudflare Turnstile (2026-09-25) — real sitekey in
+`marketing-intake.html`, secret in Pages. See CLAUDE.md item 3.
 
 ---
 
