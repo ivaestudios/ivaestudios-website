@@ -54,22 +54,22 @@
   --imkt-bg: #0a0a0f;
   --imkt-bg-elevated: #12121a;
   --imkt-fg: #f0eee9;
-  --imkt-surface: rgba(167, 139, 250, 0.04);
-  --imkt-surface-elevated: rgba(167, 139, 250, 0.08);
+  --imkt-surface: rgba(226, 77, 160, 0.04);
+  --imkt-surface-elevated: rgba(226, 77, 160, 0.08);
   --imkt-muted: #8b85a3;
-  --imkt-muted-strong: #c4b5fd;
-  --imkt-border: rgba(167, 139, 250, 0.18);
-  --imkt-border-strong: rgba(167, 139, 250, 0.35);
-  --imkt-purple: #a78bfa;
-  --imkt-purple-light: #c084fc;
-  --imkt-pink: #ec4899;
-  --imkt-pink-light: #f472b6;
+  --imkt-muted-strong: #F5A8D3;
+  --imkt-border: rgba(226, 77, 160, 0.18);
+  --imkt-border-strong: rgba(226, 77, 160, 0.35);
+  --imkt-acento: #E96FB4;
+  --imkt-acento-luz: #BF54C0;
+  --imkt-acento-fuerte: #E24DA0;
+  --imkt-acento-fuerte-luz: #E96FB4;
   --imkt-red: #ef4444;
-  --imkt-accent: #a78bfa;
-  --imkt-accent-dark: #ec4899;
+  --imkt-accent: #E96FB4;
+  --imkt-accent-dark: #E24DA0;
   --imkt-accent-fg: #ffffff;
-  --imkt-gradient: linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #ec4899 100%);
-  --imkt-gradient-soft: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(192, 132, 252, 0.10), rgba(236, 72, 153, 0.08));
+  --imkt-gradient: linear-gradient(135deg, #E24DA0 0%, #BF54C0 40%, #9D5BE0 100%);
+  --imkt-gradient-soft: linear-gradient(135deg, rgba(226, 77, 160, 0.15), rgba(191, 84, 192, 0.10), rgba(226, 77, 160, 0.08));
   --imkt-alert: #ef4444;
   --imkt-success: #22c55e;
   --imkt-font-display: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -84,7 +84,7 @@
   --imkt-border-width: 1px;
   --imkt-maxw: 1080px;
   --imkt-maxw-form: 720px;
-  --imkt-glow: 0 0 60px rgba(167, 139, 250, 0.3);
+  --imkt-glow: 0 0 60px rgba(226, 77, 160, 0.3);
 }
 
 * { box-sizing: border-box; }
@@ -95,7 +95,7 @@ html { -webkit-text-size-adjust: 100%; }
   position: absolute;
   top: -100%;
   left: 16px;
-  background: var(--imkt-purple);
+  background: var(--imkt-acento);
   color: #0a0a0f;
   padding: 12px 24px;
   z-index: 10001;
@@ -105,16 +105,16 @@ html { -webkit-text-size-adjust: 100%; }
   border-radius: 0 0 4px 4px;
   transition: top 0.3s;
 }
-.imkt-skip-link:focus { top: 0; outline: 2px solid var(--imkt-pink); outline-offset: 2px; }
+.imkt-skip-link:focus { top: 0; outline: 2px solid var(--imkt-acento-fuerte); outline-offset: 2px; }
 
 /* Global focus-visible — WCAG 2.4.7 */
 a:focus-visible, button:focus-visible, [tabindex]:focus-visible, summary:focus-visible {
-  outline: 2px solid var(--imkt-pink);
+  outline: 2px solid var(--imkt-acento-fuerte);
   outline-offset: 3px;
   border-radius: 4px;
 }
 .imkt-choice:has(input:focus-visible) {
-  outline: 2px solid var(--imkt-pink);
+  outline: 2px solid var(--imkt-acento-fuerte);
   outline-offset: 3px;
 }
 
@@ -139,9 +139,9 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 20% 15%, rgba(167, 139, 250, 0.12), transparent 50%),
-    radial-gradient(circle at 80% 85%, rgba(236, 72, 153, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.05), transparent 70%);
+    radial-gradient(circle at 20% 15%, rgba(226, 77, 160, 0.12), transparent 50%),
+    radial-gradient(circle at 80% 85%, rgba(226, 77, 160, 0.08), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(191, 84, 192, 0.05), transparent 70%);
 }
 body > * { position: relative; z-index: 1; }
 
@@ -191,7 +191,7 @@ body > * { position: relative; z-index: 1; }
   width: 10px; height: 10px;
   background: var(--imkt-gradient);
   border-radius: 50%;
-  box-shadow: 0 0 12px rgba(167, 139, 250, 0.6);
+  box-shadow: 0 0 12px rgba(226, 77, 160, 0.6);
 }
 .imkt-logo-suffix {
   color: var(--imkt-muted-strong);
@@ -210,7 +210,7 @@ body > * { position: relative; z-index: 1; }
   text-decoration: none;
   transition: color 0.2s;
 }
-.imkt-header-cta:hover { color: var(--imkt-purple); }
+.imkt-header-cta:hover { color: var(--imkt-acento); }
 
 /* ═══════════════════════════════════════════
    HERO — purple/pink gradient, glowy
@@ -230,10 +230,10 @@ body > * { position: relative; z-index: 1; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--imkt-purple);
+  color: var(--imkt-acento);
   padding: 10px 20px;
-  background: rgba(167, 139, 250, 0.08);
-  border: 1px solid rgba(167, 139, 250, 0.18);
+  background: rgba(226, 77, 160, 0.08);
+  border: 1px solid rgba(226, 77, 160, 0.18);
   border-radius: 100px;
   margin-bottom: 36px;
 }
@@ -255,7 +255,7 @@ body > * { position: relative; z-index: 1; }
   max-width: 880px;
 }
 .imkt-h1 .accent {
-  background: linear-gradient(105deg, #a78bfa 0%, #c084fc 18%, #d8b4fe 28%, #ec4899 50%, #f472b6 70%, #ef4444 90%);
+  background: linear-gradient(105deg, #E24DA0 0%, #BF54C0 18%, #C878D0 28%, #9D5BE0 50%, #B06FE0 70%, #9D5BE0 90%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -336,7 +336,7 @@ body > * { position: relative; z-index: 1; }
 .imkt-progress-bar {
   flex: 1;
   height: 4px;
-  background: rgba(167, 139, 250, 0.15);
+  background: rgba(226, 77, 160, 0.15);
   border-radius: 100px;
   position: relative;
   overflow: hidden;
@@ -346,12 +346,12 @@ body > * { position: relative; z-index: 1; }
   inset: 0 100% 0 0;
   background: var(--imkt-gradient);
   border-radius: 100px;
-  box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 12px rgba(226, 77, 160, 0.5);
   transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .imkt-form {
-  background: linear-gradient(145deg, rgba(167, 139, 250, 0.06), rgba(236, 72, 153, 0.03), rgba(167, 139, 250, 0.04));
+  background: linear-gradient(145deg, rgba(226, 77, 160, 0.06), rgba(226, 77, 160, 0.03), rgba(226, 77, 160, 0.04));
   border: 1px solid var(--imkt-border);
   border-radius: var(--imkt-radius-lg);
   padding: 56px 48px;
@@ -359,7 +359,7 @@ body > * { position: relative; z-index: 1; }
   margin: 0 auto;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 20px 60px rgba(167, 139, 250, 0.08);
+  box-shadow: 0 20px 60px rgba(226, 77, 160, 0.08);
 }
 
 .imkt-step { display: none; }
@@ -415,7 +415,7 @@ body > * { position: relative; z-index: 1; }
   line-height: 1.5;
 }
 .imkt-field-required {
-  color: var(--imkt-pink);
+  color: var(--imkt-acento-fuerte);
   margin-left: 2px;
 }
 
@@ -435,9 +435,9 @@ body > * { position: relative; z-index: 1; }
   min-height: 48px;
 }
 .imkt-input:focus, .imkt-textarea:focus, .imkt-select:focus {
-  border-color: var(--imkt-purple);
+  border-color: var(--imkt-acento);
   background: rgba(10, 10, 15, 0.6);
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+  box-shadow: 0 0 0 3px rgba(226, 77, 160, 0.15);
 }
 .imkt-input::placeholder, .imkt-textarea::placeholder { color: var(--imkt-muted); }
 .imkt-textarea { min-height: 110px; resize: vertical; padding: 14px 18px; line-height: 1.6; }
@@ -464,13 +464,13 @@ body > * { position: relative; z-index: 1; }
 }
 .imkt-choice:hover {
   border-color: var(--imkt-border-strong);
-  background: rgba(167, 139, 250, 0.05);
+  background: rgba(226, 77, 160, 0.05);
 }
-.imkt-choice input { margin-top: 3px; accent-color: var(--imkt-purple); width: 16px; height: 16px; cursor: pointer; }
+.imkt-choice input { margin-top: 3px; accent-color: var(--imkt-acento); width: 16px; height: 16px; cursor: pointer; }
 .imkt-choice:has(input:checked) {
-  border-color: var(--imkt-purple);
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(236, 72, 153, 0.08));
-  box-shadow: 0 0 24px rgba(167, 139, 250, 0.15);
+  border-color: var(--imkt-acento);
+  background: linear-gradient(135deg, rgba(226, 77, 160, 0.15), rgba(226, 77, 160, 0.08));
+  box-shadow: 0 0 24px rgba(226, 77, 160, 0.15);
 }
 .imkt-choice:has(input:checked) .imkt-choice-label {
   color: var(--imkt-fg);
@@ -526,29 +526,29 @@ body > * { position: relative; z-index: 1; }
   background: var(--imkt-gradient);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 8px 24px rgba(167, 139, 250, 0.25);
+  box-shadow: 0 8px 24px rgba(226, 77, 160, 0.25);
 }
 .imkt-btn--primary:hover {
-  box-shadow: 0 12px 32px rgba(167, 139, 250, 0.4), 0 0 0 1px rgba(167, 139, 250, 0.3);
+  box-shadow: 0 12px 32px rgba(226, 77, 160, 0.4), 0 0 0 1px rgba(226, 77, 160, 0.3);
 }
 .imkt-btn--accent {
   background: var(--imkt-gradient);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 10px 32px rgba(236, 72, 153, 0.35);
+  box-shadow: 0 10px 32px rgba(226, 77, 160, 0.35);
 }
 .imkt-btn--accent:hover {
-  box-shadow: 0 16px 40px rgba(236, 72, 153, 0.5), 0 0 0 1px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 16px 40px rgba(226, 77, 160, 0.5), 0 0 0 1px rgba(226, 77, 160, 0.3);
 }
 .imkt-btn--ghost {
   border-color: var(--imkt-border);
   color: var(--imkt-muted-strong);
-  background: rgba(167, 139, 250, 0.03);
+  background: rgba(226, 77, 160, 0.03);
 }
 .imkt-btn--ghost:hover {
-  background: rgba(167, 139, 250, 0.08);
+  background: rgba(226, 77, 160, 0.08);
   color: var(--imkt-fg);
-  border-color: var(--imkt-purple);
+  border-color: var(--imkt-acento);
 }
 .imkt-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -575,7 +575,7 @@ body > * { position: relative; z-index: 1; }
   padding: 10px 18px;
   border-radius: 100px;
   margin-bottom: 28px;
-  box-shadow: 0 8px 24px rgba(167, 139, 250, 0.3);
+  box-shadow: 0 8px 24px rgba(226, 77, 160, 0.3);
 }
 .imkt-thanks h2 {
   font-family: var(--imkt-font-display);
@@ -628,7 +628,7 @@ body > * { position: relative; z-index: 1; }
 }
 .imkt-status--sending {
   color: var(--imkt-muted-strong);
-  background: rgba(167, 139, 250, 0.08);
+  background: rgba(226, 77, 160, 0.08);
   border: 1px solid var(--imkt-border);
 }
 
@@ -650,7 +650,7 @@ body > * { position: relative; z-index: 1; }
   gap: 16px;
 }
 .imkt-footer a { color: var(--imkt-muted-strong); text-decoration: none; transition: color 0.2s; }
-.imkt-footer a:hover { color: var(--imkt-purple); }
+.imkt-footer a:hover { color: var(--imkt-acento); }
 
 /* Honeypot — must be invisible to humans */
 .imkt-honeypot {
@@ -714,8 +714,8 @@ body > * { position: relative; z-index: 1; }
     border-radius: 8px;
   }
   .imkt-input:focus, .imkt-textarea:focus, .imkt-select:focus {
-    border-color: var(--imkt-purple);
-    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+    border-color: var(--imkt-acento);
+    box-shadow: 0 0 0 3px rgba(226, 77, 160, 0.15);
   }
   .imkt-textarea { min-height: 96px; }
 
@@ -1136,7 +1136,7 @@ body > * { position: relative; z-index: 1; }
   <div style="max-width:1080px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:60px;">
       <a href="/es/manejo-redes-sociales" style="font-family:'Outfit',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.01em;color:#f0eee9;text-decoration:none;">
-        IVAE<span style="background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">MARKETING</span>
+        <img src="/marketing/img/marca/ivae-marketing-logo-negativo.svg" alt="IVAE Marketing" width="171" height="30" style="display:inline-block;height:30px;width:auto;vertical-align:middle;">
       </a>
       <p style="font-family:'Outfit',sans-serif;font-style:italic;color:rgba(240,238,233,0.65);margin:14px 0 0;font-size:14px;letter-spacing:0.02em;">
         Manejo de redes sociales para hospitalidad de lujo. Editorial. Bilingüe.
@@ -1145,7 +1145,7 @@ body > * { position: relative; z-index: 1; }
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px;margin-bottom:60px;">
       <div>
-        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#a78bfa;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">SUB-MARCA DE</h4>
+        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#E96FB4;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">SUB-MARCA DE</h4>
         <ul style="list-style:none;padding:0;margin:0;font-family:'Outfit',sans-serif;font-size:14px;line-height:2;">
           <li><a href="/es/" style="color:rgba(240,238,233,0.75);text-decoration:none;">IVAE Studios (matriz)</a></li>
           <li><a href="/es/vianey-diaz" style="color:rgba(240,238,233,0.75);text-decoration:none;">Vianey Díaz, Directora</a></li>
@@ -1153,7 +1153,7 @@ body > * { position: relative; z-index: 1; }
         </ul>
       </div>
       <div>
-        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#a78bfa;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">VERTICALES MARKETING</h4>
+        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#E96FB4;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">VERTICALES MARKETING</h4>
         <ul style="list-style:none;padding:0;margin:0;font-family:'Outfit',sans-serif;font-size:14px;line-height:2;">
           <li><a href="/es/redes-sociales-hoteles-lujo-mexico" style="color:rgba(240,238,233,0.75);text-decoration:none;">Hoteles de Lujo</a></li>
           <li><a href="/es/redes-sociales-restaurantes-cancun" style="color:rgba(240,238,233,0.75);text-decoration:none;">Restaurantes</a></li>
@@ -1164,7 +1164,7 @@ body > * { position: relative; z-index: 1; }
         </ul>
       </div>
       <div>
-        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#a78bfa;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">CONTACTO</h4>
+        <h4 style="font-family:'Space Mono',monospace;font-size:11px;color:#E96FB4;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 20px;font-weight:700;">CONTACTO</h4>
         <ul style="list-style:none;padding:0;margin:0;font-family:'Outfit',sans-serif;font-size:14px;line-height:2;">
           <li><a href="/marketing-intake" style="color:rgba(240,238,233,0.75);text-decoration:none;">Iniciar Brief de Estrategia</a></li>
           <li><a href="mailto:info@ivaestudios.com" style="color:rgba(240,238,233,0.75);text-decoration:none;">info@ivaestudios.com</a></li>
@@ -1173,7 +1173,7 @@ body > * { position: relative; z-index: 1; }
       </div>
     </div>
 
-    <div style="border-top:1px solid rgba(167,139,250,0.15);padding-top:30px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.45);">
+    <div style="border-top:1px solid rgba(226, 77, 160,0.15);padding-top:30px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.45);">
       &copy; 2026 IVAE MARKETING &middot; SUB-MARCA DE IVAE STUDIOS &middot; CANCÚN, MÉXICO &middot;
       <a href="/es/politica-de-privacidad" style="color:rgba(240,238,233,0.6);text-decoration:none;">PRIVACIDAD</a> &middot;
       <a href="/es/declaracion-accesibilidad" style="color:rgba(240,238,233,0.6);text-decoration:none;">ACCESIBILIDAD</a>

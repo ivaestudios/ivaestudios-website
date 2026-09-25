@@ -636,12 +636,12 @@ html{
 }
 
 .m-nav-sublink--accent {
-  color: var(--imkt-accent-text, #c4b5fd);
+  color: var(--imkt-accent-text, #F5A8D3);
 }
 .m-nav-sublink--accent:hover, .m-nav-sublink--accent:focus-visible {
   color: #fff;
-  border-left-color: var(--imkt-purple, #a78bfa);
-  background: rgba(167, 139, 250, 0.08);
+  border-left-color: var(--imkt-acento, #E96FB4);
+  background: rgba(226, 77, 160, 0.08);
 }
 
 .m-nav-pill {
@@ -653,7 +653,7 @@ html{
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
-  background: var(--imkt-gradient, linear-gradient(135deg, #a78bfa, #ec4899));
+  background: var(--imkt-gradient, linear-gradient(135deg, #E24DA0, #9D5BE0));
   color: #fff;
   padding: 3px 8px;
   border-radius: 100px;
@@ -779,7 +779,7 @@ body .m-nav .m-nav-sublink:hover {
   color: var(--cream, #faf8f5) !important;
   border-left-color: var(--gold, #c9a54e) !important;
 }
-body .m-nav .m-nav-sublink--accent { color: #c4b5fd !important; }
+body .m-nav .m-nav-sublink--accent { color: #F5A8D3 !important; }
 
 body .m-nav .m-nav-lang {
   display: flex !important;

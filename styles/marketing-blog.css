@@ -2,18 +2,18 @@
    IVAE MARKETING — override COMPLETO de marca para los posts de blog de
    marketing. Se carga DESPUÉS de blog.css (marca IVAE Studios: serif Cormorant
    + acentos dorados) y neutraliza TODO el dorado/serif para que estos posts se
-   vean 100% IVAE Marketing: Outfit sans-serif + acentos morado (#a78bfa) /
-   rosa (#ec4899). Solo se enlaza en los posts de marketing; los de fotografía
+   vean 100% IVAE Marketing: Outfit sans-serif + acentos morado (#E96FB4) /
+   rosa (#E24DA0). Solo se enlaza en los posts de marketing; los de fotografía
    no lo cargan y conservan su identidad.
    ============================================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 :root{
-  --mkt-purple:#a78bfa;
+  --mkt-purple:#E96FB4;
   --mkt-purple-deep:#7c5cd6;
-  --mkt-pink:#ec4899;
+  --mkt-pink:#E24DA0;
   --mkt-purple-line:rgba(124,92,214,0.38);
-  --mkt-purple-bg:rgba(167,139,250,0.08);
+  --mkt-purple-bg:rgba(226, 77, 160,0.08);
 }
 
 /* ── Tipografía: TODO a Outfit (nada de Cormorant serif ni Syne) ── */
@@ -65,7 +65,7 @@ body,.post-article,.post-article p,.post-article li,.toc-list li a{font-family:'
 /* ── CTA final: botones dorados -> morado/rosa marca marketing ── */
 .btn-cta{color:#fff;background:linear-gradient(135deg,var(--mkt-purple),var(--mkt-pink));border:1px solid transparent;border-radius:10px;font-weight:700}
 .btn-cta:hover{background:linear-gradient(135deg,var(--mkt-purple-deep),var(--mkt-pink));border-color:transparent;opacity:.94}
-.btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(167,139,250,0.4) !important}
+.btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(226, 77, 160,0.4) !important}
 
 /* ── Accesibilidad: focus dorado -> morado ── */
 *:focus-visible{outline:2px solid var(--mkt-purple) !important;outline-offset:2px}
@@ -99,7 +99,7 @@ html.dark .internal-links h3{color:var(--mkt-purple) !important}
 html.dark .post-article h2 em{color:var(--mkt-purple) !important}
 html.dark .post-cta h2 em{color:var(--mkt-purple) !important}
 html.dark .btn-cta{color:#fff !important;background:linear-gradient(135deg,var(--mkt-purple),var(--mkt-pink)) !important;border-color:transparent !important}
-html.dark .btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(167,139,250,0.4) !important}
+html.dark .btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(226, 77, 160,0.4) !important}
 html.dark .post-divider{background:linear-gradient(90deg,var(--mkt-purple),var(--mkt-pink)) !important}
 html.dark .faq-q::after,html.dark .rel-tag,html.dark .author-info .author-title{color:var(--mkt-purple) !important}
 html.dark *:focus-visible{outline-color:var(--mkt-purple) !important}
@@ -109,11 +109,11 @@ html.dark .imkt-hd-logo{color:#f0eee9 !important}
 html.dark .imkt-hd-logo b,html.dark .imkt-hd-logo span:not(.g){color:#f0eee9 !important}
 html.dark .imkt-hd-nav a{color:rgba(240,238,233,.72) !important}
 html.dark .imkt-hd-nav a:hover{color:#f0eee9 !important}
-html.dark .imkt-hd-nav a.is-active{color:#c4b5fd !important}
+html.dark .imkt-hd-nav a.is-active{color:#F5A8D3 !important}
 html.dark .imkt-hd-nav a.studio{color:rgba(240,238,233,.5) !important}
-html.dark .imkt-hd-nav a.studio:hover{color:#c4b5fd !important}
+html.dark .imkt-hd-nav a.studio:hover{color:#F5A8D3 !important}
 html.dark .imkt-hd-lang a{color:rgba(240,238,233,.5) !important}
-html.dark .imkt-hd-lang a.is-active{color:#c4b5fd !important}
+html.dark .imkt-hd-lang a.is-active{color:#F5A8D3 !important}
 html.dark .imkt-hd-login{color:rgba(240,238,233,.8) !important}
 html.dark .imkt-hd-cta,html.dark .imkt-hd-cta *{color:#fff !important}
 html.dark .imkt-hd svg{color:inherit !important}

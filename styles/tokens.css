@@ -575,23 +575,28 @@
   --header-transition:         0.55s var(--ease);
 
   /* ═══════════════════════════════════════════════════════════════
-     Wave 8 additions — IVAE Marketing (sister brand) tokens and
-     shared breakpoint scale. Purely additive; nothing above is
-     changed. The marketing brand uses a violet→pink gradient with
-     a different display + mono font pair, distinct from Studios'
-     gold-and-editorial palette.
+     IVAE Marketing (marca hermana). Distinta del oro editorial de
+     Studios: aqui manda el degradado magenta -> violeta del manual
+     de marca v1.1, el mismo del logo y el mismo que usa la app.
+     Hasta el 25-sep-2026 estas paginas iban en morado #a78bfa con
+     rosa #ec4899, que ya no era la identidad de nadie.
      ═══════════════════════════════════════════════════════════════ */
 
-  /* ── IVAE Marketing color tokens ──────────────────────────── */
-  --imkt-purple:        #a78bfa;
-  --imkt-purple-deep:   #7c3aed;
-  --imkt-pink:          #ec4899;
-  --imkt-pink-deep:     #db2777;
-  --imkt-gradient:      linear-gradient(135deg, var(--imkt-purple), var(--imkt-pink));
-  /* Accent text color used inside the Studios drawer for the
-     "Marketing NEW" entry — slightly lighter purple so it reads
-     legibly on dark ink without losing brand identity. */
-  --imkt-accent-text:   #c4b5fd;
+  /* ── Colores de IVAE Marketing ─────────────────────────────── */
+  /* Los dos extremos del degradado oficial (los del logo). */
+  --imkt-acento-fuerte: #E24DA0;   /* magenta de marca */
+  --imkt-violeta:       #9D5BE0;   /* violeta de marca */
+  --imkt-gradient:      linear-gradient(135deg, var(--imkt-acento-fuerte), var(--imkt-violeta));
+  /* Para TEXTO sobre el fondo casi negro de estas paginas el magenta
+     puro se queda corto (5.46:1). Estos dos aclaran hasta 6.96 y
+     10.74 sin salirse de la familia. */
+  --imkt-acento:        #E96FB4;
+  --imkt-acento-suave:  #F5A8D3;
+  /* Para texto sobre fondo CLARO (los que si pasan AA, del manual). */
+  --imkt-acento-hondo:  #C93E8C;
+  --imkt-violeta-hondo: #8A4FD3;
+  /* Acento de la entrada "Marketing" dentro del cajon de Studios. */
+  --imkt-accent-text:   #F5A8D3;
 
   /* ── IVAE Marketing typography ────────────────────────────── */
   /* Display: a wide editorial sans (e.g. Space Grotesk) reserved

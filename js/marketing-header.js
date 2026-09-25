@@ -1,5 +1,5 @@
 /* IVAE Marketing — Single source of truth for the sub-brand header.
-   Injects a consistent purple/pink header on every IVAE Marketing page
+   Injects the brand header (magenta -> violet, manual v1.1) on every page
    (master, 6 industry landings, SMM blog posts, intake form, calendar).
    EN + ES aware. Mirrors the architecture of js/site-header.js (the IVAE
    Studios header) but with IVAE Marketing branding + its own mobile drawer.
@@ -43,16 +43,17 @@
   }
 
   var labels = isES ? {
-    verticals: 'Verticales', blog: 'Diario', studio: 'IVAE Studios',
+    verticals: 'Verticales', blog: 'Diario', studio: 'IVAE Studios', app: 'La app',
     cta: 'Iniciar Brief', login: 'Iniciar sesión', menuOpen: 'Abrir navegación', menuClose: 'Cerrar navegación',
     langGroup: 'Idioma', tagline: 'Redes sociales para hospitalidad de lujo'
   } : {
-    verticals: 'Verticals', blog: 'Journal', studio: 'IVAE Studios',
+    verticals: 'Verticals', blog: 'Journal', studio: 'IVAE Studios', app: 'The app',
     cta: 'Begin Brief', login: 'Sign in', menuOpen: 'Open navigation', menuClose: 'Close navigation',
     langGroup: 'Language', tagline: 'Social media for luxury hospitality'
   };
 
   var blogHref = '/marketing-blog';
+  var appHref = 'https://marketing.ivaestudios.com/'; // la app que vendemos aparte del servicio
   var studioHref = isES ? '/es/' : '/';
   var intakeHref = '/marketing-intake';
   var loginHref = '/marketing/'; // login del app de clientes (ivaestudios.com/marketing)
@@ -79,51 +80,50 @@
 
   // ── Styles (injected once) ────────────────────────────────────────────
   var css = ''
-    + '.imkt-hd{position:sticky;top:0;z-index:9000;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;background:rgba(10,10,15,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(167,139,250,.16);font-family:"Outfit",system-ui,-apple-system,sans-serif}'
-    + '.imkt-hd.scrolled{background:rgba(10,10,15,.92);border-bottom-color:rgba(167,139,250,.28)}'
+    + '.imkt-hd{position:sticky;top:0;z-index:9000;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;background:rgba(10,10,15,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(226, 77, 160,.16);font-family:"Outfit",system-ui,-apple-system,sans-serif}'
+    + '.imkt-hd.scrolled{background:rgba(10,10,15,.92);border-bottom-color:rgba(226, 77, 160,.28)}'
     + '.imkt-hd a{text-decoration:none}'
-    + '.imkt-hd-logo{display:inline-flex;align-items:baseline;gap:0;font-weight:700;font-size:16px;letter-spacing:-.01em;color:#f0eee9;white-space:nowrap}'
-    + '.imkt-hd-logo b{font-weight:700}'
-    + '.imkt-hd-logo .g{background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin-left:5px;font-weight:700}'
+    + '.imkt-hd-logo{display:inline-flex;align-items:center;flex:0 0 auto}'
+    + '.imkt-hd-logo img{display:block;height:26px;width:auto}'
     + '.imkt-hd-nav{display:flex;align-items:center;gap:30px;margin:0 auto}'
     + '.imkt-hd-nav a{font-size:13px;font-weight:600;letter-spacing:.01em;color:rgba(240,238,233,.72);transition:color .2s;position:relative;padding:4px 0}'
     + '.imkt-hd-nav a:hover{color:#f0eee9}'
-    + '.imkt-hd-nav a.is-active{color:#c4b5fd}'
+    + '.imkt-hd-nav a.is-active{color:#F5A8D3}'
     + '.imkt-hd-nav a.studio{color:rgba(240,238,233,.5);font-family:"Space Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.12em}'
-    + '.imkt-hd-nav a.studio:hover{color:#c4b5fd}'
+    + '.imkt-hd-nav a.studio:hover{color:#F5A8D3}'
     + '.imkt-hd-right{display:flex;align-items:center;gap:16px}'
     + '.imkt-hd-lang{display:inline-flex;align-items:center;gap:7px;font-family:"Space Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.18em}'
     + '.imkt-hd-lang a{color:rgba(240,238,233,.5);transition:color .2s;padding:2px 2px;border-bottom:1px solid transparent}'
     + '.imkt-hd-lang a:hover{color:#f0eee9}'
-    + '.imkt-hd-lang a.is-active{color:#c4b5fd;border-bottom-color:#a78bfa}'
+    + '.imkt-hd-lang a.is-active{color:#F5A8D3;border-bottom-color:#E96FB4}'
     + '.imkt-hd-lang .sep{color:rgba(240,238,233,.25);font-weight:400}'
-    + '.imkt-hd-cta{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#0a0a0f !important;background:linear-gradient(135deg,#a78bfa,#ec4899);padding:11px 20px;border-radius:100px;transition:box-shadow .2s,transform .2s;white-space:nowrap}'
-    + '.imkt-hd-cta:hover{box-shadow:0 6px 20px rgba(167,139,250,.4);transform:translateY(-1px);color:#0a0a0f !important}'
+    + '.imkt-hd-cta{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#0a0a0f !important;background:linear-gradient(135deg,#E24DA0,#9D5BE0);padding:11px 20px;border-radius:100px;transition:box-shadow .2s,transform .2s;white-space:nowrap}'
+    + '.imkt-hd-cta:hover{box-shadow:0 6px 20px rgba(226, 77, 160,.4);transform:translateY(-1px);color:#0a0a0f !important}'
     + '.imkt-hd-cta svg{width:15px;height:15px}'
-    + '.imkt-hd-login{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;letter-spacing:.04em;color:rgba(240,238,233,.82);border:1px solid rgba(167,139,250,.34);padding:10px 17px;border-radius:100px;transition:border-color .2s,color .2s,background .2s;white-space:nowrap}'
-    + '.imkt-hd-login:hover{border-color:rgba(167,139,250,.7);color:#f0eee9;background:rgba(167,139,250,.08)}'
+    + '.imkt-hd-login{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;letter-spacing:.04em;color:rgba(240,238,233,.82);border:1px solid rgba(226, 77, 160,.34);padding:10px 17px;border-radius:100px;transition:border-color .2s,color .2s,background .2s;white-space:nowrap}'
+    + '.imkt-hd-login:hover{border-color:rgba(226, 77, 160,.7);color:#f0eee9;background:rgba(226, 77, 160,.08)}'
     + '.imkt-hd-login svg{width:13px;height:13px}'
-    + '.imkt-hd-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;padding:0;background:transparent;border:1px solid rgba(167,139,250,.25);border-radius:10px;cursor:pointer}'
-    + '.imkt-hd-burger span{display:block;width:18px;height:1.6px;background:#c4b5fd;margin:0 auto;border-radius:2px;transition:transform .25s,opacity .25s}'
+    + '.imkt-hd-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;padding:0;background:transparent;border:1px solid rgba(226, 77, 160,.25);border-radius:10px;cursor:pointer}'
+    + '.imkt-hd-burger span{display:block;width:18px;height:1.6px;background:#F5A8D3;margin:0 auto;border-radius:2px;transition:transform .25s,opacity .25s}'
     + '.imkt-hd-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.6px) rotate(45deg)}'
     + '.imkt-hd-burger[aria-expanded="true"] span:nth-child(2){opacity:0}'
     + '.imkt-hd-burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.6px) rotate(-45deg)}'
     // Mobile drawer
-    + '.imkt-mnav{position:fixed;top:0;right:0;bottom:0;width:min(86vw,360px);z-index:9100;background:#0a0a0f;border-left:1px solid rgba(167,139,250,.2);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:84px 28px 40px;display:flex;flex-direction:column;gap:6px;visibility:hidden}'
+    + '.imkt-mnav{position:fixed;top:0;right:0;bottom:0;width:min(86vw,360px);z-index:9100;background:#0a0a0f;border-left:1px solid rgba(226, 77, 160,.2);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:84px 28px 40px;display:flex;flex-direction:column;gap:6px;visibility:hidden}'
     + '.imkt-mnav.is-open{transform:translateX(0);visibility:visible}'
-    + '.imkt-mnav-close{position:absolute;top:18px;right:20px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(167,139,250,.25);border-radius:10px;color:#c4b5fd;cursor:pointer}'
+    + '.imkt-mnav-close{position:absolute;top:18px;right:20px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(226, 77, 160,.25);border-radius:10px;color:#F5A8D3;cursor:pointer}'
     + '.imkt-mnav-close svg{width:20px;height:20px}'
     + '.imkt-mnav a{text-decoration:none}'
-    + '.imkt-mnav-link{font-family:"Outfit",sans-serif;font-size:20px;font-weight:600;color:#f0eee9;padding:12px 0;border-bottom:1px solid rgba(167,139,250,.08)}'
-    + '.imkt-mnav-sec-label{font-family:"Space Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#a78bfa;margin:18px 0 8px}'
-    + '.imkt-mnav-sub{font-family:"Outfit",sans-serif;font-size:16px;font-weight:500;color:rgba(240,238,233,.78);padding:9px 0 9px 14px;border-left:2px solid rgba(167,139,250,.2);margin-bottom:2px}'
-    + '.imkt-mnav-sub:hover{color:#f0eee9;border-left-color:#a78bfa}'
+    + '.imkt-mnav-link{font-family:"Outfit",sans-serif;font-size:20px;font-weight:600;color:#f0eee9;padding:12px 0;border-bottom:1px solid rgba(226, 77, 160,.08)}'
+    + '.imkt-mnav-sec-label{font-family:"Space Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#E96FB4;margin:18px 0 8px}'
+    + '.imkt-mnav-sub{font-family:"Outfit",sans-serif;font-size:16px;font-weight:500;color:rgba(240,238,233,.78);padding:9px 0 9px 14px;border-left:2px solid rgba(226, 77, 160,.2);margin-bottom:2px}'
+    + '.imkt-mnav-sub:hover{color:#f0eee9;border-left-color:#E96FB4}'
     + '.imkt-mnav-lang{display:flex;align-items:center;gap:10px;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;letter-spacing:.15em;margin:20px 0 18px;color:rgba(240,238,233,.4)}'
     + '.imkt-mnav-lang a{color:rgba(240,238,233,.6)}'
-    + '.imkt-mnav-lang a.is-active{color:#c4b5fd}'
-    + '.imkt-mnav-login{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:14px;font-weight:700;letter-spacing:.04em;color:#c4b5fd !important;border:1px solid rgba(167,139,250,.4);padding:14px 24px;border-radius:100px;margin-top:auto;margin-bottom:10px}'
+    + '.imkt-mnav-lang a.is-active{color:#F5A8D3}'
+    + '.imkt-mnav-login{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:14px;font-weight:700;letter-spacing:.04em;color:#F5A8D3 !important;border:1px solid rgba(226, 77, 160,.4);padding:14px 24px;border-radius:100px;margin-top:auto;margin-bottom:10px}'
     + '.imkt-mnav-login svg{width:16px;height:16px}'
-    + '.imkt-mnav-cta{display:block;text-align:center;font-size:14px;font-weight:700;letter-spacing:.05em;color:#0a0a0f !important;background:linear-gradient(135deg,#a78bfa,#ec4899);padding:15px 24px;border-radius:100px;margin-top:0}'
+    + '.imkt-mnav-cta{display:block;text-align:center;font-size:14px;font-weight:700;letter-spacing:.05em;color:#0a0a0f !important;background:linear-gradient(135deg,#E24DA0,#9D5BE0);padding:15px 24px;border-radius:100px;margin-top:0}'
     + '.imkt-mnav-scrim{position:fixed;inset:0;z-index:9050;background:rgba(5,5,8,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}'
     + '.imkt-mnav-scrim.is-open{opacity:1;visibility:visible}'
     + '@media (max-width:860px){.imkt-hd-nav{display:none}.imkt-hd-cta{display:none}.imkt-hd-lang{display:none}.imkt-hd-login{display:none}.imkt-hd-burger{display:flex}}'
@@ -135,12 +135,13 @@
 
   var navItems = ''
     + '<a href="' + homeHref + '"' + (path === homeHref.replace(/\/$/, '') ? ' class="is-active"' : '') + '>' + labels.verticals + '</a>'
+    + '<a href="' + appHref + '">' + labels.app + '</a>'
     + '<a href="' + blogHref + '">' + labels.blog + '</a>'
     + '<a href="' + studioHref + '" class="studio">' + labels.studio + ' &#8599;</a>';
 
   var headerHTML = ''
     + '<header class="imkt-hd" id="imktHeader" role="banner" data-injected="true">'
-    +   '<a href="' + homeHref + '" class="imkt-hd-logo" aria-label="IVAE Marketing"><b>IVAE</b><span class="g">MARKETING</span></a>'
+    +   '<a href="' + homeHref + '" class="imkt-hd-logo" aria-label="IVAE Marketing"><img src="/marketing/img/marca/ivae-marketing-logo-negativo.svg" alt="IVAE Marketing" width="148" height="26"></a>'
     +   '<nav class="imkt-hd-nav" aria-label="Primary">' + navItems + '</nav>'
     +   '<div class="imkt-hd-right">'
     +     '<div class="imkt-hd-lang" role="group" aria-label="' + labels.langGroup + '">'
@@ -158,6 +159,7 @@
     +   '<a href="' + homeHref + '" class="imkt-mnav-link">' + (isES ? 'Servicios' : 'Services') + '</a>'
     +   '<div class="imkt-mnav-sec-label">' + labels.verticals + '</div>'
     +   verticals.map(function (v) { return '<a href="' + v.href + '" class="imkt-mnav-sub">' + v.label + '</a>'; }).join('')
+    +   '<a href="' + appHref + '" class="imkt-mnav-link">' + labels.app + '</a>'
     +   '<a href="' + blogHref + '" class="imkt-mnav-link">' + labels.blog + '</a>'
     +   '<a href="' + studioHref + '" class="imkt-mnav-link">' + labels.studio + ' &#8599;</a>'
     +   '<div class="imkt-mnav-lang" role="group" aria-label="' + labels.langGroup + '">'
