@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251414';
-import { toast } from '../shell/toast.js?v=202609251414';
-import { icon, iconMarca } from '../shell/icons.js?v=202609251414';
-import { T, isEN } from '../shell/i18n.js?v=202609251414';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251419';
+import { toast } from '../shell/toast.js?v=202609251419';
+import { icon, iconMarca } from '../shell/icons.js?v=202609251419';
+import { T, isEN } from '../shell/i18n.js?v=202609251419';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -177,8 +177,8 @@ function pintarCabecera() {
     ].filter(Boolean)),
     r ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp'].map((k) => {
       const c = r.canales[k];
-      return el('span', { class: 'bj-canal' + (c.conectado ? ' is-on' : '') }, [
-        icon(CANAL_ICO[k], 13), el('span', { text: CANAL_TXT[k] + (c.conectado && c.cuenta ? ' · ' + c.cuenta : '') }),
+      return el('span', { class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) } }, [
+        icoCanal(k, 14), el('span', { text: CANAL_TXT[k] + (c.conectado && c.cuenta ? ' · ' + c.cuenta : '') }),
         c.conectado ? null : el('span', { class: 'bj-canal__off', text: T('sin conectar', 'not connected') }),
       ].filter(Boolean));
     })) : null,
@@ -239,16 +239,20 @@ function vacio(ico, titulo, texto, extra = null) {
   ].filter(Boolean));
 }
 
-function chipFiltro(label, activo, onclick, ico = null) {
-  return el('button', { type: 'button', class: 'bj-filtro' + (activo ? ' is-on' : ''), onclick }, [
-    ico ? icon(ico, 13) : null, el('span', { text: label }),
+// `red` pinta el LOGO de la app (relleno) en vez de un ícono de trazo.
+function chipFiltro(label, activo, onclick, ico = null, red = null) {
+  return el('button', {
+    type: 'button', class: 'bj-filtro' + (activo ? ' is-on' : '') + (red ? ' bj-filtro--red' : ''),
+    style: red ? { '--c': colorDe(red) } : null, onclick,
+  }, [
+    red ? icoCanal(red, 14) : (ico ? icon(ico, 13) : null), el('span', { text: label }),
   ].filter(Boolean));
 }
 
 function filtrosMensajes() {
   const fila = el('div', { class: 'bj-filtros' });
   const canales = [['', T('Todos', 'All')], ['instagram', 'Instagram'], ['messenger', 'Messenger'], ['whatsapp', 'WhatsApp']];
-  for (const [k, lbl] of canales) fila.appendChild(chipFiltro(lbl, canal === k, () => { canal = k; cargarLista(); pintarCuerpo(); }, k ? CANAL_ICO[k] : null));
+  for (const [k, lbl] of canales) fila.appendChild(chipFiltro(lbl, canal === k, () => { canal = k; cargarLista(); pintarCuerpo(); }, null, k || null));
   fila.appendChild(chipFiltro(T('Sin leer', 'Unread'), soloSinLeer, () => { soloSinLeer = !soloSinLeer; cargarLista(); pintarCuerpo(); }, 'bell'));
   const sel = el('select', { class: 'select bj-select', 'aria-label': T('Etapa', 'Stage'), onchange: (e) => { etapa = e.target.value; cargarLista(); } }, [
     el('option', { value: '', text: T('Todas las etapas', 'All stages') }),
@@ -330,7 +334,7 @@ function chat() {
       // picker). Un <select> en el primer renglón no cabía en el teléfono y
       // dejaba el nombre en "A..".
       el('div', { class: 'bj-chat__meta' }, [
-        chipCanal(v.canal),
+        el('span', { class: 'bj-chat__canal' }, [chipCanal(v.canal)]),
         v.username && v.nombre ? el('span', { class: 'muted bj-chat__user', text: '@' + v.username }) : null,
         el('button', { type: 'button', class: 'bj-etapa', 'aria-label': T('Cambiar etapa', 'Change stage'), onclick: async (e) => {
           const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
@@ -746,7 +750,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202609251414';
+  link.href = '/marketing/css/bandeja.css?v=202609251419';
   document.head.appendChild(link);
 }
 

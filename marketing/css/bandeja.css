@@ -311,3 +311,27 @@ video.bj-adj { max-height: 320px; width: 100%; }
 @media (min-width: 1280px) {
   .bj-coms { grid-template-columns: 1fr 1fr 1fr; }
 }
+
+/* ── El teléfono: abrir un chat lo pone a PANTALLA COMPLETA (como WhatsApp) ──
+   Antes la cabecera de la vista, el semáforo, las pestañas y los filtros se
+   quedaban arriba y al chat le sobraban 300px de alto: el campo de escribir
+   caía fuera de la pantalla y había que adivinar dónde estaba. */
+@media (max-width: 899px) {
+  .bj-root.is-chat { padding: 0; gap: 0; }
+  .bj-root.is-chat .bj-head,
+  .bj-root.is-chat .bj-seg,
+  .bj-root.is-chat .bj-filtros-wrap { display: none; }
+  .bj-root.is-chat .bj-chat__in {
+    height: calc(100dvh - var(--topbar-h2) - var(--nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    border-radius: 0; border-left: 0; border-right: 0;
+  }
+  /* El chip del canal ya se ve en el avatar: en el móvil manda la etapa. */
+  .bj-chat__canal { display: none; }
+  .bj-chat__head { padding: 7px 8px; }
+}
+/* Filtro por red: cuando está activo lleva el color de SU app, no el magenta. */
+.bj-filtro--red.is-on { background: var(--c, var(--brand)); border-color: transparent; color: #fff; }
+.bj-filtro--red .ico--marca { color: var(--c, var(--brand)); }
+.bj-filtro--red.is-on .ico--marca { color: #fff; }
+.bj-canal .ico--marca { color: var(--text-mute); }
+.bj-canal.is-on .ico--marca { color: var(--c, #22c55e); }
