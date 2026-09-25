@@ -25,14 +25,14 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609251407';
-import { icon } from '../shell/icons.js?v=202609251407';
-import { T } from '../shell/i18n.js?v=202609251407';
+import { api, el, clear } from '../api.js?v=202609251414';
+import { icon } from '../shell/icons.js?v=202609251414';
+import { T } from '../shell/i18n.js?v=202609251414';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202609251407';
-import * as W from './dash-widgets.js?v=202609251407';
+} from '../lib/dates.js?v=202609251414';
+import * as W from './dash-widgets.js?v=202609251414';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;

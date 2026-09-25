@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202609251407';
+import { isEN, T } from './shell/i18n.js?v=202609251414';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -91,7 +91,14 @@ export function el(tag, props = {}, children = []) {
     if (v == null || v === false) continue;
     if (k === 'class' || k === 'className') node.className = v;
     else if (k === 'dataset') Object.assign(node.dataset, v);
-    else if (k === 'style' && typeof v === 'object') Object.assign(node.style, v);
+    else if (k === 'style' && typeof v === 'object') {
+      // OJO: Object.assign IGNORA en silencio las variables CSS (--algo), que es
+      // como esta app pinta los colores por marca/red. Van por setProperty.
+      for (const [prop, val] of Object.entries(v)) {
+        if (prop.startsWith('--')) node.style.setProperty(prop, val == null ? '' : String(val));
+        else node.style[prop] = val;
+      }
+    }
     else if (k === 'html') node.innerHTML = v;
     else if (k === 'text') node.textContent = v;
     else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);

@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251407';
-import { toast } from '../shell/toast.js?v=202609251407';
-import { icon } from '../shell/icons.js?v=202609251407';
-import { T, isEN } from '../shell/i18n.js?v=202609251407';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202609251414';
+import { toast } from '../shell/toast.js?v=202609251414';
+import { icon, iconMarca } from '../shell/icons.js?v=202609251414';
+import { T, isEN } from '../shell/i18n.js?v=202609251414';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -56,7 +56,10 @@ const ETAPA_TXT = {
 };
 const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cliente: '#22c55e', perdido: '#6b7280' };
 const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook', tiktok: 'TikTok' };
-const CANAL_ICO = { instagram: 'instagram', messenger: 'facebook', facebook: 'facebook', whatsapp: 'send', tiktok: 'tiktok' };
+const CANAL_ICO = { instagram: 'instagram', messenger: 'messenger', facebook: 'facebook', whatsapp: 'whatsapp', tiktok: 'tiktok' };
+// El logo de la red va RELLENO (iconMarca); si algún día llega un canal sin
+// logo, cae al ícono de enlace para no dejar el hueco.
+const icoCanal = (c, n) => iconMarca(CANAL_ICO[c] || '', n) || icon('link', n);
 // Un color por app (Vianey, 25-sep-2026): Messenger celeste, Instagram rosado,
 // WhatsApp verde, TikTok plomo oscuro. Mismos valores que --net-* en bandeja.css.
 const CANAL_COLOR = { instagram: '#E1306C', messenger: '#0084FF', facebook: '#0084FF', whatsapp: '#25D366', tiktok: '#3A3A45' };
@@ -71,7 +74,7 @@ const cid = () => (clienteActivo() || {}).id || '';
 
 function chipCanal(c) {
   return el('span', { class: 'chip bj-chip-canal', style: { '--c': colorDe(c) } }, [
-    icon(CANAL_ICO[c] || 'link', 12), el('span', { class: 'chip__txt', text: CANAL_TXT[c] || c }),
+    icoCanal(c, 12), el('span', { class: 'chip__txt', text: CANAL_TXT[c] || c }),
   ]);
 }
 function chipEtapa(e) {
@@ -282,7 +285,7 @@ function listaConvs() {
       'aria-label': `${nombreDe(v)} · ${CANAL_TXT[v.canal] || v.canal}${v.no_leidos ? ` · ${v.no_leidos} ${T('sin leer', 'unread')}` : ''}`,
       onclick: () => abrirConv(v.id),
     }, [
-      el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icon(CANAL_ICO[v.canal] || 'link', 11)])]),
+      el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icoCanal(v.canal, 11)])]),
       el('span', { class: 'bj-conv__txt' }, [
         el('span', { class: 'bj-conv__fila' }, [
           el('span', { class: 'bj-conv__nombre', text: nombreDe(v) }),
@@ -320,7 +323,7 @@ function chat() {
   const cerrada = horasDesde(v.ultimo_cliente_en) > 24;
   const head = el('header', { class: 'bj-chat__head', style: { '--c': colorDe(v.canal) } }, [
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-back', 'aria-label': T('Volver a la lista', 'Back to the list'), onclick: () => { convAbierta = null; pintarCuerpo(); } }, [icon('left', 20)]),
-    el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icon(CANAL_ICO[v.canal] || 'link', 11)])]),
+    el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icoCanal(v.canal, 11)])]),
     el('div', { class: 'bj-chat__quien' }, [
       el('div', { class: 'bj-chat__nombre', text: nombreDe(v) }),
       // Segundo renglón: canal, @usuario y la etapa como chip tocable (abre un
@@ -743,7 +746,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202609251407';
+  link.href = '/marketing/css/bandeja.css?v=202609251414';
   document.head.appendChild(link);
 }
 
