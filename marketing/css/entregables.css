@@ -171,7 +171,20 @@
 .dlv-card__title { flex: 1; min-width: 0; font-size: var(--fs-2, 14px); font-weight: 600; color: var(--text, #ECECF1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dlv-card__actions { display: flex; align-items: center; gap: 6px; flex: none; }
 /* Entregable → calendario con IA: botón a lo ancho, debajo de las acciones */
-.dlv-alcal { flex: 1 1 100%; justify-content: center; margin-top: 6px; }
+/* "Agregar al calendario (IA)".
+   🚨 Antes decía `flex: 1 1 100%`. En el pie del REEL, que es una fila, eso
+   significa "ocupa todo el ancho" y estaba bien. Pero en la tarjeta del
+   CARRUSEL el contenedor es una COLUMNA, y ahí el eje principal es el ALTO:
+   el botón crecía hasta llenar el hueco (un cuadrote) y de paso le robaba
+   altura a los slides, que quedaban en una rebanada. Un mismo `flex` no puede
+   servir a una fila y a una columna. Ahora el botón es chico y no crece;
+   quien manda el ancho en el pie del reel es la regla de abajo. */
+.dlv-alcal {
+  flex: 0 0 auto; align-self: center; width: auto;
+  justify-content: center; margin-top: 6px;
+  min-height: 36px; padding: 0 14px; font-size: 12.5px;
+}
+.dlv-card__foot .dlv-alcal { align-self: auto; }
 .dlv-alcal[disabled] { opacity: .7; cursor: progress; }
 
 .dlv-dl {
@@ -415,6 +428,9 @@
 .dlv-slides__n { position: absolute; right: 10px; top: 12px; font-size: 11.5px; letter-spacing: .08em;
   background: rgba(0,0,0,.55); color: #fff; padding: 3px 9px; border-radius: 99px; }
 .dlv-carrusel__main--slides { min-height: 0; padding: 14px; align-items: stretch; text-align: left; }
+/* El visor conserva su alto pase lo que pase: es lo único que enseña el
+   carrusel, y un hermano que crezca no tiene por qué aplastarlo. */
+.dlv-carrusel__main--slides > .dlv-slides { flex: 0 0 auto; }
 .dlv-tirabtn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 
 /* Reportar / bloquear un comentario de entregable (Apple guideline 1.2). */
