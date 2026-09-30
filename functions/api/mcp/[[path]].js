@@ -111,11 +111,13 @@ const POST_FIELDS_SCHEMA = {
 const TOOLS = [
   {
     name: 'list_brands',
+    annotations: { title: 'Marcas', readOnlyHint: true, openWorldHint: false },
     description: 'Lista la(s) marca(s) disponibles. Si este conector está fijado a una marca, devuelve solo esa.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'list_posts',
+    annotations: { title: 'Posts del calendario', readOnlyHint: true, openWorldHint: false },
     description: 'Lee los posts/guiones del calendario (opcionalmente por mes). Devuelve el ID de cada post (necesario para editarlo con update_post), su fecha, tipo, estado, título, y si ya tiene caption/copy o le falta.',
     inputSchema: {
       type: 'object',
@@ -128,6 +130,7 @@ const TOOLS = [
   },
   {
     name: 'get_post',
+    annotations: { title: 'Leer un post', readOnlyHint: true, openWorldHint: false },
     description: 'Lee UN post COMPLETO por su ID (el ID lo da list_posts): guion completo (hook, body/cuerpo, cta), caption (copy final), hashtags, fecha, tipo, estado y plataforma. Úsalo SIEMPRE antes de update_post cuando necesites revisar, mejorar, traducir o corregir lo que ya está escrito.',
     inputSchema: {
       type: 'object',
@@ -138,6 +141,7 @@ const TOOLS = [
   },
   {
     name: 'create_post',
+    annotations: { title: 'Crear un post', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     description: 'Crea un post/guion NUEVO en el calendario. Con publish_date y publish_time queda PROGRAMADO: el reloj de la app lo publica solo ese dia a esa hora. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. También puedes poner el link de inspiración/referencia (inspo_url) y el link del video/asset final (video_url). La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
     inputSchema: {
       type: 'object',
@@ -147,6 +151,7 @@ const TOOLS = [
   },
   {
     name: 'update_post',
+    annotations: { title: 'Editar un post', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description: 'EDITA un post que YA existe (por su ID, que obtienes con list_posts): rellenar/cambiar el caption (copy), el guion (hook/body/cta), hashtags, el link de inspiración (inspo_url), el link del video/asset (video_url), la fecha de publicación, el tipo o el estado. Solo cambia los campos que envíes; los demás quedan igual. Ideal para "rellenar los captions que faltan", "ponle el link de inspiración a estos posts" o "cambiar la fecha de este post".',
     inputSchema: {
       type: 'object',
@@ -157,6 +162,7 @@ const TOOLS = [
   },
   {
     name: 'download_media',
+    annotations: { title: 'Leer un reel de inspo', readOnlyHint: true, openWorldHint: true },
     description: 'Descarga y LEE un video de Instagram, TikTok o Pinterest usando el descargador de la app (sin marca de agua). Dale la URL del reel/video — o el link de INSPIRACIÓN (inspo_url) de un post (lo obtienes con list_posts o get_post). Devuelve: el caption/título del reel, su duración, un LINK de descarga directo, y la PORTADA del video como imagen para que puedas LEER de qué trata. Úsalo para analizar un reel de referencia y escribir el guion (hook/body/cta) del post basado en él. Nota: para el contenido hablado completo revisa el caption; la imagen es la portada.',
     inputSchema: {
       type: 'object',
@@ -577,7 +583,7 @@ async function rpc(msg, env, scope) {
       return rpcOk(id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: 'IVAE Marketing', version: '1.5.0' },
+        serverInfo: { name: 'IVAE Marketing', version: '1.5.1' },
         instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa get_post con ese ID para LEER el guion/caption completo de un post antes de revisarlo o mejorarlo; usa update_post para rellenar/cambiar el copy/caption o el guion (hook/body/cta), la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
       });
     }
