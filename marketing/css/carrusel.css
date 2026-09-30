@@ -385,3 +385,10 @@
 .carg-pin__tag { position: absolute; left: 6px; bottom: 6px; font-size: 10px; font-weight: 700; letter-spacing: .02em; background: rgba(0, 0, 0, .62); color: #fff; padding: 2px 7px; border-radius: 999px; pointer-events: none; }
 .carg-pin__foto.is-usada { opacity: .4; cursor: default; }
 .carg-pin__foto.is-baja { opacity: .65; outline: 2px solid var(--brand, #E24DA0); outline-offset: -2px; }
+
+/* Modo video con varias tiras (30-sep-2026): un cuadro que venía VACÍO en el
+   export se marca y no se corta; la tarjeta ocupada baja el tono. */
+.car-dur--vacio { opacity: .45; border-style: dashed; }
+.car-dur--vacio .car-dur__t { font-style: italic; }
+.car-info--pag { flex: 1 1 100%; font-size: 12px; color: var(--text-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.car-tira.is-busy .car-preview { opacity: .85; }

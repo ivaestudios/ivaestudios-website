@@ -12,11 +12,11 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609301106';
-import { icon } from '../shell/icons.js?v=202609301106';
-import { T } from '../shell/i18n.js?v=202609301106';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202609301106';
-import * as prefs from '../shell/prefs.js?v=202609301106';
+import { el, clear, toast } from '../api.js?v=202609301122';
+import { icon } from '../shell/icons.js?v=202609301122';
+import { T } from '../shell/i18n.js?v=202609301122';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202609301122';
+import * as prefs from '../shell/prefs.js?v=202609301122';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -38,19 +38,19 @@ let zipModo = 'carpetas';  // 'carpetas' | 'junto'
 let cutting = 0;           // token para descartar cortes viejos si cambian los controles
 
 // ── Estado modo VIDEO ────────────────────────────────────────────────────────
-let vvideo = null;         // HTMLVideoElement con la tira de video
-let vfile = null;          // File original (para decodificar el audio)
-let vurl = '';
-let vname = 'carrusel';
-let vcols = 5;
-let vrows = 1;
-let vzoom = 100;           // % de zoom del encuadre para el corte de video
-let vdur = 0;              // duración total de la tira (seg)
-let vdurations = [];       // duración real detectada por slide (seg)
-let vslides = [];          // [{ blob, url, name, duration, ext }]
-let vphase = 'idle';       // 'idle' | 'analizando' | 'listo' | 'cortando'
-let vprogress = 0;         // 0..1
-let vtoken = 0;            // cancela pasadas viejas
+// VARIAS tiras a la vez, igual que imágenes (pedido de Vianey 30-sep-2026:
+// "de video puedes perfeccionar y mejorar ese"). Y cada tira puede venir en
+// VARIAS PÁGINAS: su diseñador exportó un carrusel de 6 en dos archivos, uno
+// con 5 slides y otro con el 6º más cuatro huecos en blanco. Los archivos con
+// el mismo nombre base ("X.mp4" + "X (2).mp4", o "X-1.mp4" + "X-2.mp4") se
+// tratan como UN solo carrusel, los slides se numeran de corrido y los huecos
+// se detectan y se saltan.
+//   vtira = { id, name, zoom, paginas: [pag], slides: [], phase, progress, token }
+//   pag   = { file, video, url, dur, cols, rows, durations: [], blancos: [] }
+let vtiras = [];
+let vtiraSeq = 0;
+let vtoken = 0;            // generación: cambia y toda pasada vieja se detiene
+let vProgressEls = new Map(); // tira.id -> barra de progreso (sin re-render)
 
 // ── Utilidades ───────────────────────────────────────────────────────────────
 
@@ -107,9 +107,20 @@ function todosLosSlides() {
   return tiras.flatMap((t) => t.slides);
 }
 
-function freeVideoSlides() {
-  for (const s of vslides) { try { URL.revokeObjectURL(s.url); } catch { /* noop */ } }
-  vslides = [];
+function freeVideoSlidesDe(t) {
+  for (const sl of t.slides) { try { URL.revokeObjectURL(sl.url); } catch { /* noop */ } }
+  t.slides = [];
+}
+function freeVideoTiras() {
+  vtoken += 1;
+  for (const t of vtiras) {
+    freeVideoSlidesDe(t);
+    for (const pg of t.paginas) {
+      try { pg.video.pause(); } catch { /* noop */ }
+      try { URL.revokeObjectURL(pg.url); } catch { /* noop */ }
+    }
+  }
+  vtiras = [];
 }
 
 function download(blob, name) {
@@ -359,9 +370,66 @@ function pickVideoMime() {
 
 const fmtDur = (s) => `${(Math.round(s * 10) / 10).toFixed(1)}s`;
 
-function acceptVideoFile(file) {
-  if (!file) return;
-  if (!/^video\//i.test(file.type) && !/\.(mp4|mov|webm|m4v|3gp)$/i.test(file.name || '')) {
+// ── VIDEO · archivos y páginas ───────────────────────────────────────────────
+const esArchivoDeVideo = (f) => /^video\//i.test((f && f.type) || '') || /\.(mp4|mov|webm|m4v|3gp)$/i.test((f && f.name) || '');
+
+// Agrupa los archivos por nombre base (misma regla que Entregables con las
+// imágenes): "X.mp4" + "X (2).mp4" (duplicado del navegador) y "X-1.mp4" +
+// "X-2.mp4" (páginas numeradas) son páginas de UN carrusel. "X 1.mp4" con
+// ESPACIO es otro diseño a propósito. Un mismo peso dentro del grupo = el mismo
+// archivo bajado dos veces: entra una sola vez.
+function grupoDePaginasVideo(files) {
+  const grupos = new Map();
+  for (const f of files) {
+    const sinExt = String(f.name || '').normalize('NFC').replace(/\.[a-z0-9]+$/i, '');
+    const dup = sinExt.match(/^(.+?) \((\d{1,3})\)$/);
+    const cuerpo = dup ? dup[1] : sinExt;
+    let base, pag;
+    const m = cuerpo.match(/^(.+)[-_](\d{1,3})$/);
+    if (m) { base = m[1].trim().toLowerCase(); pag = Number(m[2]); }
+    else { base = cuerpo.trim().toLowerCase(); pag = dup ? Number(dup[2]) + 1 : 1; }
+    if (!grupos.has(base)) grupos.set(base, []);
+    grupos.get(base).push({ f, pag });
+  }
+  return [...grupos.values()].map((arr) => {
+    const pesos = new Set();
+    const unicos = arr.filter((x) => { if (pesos.has(x.f.size)) return false; pesos.add(x.f.size); return true; });
+    return unicos.sort((a, b) => a.pag - b.pag).map((x) => x.f);
+  });
+}
+
+function cargarVideo(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    v.onloadedmetadata = () => resolve({ video: v, url, dur: (v.duration && isFinite(v.duration)) ? v.duration : 0 });
+    v.onerror = () => { try { URL.revokeObjectURL(url); } catch { /* noop */ } reject(new Error('lectura')); };
+  });
+}
+
+// Las pasadas de video (medir, cortar) van UNA tras otra aunque ella suelte
+// varias tiras de golpe: dos videos reproduciéndose a la vez se roban cuadros.
+let vCola = Promise.resolve();
+const enColaVideo = (fn) => { vCola = vCola.then(fn, fn); return vCola; };
+
+function vTiraDe(id) { return vtiras.find((t) => t.id === id) || null; }
+
+function quitarVTira(id) {
+  const t = vTiraDe(id); if (!t) return;
+  vtoken += 1; // detiene cualquier pasada sobre esta tira
+  freeVideoSlidesDe(t);
+  for (const pg of t.paginas) {
+    try { pg.video.pause(); } catch { /* noop */ }
+    try { URL.revokeObjectURL(pg.url); } catch { /* noop */ }
+  }
+  vtiras = vtiras.filter((x) => x.id !== id);
+  render();
+}
+
+async function acceptVideoFiles(fileList) {
+  const files = [...(fileList || [])].filter(esArchivoDeVideo);
+  if (!files.length) {
     toast(T('Sube un video (MP4 o MOV) de la tira del carrusel.', 'Upload a video (MP4 or MOV) of the carousel strip.'), 'error');
     return;
   }
@@ -369,43 +437,53 @@ function acceptVideoFile(file) {
     toast(T('Tu navegador no permite cortar video. Prueba en Chrome o Safari actualizado.', 'Your browser can\'t cut video. Try an up-to-date Chrome or Safari.'), 'error');
     return;
   }
-  const url = URL.createObjectURL(file);
-  const v = document.createElement('video');
-  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
-  v.onloadedmetadata = () => {
-    if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
-    freeVideoSlides();
-    vvideo = v; vurl = url; vfile = file; vname = baseName(file.name);
-    vdur = v.duration && isFinite(v.duration) ? v.duration : 0;
-    const g = detectGrid(v.videoWidth, v.videoHeight);
-    vcols = g.cols; vrows = g.rows;
-    vdurations = []; vphase = 'idle';
-    analyzeDurations();
-  };
-  v.onerror = () => { URL.revokeObjectURL(url); toast(T('No se pudo leer el video. Prueba con un MP4.', 'Could not read the video. Try an MP4.'), 'error'); };
+  for (const grupo of grupoDePaginasVideo(files)) {
+    const t = { id: ++vtiraSeq, name: baseName(grupo[0].name), zoom: 100, paginas: [], slides: [], phase: 'cargando', progress: 0, token: 0 };
+    vtiras.push(t); render();
+    for (const f of grupo) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const { video, url, dur } = await cargarVideo(f);
+        const g = detectGrid(video.videoWidth, video.videoHeight);
+        t.paginas.push({ file: f, video, url, dur, cols: g.cols, rows: g.rows, durations: [], blancos: [] });
+      } catch {
+        toast(T(`No se pudo leer "${f.name}". Prueba con un MP4.`, `Could not read "${f.name}". Try an MP4.`), 'error');
+      }
+    }
+    if (!t.paginas.length) { quitarVTira(t.id); continue; }
+    if (t.paginas.length > 1) toast(T(`${t.paginas.length} archivos unidos en un solo carrusel ✓`, `${t.paginas.length} files merged into one carousel ✓`), 'success');
+    enColaVideo(() => analyzeTira(t));
+  }
 }
 
-// Pasada 1: reproduce la tira una vez (muted) y mide la duración REAL de cada
-// slide comparando su región cuadro a cuadro (recorta la cola congelada).
-async function analyzeDurations() {
-  const v = vvideo; if (!v) return;
-  const token = ++vtoken;
-  vphase = 'analizando'; vprogress = 0; freeVideoSlides(); render();
-
-  const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
+// ── VIDEO · medir cada slide ─────────────────────────────────────────────────
+// Reproduce la página UNA vez (muda) y, cuadro a cuadro, mide dos cosas por
+// slide: (1) cuándo fue su ÚLTIMO cambio, para recortar la cola congelada, y
+// (2) cuánto CONTENIDO llegó a tener (energía de bordes, como esSlideBlanco en
+// Entregables). Un slide que nunca muestra bordes es un HUECO del export: se
+// marca y el corte lo salta, así el carrusel de 6 que venía en 5 + 1 no sale
+// con cuatro videos en blanco.
+function analyzePagina(pg, token, onProg) {
+  const v = pg.video;
+  const cols2 = pg.cols, rows2 = pg.rows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
-  const DW = 24, DH = 32, CHANGE = 10;
+  const DW = 32, DH = 40, CHANGE = 10, BORDE = 14;
   const mc = document.createElement('canvas'); mc.width = DW; mc.height = DH;
   const mg = mc.getContext('2d', { willReadFrequently: true });
   const prev = new Array(n).fill(null);
   const lastChange = new Array(n).fill(0);
-  let anyChange = new Array(n).fill(false);
+  const anyChange = new Array(n).fill(false);
+  const maxBordes = new Array(n).fill(0);
+  // Se muestrea el INTERIOR del slide (10 % / 6 % de orilla fuera): el vecino
+  // sangra unos px al cortar y ese filo no es contenido.
+  const mx = sw * 0.10, my = sh * 0.06;
+  const lum = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
 
   const sample = () => {
     const t = v.currentTime;
     for (let idx = 0; idx < n; idx++) {
       const c = idx % cols2, r = Math.floor(idx / cols2);
-      mg.drawImage(v, c * sw, r * sh, sw, sh, 0, 0, DW, DH);
+      mg.drawImage(v, c * sw + mx, r * sh + my, sw - 2 * mx, sh - 2 * my, 0, 0, DW, DH);
       const data = mg.getImageData(0, 0, DW, DH).data;
       const p = prev[idx];
       if (p) {
@@ -414,24 +492,56 @@ async function analyzeDurations() {
         diff /= (DW * DH * 3);
         if (diff > CHANGE) { lastChange[idx] = t; anyChange[idx] = true; }
       }
+      let bordes = 0, tot = 0;
+      for (let y = 0; y < DH - 1; y++) {
+        for (let x = 0; x < DW - 1; x++) {
+          const i = (y * DW + x) * 4;
+          if (Math.max(Math.abs(lum(data, i) - lum(data, i + 4)), Math.abs(lum(data, i) - lum(data, i + DW * 4))) > BORDE) bordes++;
+          tot++;
+        }
+      }
+      maxBordes[idx] = Math.max(maxBordes[idx], bordes / tot);
       prev[idx] = data;
     }
-    vprogress = vdur ? Math.min(1, t / vdur) : 0;
-    if (vphase === 'analizando') updateVProgress();
+    if (onProg) onProg(pg.dur ? Math.min(1, t / pg.dur) : 0);
   };
 
-  await playThrough(v, sample, token);
-  if (token !== vtoken) return;
-
-  // Duración por slide: hasta el último cambio (+ colchón), mínimo 1s. Un slide
-  // que nunca cambió (imagen fija dentro del video) toma la duración total.
-  vdurations = lastChange.map((lc, idx) => {
-    if (!anyChange[idx]) return vdur || 1;
-    return Math.max(1, Math.min(vdur || lc + 0.2, lc + 0.2));
+  return playThrough(v, sample, token).then(() => {
+    if (token !== vtoken) return;
+    pg.durations = lastChange.map((lc, idx) => {
+      if (!anyChange[idx]) return pg.dur || 1;
+      return Math.max(1, Math.min(pg.dur || lc + 0.2, lc + 0.2));
+    });
+    // <0.4 % de pixeles con borde en TODA la reproducción = nunca hubo nada.
+    pg.blancos = maxBordes.map((b) => b < 0.004);
   });
-  vphase = 'listo'; vprogress = 0;
-  render();
 }
+
+async function analyzeTira(t) {
+  if (!vTiraDe(t.id)) return;
+  const token = ++vtoken; t.token = token;
+  t.phase = 'analizando'; t.progress = 0; freeVideoSlidesDe(t); render();
+  let hechas = 0;
+  for (const pg of t.paginas) {
+    if (token !== vtoken) return;
+    // eslint-disable-next-line no-await-in-loop
+    await analyzePagina(pg, token, (p) => { t.progress = (hechas + p) / t.paginas.length; updateVProgress(t); });
+    hechas += 1;
+  }
+  if (token !== vtoken) return;
+  t.phase = 'listo'; t.progress = 0; render();
+}
+
+// Slides REALES de una tira (sin huecos), en orden, con su página y su índice.
+function slidesRealesDe(t) {
+  const out = [];
+  for (const pg of t.paginas) {
+    const n = pg.cols * pg.rows;
+    for (let idx = 0; idx < n; idx++) if (!(pg.blancos && pg.blancos[idx])) out.push({ pg, idx });
+  }
+  return out;
+}
+const huecosDe = (t) => t.paginas.reduce((a, pg) => a + (pg.blancos || []).filter(Boolean).length, 0);
 
 // Reproduce el video 0→(fin o pausa) llamando onFrame(meta) en cada cuadro.
 // meta.mediaTime = tiempo REAL del cuadro en la línea del video (no del reloj):
@@ -474,22 +584,28 @@ function playThrough(v, onFrame, token) {
   });
 }
 
+
 // Router del corte: WebCodecs (independiente de la compu) si está disponible;
 // si no, o si falla, cae al respaldo con MediaRecorder.
-async function cutVideoSlides() {
+async function cutTiraVideo(t) {
   const canWC = typeof window.VideoEncoder !== 'undefined' && typeof window.VideoFrame !== 'undefined';
   if (canWC) {
-    try { await cutVideoWebCodecs(); return; }
+    try { await cutTiraWebCodecs(t); return; }
     catch (e) {
       console.error('[carrusel] WebCodecs falló, uso respaldo:', e);
-      // Que NO se rinda en silencio: si el motor bueno falla (p. ej. en Safari),
-      // avisamos el porqué — así el video de respaldo, que WhatsApp no descarga
-      // bien, no toma al usuario por sorpresa.
       toast(T('El motor principal falló, usé el de respaldo (esos videos pueden no descargarse en WhatsApp). Detalle: ', 'The main engine failed, so the fallback was used (those videos may not download in WhatsApp). Detail: ') + ((e && e.message) || T('desconocido', 'unknown')), 'error', 10000);
       vtoken += 1;
     }
   }
-  await cutVideoMediaRecorder();
+  await cutTiraMediaRecorder(t);
+}
+
+// Corta TODAS las tiras que estén listas, una tras otra.
+function cutTodasLasTirasVideo() {
+  for (const t of vtiras) {
+    if (t.phase !== 'listo' || t.slides.length) continue;
+    enColaVideo(() => cutTiraVideo(t));
+  }
 }
 
 // Decodifica el audio de la tira UNA vez (rápido, no en tiempo real). Devuelve
@@ -556,54 +672,60 @@ async function encodeSilentAudio(dur, muxer, sr, ch) {
   if (aerr) throw aerr;
 }
 
+
 // MÉTODO PRINCIPAL — WebCodecs: a cada cuadro le pone su TIEMPO REAL del video
 // (no el del reloj de pared). Aunque la compu vaya lenta y capture menos cuadros,
 // el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Conserva el
-// audio de la tira (recortado por slide). Salida MP4.
-async function cutVideoWebCodecs() {
-  const v = vvideo; if (!v || !vdurations.length) return;
-  const token = ++vtoken;
-  vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
+// audio de su página (recortado por slide). Salida MP4. Los huecos se saltan y
+// los slides se numeran de corrido a través de las páginas.
+async function cutTiraWebCodecs(t) {
+  if (!vTiraDe(t.id)) return;
+  const reales = slidesRealesDe(t);
+  if (!reales.length) return;
+  const token = ++vtoken; t.token = token;
+  t.phase = 'cortando'; t.progress = 0; freeVideoSlidesDe(t); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202609301106');
-  const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
-  const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
-  const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202609301122');
 
-  // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño. Prioridad:
-  // Main 4.0 → Baseline 4.0 → Main 5.1 → Baseline 5.1 → (último recurso) High.
-  // WhatsApp / iOS / Android reproducen y comparten Main y Baseline sin problema;
-  // el perfil High daba error al compartir en algunos teléfonos.
-  let codec = null;
-  for (const cc of ['avc1.4d0028', 'avc1.42e028', 'avc1.4d0033', 'avc1.42e033', 'avc1.640028', 'avc1.42e01e']) {
-    try {
-      const s = await window.VideoEncoder.isConfigSupported({ codec: cc, width: sw2, height: sh2, bitrate: 10_000_000 });
-      if (s && s.supported) { codec = cc; break; }
-    } catch { /* noop */ }
-  }
-  if (!codec) throw new Error(T('sin códec H.264 soportado', 'no supported H.264 codec'));
-
-  // Audio de la tira (una sola decodificación para todos los slides).
-  const audioBuf = await decodeAudioSafe(vfile);
-  const hasAudio = !!audioBuf;
-  // TODA salida lleva pista de audio (silenciosa si la tira es muda). Un MP4 sin
-  // audio es lo que impedía descargar/compartir en WhatsApp.
+  // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño (Main → Baseline;
+  // High solo de último recurso: daba error al compartir en algunos teléfonos).
+  const codecPara = async (w, h) => {
+    for (const cc of ['avc1.4d0028', 'avc1.42e028', 'avc1.4d0033', 'avc1.42e033', 'avc1.640028', 'avc1.42e01e']) {
+      try {
+        const r = await window.VideoEncoder.isConfigSupported({ codec: cc, width: w, height: h, bitrate: 10_000_000 });
+        if (r && r.supported) return cc;
+      } catch { /* noop */ }
+    }
+    return null;
+  };
   const canAudio = typeof window.AudioEncoder !== 'undefined' && typeof window.AudioData !== 'undefined';
-  const aSr = hasAudio ? audioBuf.sampleRate : 44100;
-  const aCh = hasAudio ? Math.max(1, audioBuf.numberOfChannels) : 2;
+  const audioPorPagina = new Map();
 
-  const out = new Array(n);
-  for (let idx = 0; idx < n; idx++) {
+  const out = [];
+  let k = 0;
+  for (const { pg, idx } of reales) {
     if (token !== vtoken) return;
+    const v = pg.video;
+    const cols2 = pg.cols, rows2 = pg.rows;
+    const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
+    const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
+    // eslint-disable-next-line no-await-in-loop
+    const codec = await codecPara(sw2, sh2);
+    if (!codec) throw new Error(T('sin códec H.264 soportado', 'no supported H.264 codec'));
+    if (!audioPorPagina.has(pg)) {
+      // eslint-disable-next-line no-await-in-loop
+      audioPorPagina.set(pg, await decodeAudioSafe(pg.file));
+    }
+    const audioBuf = audioPorPagina.get(pg);
+    const hasAudio = !!audioBuf;
+    const aSr = hasAudio ? audioBuf.sampleRate : 44100;
+    const aCh = hasAudio ? Math.max(1, audioBuf.numberOfChannels) : 2;
+
     const c = idx % cols2, r = Math.floor(idx / cols2);
-    const dur = Math.max(0.3, vdurations[idx]);
+    const dur = Math.max(0.3, pg.durations[idx]);
     const cv = document.createElement('canvas'); cv.width = sw2; cv.height = sh2;
     const cx = cv.getContext('2d');
-    const muxerCfg = {
-      target: new ArrayBufferTarget(),
-      video: { codec: 'avc', width: sw2, height: sh2 },
-      fastStart: 'in-memory',
-    };
+    const muxerCfg = { target: new ArrayBufferTarget(), video: { codec: 'avc', width: sw2, height: sh2 }, fastStart: 'in-memory' };
     if (canAudio) muxerCfg.audio = { codec: 'aac', numberOfChannels: aCh, sampleRate: aSr };
     const muxer = new Muxer(muxerCfg);
     let encErr = null;
@@ -613,84 +735,82 @@ async function cutVideoWebCodecs() {
     });
     encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, latencyMode: 'realtime', avc: { format: 'avc' } });
 
-    // Línea de tiempo a 30fps CONSTANTE (CFR): cada cuadro se ancla a la rejilla
-    // de 1/30s según su tiempo REAL en el video. Así conserva la velocidad correcta
-    // en cualquier compu Y produce un frame-rate estable con duración de cuadro bien
-    // definida — que es justo lo que WhatsApp/iOS necesitan para reproducir y
-    // compartir sin error (los tiempos variables generaban cuadros irregulares).
+    // 30 fps CONSTANTES: cada cuadro se ancla a la rejilla de 1/30 s según su
+    // tiempo REAL en el video. Velocidad correcta en cualquier compu y un
+    // frame-rate estable, que es lo que WhatsApp/iOS necesitan.
     const FPS = 30, FDUR = Math.round(1e6 / FPS);
     let lastIdx = -1, t0 = null, frames = 0;
+    const kk = k;
+    // eslint-disable-next-line no-await-in-loop
     await playThrough(v, (meta) => {
       const mt = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
       if (mt > dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
       if (t0 === null) t0 = mt;
       const fidx = Math.round((mt - t0) * FPS);
-      if (fidx <= lastIdx) { // fuente a >30fps: descarta el cuadro sobrante (mantiene la velocidad)
-        vprogress = (idx + Math.min(1, mt / dur)) / n; updateVProgress(); return;
-      }
+      if (fidx <= lastIdx) { t.progress = (kk + Math.min(1, mt / dur)) / reales.length; updateVProgress(t); return; }
       lastIdx = fidx;
-      const ts = fidx * FDUR;
-      const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
+      const z = zoomSrc(c * sw, r * sh, sw, sh, t.zoom);
       cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw2, sh2);
       try {
-        const vf = new window.VideoFrame(cv, { timestamp: ts, duration: FDUR });
-        encoder.encode(vf, { keyFrame: frames % 30 === 0 }); // IDR al inicio y cada ~1s
+        const vf = new window.VideoFrame(cv, { timestamp: fidx * FDUR, duration: FDUR });
+        encoder.encode(vf, { keyFrame: frames % 30 === 0 });
         vf.close();
         frames += 1;
       } catch (e) { encErr = e; try { v.pause(); } catch { /* noop */ } }
-      vprogress = (idx + Math.min(1, mt / dur)) / n;
-      updateVProgress();
+      t.progress = (kk + Math.min(1, mt / dur)) / reales.length;
+      updateVProgress(t);
     }, token);
 
     if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
     if (!frames) throw new Error(T('no se capturó ningún cuadro', 'no frames were captured'));
+    // eslint-disable-next-line no-await-in-loop
     await encoder.flush();
     encoder.close();
-    // Audio del slide: el real de la tira, o SILENCIO si es muda (siempre hay pista).
     if (canAudio) {
       try {
+        // eslint-disable-next-line no-await-in-loop
         if (hasAudio) await encodeAudioForSlide(audioBuf, dur, muxer);
+        // eslint-disable-next-line no-await-in-loop
         else await encodeSilentAudio(dur, muxer, aSr, aCh);
       } catch (e) { console.error('[carrusel] audio slide', e && e.message); }
     }
     muxer.finalize();
-    out[idx] = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+    out.push({ blob: new Blob([muxer.target.buffer], { type: 'video/mp4' }), duration: dur });
+    k += 1;
   }
   if (token !== vtoken) return;
 
-  freeVideoSlides();
-  vslides = out.map((b, idx) => ({
-    blob: b, url: URL.createObjectURL(b),
-    name: `${vname}-${String(idx + 1).padStart(2, '0')}.mp4`,
-    duration: vdurations[idx], ext: 'mp4',
+  freeVideoSlidesDe(t);
+  t.slides = out.map((o, i) => ({
+    blob: o.blob, url: URL.createObjectURL(o.blob),
+    name: `${t.name}-${String(i + 1).padStart(2, '0')}.mp4`,
+    duration: o.duration, ext: 'mp4',
   }));
-  vphase = 'listo'; vprogress = 0;
+  t.phase = 'listo'; t.progress = 0;
   render();
 }
 
-// RESPALDO — MediaRecorder: graba UN slide a la vez. Fiable pero grava en tiempo
-// real, así que depende algo de la potencia de la compu (por eso WebCodecs va
-// primero). Se usa solo si el navegador no soporta WebCodecs.
-async function cutVideoMediaRecorder() {
-  const v = vvideo; if (!v || !vdurations.length) return;
-  const token = ++vtoken;
-  vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
-
-  const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
-  const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
+// RESPALDO — MediaRecorder: graba UN slide a la vez, en tiempo real. Solo si el
+// navegador no tiene WebCodecs (Safari viejo).
+async function cutTiraMediaRecorder(t) {
+  if (!vTiraDe(t.id)) return;
+  const reales = slidesRealesDe(t);
+  if (!reales.length) return;
+  const token = ++vtoken; t.token = token;
+  t.phase = 'cortando'; t.progress = 0; freeVideoSlidesDe(t); render();
   const { mime, ext } = pickVideoMime();
-  const durations = vdurations.slice();
-  const out = new Array(n);
-
-  for (let idx = 0; idx < n; idx++) {
+  const out = [];
+  let k = 0;
+  for (const { pg, idx } of reales) {
     if (token !== vtoken) return;
+    const v = pg.video;
+    const cols2 = pg.cols, rows2 = pg.rows;
+    const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
     const c = idx % cols2, r = Math.floor(idx / cols2);
-    const dur = Math.max(0.3, durations[idx]);
+    const dur = Math.max(0.3, pg.durations[idx]);
     const cv = document.createElement('canvas'); cv.width = sw; cv.height = sh;
     const cx = cv.getContext('2d');
     const stream = (cv.captureStream || cv.mozCaptureStream).call(cv, 30);
-    // Pista de audio SILENCIOSA en el stream: así la grabación siempre lleva audio
-    // (un video sin audio no se puede descargar/compartir en WhatsApp).
     let silentCtx = null;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -707,60 +827,86 @@ async function cutVideoMediaRecorder() {
     const opts = { videoBitsPerSecond: 10_000_000 };
     if (mime) opts.mimeType = mime;
     let rec;
-    try { rec = new MediaRecorder(stream, opts); }
-    catch { rec = new MediaRecorder(stream); }
+    try { rec = new MediaRecorder(stream, opts); } catch { rec = new MediaRecorder(stream); }
     const chunks = [];
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     const done = new Promise((res) => { rec.onstop = () => res(new Blob(chunks, { type: mime || 'video/webm' })); });
-
     let stopped = false, started = false;
+    const kk = k;
+    // eslint-disable-next-line no-await-in-loop
     await playThrough(v, () => {
-      const t = v.currentTime;
-      if (t <= dur + 0.05) {
-        const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
+      const tt = v.currentTime;
+      if (tt <= dur + 0.05) {
+        const z = zoomSrc(c * sw, r * sh, sw, sh, t.zoom);
         cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
-        // Arranca la grabación con el PRIMER cuadro ya dibujado (evita negro).
         if (!started) { started = true; try { rec.start(); } catch { /* noop */ } }
       } else if (!stopped) {
         stopped = true;
         try { rec.stop(); } catch { /* noop */ }
         try { v.pause(); } catch { /* noop */ }
       }
-      vprogress = (idx + (dur ? Math.min(1, t / dur) : 1)) / n;
-      updateVProgress();
+      t.progress = (kk + (dur ? Math.min(1, tt / dur) : 1)) / reales.length;
+      updateVProgress(t);
     }, token);
     if (started && !stopped) { try { rec.stop(); } catch { /* noop */ } }
-    out[idx] = started ? await done : new Blob([], { type: mime || 'video/webm' });
-    try { if (silentCtx) await silentCtx.close(); } catch { /* noop */ }
+    // eslint-disable-next-line no-await-in-loop
+    out.push({ blob: started ? await done : new Blob([], { type: mime || 'video/webm' }), duration: dur });
+    try { if (silentCtx) silentCtx.close(); } catch { /* noop */ }
+    k += 1;
   }
   if (token !== vtoken) return;
-
-  freeVideoSlides();
-  vslides = out.map((b, idx) => ({
-    blob: b, url: URL.createObjectURL(b),
-    name: `${vname}-${String(idx + 1).padStart(2, '0')}.${ext}`,
-    duration: durations[idx], ext,
+  freeVideoSlidesDe(t);
+  t.slides = out.map((o, i) => ({
+    blob: o.blob, url: URL.createObjectURL(o.blob),
+    name: `${t.name}-${String(i + 1).padStart(2, '0')}.${ext}`,
+    duration: o.duration, ext,
   }));
-  vphase = 'listo'; vprogress = 0;
+  t.phase = 'listo'; t.progress = 0;
   render();
 }
 
+function carpetasUnicasVideo() {
+  const usados = new Map();
+  return vtiras.map((t) => {
+    const n = (usados.get(t.name) || 0) + 1;
+    usados.set(t.name, n);
+    return n === 1 ? t.name : `${t.name}-${n}`;
+  });
+}
+
+// ZIP de TODOS los videos cortados: como en imágenes, una carpeta por
+// carrusel (o todo junto con nombres únicos), y plano si es una sola tira.
 async function downloadVideoZip() {
-  if (!vslides.length) return;
+  const conSlides = vtiras.filter((t) => t.slides.length);
+  const total = conSlides.reduce((a, t) => a + t.slides.length, 0);
+  if (!total) return;
+  const carpetas = carpetasUnicasVideo();
+  const varias = conSlides.length > 1;
+  const entries = !varias
+    ? conSlides[0].slides.map((sl) => ({ blob: sl.blob, name: sl.name }))
+    : zipModo === 'carpetas'
+    ? vtiras.flatMap((t, i) => t.slides.map((sl) => ({ blob: sl.blob, name: `${carpetas[i]}/${sl.name}` })))
+    : vtiras.flatMap((t, i) => t.slides.map((sl, j) => ({ blob: sl.blob, name: `${carpetas[i]}-${String(j + 1).padStart(2, '0')}.${sl.ext}` })));
+  const bytes = entries.reduce((a, e) => a + e.blob.size, 0);
+  if (bytes > 3.5 * 1024 * 1024 * 1024) {
+    toast(T('Son demasiados videos para un solo ZIP. Quita algunas tiras y descarga en dos tandas.', 'Too many videos for one ZIP. Remove some strips and download in two batches.'), 'error', 8000);
+    return;
+  }
   try {
-    const zip = await buildZip(vslides);
-    download(zip, `${vname}-videos.zip`);
-    toast(T(`ZIP con ${vslides.length} videos descargado.`, `ZIP with ${vslides.length} videos downloaded.`), 'success');
+    const zip = await buildZip(entries);
+    download(zip, varias ? 'carruseles-videos.zip' : `${conSlides[0].name}-videos.zip`);
+    toast(T(`ZIP con ${total} videos descargado.`, `ZIP with ${total} videos downloaded.`), 'success');
   } catch (e) {
     console.error('[carrusel] zip video', e);
     toast(T('No se pudo armar el ZIP. Descarga los videos uno por uno.', 'Could not build the ZIP. Download the videos one by one.'), 'error');
   }
 }
 
-// Actualiza SOLO la barra de progreso sin re-render (para no cortar el video).
-let vProgressEl = null;
-function updateVProgress() {
-  if (vProgressEl) vProgressEl.style.width = `${Math.round(vprogress * 100)}%`;
+// Actualiza SOLO la barra de progreso de esa tira sin re-render (para no
+// interrumpir la reproducción que está midiendo o cortando).
+function updateVProgress(t) {
+  const bar = vProgressEls.get(t.id);
+  if (bar) bar.style.width = `${Math.round(t.progress * 100)}%`;
 }
 
 // ── UI ───────────────────────────────────────────────────────────────────────
@@ -812,7 +958,7 @@ function gridLinesFor(c, r) {
 
 function render() {
   if (!rootEl) return;
-  vProgressEl = null;
+  vProgressEls = new Map();
   clear(rootEl);
 
   rootEl.appendChild(el('header', { class: 'car-head' }, [
@@ -948,8 +1094,8 @@ function renderVideo() {
     rootEl.appendChild(el('div', { class: 'car-cutting', text: T('Tu navegador no permite cortar video. Ábrelo en Chrome o en Safari actualizado.', 'Your browser can\'t cut video. Open this in an up-to-date Chrome or Safari.') }));
     return;
   }
-  // Sin WebCodecs (Safari) el corte cae a MediaRecorder → MP4 FRAGMENTADO y SIN AUDIO
-  // que WhatsApp no puede descargar. Avisamos claro que corten en Chrome.
+  // Sin WebCodecs (Safari viejo) el corte cae a MediaRecorder → MP4 FRAGMENTADO y
+  // SIN AUDIO que WhatsApp no puede descargar. Avisamos claro que corten en Chrome.
   const noWebCodecs = typeof window.VideoEncoder === 'undefined' || typeof window.VideoFrame === 'undefined';
   if (noWebCodecs) {
     rootEl.appendChild(el('div', { class: 'car-warn' }, [
@@ -957,88 +1103,165 @@ function renderVideo() {
       el('span', { text: T(' En este navegador (Safari) los cortes salen en un formato sin audio que WhatsApp no puede descargar. En Chrome salen normales y se comparten sin problema.', ' In this browser (Safari) the cuts come out in an audio-less format that WhatsApp can\'t download. In Chrome they come out normal and share without issues.') }),
     ]));
   }
-  const busy = vphase === 'analizando' || vphase === 'cortando';
+  const hay = vtiras.length > 0;
   const input = el('input', {
-    class: 'car-file', type: 'file', accept: 'video/mp4,video/quicktime,video/webm',
-    onchange: (e) => { acceptVideoFile(e.target.files && e.target.files[0]); e.target.value = ''; },
+    class: 'car-file', type: 'file', accept: 'video/mp4,video/quicktime,video/webm', multiple: 'multiple',
+    onchange: (e) => { acceptVideoFiles(e.target.files); e.target.value = ''; },
   });
   const drop = el('div', {
-    class: 'car-drop' + (vvideo ? ' car-drop--mini' : '') + (busy ? ' is-busy' : ''),
+    class: 'car-drop' + (hay ? ' car-drop--mini' : ''),
     role: 'button', tabindex: '0',
-    onclick: () => { if (!busy) input.click(); },
-    onkeydown: (e) => { if (!busy && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); input.click(); } },
-    ondragover: (e) => { e.preventDefault(); if (!busy) drop.classList.add('is-over'); },
+    onclick: () => input.click(),
+    onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } },
+    ondragover: (e) => { e.preventDefault(); drop.classList.add('is-over'); },
     ondragleave: () => drop.classList.remove('is-over'),
-    ondrop: (e) => { e.preventDefault(); drop.classList.remove('is-over'); if (!busy) acceptVideoFile(e.dataTransfer.files && e.dataTransfer.files[0]); },
+    ondrop: (e) => { e.preventDefault(); drop.classList.remove('is-over'); acceptVideoFiles(e.dataTransfer.files); },
   }, [
-    icon('gantt', vvideo ? 18 : 26),
+    icon('gantt', hay ? 18 : 26),
     el('div', { class: 'car-drop__txt' }, [
-      el('strong', { text: vvideo ? T('Subir otro video', 'Upload another video') : T('Toca para subir la tira de video', 'Tap to upload the video strip') }),
-      vvideo ? null : el('span', { text: T('MP4 o MOV · los clips cortos pegados en fila (por ejemplo 5)', 'MP4 or MOV · the short clips joined in a row (for example 5)') }),
+      el('strong', { text: hay ? T('Agregar otra tira de video', 'Add another video strip') : T('Toca para subir tus tiras de video', 'Tap to upload your video strips') }),
+      hay ? null : el('span', { text: T('MP4 o MOV · los clips pegados en fila. Puedes subir VARIAS a la vez, y si un carrusel viene en dos archivos ("X" y "X (2)") se juntan solos.', 'MP4 or MOV · the clips joined in a row. You can upload SEVERAL at once, and a carousel split in two files ("X" and "X (2)") is merged automatically.') }),
     ]),
     input,
   ]);
   rootEl.appendChild(drop);
-  if (!vvideo) return;
+  if (!hay) return;
 
-  // Preview: el propio <video> con la cuadrícula encima.
-  vvideo.className = 'car-vpreview__vid';
-  vvideo.setAttribute('muted', '');
-  vvideo.setAttribute('playsinline', '');
-  rootEl.appendChild(el('div', { class: 'car-preview car-vpreview' }, [vvideo, ...gridLinesFor(vcols, vrows)]));
-
-  const sw = Math.floor(vvideo.videoWidth / vcols), sh = Math.floor(vvideo.videoHeight / vrows);
-  rootEl.appendChild(el('div', { class: 'car-controls' }, [
-    stepper(T('Columnas', 'Columns'), () => vcols, (v) => { vcols = v; }, 1, MAX_COLS, analyzeDurations),
-    stepper(T('Filas', 'Rows'), () => vrows, (v) => { vrows = v; }, 1, MAX_ROWS, analyzeDurations),
-    stepper('Zoom', () => vzoom, (v) => { vzoom = v; }, 100, 140, () => render(), 2, (x) => `${x}%`),
-    el('span', { class: 'car-info', text: `${vcols * vrows} ${T('slides de', 'slides of')} ${sw}×${sh}px` }),
+  // ── Barra global ─────────────────────────────────────────────────────────
+  const listas = vtiras.filter((t) => t.phase === 'listo');
+  const porCortar = listas.filter((t) => !t.slides.length && slidesRealesDe(t).length);
+  const cortadas = vtiras.filter((t) => t.slides.length);
+  const totalCortados = cortadas.reduce((a, t) => a + t.slides.length, 0);
+  const totalReales = vtiras.reduce((a, t) => a + slidesRealesDe(t).length, 0);
+  const totalHuecos = vtiras.reduce((a, t) => a + huecosDe(t), 0);
+  const zipSeg = vtiras.length > 1 ? el('div', { class: 'car-step' }, [
+    el('span', { class: 'car-step__lbl', text: T('En el ZIP', 'In the ZIP') }),
+    el('div', { class: 'car-step__ctrl car-step__ctrl--seg' }, [
+      ['carpetas', T('En carpetas', 'In folders')],
+      ['junto', T('Todo junto', 'All together')],
+    ].map(([v, lbl]) => el('button', {
+      class: 'car-step__btn car-step__btn--seg' + (zipModo === v ? ' is-active' : ''), type: 'button', text: lbl,
+      onclick: () => { if (zipModo !== v) { zipModo = v; prefs.set('carZipModo', v); render(); } },
+    }))),
+  ]) : null;
+  rootEl.appendChild(el('div', { class: 'car-controls car-controls--global' }, [
+    zipSeg,
+    el('span', { class: 'car-info', text: `${vtiras.length} ${vtiras.length === 1 ? T('tira', 'strip') : T('tiras', 'strips')} · ${totalReales} videos` + (totalHuecos ? ` · ${totalHuecos} ${totalHuecos === 1 ? T('hueco omitido', 'blank skipped') : T('huecos omitidos', 'blanks skipped')}` : '') }),
   ]));
-  if (vzoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: T(`Zoom ${vzoom}%: recorta un poco la orilla para tapar la línea del slide de al lado. Se aplica al cortar.`, `Zoom ${vzoom}%: trims the edge a bit to hide the line from the next slide. Applied when cutting.`) }));
-
-  // Barra de progreso (analizando / cortando).
-  if (busy) {
-    vProgressEl = el('span', { class: 'car-prog__bar', style: `width:${Math.round(vprogress * 100)}%` });
-    rootEl.appendChild(el('div', { class: 'car-prog' }, [
-      el('span', { class: 'car-prog__lbl', text: vphase === 'analizando' ? T('Midiendo cada slide…', 'Measuring each slide…') : T('Cortando los videos…', 'Cutting the videos…') }),
-      el('span', { class: 'car-prog__track' }, [vProgressEl]),
-    ]));
-    return;
-  }
-
-  // Duraciones detectadas + botón para cortar.
-  if (vdurations.length && !vslides.length) {
+  if (porCortar.length > 1) {
     rootEl.appendChild(el('div', { class: 'car-actions' }, [
-      el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: cutVideoSlides }, [
-        icon('gantt', 16), ` ${T('Cortar en', 'Cut into')} ${vcols * vrows} videos`,
+      el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: cutTodasLasTirasVideo }, [
+        icon('gantt', 16), ` ${T('Cortar todas', 'Cut all')} (${porCortar.length} ${T('tiras', 'strips')})`,
       ]),
-      el('span', { class: 'car-hint', text: T('Cada slide se recorta a su duración real y conserva el audio de la tira. Salen en MP4, alta calidad.', 'Each slide is trimmed to its real duration and keeps the strip\'s audio. They come out as high-quality MP4.') }),
     ]));
-    rootEl.appendChild(el('div', { class: 'car-durs' }, vdurations.map((d, i) => el('span', { class: 'car-dur' }, [
-      el('span', { class: 'car-dur__n', text: String(i + 1) }),
-      el('span', { class: 'car-dur__t', text: fmtDur(d) }),
-    ]))));
-    return;
   }
-
-  // Videos cortados.
-  if (vslides.length) {
+  if (totalCortados) {
     rootEl.appendChild(el('div', { class: 'car-actions' }, [
       el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: downloadVideoZip }, [
-        icon('archive', 16), ` ${T('Descargar todos', 'Download all')} (ZIP · ${vslides.length})`,
+        icon('archive', 16), ` ${T('Descargar todos', 'Download all')} (ZIP · ${totalCortados})`,
       ]),
-      el('button', { class: 'btn', type: 'button', onclick: cutVideoSlides }, [icon('refresh', 15), ' ' + T('Volver a cortar', 'Cut again')]),
+      el('span', {
+        class: 'car-hint',
+        text: cortadas.length === 1
+          ? T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.')
+          : zipModo === 'carpetas'
+          ? T('Un solo ZIP con una carpeta por carrusel.', 'A single ZIP with one folder per carousel.')
+          : T('Un solo ZIP con todos los videos sueltos, sin carpetas.', 'A single ZIP with all videos loose, no folders.'),
+      }),
     ]));
-    rootEl.appendChild(el('div', { class: 'car-grid' }, vslides.map((s, i) => el('figure', { class: 'car-slide' }, [
-      el('video', { src: s.url, class: 'car-slide__vid', muted: true, loop: true, playsinline: true, controls: true, preload: 'metadata' }),
-      el('figcaption', { class: 'car-slide__bar' }, [
-        el('span', { class: 'car-slide__num', text: `${i + 1} · ${fmtDur(s.duration)}` }),
+  }
+
+  // ── Una tarjeta por tira ─────────────────────────────────────────────────
+  for (const t of vtiras) {
+    const busy = t.phase === 'cargando' || t.phase === 'analizando' || t.phase === 'cortando';
+    const reales = slidesRealesDe(t).length;
+    const huecos = huecosDe(t);
+    const pg0 = t.paginas[0];
+    const sw = pg0 ? Math.floor(pg0.video.videoWidth / pg0.cols) : 0;
+    const sh = pg0 ? Math.floor(pg0.video.videoHeight / pg0.rows) : 0;
+    const card = el('section', { class: 'car-tira' + (busy ? ' is-busy' : '') }, [
+      el('div', { class: 'car-tira__head' }, [
+        el('strong', { class: 'car-tira__name', text: t.name }),
+        el('span', { class: 'car-info', text: pg0
+          ? `${reales} ${T('videos de', 'videos of')} ${sw}×${sh}px` + (huecos ? ` · ${huecos} ${huecos === 1 ? T('hueco', 'blank') : T('huecos', 'blanks')}` : '') + (t.paginas.length > 1 ? ` · ${t.paginas.length} ${T('archivos unidos', 'files merged')}` : '')
+          : T('Leyendo…', 'Reading…') }),
         el('button', {
-          class: 'car-slide__dl', type: 'button', title: `${T('Descargar video', 'Download video')} ${i + 1}`,
-          onclick: () => download(s.blob, s.name),
-        }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
+          class: 'car-tira__x', type: 'button',
+          'aria-label': `${T('Quitar', 'Remove')} ${t.name}`, title: T('Quitar esta tira', 'Remove this strip'),
+          onclick: () => quitarVTira(t.id),
+        }, [icon('close', 14)]),
       ]),
-    ]))));
+    ]);
+
+    // Cada página: su video con la cuadrícula encima y sus columnas/filas.
+    t.paginas.forEach((pg, pi) => {
+      pg.video.className = 'car-vpreview__vid';
+      pg.video.setAttribute('muted', ''); pg.video.setAttribute('playsinline', '');
+      card.appendChild(el('div', { class: 'car-preview car-vpreview' }, [pg.video, ...gridLinesFor(pg.cols, pg.rows)]));
+      card.appendChild(el('div', { class: 'car-controls' }, [
+        t.paginas.length > 1 ? el('span', { class: 'car-info car-info--pag', text: `${T('Archivo', 'File')} ${pi + 1}: ${pg.file.name}` }) : null,
+        stepper(T('Columnas', 'Columns'), () => pg.cols, (v) => { pg.cols = v; }, 1, MAX_COLS, () => enColaVideo(() => analyzeTira(t))),
+        stepper(T('Filas', 'Rows'), () => pg.rows, (v) => { pg.rows = v; }, 1, MAX_ROWS, () => enColaVideo(() => analyzeTira(t))),
+        pi === 0 ? stepper('Zoom', () => t.zoom, (v) => { t.zoom = v; }, 100, 140, () => render(), 2, (x) => `${x}%`) : null,
+      ].filter(Boolean)));
+    });
+    if (t.zoom > 100) card.appendChild(el('div', { class: 'car-hint', text: T(`Zoom ${t.zoom}%: recorta un poco la orilla para tapar la línea del slide de al lado. Se aplica al cortar.`, `Zoom ${t.zoom}%: trims the edge a bit to hide the line from the next slide. Applied when cutting.`) }));
+
+    if (busy) {
+      const bar = el('span', { class: 'car-prog__bar', style: `width:${Math.round(t.progress * 100)}%` });
+      vProgressEls.set(t.id, bar);
+      card.appendChild(el('div', { class: 'car-prog' }, [
+        el('span', { class: 'car-prog__lbl', text: t.phase === 'cargando' ? T('Leyendo el video…', 'Reading the video…') : t.phase === 'analizando' ? T('Midiendo cada slide…', 'Measuring each slide…') : T('Cortando los videos…', 'Cutting the videos…') }),
+        el('span', { class: 'car-prog__track' }, [bar]),
+      ]));
+      rootEl.appendChild(card);
+      continue;
+    }
+
+    // Duraciones detectadas (los huecos marcados) + botón para cortar.
+    if (t.phase === 'listo' && !t.slides.length) {
+      const chips = [];
+      let num = 0;
+      for (const pg of t.paginas) {
+        pg.durations.forEach((d, i) => {
+          const vacio = !!(pg.blancos && pg.blancos[i]);
+          if (!vacio) num += 1;
+          chips.push(el('span', { class: 'car-dur' + (vacio ? ' car-dur--vacio' : ''), title: vacio ? T('Este cuadro venía vacío: se omite', 'This frame was blank: skipped') : '' }, [
+            el('span', { class: 'car-dur__n', text: vacio ? '·' : String(num) }),
+            el('span', { class: 'car-dur__t', text: vacio ? T('vacío', 'blank') : fmtDur(d) }),
+          ]));
+        });
+      }
+      if (reales) {
+        card.appendChild(el('div', { class: 'car-actions' }, [
+          el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: () => enColaVideo(() => cutTiraVideo(t)) }, [
+            icon('gantt', 16), ` ${T('Cortar en', 'Cut into')} ${reales} videos`,
+          ]),
+          el('span', { class: 'car-hint', text: T('Cada slide se recorta a su duración real y conserva el audio. Salen en MP4, alta calidad.', 'Each slide is trimmed to its real duration and keeps the audio. They come out as high-quality MP4.') }),
+        ]));
+      } else {
+        card.appendChild(el('div', { class: 'car-warn' }, [el('strong', { text: T('Este video viene vacío: no hay nada que cortar.', 'This video is blank: nothing to cut.') })]));
+      }
+      card.appendChild(el('div', { class: 'car-durs' }, chips));
+    }
+
+    // Videos cortados.
+    if (t.slides.length) {
+      card.appendChild(el('div', { class: 'car-actions' }, [
+        el('button', { class: 'btn', type: 'button', onclick: () => enColaVideo(() => cutTiraVideo(t)) }, [icon('refresh', 15), ' ' + T('Volver a cortar', 'Cut again')]),
+      ]));
+      card.appendChild(el('div', { class: 'car-grid' }, t.slides.map((sl, i) => el('figure', { class: 'car-slide' }, [
+        el('video', { src: sl.url, class: 'car-slide__vid', muted: true, loop: true, playsinline: true, controls: true, preload: 'metadata' }),
+        el('figcaption', { class: 'car-slide__bar' }, [
+          el('span', { class: 'car-slide__num', text: `${i + 1} · ${fmtDur(sl.duration)}` }),
+          el('button', {
+            class: 'car-slide__dl', type: 'button', title: `${T('Descargar video', 'Download video')} ${i + 1}`,
+            onclick: () => download(sl.blob, sl.name),
+          }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
+        ]),
+      ]))));
+    }
+    rootEl.appendChild(card);
   }
 }
 
@@ -1053,13 +1276,11 @@ export default {
   },
   unmount() {
     cutting += 1;
-    vtoken += 1;
     freeSlides();
-    freeVideoSlides();
+    freeVideoTiras();
+    vProgressEls = new Map();
     resetGen();
-    if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
-    if (vvideo) { try { vvideo.pause(); } catch { /* noop */ } }
-    vvideo = null; vfile = null; vurl = ''; rootEl = null;
+    rootEl = null;
   },
 };
 
@@ -1069,6 +1290,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202609301106';
+  link.href = '/marketing/css/carrusel.css?v=202609301122';
   document.head.appendChild(link);
 }
