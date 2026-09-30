@@ -468,3 +468,9 @@
 @media (min-width: 2000px) {
   .dlv-root { max-width: 1960px; margin-inline: auto; }
 }
+
+/* Carrusel de VIDEO: la tira corriendo, dentro del mismo visor de slides. */
+.dlv-slides__video { height: 300px; width: auto; max-width: none; flex: none; border-radius: 10px;
+  background: #000; box-shadow: 0 6px 22px rgba(0,0,0,.28); }
+@media (min-width: 768px) { .dlv-slides__video { height: 380px; } }
+@media (min-width: 1600px) { .dlv-slides__video { height: 520px; } }

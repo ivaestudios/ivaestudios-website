@@ -29,10 +29,10 @@
 // Eventos store: 'checklist:changed' {postId} y 'checklist:counts' {clientId}.
 // ============================================================================
 
-import { api } from '../api.js?v=202609301028';
-import { toast } from '../shell/toast.js?v=202609301028';
-import * as store from '../shell/store.js?v=202609301028';
-import { T } from '../shell/i18n.js?v=202609301028';
+import { api } from '../api.js?v=202609301042';
+import { toast } from '../shell/toast.js?v=202609301042';
+import * as store from '../shell/store.js?v=202609301042';
+import { T } from '../shell/i18n.js?v=202609301042';
 
 const ITEMS_TTL = 30000;
 const COUNTS_TTL = 60000;

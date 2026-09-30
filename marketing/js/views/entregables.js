@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609301028';
-import { icon } from '../shell/icons.js?v=202609301028';
-import { T } from '../shell/i18n.js?v=202609301028';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301028';
+import { api, el, clear, toast } from '../api.js?v=202609301042';
+import { icon } from '../shell/icons.js?v=202609301042';
+import { T } from '../shell/i18n.js?v=202609301042';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301042';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609301028';
+import { moderarComentario } from '../shell/moderacion.js?v=202609301042';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609301028';
+import { errorCard } from '../ui/states.js?v=202609301042';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609301028';
+} from '../lib/video-upload.js?v=202609301042';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609301028';
+  link.href = '/marketing/css/entregables.css?v=202609301042';
   document.head.appendChild(link);
 }
 
@@ -284,6 +284,151 @@ function generatePoster(file) {
   });
 }
 
+// ── CARRUSEL DE VIDEO ───────────────────────────────────────────────────────
+// Una "tira" de video es lo mismo que una de imagen: varios slides pegados lado
+// a lado, solo que se mueven. Hasta el 30-sep-2026 Entregables solo partía las
+// IMÁGENES y cualquier video entraba entero como reel: una tira quedaba
+// aplastada dentro de un reproductor vertical, con negro arriba y abajo.
+// Vianey: "tiene que detectar si es un carrusel de video y ponerlo como
+// carrusel". Se reconoce por la FORMA, con el MISMO juez que las imágenes
+// (numSlidesDeTira): si el ancho da 2 o más slides, no es un reel.
+function medirVideo(file) {
+  return new Promise((resolve) => {
+    let listo = false; let url;
+    const fin = (v) => { if (listo) return; listo = true; try { URL.revokeObjectURL(url); } catch { /* noop */ } resolve(v); };
+    try {
+      const v = document.createElement('video');
+      url = URL.createObjectURL(file);
+      v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
+      v.onloadedmetadata = () => fin({ w: v.videoWidth || 0, h: v.videoHeight || 0 });
+      v.onerror = () => fin(null);
+      setTimeout(() => fin(null), 8000);
+    } catch { fin(null); }
+  });
+}
+
+// 🚨 LA FORMA NO BASTA. Un video horizontal 16:9 (1920×1080) mide EXACTAMENTE
+// lo mismo que una tira de 3 slides verticales 9:16: numSlidesDeTira dice "3" en
+// los dos casos. Tratar un video normal como carrusel sería peor que el bug que
+// esto arregla. Así que además de la forma se MIRA el contenido: una tira de
+// verdad tiene COSTURAS, cortes verticales duros donde termina un slide y
+// empieza el siguiente; un video continuo no las tiene.
+function costuraFuerte(cv, n) {
+  const W = cv.width, H = cv.height;
+  if (W < n * 8) return 0;
+  const d = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+  // Color medio de cada columna.
+  const col = new Float32Array(W * 3);
+  for (let x = 0; x < W; x++) {
+    let r = 0, g = 0, b = 0;
+    for (let y = 0; y < H; y++) { const i = (y * W + x) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    col[x * 3] = r / H; col[x * 3 + 1] = g / H; col[x * 3 + 2] = b / H;
+  }
+  const salto = (x) => Math.abs(col[x * 3] - col[(x + 1) * 3])
+    + Math.abs(col[x * 3 + 1] - col[(x + 1) * 3 + 1])
+    + Math.abs(col[x * 3 + 2] - col[(x + 1) * 3 + 2]);
+  // Vara: el salto TÍPICO entre columnas vecinas de este mismo cuadro.
+  const todos = [];
+  for (let x = 0; x < W - 1; x++) todos.push(salto(x));
+  const orden = todos.slice().sort((a, b) => a - b);
+  const mediana = orden[Math.floor(orden.length / 2)] || 0.5;
+  // En cada corte se mira una ventanita de ±2 px: el corte real rara vez cae
+  // en el pixel exacto (redondeos, reencodes).
+  let peor = Infinity;
+  for (let k = 1; k < n; k++) {
+    const x0 = Math.round((W * k) / n);
+    let mejor = 0;
+    for (let x = Math.max(0, x0 - 2); x <= Math.min(W - 2, x0 + 2); x++) mejor = Math.max(mejor, salto(x));
+    peor = Math.min(peor, mejor / Math.max(mediana, 0.5));
+  }
+  return peor === Infinity ? 0 : peor;
+}
+
+// Umbral 3.5: medido contra los dos casos que importan. En una tira real el
+// corte salta muchísimo más que el ruido del cuadro; en un video continuo el
+// "corte" imaginario es tan suave como cualquier otra columna (≈1).
+const COSTURA_MIN = 3.5;
+// Más ancho que 2.6:1 nadie graba: ahí no hay duda y entra solo. Entre 1.5 y
+// 2.6 (donde vive el 16:9, que mide IGUAL que una tira de 3 verticales) se
+// pregunta, porque equivocarse en automático es peor que un toque de más.
+const SIN_DUDA = 2.6;
+
+async function esTiraDeVideo(file, m) {
+  if (!m || !m.w || !m.h) return 0;
+  if (m.w / m.h < 1.5) return 0;                 // ni de lejos una tira
+  const n = numSlidesDeTira(m.w, m.h);
+  if (n < 2) return 0;
+  const cuadro = await cuadroDeTira(file, 200);  // chico: solo se miden columnas
+  if (!cuadro) return 0;
+  try {
+    const bmp = await createImageBitmap(cuadro);
+    const cv = document.createElement('canvas');
+    cv.width = bmp.width; cv.height = bmp.height;
+    cv.getContext('2d').drawImage(bmp, 0, 0);
+    return costuraFuerte(cv, n) >= COSTURA_MIN ? n : 0;
+  } catch { return 0; }
+}
+
+// La tira que ve el cliente: UN cuadro completo del video, a lo ancho entero.
+// generatePoster topa el lado largo en 720 px, que en una tira de 7 slides deja
+// cuadros de 100 px, ilegibles. Aquí manda el ALTO para que cada slide salga con
+// ancho de sobra, y el ancho se topa en 8000 como en subirTira.
+function cuadroDeTira(file, alto = 900) {
+  return new Promise((resolve) => {
+    let listo = false; let url;
+    const fin = (v) => { if (listo) return; listo = true; try { URL.revokeObjectURL(url); } catch { /* noop */ } resolve(v); };
+    try {
+      const v = document.createElement('video');
+      url = URL.createObjectURL(file);
+      v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
+      // Cuadro temprano pero no el 0: muchas tiras abren en negro.
+      v.onloadeddata = () => { const t = Math.min(0.6, (v.duration || 1) / 3); try { v.currentTime = (isFinite(t) && t > 0) ? t : 0; } catch { fin(null); } };
+      v.onseeked = () => {
+        try {
+          const w = v.videoWidth, h = v.videoHeight;
+          if (!w || !h) return fin(null);
+          const k = Math.min(alto / h, 8000 / w, 1);
+          const cv = document.createElement('canvas');
+          cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+          cv.getContext('2d').drawImage(v, 0, 0, cv.width, cv.height);
+          cv.toBlob((b) => fin(b), 'image/jpeg', 0.9);
+        } catch { fin(null); }
+      };
+      v.onerror = () => fin(null);
+      setTimeout(() => fin(null), 10000);
+    } catch { fin(null); }
+  });
+}
+
+// Sube UNA tira de video como carrusel: el video completo va a R2 (es el
+// entregable de verdad) y la tira de cuadros va de poster, que es lo que el
+// visor ya sabe partir en slides. Si algo falla se borra el alta: un carrusel
+// sin tira es un cascarón que el cliente ve vacío (mismo patrón que uploadReel).
+async function subirTiraDeVideo(file, m, qinfo) {
+  const client = activeClient();
+  if (!client) return false;
+  const month = addMonth || currentMonth();
+  let creado = null;
+  busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
+  try {
+    creado = await api.post('/deliverables', { client_id: client.id, month, type: 'carrusel', title: null });
+    await multipartUpload(api, `/deliverables/${creado.id}/video`, file, (pp) => { uploadPct = pp; updateProgressUI(); });
+    const tira = await cuadroDeTira(file);
+    if (!tira) throw new Error(T('No se pudo sacar la tira del video.', 'Could not extract the strip from the video.'));
+    const fd = new FormData(); fd.append('poster', tira, 'tira.jpg');
+    const r = await fetch(`/api/marketing/deliverables/${creado.id}/poster`, { method: 'POST', credentials: 'same-origin', body: fd });
+    if (!r.ok) throw new Error(T('La tira no se pudo subir', 'The strip could not be uploaded'));
+    activeMonthNav = month;
+    return true;
+  } catch (e) {
+    if (creado && creado.id) { try { await api.del(`/deliverables/${creado.id}`); } catch { /* cascarón: se borra a mano */ } }
+    toast((e && e.message) || T('No se pudo subir el carrusel de video', 'Could not upload the video carousel'), 'error');
+    return false;
+  } finally {
+    busy = false; uploadPct = 0; queueInfo = null; render();
+  }
+}
+
 // COLA de subida. Todo lo que arrastres o elijas se ENCOLA y se sube uno tras otro
 // (encolar, no paralelizar, evita saturar la conexión). Si sueltas/eliges MÁS mientras
 // otra subida sigue en curso, se AGREGAN a la fila en vez de ignorarse — así funciona
@@ -318,12 +463,46 @@ async function enqueueReels(fileList) {
     if (!vids.length) return;
   }
 
-  uploadQueue.push(...vids);
+  // Antes de encolar como reel: ¿alguno es una TIRA? Se mide la forma de cada
+  // video y los que dan 2+ slides se van por el camino de carrusel. Medir
+  // cuesta un `loadedmetadata` por archivo, nada.
+  const formas = await Promise.all(vids.map((f) => medirVideo(f)));
+  const cuantos = await Promise.all(vids.map((f, i) => esTiraDeVideo(f, formas[i])));
+  // Los dudosos se preguntan UNO POR UNO antes de subir nada.
+  for (let i = 0; i < vids.length; i++) {
+    const m = formas[i];
+    if (cuantos[i] < 2 || !m) continue;
+    if (m.w / m.h >= SIN_DUDA) continue;                    // sin duda: tira
+    // eslint-disable-next-line no-await-in-loop
+    const esTira = await confirmar({
+      title: T(`"${vids[i].name}" parece una tira de ${cuantos[i]} slides. ¿Cómo lo subo?`,
+        `"${vids[i].name}" looks like a ${cuantos[i]}-slide strip. How should I upload it?`),
+      accion: T(`Como carrusel de ${cuantos[i]} slides`, `As a ${cuantos[i]}-slide carousel`),
+      cancelar: T('Como un reel', 'As a single reel'),
+    });
+    if (!esTira) cuantos[i] = 0;
+  }
+  const tirasV = vids.filter((f, i) => cuantos[i] >= 2);
+  const reels = vids.filter((f, i) => cuantos[i] < 2);
+  if (tirasV.length) {
+    const nPrimera = cuantos[vids.indexOf(tirasV[0])];
+    toast(T(
+      tirasV.length === 1 ? `Ese video es una tira de ${nPrimera} slides: entra como carrusel.` : `${tirasV.length} videos son tiras de carrusel: entran como carruseles.`,
+      tirasV.length === 1 ? `That video is a ${nPrimera}-slide strip: it goes in as a carousel.` : `${tirasV.length} videos are carousel strips: they go in as carousels.`), 'info', 6000);
+    for (const t of tirasV) {
+      // eslint-disable-next-line no-await-in-loop
+      await subirTiraDeVideo(t, null, { index: tirasV.indexOf(t) + 1, total: tirasV.length });
+    }
+    await load();
+  }
+  if (!reels.length) return;
+
+  uploadQueue.push(...reels);
   // `busy` sin `draining` = hay un CAMBIO de video en curso (puede durar minutos).
   // Antes se arrancaba el drenado igual, uploadReel salía en seco por `busy` y los
   // archivos se DESCARTABAN con un "N reels no se subieron" falso. Ahora esperan
   // en la fila y swapVideo la drena al terminar.
-  if (draining || busy) { toast(`+${vids.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; }
+  if (draining || busy) { toast(`+${reels.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; }
   drainQueue();
 }
 
@@ -1021,6 +1200,20 @@ function numSlidesDeTira(w, h) {
     }
   }
   return mejor.n;
+}
+
+// Pinta los cuadros de la tira dentro del visor. Vive aparte porque el carrusel
+// de VIDEO alterna entre los slides congelados y el video corriendo.
+function pintarSlidesDe(it, visor, titleEl) {
+  slidesDeTira(it).then((slides) => {
+    if (!visor.isConnected || visor.dataset.modo === 'video') return;
+    clear(visor);
+    slides.forEach((d, i) => visor.appendChild(el('img', {
+      class: 'dlv-slides__img', src: d, alt: `Slide ${i + 1}`, loading: 'lazy',
+    })));
+    visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
+    if (slides.length === 1 && titleEl && !it.title) titleEl.textContent = 'Post';
+  }).catch(() => { /* sin tira legible: se queda el ícono */ });
 }
 
 const tiraCache = new Map();   // id|selloPoster -> Promise<string[]>
@@ -2024,15 +2217,7 @@ function buildItem(it, staff) {
   let visor = null;
   if (it.poster_url) {
     visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
-    slidesDeTira(it).then((slides) => {
-      if (!visor.isConnected) return;
-      clear(visor);
-      slides.forEach((d, i) => visor.appendChild(el('img', {
-        class: 'dlv-slides__img', src: d, alt: `Slide ${i + 1}`, loading: 'lazy',
-      })));
-      visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
-      if (slides.length === 1 && !it.title) titleEl.textContent = 'Post';
-    }).catch(() => { /* sin tira legible: se queda el ícono */ });
+    pintarSlidesDe(it, visor, titleEl);
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
     visor || el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
@@ -2048,11 +2233,26 @@ function buildItem(it, staff) {
         class: 'dlv-carrusel-btn', type: 'button',
         onclick: async (e) => {
           const b = e.currentTarget; b.disabled = true;
-          try { await descargarSlides(it, b); }
-          catch (err) { toast((err && err.message) || T('No se pudo descargar.', 'Could not download.'), 'error'); }
+          try {
+            // Carrusel de VIDEO: lo que vale es el archivo, no los cuadros.
+            if (it.video_url) await saveVideo(it, b);
+            else await descargarSlides(it, b);
+          } catch (err) { toast((err && err.message) || T('No se pudo descargar.', 'Could not download.'), 'error'); }
           finally { b.disabled = false; }
         },
       }, [icon('download', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
+      it.video_url ? el('button', {
+        class: 'dlv-carrusel-btn', type: 'button',
+        onclick: (e) => {
+          const b = e.currentTarget;
+          if (!visor) return;
+          if (visor.dataset.modo === 'video') { visor.dataset.modo = ''; pintarSlidesDe(it, visor, titleEl); b.querySelector('span:not(.ico)').textContent = T('Ver en movimiento', 'Play it'); return; }
+          visor.dataset.modo = 'video';
+          clear(visor);
+          visor.appendChild(el('video', { class: 'dlv-slides__video', src: it.video_url, controls: true, playsInline: true, preload: 'metadata' }));
+          b.querySelector('span:not(.ico)').textContent = T('Ver los slides', 'Show slides');
+        },
+      }, [icon('play', 15), el('span', { text: T('Ver en movimiento', 'Play it') })]) : null,
       staff ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
         onclick: () => tiraIn.click(),
@@ -2251,10 +2451,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609301028');
+        const mod = await import('../lib/pdf-entregables.js?v=202609301042');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301028');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301042');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
