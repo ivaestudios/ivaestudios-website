@@ -4885,7 +4885,7 @@ async function handleUploadDeliverableVideo(request, env, session, id) {
   // poster viejo, que sigue siendo el cuadro del video ANTERIOR.
   for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
   try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch { /* noop */ }
-  await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
+  await dlvVideoNuevo(env, id, ext);
   const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
 }
@@ -4956,6 +4956,19 @@ async function handlePublicDeliverableVideo(request, env, id) {
   const res = await mktServeRangedWithMeta(request, getObj, headers);
   if (!res) return new Response('Sin video', { status: 404 });
   return res;
+}
+
+// Anota la extensión del video NUEVO y DESANUNCIA el poster (que se acaba de
+// borrar). Sin poster_ok = 0 el listado seguía diciendo "hay tira": el visor
+// del carrusel de video pedía un poster que ya no existía (404) y la tarjeta
+// salía en blanco (Vianey, 2026-09-30). El poster nuevo la vuelve a poner en 1.
+async function dlvVideoNuevo(env, id, ext) {
+  try {
+    await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, poster_ok = 0, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
+  } catch (e) {
+    if (!isMissingColumnError(e)) throw e;
+    await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
+  }
 }
 
 async function handlePatchDeliverable(request, env, session, id) {
@@ -5224,7 +5237,7 @@ async function handleDlvMultipartComplete(request, env, session, id) {
   // poster nuevo justo despues; si no se pudo generar (HEVC, iOS), la tarjeta cae
   // al primer cuadro del video NUEVO en vez de mostrar el cuadro del viejo.
   try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch { /* noop */ }
-  await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(r.ext, id).run();
+  await dlvVideoNuevo(env, id, r.ext);
   const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
 }

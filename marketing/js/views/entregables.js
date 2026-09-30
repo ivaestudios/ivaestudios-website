@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609301126';
-import { icon } from '../shell/icons.js?v=202609301126';
-import { T } from '../shell/i18n.js?v=202609301126';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301126';
+import { api, el, clear, toast } from '../api.js?v=202609301138';
+import { icon } from '../shell/icons.js?v=202609301138';
+import { T } from '../shell/i18n.js?v=202609301138';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301138';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609301126';
+import { moderarComentario } from '../shell/moderacion.js?v=202609301138';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609301126';
+import { errorCard } from '../ui/states.js?v=202609301138';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609301126';
+} from '../lib/video-upload.js?v=202609301138';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609301126';
+  link.href = '/marketing/css/entregables.css?v=202609301138';
   document.head.appendChild(link);
 }
 
@@ -1235,7 +1235,20 @@ function pintarSlidesDe(it, visor, titleEl) {
     })));
     visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
     if (slides.length === 1 && titleEl && !it.title) titleEl.textContent = 'Post';
-  }).catch(() => { /* sin tira legible: se queda el ícono */ });
+  }).catch(() => {
+    // Sin tira legible (p.ej. el poster ya no existe en el servidor): el
+    // carrusel de VIDEO enseña el video en vez de un visor vacío (Vianey vio
+    // la tarjeta en blanco el 2026-09-30); el de imagen se queda con el ícono.
+    if (!visor.isConnected || visor.dataset.modo === 'video') return;
+    if (it.video_url) { visor.dataset.sinTira = '1'; pintarVideoEn(it, visor); }
+  });
+}
+
+// El carrusel de VIDEO corriendo, dentro del mismo visor de slides.
+function pintarVideoEn(it, visor) {
+  visor.dataset.modo = 'video';
+  clear(visor);
+  visor.appendChild(el('video', { class: 'dlv-slides__video', src: it.video_url, controls: true, playsInline: true, preload: 'metadata' }));
 }
 
 const tiraCache = new Map();   // id|selloPoster -> Promise<string[]>
@@ -2237,9 +2250,12 @@ function buildItem(it, staff) {
   });
   const titleEl = el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') });
   let visor = null;
-  if (it.poster_url) {
+  if (it.poster_url || it.video_url) {
     visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
-    pintarSlidesDe(it, visor, titleEl);
+    // Carrusel de video SIN tira (el poster se perdió o nunca subió): se ve el
+    // video, nunca un hueco.
+    if (it.poster_url) pintarSlidesDe(it, visor, titleEl);
+    else pintarVideoEn(it, visor);
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
     visor || el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
@@ -2263,15 +2279,14 @@ function buildItem(it, staff) {
           finally { b.disabled = false; }
         },
       }, [icon('download', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
-      it.video_url ? el('button', {
+      (it.video_url && it.poster_url) ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button',
         onclick: (e) => {
           const b = e.currentTarget;
           if (!visor) return;
+          if (visor.dataset.sinTira) { toast(T('La tira de este carrusel no está disponible; se muestra el video.', 'This carousel\u2019s strip is unavailable; showing the video.'), 'info'); return; }
           if (visor.dataset.modo === 'video') { visor.dataset.modo = ''; pintarSlidesDe(it, visor, titleEl); b.querySelector('span:not(.ico)').textContent = T('Ver en movimiento', 'Play it'); return; }
-          visor.dataset.modo = 'video';
-          clear(visor);
-          visor.appendChild(el('video', { class: 'dlv-slides__video', src: it.video_url, controls: true, playsInline: true, preload: 'metadata' }));
+          pintarVideoEn(it, visor);
           b.querySelector('span:not(.ico)').textContent = T('Ver los slides', 'Show slides');
         },
       }, [icon('play', 15), el('span', { text: T('Ver en movimiento', 'Play it') })]) : null,
@@ -2292,7 +2307,7 @@ function buildItem(it, staff) {
     ]),
     // Carrusel sin pieza: la IA lee la TIRA (todos los slides) y escribe el
     // guion slide por slide, el copy y los hashtags (mismo flujo que el reel).
-    (staff && !it.post_id && it.poster_url) ? el('button', {
+    (staff && !it.post_id && (it.poster_url || it.video_url)) ? el('button', {
       class: 'btn btn--primary dlv-alcal', type: 'button',
       onclick: (e) => alCalendario(it, e.currentTarget),
     }, [icon('calendar', 16), el('span', { text: T('Agregar al calendario (IA)', 'Add to calendar (AI)') })]) : null,
@@ -2473,10 +2488,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609301126');
+        const mod = await import('../lib/pdf-entregables.js?v=202609301138');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301126');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301138');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
