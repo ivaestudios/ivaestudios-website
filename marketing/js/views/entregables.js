@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609301138';
-import { icon } from '../shell/icons.js?v=202609301138';
-import { T } from '../shell/i18n.js?v=202609301138';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301138';
+import { api, el, clear, toast } from '../api.js?v=202609301214';
+import { icon } from '../shell/icons.js?v=202609301214';
+import { T } from '../shell/i18n.js?v=202609301214';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301214';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609301138';
+import { moderarComentario } from '../shell/moderacion.js?v=202609301214';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609301138';
+import { errorCard } from '../ui/states.js?v=202609301214';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609301138';
+} from '../lib/video-upload.js?v=202609301214';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -59,6 +59,7 @@ const dlAllPendientes = new Map();
 // solo se "activan" (cargan metadatos / primer frame) al acercarse al viewport.
 // El archivo COMPLETO se transmite intacto al reproducir — no se pierde calidad.
 let vidObserver = null;
+let bucleObserver = null;   // los carruseles de video en bucle: corren solo en pantalla
 // Pide el primer cuadro como vista previa (#t=0.1). Es lo que se usa cuando NO
 // hay miniatura propia: sin esto el reproductor se queda en negro.
 function firstFramePreview(v) {
@@ -101,6 +102,7 @@ function observeVideo(v) {
 }
 function resetVideoObserver() {
   if (vidObserver) { try { vidObserver.disconnect(); } catch { /* noop */ } vidObserver = null; }
+  if (bucleObserver) { try { bucleObserver.disconnect(); } catch { /* noop */ } bucleObserver = null; }
 }
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
@@ -190,7 +192,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609301138';
+  link.href = '/marketing/css/entregables.css?v=202609301214';
   document.head.appendChild(link);
 }
 
@@ -1235,20 +1237,52 @@ function pintarSlidesDe(it, visor, titleEl) {
     })));
     visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
     if (slides.length === 1 && titleEl && !it.title) titleEl.textContent = 'Post';
-  }).catch(() => {
-    // Sin tira legible (p.ej. el poster ya no existe en el servidor): el
-    // carrusel de VIDEO enseña el video en vez de un visor vacío (Vianey vio
-    // la tarjeta en blanco el 2026-09-30); el de imagen se queda con el ícono.
-    if (!visor.isConnected || visor.dataset.modo === 'video') return;
-    if (it.video_url) { visor.dataset.sinTira = '1'; pintarVideoEn(it, visor); }
-  });
+  }).catch(() => { /* sin tira legible: se queda el ícono */ });
 }
 
-// El carrusel de VIDEO corriendo, dentro del mismo visor de slides.
+// El carrusel de VIDEO corre SOLO, en bucle y sin controles (Vianey, 2026-09-30:
+// "que se reproduzca automáticamente en bucle infinito, no pongas ese botón de
+// reproducir"). Arranca en silencio porque el navegador no deja autoplay con
+// sonido; un toque en el video prende o apaga el audio. Se pausa fuera de
+// pantalla para no gastar batería con seis videos corriendo a la vez.
+function observarBucle(v) {
+  if (!('IntersectionObserver' in window)) { v.play().catch(() => { /* noop */ }); return; }
+  if (!bucleObserver) {
+    bucleObserver = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) e.target.play().catch(() => { /* noop */ });
+        else e.target.pause();
+      }
+    }, { threshold: 0.1 });
+  }
+  bucleObserver.observe(v);
+}
 function pintarVideoEn(it, visor) {
   visor.dataset.modo = 'video';
   clear(visor);
-  visor.appendChild(el('video', { class: 'dlv-slides__video', src: it.video_url, controls: true, playsInline: true, preload: 'metadata' }));
+  const v = el('video', {
+    class: 'dlv-slides__video', src: it.video_url, preload: 'auto',
+    loop: true, muted: true, autoplay: true, playsinline: true,
+    'aria-label': T('Carrusel en movimiento; toca para el sonido', 'Carousel playing; tap for sound'),
+  });
+  // Las PROPIEDADES, no solo los atributos: Chrome decide el autoplay por
+  // `muted` de propiedad, y setAttribute('muted') en un <video> creado por
+  // script no la mueve (el video se quedaría congelado en el primer cuadro).
+  v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+  v.disablePictureInPicture = true;
+  const n = el('span', { class: 'dlv-slides__n', text: T('Video', 'Video') });
+  v.addEventListener('loadedmetadata', () => {
+    const k = numSlidesDeTira(v.videoWidth, v.videoHeight);
+    n.textContent = k > 1 ? `${k} slides` : T('Video', 'Video');
+  });
+  const snd = el('span', { class: 'dlv-slides__snd', 'aria-hidden': 'true' }, [icon('mute', 13)]);
+  v.addEventListener('click', () => {
+    v.muted = !v.muted;
+    clear(snd); snd.appendChild(icon(v.muted ? 'mute' : 'volume', 13));
+    if (v.paused) v.play().catch(() => { /* noop */ });
+  });
+  visor.appendChild(v); visor.appendChild(n); visor.appendChild(snd);
+  observarBucle(v);
 }
 
 const tiraCache = new Map();   // id|selloPoster -> Promise<string[]>
@@ -2252,10 +2286,10 @@ function buildItem(it, staff) {
   let visor = null;
   if (it.poster_url || it.video_url) {
     visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
-    // Carrusel de video SIN tira (el poster se perdió o nunca subió): se ve el
-    // video, nunca un hueco.
-    if (it.poster_url) pintarSlidesDe(it, visor, titleEl);
-    else pintarVideoEn(it, visor);
+    // Carrusel de VIDEO: el video corriendo en bucle, sin botón (la tira solo
+    // sirve para el PDF y la IA). Carrusel de imagen: la tira en cuadros.
+    if (it.video_url) pintarVideoEn(it, visor);
+    else pintarSlidesDe(it, visor, titleEl);
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
     visor || el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
@@ -2279,17 +2313,6 @@ function buildItem(it, staff) {
           finally { b.disabled = false; }
         },
       }, [icon('download', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
-      (it.video_url && it.poster_url) ? el('button', {
-        class: 'dlv-carrusel-btn', type: 'button',
-        onclick: (e) => {
-          const b = e.currentTarget;
-          if (!visor) return;
-          if (visor.dataset.sinTira) { toast(T('La tira de este carrusel no está disponible; se muestra el video.', 'This carousel\u2019s strip is unavailable; showing the video.'), 'info'); return; }
-          if (visor.dataset.modo === 'video') { visor.dataset.modo = ''; pintarSlidesDe(it, visor, titleEl); b.querySelector('span:not(.ico)').textContent = T('Ver en movimiento', 'Play it'); return; }
-          pintarVideoEn(it, visor);
-          b.querySelector('span:not(.ico)').textContent = T('Ver los slides', 'Show slides');
-        },
-      }, [icon('play', 15), el('span', { text: T('Ver en movimiento', 'Play it') })]) : null,
       staff ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
         onclick: () => tiraIn.click(),
@@ -2488,10 +2511,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609301138');
+        const mod = await import('../lib/pdf-entregables.js?v=202609301214');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301138');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301214');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
