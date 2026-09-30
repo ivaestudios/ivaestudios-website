@@ -88,3 +88,41 @@
 .via-bolsillo { font-size: var(--fs-1); color: var(--text-dim); }
 .via-bolsillo::before { content: '·'; margin-right: 6px; opacity: .5; }
 .via-bolsillo:first-child::before { content: none; }
+
+/* --- Foto de inicio y foto final (30-sep-2026) -------------------------------
+   Con las dos, Veo inventa el movimiento que va de una a la otra. Los recuadros
+   solo aparecen en los niveles que las reciben, por eso [hidden] tiene que
+   ganarle al display del contenedor. */
+.via-fotos { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.via-fotos[hidden] { display: none; }
+.via-fotos__lbl { font-size: var(--fs-2); color: var(--text-dim); font-weight: 700; padding-top: 22px; }
+.via-foto-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.via-foto-wrap[hidden] { display: none; }
+.via-foto {
+  position: relative; display: flex; align-items: center; gap: 8px;
+  background: var(--bg); color: var(--text); border: 1.5px dashed var(--border);
+  border-radius: var(--r-md, 12px); padding: 8px 12px 8px 8px;
+  font: inherit; font-weight: 700; font-size: var(--fs-2); cursor: pointer; min-height: 56px;
+}
+.via-foto:hover { border-color: var(--brand); }
+.via-foto__mini {
+  width: 40px; height: 50px; flex: 0 0 auto; border-radius: 8px;
+  background: color-mix(in srgb, var(--text-dim) 18%, transparent) center/cover no-repeat;
+}
+.via-foto__mini.is-llena { border: 1px solid var(--border); }
+.via-foto__txt { white-space: nowrap; }
+.via-foto__x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 999px; margin-left: 2px;
+  background: var(--surface); color: var(--text-dim);
+  border: 1.5px solid var(--border); cursor: pointer; padding: 0;
+}
+.via-foto__x:hover { color: var(--text); border-color: var(--text-dim); }
+.via-foto__ayuda { font-size: var(--fs-1); color: var(--text-dim); padding-left: 2px; }
+@media (max-width: 520px) {
+  .via-fotos { gap: 8px; }
+  .via-fotos__lbl { width: 100%; padding-top: 0; }
+  .via-foto-wrap { flex: 1 1 0; min-width: 0; }
+  .via-foto { width: 100%; }
+  .via-foto__txt { white-space: normal; }
+}

@@ -15,7 +15,7 @@
 // cursiva. Probar SIEMPRE en WebKit real (playwright-webkit) antes de subir.
 // ============================================================================
 
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202609251721';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202609301018';
 
 // Espacio de diseño y raster.
 export const W = 1080;

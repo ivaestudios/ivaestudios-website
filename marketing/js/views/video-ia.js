@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609251721';
-import { icon } from '../shell/icons.js?v=202609251721';
-import { T } from '../shell/i18n.js?v=202609251721';
+import { api, el, clear, toast } from '../api.js?v=202609301018';
+import { icon } from '../shell/icons.js?v=202609301018';
+import { T } from '../shell/i18n.js?v=202609301018';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -26,11 +26,39 @@ let jobs = [];
 let timer = null;
 let busy = false;
 let unsub = null;
+// Foto de INICIO y foto FINAL (data URL). Veo va de una a la otra.
+let fotos = { inicio: null, fin: null };
+let fotosRow = null, slots = {};
 
 const usdTxt = (u) => {
   const mx = Math.round(Number(u) * MXN);
   return `$${Number(u).toFixed(2)} USD · ≈ ${mx} ${mx === 1 ? 'peso' : 'pesos'}`;
 };
+// Una foto del teléfono pesa 8-12 MB y el servidor corta en 7. Se encoge a
+// 1920 px del lado largo antes de mandarla: Veo no aprovecha más resolución y
+// así la subida no se cae en datos móviles.
+const LADO_MAX = 1920;
+function aDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error(T('No se pudo leer la foto.', 'Could not read the photo.')));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error(T('Esa foto no se puede abrir.', 'That photo cannot be opened.')));
+      img.onload = () => {
+        const escala = Math.min(1, LADO_MAX / Math.max(img.width, img.height));
+        if (escala === 1 && String(fr.result).length < 6.5 * 1024 * 1024) { resolve(String(fr.result)); return; }
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * escala); cv.height = Math.round(img.height * escala);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        resolve(cv.toDataURL('image/jpeg', 0.92));
+      };
+      img.src = String(fr.result);
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
 const clienteActivo = () => {
   const st = ctx.store.getState();
   return (st.clients || []).find((c) => c.id === st.activeClientId) || null;
@@ -87,7 +115,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609251721'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609301018'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -218,7 +246,16 @@ async function generar(prompt, tier, segs) {
   const s = segundosDe(tier, segs);
   busy = true; rootEl.classList.add('is-busy');
   try {
-    const r = await api.post('/video-ia/jobs', { client_id: cli.id, tier, prompt, aspect: '9:16', seconds: s }, { timeout: 45000 });
+    const cuerpo = { client_id: cli.id, tier, prompt, aspect: '9:16', seconds: s };
+    if (cat.fotoInicio && fotos.inicio) cuerpo.image_start = fotos.inicio;
+    if (cat.fotoFinal && fotos.fin) cuerpo.image_end = fotos.fin;
+    // Con foto final y sin la de inicio Veo no sabe de dónde salir: se avisa
+    // aquí para no gastar un viaje al servidor.
+    if (cuerpo.image_end && !cuerpo.image_start) {
+      toast(T('Falta la foto de inicio: Veo va de la primera a la última.', 'Start photo missing: Veo goes from the first to the last.'), { type: 'error' });
+      return;
+    }
+    const r = await api.post('/video-ia/jobs', cuerpo, { timeout: 90000 });
     jobs = [r.job, ...jobs]; pintarLista(); programarSondeo();
     toast(T('Clip en camino. Te aviso cuando esté.', 'Clip on its way.'), { type: 'ok' });
   } catch (e) { toast(e.message, { type: 'error' }); }
@@ -231,6 +268,38 @@ function segundosDe(tier, pedido) {
   const ok = cat.segundos || [8];
   const p = Number(pedido || segundos);
   return ok.includes(p) ? p : ok[ok.length - 1];
+}
+
+// Un recuadro de foto: se toca, se elige del disco, se ve la miniatura y se
+// puede quitar con la ×. `clave` es 'inicio' o 'fin'.
+function slotFoto(clave, etiqueta, ayuda) {
+  const inp = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: true });
+  const mini = el('div', { class: 'via-foto__mini' });
+  const txt = el('span', { class: 'via-foto__txt', text: etiqueta });
+  const quitar = el('button', {
+    class: 'via-foto__x', type: 'button', hidden: true, 'aria-label': T('Quitar la foto', 'Remove photo'),
+    onclick: (e) => { e.stopPropagation(); fotos[clave] = null; pintarSlot(clave); refrescarPrecios(); },
+  }, [icon('close', 14)]);
+  const caja = el('button', { class: 'via-foto', type: 'button', onclick: () => inp.click() }, [mini, txt, quitar]);
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0];
+    inp.value = '';
+    if (!f) return;
+    try { fotos[clave] = await aDataUrl(f); pintarSlot(clave); refrescarPrecios(); }
+    catch (err) { toast(err.message, { type: 'error' }); }
+  };
+  const cont = el('div', { class: 'via-foto-wrap' }, [caja, inp, el('span', { class: 'via-foto__ayuda', text: ayuda })]);
+  slots[clave] = { cont, mini, txt, quitar, etiqueta };
+  return cont;
+}
+
+function pintarSlot(clave) {
+  const sl = slots[clave]; if (!sl) return;
+  const src = fotos[clave];
+  sl.mini.style.backgroundImage = src ? `url("${src}")` : '';
+  sl.mini.classList.toggle('is-llena', !!src);
+  sl.txt.textContent = src ? T('Cambiar', 'Change') : sl.etiqueta;
+  sl.quitar.hidden = !src;
 }
 
 function tierActual() {
@@ -246,6 +315,20 @@ function refrescarPrecios() {
   const k = tierActual();
   const cat = estado.catalogo[k] || {};
   if (segundosRow) segundosRow.hidden = (cat.segundos || []).length < 2;
+  // Cada nivel acepta lo que acepta. Si ella ya había puesto una foto y cambia
+  // a un nivel que no la recibe, se quita Y se avisa: mandarla en silencio a la
+  // basura daría un video que no se parece a lo que pidió.
+  if (slots.inicio && slots.fin) {
+    const perdidas = [];
+    for (const [clave, puede] of [['inicio', !!cat.fotoInicio], ['fin', !!cat.fotoFinal]]) {
+      slots[clave].cont.hidden = !puede;
+      if (!puede && fotos[clave]) { fotos[clave] = null; pintarSlot(clave); perdidas.push(clave === 'inicio' ? T('de inicio', 'start') : T('final', 'end')); }
+    }
+    if (perdidas.length) {
+      toast(T(`"${cat.label}" no acepta foto ${perdidas.join(' ni ')}; se quitó.`, `"${cat.label}" does not take a ${perdidas.join(' or ')} photo; removed.`), { type: 'warn' });
+    }
+    if (fotosRow) fotosRow.hidden = !cat.fotoInicio && !cat.fotoFinal;
+  }
   if (btnGenTxt && cat.usdSeg != null) {
     const mx = Math.round(cat.usdSeg * segundosDe(k) * MXN);
     btnGenTxt.textContent = `${T('Generar clip', 'Generate clip')} · ${mx} ${mx === 1 ? 'peso' : 'pesos'}`;
@@ -308,6 +391,17 @@ function render() {
   form.appendChild(promptEl);
   notaEl = el('p', { class: 'via-nota' }); form.appendChild(notaEl);
 
+  // Foto de inicio y foto final: con las dos, Veo inventa el movimiento que va
+  // de una a la otra. Se enseñan solo en los niveles que de verdad las reciben.
+  slots = {};
+  fotosRow = el('div', { class: 'via-fotos' }, [
+    el('span', { class: 'via-fotos__lbl', text: T('Fotos', 'Photos') }),
+    slotFoto('inicio', T('Foto de inicio', 'Start photo'), T('Con qué cuadro empieza', 'Opening frame')),
+    slotFoto('fin', T('Foto final', 'End photo'), T('Con qué cuadro termina', 'Closing frame')),
+  ]);
+  form.appendChild(fotosRow);
+  pintarSlot('inicio'); pintarSlot('fin');
+
   // Duración: cambia el precio, así que va antes de los niveles.
   segundosRow = el('div', { class: 'via-segs' }, [el('span', { class: 'via-segs__lbl', text: T('Duración', 'Length') })]);
   const opciones = (estado.catalogo[tierActual()] || {}).segundos || [4, 6, 8];
@@ -324,8 +418,8 @@ function render() {
   form.appendChild(notaSegEl);
   // Lo largo no es magia: hay que decir cómo se arma y cuánto tarda.
   form.appendChild(el('p', { class: 'via-notalargo', text: T(
-    'Veo llega a 8 segundos de un tirón y de ahí crece de 7 en 7 hasta 29, con la persona callada a partir del octavo. Sora 2 llega a 20 de una pieza hablando todo el tiempo, y encadena hasta 120. Seedance da hasta 30 de una sola generación.',
-    'Veo reaches 8 seconds in one go then grows 7 at a time up to 29, silent after the eighth. Sora 2 reaches 20 in one piece, talking throughout, and chains up to 120. Seedance gives up to 30 in a single generation.') }));
+    'Cada calidad ofrece SOLO lo que da de una sola toma: Veo 8 segundos, Sora 2 llega a 20 y Seedance a 30. Para pasar de ahí, genera el clip y usa "Alargar": así sabes que lo que ves es una toma y lo que crece son tomas pegadas.',
+    'Each quality offers ONLY what it delivers in a single shot: Veo 8 seconds, Sora 2 up to 20, Seedance up to 30. To go longer, generate the clip and use "Extend".') }));
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};
@@ -380,5 +474,6 @@ export default {
     if (unsub) { try { unsub(); } catch { /* noop */ } unsub = null; }
     clearInterval(timer); timer = null; rootEl = null; listEl = null; gastoEl = null; promptEl = null; notaEl = null;
     tierEls = {}; precioEls = {}; segundosRow = null; notaSegEl = null; btnGenTxt = null; autoSegundos = true; jobs = []; busy = false;
+    fotos = { inicio: null, fin: null }; fotosRow = null; slots = {};
   },
 };

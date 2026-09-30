@@ -47,6 +47,8 @@ export const CATALOGO = {
     gemini: 'veo-3.1-lite-generate-preview',
     modelo: 'Veo 3.1 Lite · 720p con audio',
     resolution: '720p', usdSeg: 0.05, audio: true, personas: true,
+    // Veo 3.1 Lite anima una foto, pero NO interpola hasta una foto final.
+    fotoInicio: true, fotoFinal: false, maxSeg: 8,
   },
   bueno: {
     label: 'Bueno',
@@ -56,6 +58,7 @@ export const CATALOGO = {
     gemini: 'veo-3.1-fast-generate-preview',
     modelo: 'Veo 3.1 Fast · 720p con audio',
     resolution: '720p', usdSeg: 0.10, audio: true, personas: true,
+    fotoInicio: true, fotoFinal: true, maxSeg: 8,
   },
   mejor: {
     label: 'El mejor',
@@ -65,6 +68,7 @@ export const CATALOGO = {
     gemini: 'veo-3.1-generate-preview',
     modelo: 'Veo 3.1 · 1080p con audio',
     resolution: '1080p', usdSeg: 0.40, audio: true, personas: true,
+    fotoInicio: true, fotoFinal: true, maxSeg: 8,
   },
   sora: {
     label: 'Sora 2',
@@ -74,6 +78,7 @@ export const CATALOGO = {
     modelo: 'Sora 2 · 720x1280 con audio',
     size: { '9:16': '720x1280', '16:9': '1280x720' },
     resolution: '720p', usdSeg: 0.10, audio: true, personas: true,
+    fotoInicio: false, fotoFinal: false, maxSeg: 20,
   },
   sorapro: {
     label: 'Sora 2 Pro',
@@ -83,6 +88,7 @@ export const CATALOGO = {
     modelo: 'Sora 2 Pro · 1024x1792 con audio',
     size: { '9:16': '1024x1792', '16:9': '1792x1024' },
     resolution: '1024p', usdSeg: 0.50, audio: true, personas: true,
+    fotoInicio: false, fotoFinal: false, maxSeg: 20,
   },
   seedance: {
     label: 'Seedance 2.5',
@@ -91,6 +97,7 @@ export const CATALOGO = {
     modeloId: 'bytedance/seedance-2.5',
     modelo: 'Seedance 2.5 · 720p con audio',
     resolution: '720p', usdSeg: 0.2312, audio: true, personas: true,
+    fotoInicio: false, fotoFinal: false, maxSeg: 30,
   },
   broll: {
     label: 'B-roll suelto',
@@ -99,6 +106,7 @@ export const CATALOGO = {
     endpoint: 'fal-ai/wan/v2.2-5b/text-to-video/fast-wan',
     modelo: 'FastWan 2.2 · 720p sin audio',
     resolution: '720p', usdSeg: 0.005, audio: false, personas: false,
+    fotoInicio: false, fotoFinal: false, maxSeg: 5,
   },
 };
 
@@ -117,8 +125,8 @@ const SEGUNDOS_SORA = [4, 8, 12, 16, 20];
 // {video:{id}, prompt, seconds}. Hasta SEIS extensiones de 20 s = 120 s total.
 const SORA_EXT_SEG = 20;
 const SORA_EXT_MAX = 120;
-// Lo que se puede pedir con Sora: de un tirón hasta 20, luego encadenando.
-const SEGUNDOS_SORA_LARGOS = [4, 8, 12, 16, 20, 40, 60, 80, 100, 120];
+// (Antes había una lista "SORA_LARGOS" con 40-120 s encadenados. Se quitó el
+// 30-sep-2026: el selector ofrece SOLO lo que el modelo da de una sola vez.)
 
 // ALARGAR: Veo continúa un video suyo 7 segundos más, en el MISMO plano y sin
 // corte, y devuelve el video COMPLETO (8 s → 15 s → 22 s → 29 s). Probado el
@@ -127,8 +135,8 @@ const SEGUNDOS_SORA_LARGOS = [4, 8, 12, 16, 20, 40, 60, 80, 100, 120];
 // con mandar `video` dentro de la instancia y Veo entiende que es continuación.
 const ALARGAR_SEG = 7;
 const ALARGAR_MAX = 29; // Google no acepta videos de más de 30 s como entrada.
-// Lo que se le puede pedir de un tirón. Más de 8 s se arma encadenando solo.
-const SEGUNDOS_LARGOS = [4, 6, 8, 15, 22, 29];
+// (Antes había "SEGUNDOS_LARGOS" con 15/22/29 s encadenados en el mismo
+// selector. Misma razón: el máximo que se ofrece es el del modelo.)
 
 // Prompt de la continuación automática.
 //
@@ -186,6 +194,18 @@ function saJson(env) {
   } catch { /* llave mal pegada */ }
   return null;
 }
+// Duraciones que se le pueden pedir a un nivel, recortadas a su tope real.
+// Regla de Vianey (30-sep-2026): "que por modelo se respete el máximo, que no
+// me aparezca otro más alto". Para pasar del tope está "Alargar", aparte.
+export function segundosDe(cat) {
+  const base = cat.proveedor === 'google' ? SEGUNDOS_GOOGLE
+    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA
+      : (cat.proveedor === 'replicate' ? SEGUNDOS_SEEDANCE : SEGUNDOS_FAL));
+  const tope = Number(cat.maxSeg) || base[base.length - 1];
+  const lista = base.filter((n) => n <= tope);
+  return lista.length ? lista : [base[0]];
+}
+
 function viaGoogle(env) {
   if (saJson(env)) return 'vertex';
   if (env.GEMINI_API_KEY && String(env.GEMINI_API_KEY).trim()) return 'gemini';
@@ -299,7 +319,22 @@ const NO_QUIERO = 'repeated words, stuttering, duplicated dialogue, echo, '
   + 'lower third, letterboxing, black bars, on-screen text, watermark, timecode, '
   + 'logo, distorted face, extra fingers';
 
-function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
+// Una foto que llega del navegador como data URL se parte en sus dos piezas.
+// Devuelve null si no es una imagen usable, para que el caller decida.
+export function leerFoto(valor) {
+  const txt = String(valor || '').trim();
+  if (!txt) return null;
+  const m = /^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i.exec(txt);
+  if (!m) return null;
+  const b64 = m[2].replace(/\s+/g, '');
+  if (!b64) return null;
+  // 3/4 del base64 son los bytes reales. Tope de 7 MB por foto: Veo no necesita
+  // más y un cuerpo gigante hace que el Worker se quede sin memoria.
+  if (Math.floor(b64.length * 3 / 4) > 7 * 1024 * 1024) return 'grande';
+  return { bytesBase64Encoded: b64, mimeType: m[1].toLowerCase() === 'image/jpg' ? 'image/jpeg' : m[1].toLowerCase() };
+}
+
+function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64, fotos) {
   const parameters = {
     aspectRatio: aspect,
     resolution: cat.resolution,
@@ -321,7 +356,16 @@ function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
     delete parameters.sampleCount;
     delete parameters.personGeneration;
   }
-  return { instances: [{ prompt }], parameters };
+  const instancia = { prompt };
+  // FOTO DE INICIO (`image`) y FOTO FINAL (`lastFrame`). Con las dos, Veo
+  // inventa el movimiento que va de una a la otra. Con el primer cuadro dado,
+  // el aspecto lo manda la foto: mandar aspectRatio además provoca un 400.
+  if (fotos && fotos.inicio) {
+    instancia.image = fotos.inicio;
+    delete parameters.aspectRatio;
+  }
+  if (fotos && fotos.fin) instancia.lastFrame = fotos.fin;
+  return { instances: [instancia], parameters };
 }
 
 // El nombre de la operación viene distinto según la puerta; ambas lo ponen en
@@ -547,10 +591,13 @@ export async function estado(env) {
       retirado: c.proveedor === 'sora' && Date.now() >= SORA_SE_APAGA,
       label: c.label, sub: c.sub, modelo: c.modelo, proveedor: c.proveedor,
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
-      segundos: c.proveedor === 'google'
-        ? (via === 'vertex' ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-        : (c.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS
-           : (c.proveedor === 'replicate' ? SEGUNDOS_SEEDANCE : SEGUNDOS_FAL)),
+      segundos: segundosDe(c),
+      maxSeg: Number(c.maxSeg) || null,
+      // Qué fotos acepta ESTE nivel. La vista enseña o esconde los dos
+      // recuadros con esto, en vez de ofrecer algo que el modelo rechaza.
+      // Solo por Vertex: la API de Gemini no recibe las fotos igual.
+      fotoInicio: !!c.fotoInicio && via === 'vertex',
+      fotoFinal: !!c.fotoFinal && via === 'vertex',
       listo: disponible(env, k),
     };
   }
@@ -587,18 +634,34 @@ export async function crearJob(request, env, session) {
           : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.'));
     return json({ error: falta }, 503);
   }
-  const largo = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
-  const permitidos = cat.proveedor === 'google'
-    ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS
-      : (cat.proveedor === 'replicate' ? SEGUNDOS_SEEDANCE : SEGUNDOS_FAL));
-  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : (cat.proveedor === 'sora' ? 8 : permitidos[permitidos.length - 1]);
-  // Los dos encadenan, pero con distinto tope de un tirón: Veo 8, Sora 20.
-  // Seedance entrega hasta 30 s de una pieza: no encadena nada.
-  const encadena = cat.proveedor === 'google' || cat.proveedor === 'sora';
-  const tope = cat.proveedor === 'sora' ? 20 : 8;
-  const objetivo = (encadena && pedido > tope) ? pedido : null;
-  const seconds = objetivo ? tope : pedido;
+  // La duración no pasa del máximo real del modelo (regla de Vianey): lo que
+  // sobra ya no se arma encadenando a escondidas, para eso está "Alargar".
+  const permitidos = segundosDe(cat);
+  const seconds = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
+  const objetivo = null;
+
+  // ── Fotos de inicio y final ──────────────────────────────────────────────
+  // Se aceptan SOLO donde el modelo de verdad las recibe. Si llega una foto a
+  // un nivel que no la admite, se dice con todas sus letras en vez de tirarla
+  // en silencio y devolver un video que no se parece a lo que ella pidió.
+  const porVertex = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
+  const fotos = {};
+  for (const [campo, clave, permitido, nombre] of [
+    ['image_start', 'inicio', cat.fotoInicio && porVertex, 'de inicio'],
+    ['image_end', 'fin', cat.fotoFinal && porVertex, 'final'],
+  ]) {
+    if (!b[campo]) continue;
+    if (!permitido) {
+      return json({ error: `La calidad "${cat.label}" no acepta foto ${nombre}. Usa "Bueno" o "El mejor".` }, 400);
+    }
+    const foto = leerFoto(b[campo]);
+    if (foto === 'grande') return json({ error: `La foto ${nombre} pesa más de 7 MB. Bájale el tamaño.` }, 413);
+    if (!foto) return json({ error: `La foto ${nombre} no se entiende. Debe ser JPG, PNG o WEBP.` }, 400);
+    fotos[clave] = foto;
+  }
+  if (fotos.fin && !fotos.inicio) {
+    return json({ error: 'Para poner la foto final hace falta también la de inicio: Veo va de una a la otra.' }, 400);
+  }
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
   // escena + cámara + frase + reglas + acabado) ronda los 1200 a 2000. Veo
@@ -629,7 +692,7 @@ export async function crearJob(request, env, session) {
 
   try {
     if (cat.proveedor === 'google') {
-      const r = await googleFetch(env, urlArranque(env, cat), cuerpoGoogle(env, cat, prompt, aspect, seconds));
+      const r = await googleFetch(env, urlArranque(env, cat), cuerpoGoogle(env, cat, prompt, aspect, seconds, null, fotos));
       const operacion = r.data && r.data.name;
       if (!r.res.ok || !operacion) {
         const msg = (r.data && r.data.error && (r.data.error.message || r.data.error.status)) || `Google respondió ${r.res.status}`;
