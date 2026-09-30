@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609301042';
-import { icon } from '../shell/icons.js?v=202609301042';
-import { T } from '../shell/i18n.js?v=202609301042';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301042';
+import { api, el, clear, toast } from '../api.js?v=202609301106';
+import { icon } from '../shell/icons.js?v=202609301106';
+import { T } from '../shell/i18n.js?v=202609301106';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301106';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609301042';
+import { moderarComentario } from '../shell/moderacion.js?v=202609301106';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609301042';
+import { errorCard } from '../ui/states.js?v=202609301106';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609301042';
+} from '../lib/video-upload.js?v=202609301106';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609301042';
+  link.href = '/marketing/css/entregables.css?v=202609301106';
   document.head.appendChild(link);
 }
 
@@ -355,25 +355,41 @@ const SIN_DUDA = 2.6;
 
 async function esTiraDeVideo(file, m) {
   if (!m || !m.w || !m.h) return 0;
-  if (m.w / m.h < 1.5) return 0;                 // ni de lejos una tira
+  const prop = m.w / m.h;
+  if (prop < 1.5) return 0;                      // ni de lejos una tira
   const n = numSlidesDeTira(m.w, m.h);
   if (n < 2) return 0;
-  const cuadro = await cuadroDeTira(file, 200);  // chico: solo se miden columnas
-  if (!cuadro) return 0;
-  try {
-    const bmp = await createImageBitmap(cuadro);
-    const cv = document.createElement('canvas');
-    cv.width = bmp.width; cv.height = bmp.height;
-    cv.getContext('2d').drawImage(bmp, 0, 0);
-    return costuraFuerte(cv, n) >= COSTURA_MIN ? n : 0;
-  } catch { return 0; }
+  // Más ancho que 2.6:1 NO se mira el contenido: ningún video de verdad tiene
+  // esa forma. Y hace falta que sea así: una tira real de Vianey (5400×1350,
+  // proporción 4.0) tenía los 4 slides de la derecha en BLANCO en el segundo
+  // 0.6 — las costuras daban 0.00 y se habría subido como reel otra vez.
+  if (prop >= SIN_DUDA) return n;
+  // Zona dudosa (ahí vive el 16:9): se mira el contenido, y en VARIOS cuadros,
+  // porque uno solo puede caer en un fundido o en una pantalla plana. Se queda
+  // con el MEJOR: basta que en algún momento se vean las costuras.
+  let mejor = 0;
+  for (const t of [0.25, 0.5, 0.75]) {
+    // eslint-disable-next-line no-await-in-loop
+    const cuadro = await cuadroDeTira(file, 200, t);
+    if (!cuadro) continue;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const bmp = await createImageBitmap(cuadro);
+      const cv = document.createElement('canvas');
+      cv.width = bmp.width; cv.height = bmp.height;
+      cv.getContext('2d').drawImage(bmp, 0, 0);
+      mejor = Math.max(mejor, costuraFuerte(cv, n));
+      if (mejor >= COSTURA_MIN) break;
+    } catch { /* ese cuadro no se pudo leer: se prueba el siguiente */ }
+  }
+  return mejor >= COSTURA_MIN ? n : 0;
 }
 
 // La tira que ve el cliente: UN cuadro completo del video, a lo ancho entero.
 // generatePoster topa el lado largo en 720 px, que en una tira de 7 slides deja
 // cuadros de 100 px, ilegibles. Aquí manda el ALTO para que cada slide salga con
 // ancho de sobra, y el ancho se topa en 8000 como en subirTira.
-function cuadroDeTira(file, alto = 900) {
+function cuadroDeTira(file, alto = 900, punto = null) {
   return new Promise((resolve) => {
     let listo = false; let url;
     const fin = (v) => { if (listo) return; listo = true; try { URL.revokeObjectURL(url); } catch { /* noop */ } resolve(v); };
@@ -382,7 +398,11 @@ function cuadroDeTira(file, alto = 900) {
       url = URL.createObjectURL(file);
       v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
       // Cuadro temprano pero no el 0: muchas tiras abren en negro.
-      v.onloadeddata = () => { const t = Math.min(0.6, (v.duration || 1) / 3); try { v.currentTime = (isFinite(t) && t > 0) ? t : 0; } catch { fin(null); } };
+      v.onloadeddata = () => {
+        const dur = isFinite(v.duration) && v.duration > 0 ? v.duration : 1;
+        const t = punto == null ? Math.min(0.6, dur / 3) : dur * punto;
+        try { v.currentTime = (isFinite(t) && t > 0) ? Math.min(t, Math.max(0, dur - 0.05)) : 0; } catch { fin(null); }
+      };
       v.onseeked = () => {
         try {
           const w = v.videoWidth, h = v.videoHeight;
@@ -413,7 +433,9 @@ async function subirTiraDeVideo(file, m, qinfo) {
   try {
     creado = await api.post('/deliverables', { client_id: client.id, month, type: 'carrusel', title: null });
     await multipartUpload(api, `/deliverables/${creado.id}/video`, file, (pp) => { uploadPct = pp; updateProgressUI(); });
-    const tira = await cuadroDeTira(file);
+    // Cuadro tardío a propósito: en una tira animada los slides de la derecha
+    // aparecen después, y un cuadro del arranque dejaría la tira medio en blanco.
+    const tira = (await cuadroDeTira(file, 900, 0.85)) || (await cuadroDeTira(file));
     if (!tira) throw new Error(T('No se pudo sacar la tira del video.', 'Could not extract the strip from the video.'));
     const fd = new FormData(); fd.append('poster', tira, 'tira.jpg');
     const r = await fetch(`/api/marketing/deliverables/${creado.id}/poster`, { method: 'POST', credentials: 'same-origin', body: fd });
@@ -2451,10 +2473,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609301042');
+        const mod = await import('../lib/pdf-entregables.js?v=202609301106');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301042');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301106');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

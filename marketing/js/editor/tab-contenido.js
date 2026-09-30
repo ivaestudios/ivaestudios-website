@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609301042';
-import { pickFrom } from '../shell/sheet.js?v=202609301042';
-import * as store from '../shell/store.js?v=202609301042';
-import * as checklistService from '../services/checklist.js?v=202609301042';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609301042';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609301042';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609301042';
-import { T } from '../shell/i18n.js?v=202609301042';
+} from '../api.js?v=202609301106';
+import { pickFrom } from '../shell/sheet.js?v=202609301106';
+import * as store from '../shell/store.js?v=202609301106';
+import * as checklistService from '../services/checklist.js?v=202609301106';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609301106';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609301106';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609301106';
+import { T } from '../shell/i18n.js?v=202609301106';
 
 export function mount(host, ed) {
   const { ctx } = ed;

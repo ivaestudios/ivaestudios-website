@@ -7,13 +7,13 @@
 // - Navegacion: chevrons + swipe horizontal (umbral 48px).
 // ============================================================================
 
-import { el } from '../api.js?v=202609301042';
-import { T } from '../shell/i18n.js?v=202609301042';
+import { el } from '../api.js?v=202609301106';
+import { T } from '../shell/i18n.js?v=202609301106';
 import {
   fmtYMD, addMonths, startOfMonth, monthMatrix,
   sameMonth, monthTitle, dayLong, todayYMD, statusInfo, DOW_MIN,
-} from './data.js?v=202609301042';
-import { markDropTarget } from './dnd.js?v=202609301042';
+} from './data.js?v=202609301106';
+import { markDropTarget } from './dnd.js?v=202609301106';
 
 // Titulos visibles por dia en el mini-mes (estilo iPhone). El resto se resume
 // en un "+N"; el dia completo se ve al tocarlo (agenda de abajo).
