@@ -12,11 +12,15 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609301214';
-import { icon } from '../shell/icons.js?v=202609301214';
-import { T } from '../shell/i18n.js?v=202609301214';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202609301214';
-import * as prefs from '../shell/prefs.js?v=202609301214';
+import { el, clear, toast } from '../api.js?v=202609301257';
+import { icon } from '../shell/icons.js?v=202609301257';
+import { T } from '../shell/i18n.js?v=202609301257';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202609301257';
+import * as prefs from '../shell/prefs.js?v=202609301257';
+import {
+  esArchivoDeVideo, grupoDePaginasVideo, cargarVideo, playThrough, analizarPagina,
+  slidesRealesDe, huecosDe, zoomSrc, cortarWebCodecs, armarZip,
+} from '../lib/cortador-video.js?v=202609301257';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -135,67 +139,6 @@ function download(blob, name) {
 
 // ── ZIP (método STORE, sin compresión — el contenido ya viene comprimido) ────
 
-const CRC_TABLE = (() => {
-  const t = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    t[i] = c >>> 0;
-  }
-  return t;
-})();
-
-function crc32(u8) {
-  let c = 0xFFFFFFFF;
-  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
-  return (c ^ 0xFFFFFFFF) >>> 0;
-}
-
-async function buildZip(entries) {
-  const enc = new TextEncoder();
-  const parts = [];
-  const central = [];
-  let offset = 0;
-  let cdSize = 0;
-  for (const e of entries) {
-    const data = new Uint8Array(await e.blob.arrayBuffer());
-    const name = enc.encode(e.name);
-    const crc = crc32(data);
-    const lh = new DataView(new ArrayBuffer(30));
-    lh.setUint32(0, 0x04034b50, true);
-    lh.setUint16(4, 20, true);
-    lh.setUint16(6, 0x0800, true);
-    lh.setUint16(8, 0, true);
-    lh.setUint32(14, crc, true);
-    lh.setUint32(18, data.length, true);
-    lh.setUint32(22, data.length, true);
-    lh.setUint16(26, name.length, true);
-    parts.push(new Uint8Array(lh.buffer), name, data);
-
-    const ch = new DataView(new ArrayBuffer(46));
-    ch.setUint32(0, 0x02014b50, true);
-    ch.setUint16(4, 20, true);
-    ch.setUint16(6, 20, true);
-    ch.setUint16(8, 0x0800, true);
-    ch.setUint16(10, 0, true);
-    ch.setUint32(16, crc, true);
-    ch.setUint32(20, data.length, true);
-    ch.setUint32(24, data.length, true);
-    ch.setUint16(28, name.length, true);
-    ch.setUint32(42, offset, true);
-    central.push(new Uint8Array(ch.buffer), name);
-    cdSize += 46 + name.length;
-    offset += 30 + name.length + data.length;
-  }
-  const end = new DataView(new ArrayBuffer(22));
-  end.setUint32(0, 0x06054b50, true);
-  end.setUint16(8, entries.length, true);
-  end.setUint16(10, entries.length, true);
-  end.setUint32(12, cdSize, true);
-  end.setUint32(16, offset, true);
-  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
-}
-
 // ── Corte de IMAGEN ──────────────────────────────────────────────────────────
 
 // Corta UNA tira.
@@ -298,7 +241,7 @@ async function downloadZip() {
     return;
   }
   try {
-    const zip = await buildZip(entries);
+    const zip = await armarZip(entries);
     const nombre = tiras.length === 1 ? `${tiras[0].name}-slides.zip` : `carruseles-${tiras.length}-tiras.zip`;
     download(zip, nombre);
     toast(T(`ZIP con ${entries.length} slides de ${tiras.length} ${tiras.length === 1 ? 'tira' : 'tiras'} descargado.`,
@@ -371,42 +314,6 @@ function pickVideoMime() {
 const fmtDur = (s) => `${(Math.round(s * 10) / 10).toFixed(1)}s`;
 
 // ── VIDEO · archivos y páginas ───────────────────────────────────────────────
-const esArchivoDeVideo = (f) => /^video\//i.test((f && f.type) || '') || /\.(mp4|mov|webm|m4v|3gp)$/i.test((f && f.name) || '');
-
-// Agrupa los archivos por nombre base (misma regla que Entregables con las
-// imágenes): "X.mp4" + "X (2).mp4" (duplicado del navegador) y "X-1.mp4" +
-// "X-2.mp4" (páginas numeradas) son páginas de UN carrusel. "X 1.mp4" con
-// ESPACIO es otro diseño a propósito. Un mismo peso dentro del grupo = el mismo
-// archivo bajado dos veces: entra una sola vez.
-function grupoDePaginasVideo(files) {
-  const grupos = new Map();
-  for (const f of files) {
-    const sinExt = String(f.name || '').normalize('NFC').replace(/\.[a-z0-9]+$/i, '');
-    const dup = sinExt.match(/^(.+?) \((\d{1,3})\)$/);
-    const cuerpo = dup ? dup[1] : sinExt;
-    let base, pag;
-    const m = cuerpo.match(/^(.+)[-_](\d{1,3})$/);
-    if (m) { base = m[1].trim().toLowerCase(); pag = Number(m[2]); }
-    else { base = cuerpo.trim().toLowerCase(); pag = dup ? Number(dup[2]) + 1 : 1; }
-    if (!grupos.has(base)) grupos.set(base, []);
-    grupos.get(base).push({ f, pag });
-  }
-  return [...grupos.values()].map((arr) => {
-    const pesos = new Set();
-    const unicos = arr.filter((x) => { if (pesos.has(x.f.size)) return false; pesos.add(x.f.size); return true; });
-    return unicos.sort((a, b) => a.pag - b.pag).map((x) => x.f);
-  });
-}
-
-function cargarVideo(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const v = document.createElement('video');
-    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
-    v.onloadedmetadata = () => resolve({ video: v, url, dur: (v.duration && isFinite(v.duration)) ? v.duration : 0 });
-    v.onerror = () => { try { URL.revokeObjectURL(url); } catch { /* noop */ } reject(new Error('lectura')); };
-  });
-}
 
 // Las pasadas de video (medir, cortar) van UNA tras otra aunque ella suelte
 // varias tiras de golpe: dos videos reproduciéndose a la vez se roban cuadros.
@@ -457,66 +364,6 @@ async function acceptVideoFiles(fileList) {
 }
 
 // ── VIDEO · medir cada slide ─────────────────────────────────────────────────
-// Reproduce la página UNA vez (muda) y, cuadro a cuadro, mide dos cosas por
-// slide: (1) cuándo fue su ÚLTIMO cambio, para recortar la cola congelada, y
-// (2) cuánto CONTENIDO llegó a tener (energía de bordes, como esSlideBlanco en
-// Entregables). Un slide que nunca muestra bordes es un HUECO del export: se
-// marca y el corte lo salta, así el carrusel de 6 que venía en 5 + 1 no sale
-// con cuatro videos en blanco.
-function analyzePagina(pg, token, onProg) {
-  const v = pg.video;
-  const cols2 = pg.cols, rows2 = pg.rows, n = cols2 * rows2;
-  const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
-  const DW = 32, DH = 40, CHANGE = 10, BORDE = 14;
-  const mc = document.createElement('canvas'); mc.width = DW; mc.height = DH;
-  const mg = mc.getContext('2d', { willReadFrequently: true });
-  const prev = new Array(n).fill(null);
-  const lastChange = new Array(n).fill(0);
-  const anyChange = new Array(n).fill(false);
-  const maxBordes = new Array(n).fill(0);
-  // Se muestrea el INTERIOR del slide (10 % / 6 % de orilla fuera): el vecino
-  // sangra unos px al cortar y ese filo no es contenido.
-  const mx = sw * 0.10, my = sh * 0.06;
-  const lum = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
-
-  const sample = () => {
-    const t = v.currentTime;
-    for (let idx = 0; idx < n; idx++) {
-      const c = idx % cols2, r = Math.floor(idx / cols2);
-      mg.drawImage(v, c * sw + mx, r * sh + my, sw - 2 * mx, sh - 2 * my, 0, 0, DW, DH);
-      const data = mg.getImageData(0, 0, DW, DH).data;
-      const p = prev[idx];
-      if (p) {
-        let diff = 0;
-        for (let k = 0; k < data.length; k += 4) diff += Math.abs(data[k] - p[k]) + Math.abs(data[k + 1] - p[k + 1]) + Math.abs(data[k + 2] - p[k + 2]);
-        diff /= (DW * DH * 3);
-        if (diff > CHANGE) { lastChange[idx] = t; anyChange[idx] = true; }
-      }
-      let bordes = 0, tot = 0;
-      for (let y = 0; y < DH - 1; y++) {
-        for (let x = 0; x < DW - 1; x++) {
-          const i = (y * DW + x) * 4;
-          if (Math.max(Math.abs(lum(data, i) - lum(data, i + 4)), Math.abs(lum(data, i) - lum(data, i + DW * 4))) > BORDE) bordes++;
-          tot++;
-        }
-      }
-      maxBordes[idx] = Math.max(maxBordes[idx], bordes / tot);
-      prev[idx] = data;
-    }
-    if (onProg) onProg(pg.dur ? Math.min(1, t / pg.dur) : 0);
-  };
-
-  return playThrough(v, sample, token).then(() => {
-    if (token !== vtoken) return;
-    pg.durations = lastChange.map((lc, idx) => {
-      if (!anyChange[idx]) return pg.dur || 1;
-      return Math.max(1, Math.min(pg.dur || lc + 0.2, lc + 0.2));
-    });
-    // <0.4 % de pixeles con borde en TODA la reproducción = nunca hubo nada.
-    pg.blancos = maxBordes.map((b) => b < 0.004);
-  });
-}
-
 async function analyzeTira(t) {
   if (!vTiraDe(t.id)) return;
   const token = ++vtoken; t.token = token;
@@ -525,65 +372,12 @@ async function analyzeTira(t) {
   for (const pg of t.paginas) {
     if (token !== vtoken) return;
     // eslint-disable-next-line no-await-in-loop
-    await analyzePagina(pg, token, (p) => { t.progress = (hechas + p) / t.paginas.length; updateVProgress(t); });
+    await analizarPagina(pg, () => token === vtoken, (p) => { t.progress = (hechas + p) / t.paginas.length; updateVProgress(t); });
     hechas += 1;
   }
   if (token !== vtoken) return;
   t.phase = 'listo'; t.progress = 0; render();
 }
-
-// Slides REALES de una tira (sin huecos), en orden, con su página y su índice.
-function slidesRealesDe(t) {
-  const out = [];
-  for (const pg of t.paginas) {
-    const n = pg.cols * pg.rows;
-    for (let idx = 0; idx < n; idx++) if (!(pg.blancos && pg.blancos[idx])) out.push({ pg, idx });
-  }
-  return out;
-}
-const huecosDe = (t) => t.paginas.reduce((a, pg) => a + (pg.blancos || []).filter(Boolean).length, 0);
-
-// Reproduce el video 0→(fin o pausa) llamando onFrame(meta) en cada cuadro.
-// meta.mediaTime = tiempo REAL del cuadro en la línea del video (no del reloj):
-// clave para que el corte con WebCodecs salga a velocidad correcta en cualquier
-// compu. onFrame puede pausar el video para terminar antes (recorte por slide).
-function playThrough(v, onFrame, token) {
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = () => { if (done) return; done = true; try { v.pause(); } catch { /* noop */ } resolve(); };
-    const useRVFC = 'requestVideoFrameCallback' in v;
-    let iv = null;
-    const step = (now, metadata) => {
-      if (token !== vtoken) { finish(); return; }
-      onFrame(metadata);
-      // onFrame puede haber pausado (recorte): terminar en cuanto pare o acabe.
-      if (v.ended || v.paused) { finish(); return; }
-      if (useRVFC) v.requestVideoFrameCallback(step);
-    };
-    v.onended = finish;
-    const begin = () => {
-      if (token !== vtoken) { finish(); return; }
-      v.play().then(() => {
-        if (token !== vtoken) { finish(); return; }
-        if (useRVFC) v.requestVideoFrameCallback(step);
-        else iv = setInterval(() => {
-          if (token !== vtoken || v.ended || v.paused) { clearInterval(iv); finish(); return; }
-          onFrame({ mediaTime: v.currentTime });
-        }, 1000 / 30);
-      }).catch(() => { if (iv) clearInterval(iv); finish(); });
-    };
-    // Regresa al inicio y ESPERA a que el cuadro esté decodificado antes de
-    // grabar: si arrancamos durante el reposicionamiento, el primer cuadro sale
-    // NEGRO. Con esto el primer cuadro grabado ya es contenido real.
-    if (v.currentTime <= 0.02 && v.readyState >= 2) { begin(); return; }
-    let seeked = false;
-    const onSeeked = () => { if (seeked) return; seeked = true; v.removeEventListener('seeked', onSeeked); begin(); };
-    v.addEventListener('seeked', onSeeked);
-    try { v.currentTime = 0; } catch { onSeeked(); }
-    setTimeout(onSeeked, 700); // salvavidas si 'seeked' no dispara
-  });
-}
-
 
 // Router del corte: WebCodecs (independiente de la compu) si está disponible;
 // si no, o si falla, cae al respaldo con MediaRecorder.
@@ -608,178 +402,22 @@ function cutTodasLasTirasVideo() {
   }
 }
 
-// Decodifica el audio de la tira UNA vez (rápido, no en tiempo real). Devuelve
-// un AudioBuffer, o null si el video no tiene audio o el navegador no puede.
-async function decodeAudioSafe(file) {
-  if (!file || typeof window.AudioEncoder === 'undefined' || typeof window.AudioData === 'undefined') return null;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return null;
-  let ctx = null;
-  try {
-    const buf = await file.arrayBuffer();
-    ctx = new AC();
-    const audio = await ctx.decodeAudioData(buf.slice(0));
-    return (audio && audio.length > 0) ? audio : null;
-  } catch { return null; }
-  finally { if (ctx) { try { ctx.close(); } catch { /* noop */ } } }
-}
-
-// Codifica en AAC el tramo [0, dur] del audio y lo mete al muxer del slide.
-async function encodeAudioForSlide(audioBuf, dur, muxer) {
-  const sr = audioBuf.sampleRate, ch = Math.max(1, audioBuf.numberOfChannels);
-  const total = Math.min(audioBuf.length, Math.floor(dur * sr));
-  if (total <= 0) return;
-  const chans = [];
-  for (let c = 0; c < ch; c++) chans.push(audioBuf.getChannelData(c));
-  let aerr = null;
-  const aenc = new window.AudioEncoder({
-    output: (chunk, meta) => { try { muxer.addAudioChunk(chunk, meta); } catch (e) { aerr = e; } },
-    error: (e) => { aerr = e; },
-  });
-  aenc.configure({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: ch, bitrate: 128_000 });
-  const BLK = 4096;
-  for (let off = 0; off < total; off += BLK) {
-    const nf = Math.min(BLK, total - off);
-    const data = new Float32Array(nf * ch); // planar: [ch0…, ch1…]
-    for (let c = 0; c < ch; c++) data.set(chans[c].subarray(off, off + nf), c * nf);
-    const ad = new window.AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: nf, numberOfChannels: ch, timestamp: Math.round(off / sr * 1e6), data });
-    aenc.encode(ad); ad.close();
-  }
-  await aenc.flush(); aenc.close();
-  if (aerr) throw aerr;
-}
-
-// Codifica `dur` segundos de SILENCIO en AAC. Se usa cuando la tira es muda, para
-// que TODO slide salga con pista de audio: un MP4 sin audio es justo lo que hacía
-// que WhatsApp no lo pudiera descargar/compartir (los videos normales siempre
-// llevan audio). Con silencio, el video sale "normal" y se comparte sin error.
-async function encodeSilentAudio(dur, muxer, sr, ch) {
-  const total = Math.max(1, Math.floor(dur * sr));
-  let aerr = null;
-  const aenc = new window.AudioEncoder({
-    output: (chunk, meta) => { try { muxer.addAudioChunk(chunk, meta); } catch (e) { aerr = e; } },
-    error: (e) => { aerr = e; },
-  });
-  aenc.configure({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: ch, bitrate: 96_000 });
-  const BLK = 4096;
-  for (let off = 0; off < total; off += BLK) {
-    const nf = Math.min(BLK, total - off);
-    const data = new Float32Array(nf * ch); // ceros = silencio (planar)
-    const ad = new window.AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: nf, numberOfChannels: ch, timestamp: Math.round(off / sr * 1e6), data });
-    aenc.encode(ad); ad.close();
-  }
-  await aenc.flush(); aenc.close();
-  if (aerr) throw aerr;
-}
-
-
-// MÉTODO PRINCIPAL — WebCodecs: a cada cuadro le pone su TIEMPO REAL del video
-// (no el del reloj de pared). Aunque la compu vaya lenta y capture menos cuadros,
-// el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Conserva el
-// audio de su página (recortado por slide). Salida MP4. Los huecos se saltan y
-// los slides se numeran de corrido a través de las páginas.
+// MÉTODO PRINCIPAL — WebCodecs, con el motor compartido de lib/cortador-video.js
+// (el mismo que usa Entregables): velocidad correcta en cualquier compu, 30 fps
+// constantes, audio de su página (o silencio), mínimo 3 s por slide (Instagram)
+// y salida MP4 que WhatsApp e iPhone aceptan. Los huecos se saltan y los slides
+// se numeran de corrido a través de las páginas.
 async function cutTiraWebCodecs(t) {
   if (!vTiraDe(t.id)) return;
-  const reales = slidesRealesDe(t);
-  if (!reales.length) return;
+  if (!slidesRealesDe(t.paginas).length) return;
   const token = ++vtoken; t.token = token;
   t.phase = 'cortando'; t.progress = 0; freeVideoSlidesDe(t); render();
-
-  const { Muxer, ArrayBufferTarget } = await import('../../vendor/mp4-muxer.mjs?v=202609301214');
-
-  // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño (Main → Baseline;
-  // High solo de último recurso: daba error al compartir en algunos teléfonos).
-  const codecPara = async (w, h) => {
-    for (const cc of ['avc1.4d0028', 'avc1.42e028', 'avc1.4d0033', 'avc1.42e033', 'avc1.640028', 'avc1.42e01e']) {
-      try {
-        const r = await window.VideoEncoder.isConfigSupported({ codec: cc, width: w, height: h, bitrate: 10_000_000 });
-        if (r && r.supported) return cc;
-      } catch { /* noop */ }
-    }
-    return null;
-  };
-  const canAudio = typeof window.AudioEncoder !== 'undefined' && typeof window.AudioData !== 'undefined';
-  const audioPorPagina = new Map();
-
-  const out = [];
-  let k = 0;
-  for (const { pg, idx } of reales) {
-    if (token !== vtoken) return;
-    const v = pg.video;
-    const cols2 = pg.cols, rows2 = pg.rows;
-    const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
-    const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
-    // eslint-disable-next-line no-await-in-loop
-    const codec = await codecPara(sw2, sh2);
-    if (!codec) throw new Error(T('sin códec H.264 soportado', 'no supported H.264 codec'));
-    if (!audioPorPagina.has(pg)) {
-      // eslint-disable-next-line no-await-in-loop
-      audioPorPagina.set(pg, await decodeAudioSafe(pg.file));
-    }
-    const audioBuf = audioPorPagina.get(pg);
-    const hasAudio = !!audioBuf;
-    const aSr = hasAudio ? audioBuf.sampleRate : 44100;
-    const aCh = hasAudio ? Math.max(1, audioBuf.numberOfChannels) : 2;
-
-    const c = idx % cols2, r = Math.floor(idx / cols2);
-    const dur = Math.max(0.3, pg.durations[idx]);
-    const cv = document.createElement('canvas'); cv.width = sw2; cv.height = sh2;
-    const cx = cv.getContext('2d');
-    const muxerCfg = { target: new ArrayBufferTarget(), video: { codec: 'avc', width: sw2, height: sh2 }, fastStart: 'in-memory' };
-    if (canAudio) muxerCfg.audio = { codec: 'aac', numberOfChannels: aCh, sampleRate: aSr };
-    const muxer = new Muxer(muxerCfg);
-    let encErr = null;
-    const encoder = new window.VideoEncoder({
-      output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { encErr = e; } },
-      error: (e) => { encErr = e; },
-    });
-    encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, latencyMode: 'realtime', avc: { format: 'avc' } });
-
-    // 30 fps CONSTANTES: cada cuadro se ancla a la rejilla de 1/30 s según su
-    // tiempo REAL en el video. Velocidad correcta en cualquier compu y un
-    // frame-rate estable, que es lo que WhatsApp/iOS necesitan.
-    const FPS = 30, FDUR = Math.round(1e6 / FPS);
-    let lastIdx = -1, t0 = null, frames = 0;
-    const kk = k;
-    // eslint-disable-next-line no-await-in-loop
-    await playThrough(v, (meta) => {
-      const mt = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
-      if (mt > dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
-      if (t0 === null) t0 = mt;
-      const fidx = Math.round((mt - t0) * FPS);
-      if (fidx <= lastIdx) { t.progress = (kk + Math.min(1, mt / dur)) / reales.length; updateVProgress(t); return; }
-      lastIdx = fidx;
-      const z = zoomSrc(c * sw, r * sh, sw, sh, t.zoom);
-      cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw2, sh2);
-      try {
-        const vf = new window.VideoFrame(cv, { timestamp: fidx * FDUR, duration: FDUR });
-        encoder.encode(vf, { keyFrame: frames % 30 === 0 });
-        vf.close();
-        frames += 1;
-      } catch (e) { encErr = e; try { v.pause(); } catch { /* noop */ } }
-      t.progress = (kk + Math.min(1, mt / dur)) / reales.length;
-      updateVProgress(t);
-    }, token);
-
-    if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
-    if (!frames) throw new Error(T('no se capturó ningún cuadro', 'no frames were captured'));
-    // eslint-disable-next-line no-await-in-loop
-    await encoder.flush();
-    encoder.close();
-    if (canAudio) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        if (hasAudio) await encodeAudioForSlide(audioBuf, dur, muxer);
-        // eslint-disable-next-line no-await-in-loop
-        else await encodeSilentAudio(dur, muxer, aSr, aCh);
-      } catch (e) { console.error('[carrusel] audio slide', e && e.message); }
-    }
-    muxer.finalize();
-    out.push({ blob: new Blob([muxer.target.buffer], { type: 'video/mp4' }), duration: dur });
-    k += 1;
-  }
-  if (token !== vtoken) return;
-
+  const out = await cortarWebCodecs({
+    paginas: t.paginas, zoom: t.zoom,
+    sigueVivo: () => token === vtoken,
+    onProgress: (p) => { t.progress = p; updateVProgress(t); },
+  });
+  if (token !== vtoken || !out) return;
   freeVideoSlidesDe(t);
   t.slides = out.map((o, i) => ({
     blob: o.blob, url: URL.createObjectURL(o.blob),
@@ -794,7 +432,7 @@ async function cutTiraWebCodecs(t) {
 // navegador no tiene WebCodecs (Safari viejo).
 async function cutTiraMediaRecorder(t) {
   if (!vTiraDe(t.id)) return;
-  const reales = slidesRealesDe(t);
+  const reales = slidesRealesDe(t.paginas);
   if (!reales.length) return;
   const token = ++vtoken; t.token = token;
   t.phase = 'cortando'; t.progress = 0; freeVideoSlidesDe(t); render();
@@ -847,7 +485,7 @@ async function cutTiraMediaRecorder(t) {
       }
       t.progress = (kk + (dur ? Math.min(1, tt / dur) : 1)) / reales.length;
       updateVProgress(t);
-    }, token);
+    }, () => token === vtoken);
     if (started && !stopped) { try { rec.stop(); } catch { /* noop */ } }
     // eslint-disable-next-line no-await-in-loop
     out.push({ blob: started ? await done : new Blob([], { type: mime || 'video/webm' }), duration: dur });
@@ -893,7 +531,7 @@ async function downloadVideoZip() {
     return;
   }
   try {
-    const zip = await buildZip(entries);
+    const zip = await armarZip(entries);
     download(zip, varias ? 'carruseles-videos.zip' : `${conSlides[0].name}-videos.zip`);
     toast(T(`ZIP con ${total} videos descargado.`, `ZIP with ${total} videos downloaded.`), 'success');
   } catch (e) {
@@ -943,12 +581,6 @@ function stepper(label, get, set, min, max, onChange, step = 1, fmtVal = (x) => 
 // Región fuente para aplicar ZOOM: recorta un margen centrado de la celda del
 // slide y lo escala a tamaño completo → hace desaparecer la "línea" del slide
 // de al lado cuando la tira no venía perfectamente encuadrada. z en % (100=sin).
-function zoomSrc(baseX, baseY, w, h, zPct) {
-  const z = Math.max(1, (zPct || 100) / 100);
-  const zw = w / z, zh = h / z;
-  return { sx: baseX + (w - zw) / 2, sy: baseY + (h - zh) / 2, sw: zw, sh: zh };
-}
-
 function gridLinesFor(c, r) {
   const lines = [];
   for (let i = 1; i < c; i++) lines.push(el('span', { class: 'car-line car-line--v', style: `left:${(i / c) * 100}%` }));
@@ -975,7 +607,7 @@ function render() {
   rootEl.appendChild(modeToggle());
 
   if (mode === 'img') renderImg();
-  else if (mode === 'gen') { const host = el('div'); rootEl.appendChild(host); renderGen(host, { canvasToBlob, buildZip, download }); }
+  else if (mode === 'gen') { const host = el('div'); rootEl.appendChild(host); renderGen(host, { canvasToBlob, buildZip: armarZip, download }); }
   else renderVideo();
 }
 
@@ -1129,11 +761,11 @@ function renderVideo() {
 
   // ── Barra global ─────────────────────────────────────────────────────────
   const listas = vtiras.filter((t) => t.phase === 'listo');
-  const porCortar = listas.filter((t) => !t.slides.length && slidesRealesDe(t).length);
+  const porCortar = listas.filter((t) => !t.slides.length && slidesRealesDe(t.paginas).length);
   const cortadas = vtiras.filter((t) => t.slides.length);
   const totalCortados = cortadas.reduce((a, t) => a + t.slides.length, 0);
-  const totalReales = vtiras.reduce((a, t) => a + slidesRealesDe(t).length, 0);
-  const totalHuecos = vtiras.reduce((a, t) => a + huecosDe(t), 0);
+  const totalReales = vtiras.reduce((a, t) => a + slidesRealesDe(t.paginas).length, 0);
+  const totalHuecos = vtiras.reduce((a, t) => a + huecosDe(t.paginas), 0);
   const zipSeg = vtiras.length > 1 ? el('div', { class: 'car-step' }, [
     el('span', { class: 'car-step__lbl', text: T('En el ZIP', 'In the ZIP') }),
     el('div', { class: 'car-step__ctrl car-step__ctrl--seg' }, [
@@ -1174,8 +806,8 @@ function renderVideo() {
   // ── Una tarjeta por tira ─────────────────────────────────────────────────
   for (const t of vtiras) {
     const busy = t.phase === 'cargando' || t.phase === 'analizando' || t.phase === 'cortando';
-    const reales = slidesRealesDe(t).length;
-    const huecos = huecosDe(t);
+    const reales = slidesRealesDe(t.paginas).length;
+    const huecos = huecosDe(t.paginas);
     const pg0 = t.paginas[0];
     const sw = pg0 ? Math.floor(pg0.video.videoWidth / pg0.cols) : 0;
     const sh = pg0 ? Math.floor(pg0.video.videoHeight / pg0.rows) : 0;
@@ -1237,7 +869,7 @@ function renderVideo() {
           el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: () => enColaVideo(() => cutTiraVideo(t)) }, [
             icon('gantt', 16), ` ${T('Cortar en', 'Cut into')} ${reales} videos`,
           ]),
-          el('span', { class: 'car-hint', text: T('Cada slide se recorta a su duración real y conserva el audio. Salen en MP4, alta calidad.', 'Each slide is trimmed to its real duration and keeps the audio. They come out as high-quality MP4.') }),
+          el('span', { class: 'car-hint', text: T('Cada slide se recorta a su duración real (mínimo 3 s, lo que pide Instagram) y conserva el audio. Salen en MP4, alta calidad.', 'Each slide is trimmed to its real duration (3 s minimum, as Instagram requires) and keeps the audio. They come out as high-quality MP4.') }),
         ]));
       } else {
         card.appendChild(el('div', { class: 'car-warn' }, [el('strong', { text: T('Este video viene vacío: no hay nada que cortar.', 'This video is blank: nothing to cut.') })]));
@@ -1290,6 +922,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202609301214';
+  link.href = '/marketing/css/carrusel.css?v=202609301257';
   document.head.appendChild(link);
 }

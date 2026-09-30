@@ -6,19 +6,23 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609301214';
-import { icon } from '../shell/icons.js?v=202609301214';
-import { T } from '../shell/i18n.js?v=202609301214';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301214';
+import { api, el, clear, toast } from '../api.js?v=202609301257';
+import { icon } from '../shell/icons.js?v=202609301257';
+import { T } from '../shell/i18n.js?v=202609301257';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202609301257';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202609301214';
+import { moderarComentario } from '../shell/moderacion.js?v=202609301257';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609301214';
+import { errorCard } from '../ui/states.js?v=202609301257';
+import {
+  tieneWebCodecs, cargarVideo, soltarPagina, analizarPagina, slidesRealesDe,
+  cortarWebCodecs, cuadroDeSlides, armarZip, MAX_SLIDES,
+} from '../lib/cortador-video.js?v=202609301257';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609301214';
+} from '../lib/video-upload.js?v=202609301257';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -37,6 +41,8 @@ let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 let queueInfo = null;       // { index, total } al subir varios reels en fila
+let progressNote = '';      // texto de la barra cuando NO es una subida a secas ("Cortando…")
+let cutPreview = [];        // <video>s de la tira que se está cortando (se ven en la zona de subida)
 let swapId = null;          // id del entregable al que se le está CAMBIANDO el video
 let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldoras)
 let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
@@ -192,7 +198,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202609301214';
+  link.href = '/marketing/css/entregables.css?v=202609301257';
   document.head.appendChild(link);
 }
 
@@ -255,7 +261,9 @@ function updateProgressUI() {
   if (!progressEls) return;
   progressEls.fill.style.width = uploadPct + '%';
   const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-  progressEls.label.textContent = uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%`;
+  progressEls.label.textContent = progressNote
+    ? `${q}${progressNote} ${uploadPct}%`
+    : (uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%`);
 }
 
 // Captura un cuadro del video (en el cliente) como miniatura JPEG. Best-effort:
@@ -509,13 +517,21 @@ async function enqueueReels(fileList) {
   const tirasV = vids.filter((f, i) => cuantos[i] >= 2);
   const reels = vids.filter((f, i) => cuantos[i] < 2);
   if (tirasV.length) {
-    const nPrimera = cuantos[vids.indexOf(tirasV[0])];
+    // Un carrusel puede venir en dos archivos ("X" y "X (2)", misma regla que
+    // las imágenes): se juntan y se cortan en sus N videos de slide.
+    const grupos = grupoDePaginas(tirasV);
     toast(T(
-      tirasV.length === 1 ? `Ese video es una tira de ${nPrimera} slides: entra como carrusel.` : `${tirasV.length} videos son tiras de carrusel: entran como carruseles.`,
-      tirasV.length === 1 ? `That video is a ${nPrimera}-slide strip: it goes in as a carousel.` : `${tirasV.length} videos are carousel strips: they go in as carousels.`), 'info', 6000);
-    for (const t of tirasV) {
+      grupos.length === 1
+        ? `${tirasV.length === 1 ? 'Ese video es una tira de carrusel' : `${tirasV.length} archivos son una sola tira de carrusel`}: se corta en sus slides y entra como carrusel de video.`
+        : `${grupos.length} carruseles de video: se cortan en sus slides y entran como carruseles.`,
+      grupos.length === 1
+        ? `${tirasV.length === 1 ? 'That video is a carousel strip' : `${tirasV.length} files are one carousel strip`}: it gets cut into its slides and goes in as a video carousel.`
+        : `${grupos.length} video carousels: cut into their slides and added as carousels.`), 'info', 7000);
+    let i = 0;
+    for (const grupo of grupos) {
+      i += 1;
       // eslint-disable-next-line no-await-in-loop
-      await subirTiraDeVideo(t, null, { index: tirasV.indexOf(t) + 1, total: tirasV.length });
+      await subirCarruselDeVideo(grupo, { index: i, total: grupos.length });
     }
     await load();
   }
@@ -1285,6 +1301,37 @@ function pintarVideoEn(it, visor) {
   observarBucle(v);
 }
 
+// Carrusel de VIDEO en slides: sus N videos en fila, cada uno corriendo solo en
+// bucle (mudo; un toque prende el sonido de ESE slide y calla los demás), con el
+// chip "N slides" y el de sonido. Se cargan al entrar en pantalla (observarBucle
+// los arranca), no todos de golpe: siete videos por tarjeta en 4G pesan.
+function pintarSlidesVideoEn(it, visor) {
+  visor.dataset.modo = 'video';
+  clear(visor);
+  const urls = it.slide_urls;
+  const snd = el('span', { class: 'dlv-slides__snd', 'aria-hidden': 'true' }, [icon('mute', 13)]);
+  const vids = urls.map((src, i) => {
+    const v = el('video', {
+      class: 'dlv-slides__video dlv-slides__video--slide', src, preload: 'metadata',
+      loop: true, muted: true, playsinline: true,
+      'aria-label': T(`Slide ${i + 1} de ${urls.length}; toca para el sonido`, `Slide ${i + 1} of ${urls.length}; tap for sound`),
+    });
+    v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
+    v.disablePictureInPicture = true;
+    v.addEventListener('click', () => {
+      const prender = v.muted;
+      for (const o of vids) o.muted = true;
+      v.muted = !prender;
+      clear(snd); snd.appendChild(icon(v.muted ? 'mute' : 'volume', 13));
+      if (v.paused) v.play().catch(() => { /* noop */ });
+    });
+    return v;
+  });
+  for (const v of vids) { visor.appendChild(v); observarBucle(v); }
+  visor.appendChild(el('span', { class: 'dlv-slides__n', text: `${urls.length} slides` }));
+  visor.appendChild(snd);
+}
+
 const tiraCache = new Map();   // id|selloPoster -> Promise<string[]>
 function slidesDeTira(it) {
   // La clave incluye el sello ?v= del poster: al "Cambiar tira", el cliente
@@ -1315,6 +1362,112 @@ function slidesDeTira(it) {
   pr.catch(() => tiraCache.delete(key));
   tiraCache.set(key, pr);
   return pr;
+}
+
+// ── Carrusel de VIDEO → sus N videos de slide ────────────────────────────────
+// La tira del diseñador (los slides pegados en un video ancho, a veces en dos
+// archivos "X" y "X (2)") se mide y se CORTA aquí mismo, en el navegador, con el
+// mismo motor de Crear → Carrusel: un MP4 de 1080×1350 por slide (H.264 + AAC,
+// 30 fps, mínimo 3 s), sin huecos y numerado de corrido. Eso es lo que se guarda
+// y lo que el cliente descarga: videos listos para publicar. (Vianey, 30-sep-2026:
+// "tiene que quedar perfecto".) La tira de cuadros va de poster para el PDF y la
+// IA. Con `existente`, se REEMPLAZAN los slides de ese carrusel.
+async function subirCarruselDeVideo(grupo, qinfo, existente = null) {
+  const client = activeClient();
+  if (!client) return false;
+  if (!tieneWebCodecs()) {
+    // Sin WebCodecs (Safari viejo) no se puede cortar aquí: se sube la tira
+    // entera (camino viejo) y se avisa que desde Chrome sale en slides.
+    toast(T('Este navegador no puede cortar el video en slides: se sube la tira entera. Súbelo desde Chrome para que el cliente reciba cada slide como su propio video.', 'This browser can\'t cut the video into slides: the whole strip is uploaded. Upload it from Chrome so the client gets each slide as its own video.'), 'info', 9000);
+    if (existente) return false;
+    let ok = true;
+    for (const f of grupo) {
+      // eslint-disable-next-line no-await-in-loop
+      ok = (await subirTiraDeVideo(f, null, qinfo)) && ok;
+    }
+    return ok;
+  }
+  const month = existente ? existente.month : (addMonth || currentMonth());
+  const paginas = [];
+  let creado = null;
+  busy = true; uploadPct = 0; queueInfo = qinfo || null; progressNote = T('Leyendo el video…', 'Reading the video…'); cutPreview = []; render();
+  try {
+    for (const f of grupo) {
+      // eslint-disable-next-line no-await-in-loop
+      const { video, url, dur } = await cargarVideo(f);
+      const cols = numSlidesDeTira(video.videoWidth, video.videoHeight);
+      video.className = 'dlv-cut__vid';
+      paginas.push({ file: f, video, url, dur, cols, rows: 1, durations: [], blancos: [] });
+    }
+    cutPreview = paginas.map((pg) => pg.video); render();
+    progressNote = T('Midiendo los slides…', 'Measuring the slides…');
+    let hechas = 0;
+    for (const pg of paginas) {
+      // eslint-disable-next-line no-await-in-loop
+      await analizarPagina(pg, () => true, (p) => { uploadPct = Math.round(((hechas + p) / paginas.length) * 100); updateProgressUI(); });
+      hechas += 1;
+    }
+    const reales = slidesRealesDe(paginas);
+    if (!reales.length) throw new Error(T('Ese video viene en blanco: no hay slides que cortar.', 'That video is blank: there are no slides to cut.'));
+    if (reales.length > MAX_SLIDES) toast(T(`El carrusel trae ${reales.length} slides y el tope de Instagram es ${MAX_SLIDES}: entran los primeros ${MAX_SLIDES}.`, `The carousel has ${reales.length} slides and Instagram's cap is ${MAX_SLIDES}: the first ${MAX_SLIDES} go in.`), 'info', 9000);
+    progressNote = T('Cortando los slides…', 'Cutting the slides…'); uploadPct = 0; updateProgressUI();
+    const slides = await cortarWebCodecs({ paginas, zoom: 100, sigueVivo: () => true, onProgress: (p) => { uploadPct = Math.round(p * 100); updateProgressUI(); } });
+    if (!slides || !slides.length) throw new Error(T('No se pudieron cortar los slides.', 'The slides could not be cut.'));
+    creado = existente || await api.post('/deliverables', { client_id: client.id, month, type: 'carrusel', title: null });
+    for (let i = 0; i < slides.length; i++) {
+      progressNote = T(`Subiendo slide ${i + 1} de ${slides.length}…`, `Uploading slide ${i + 1} of ${slides.length}…`);
+      uploadPct = 0; updateProgressUI();
+      // eslint-disable-next-line no-await-in-loop
+      await subirSlide(creado.id, i + 1, slides[i].blob, (p) => { uploadPct = p; updateProgressUI(); });
+    }
+    progressNote = T('Guardando…', 'Saving…'); uploadPct = 100; updateProgressUI();
+    await api.post(`/deliverables/${creado.id}/slides`, { count: slides.length });
+    // La tira de cuadros (poster): el PDF y la IA la leen. Best-effort: los
+    // slides ya son el entregable.
+    try {
+      const tira = await cuadroDeSlides(paginas, 0.85, 900);
+      if (!tira) throw new Error('tira');
+      const fd = new FormData(); fd.append('poster', tira, 'tira.jpg');
+      const r = await fetch(`/api/marketing/deliverables/${creado.id}/poster`, { method: 'POST', credentials: 'same-origin', body: fd });
+      if (!r.ok) throw new Error('poster');
+    } catch {
+      toast(T('Los videos quedaron, pero la tira de cuadros para el PDF no se pudo guardar. Usa "Cambiar tira" con una imagen si la necesitas.', 'The videos are in, but the frame strip for the PDF could not be saved. Use "Replace strip" with an image if you need it.'), 'info', 8000);
+    }
+    for (const k of [...tiraCache.keys()]) if (String(k).startsWith(`${creado.id}|`)) tiraCache.delete(k);
+    toast(existente
+      ? T(`Carrusel actualizado: ${slides.length} videos ✓`, `Carousel updated: ${slides.length} videos ✓`)
+      : T(`Carrusel de video listo: ${slides.length} videos ✓`, `Video carousel ready: ${slides.length} videos ✓`), 'success');
+    activeMonthNav = month;
+    return true;
+  } catch (e) {
+    if (creado && creado.id && !existente) { try { await api.del(`/deliverables/${creado.id}`); } catch { /* cascarón: se borra a mano */ } }
+    toast((e && e.message) || T('No se pudo subir el carrusel de video', 'Could not upload the video carousel'), 'error', 8000);
+    return false;
+  } finally {
+    for (const pg of paginas) soltarPagina(pg);
+    cutPreview = [];
+    busy = false; uploadPct = 0; queueInfo = null; progressNote = ''; render();
+  }
+}
+
+// Sube UN slide (MP4 chico) con progreso y un reintento ante un corte de red.
+function subirSlide(id, n, blob, onProgress) {
+  const intento = () => new Promise((resolve, reject) => {
+    const fd = new FormData(); fd.append('video', blob, `slide-${String(n).padStart(2, '0')}.mp4`);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api/marketing/deliverables/${id}/slide/${n}`);
+    xhr.withCredentials = true;
+    xhr.upload.onprogress = (ev) => { if (ev.lengthComputable && onProgress) onProgress(Math.min(99, Math.round((ev.loaded / ev.total) * 100))); };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) { if (onProgress) onProgress(100); resolve(); return; }
+      let msg = '';
+      try { msg = (JSON.parse(xhr.responseText) || {}).error || ''; } catch { /* noop */ }
+      const err = new Error(msg || T(`No se pudo subir el slide ${n}`, `Could not upload slide ${n}`)); err.status = xhr.status; reject(err);
+    };
+    xhr.onerror = () => reject(new Error(T(`Se cortó la conexión subiendo el slide ${n}`, `Connection dropped while uploading slide ${n}`)));
+    xhr.send(fd);
+  });
+  return intento().catch((e) => { if (e && e.status >= 400 && e.status < 500) throw e; return intento(); });
 }
 
 // Descargar las FOTOS del carrusel (o el post de 1 slide) en calidad original.
@@ -1376,6 +1529,50 @@ async function descargarSlides(it, btn) {
     }
   }
   bajar(files);
+}
+
+// Descargar los N videos del carrusel: en el teléfono por Compartir ("Guardar N
+// videos" en Fotos), con el 2º toque si iOS caduca el gesto mientras se
+// preparan; en escritorio un ZIP con todos (como en Crear → Carrusel).
+async function descargarSlidesVideo(it, btn) {
+  const titulo = String(it.title || 'carrusel').replace(/[\r\n]+/g, ' ').trim() || 'carrusel';
+  const base = titulo.replace(/[^\wÀ-ſ .-]+/g, '').trim().replace(/\s+/g, '_') || 'carrusel';
+  const mobile = isMobileSave() && !!(navigator.canShare && navigator.share);
+  const label = btn ? btn.querySelector('span:not(.ico)') : null;
+  const setLabel = (t) => { if (label) label.textContent = t; };
+  const zipear = async (files) => blobDownload(new File([await armarZip(files.map((f) => ({ blob: f, name: f.name })))], `${base}-videos.zip`, { type: 'application/zip' }));
+  const cached = tiraDlCache.get(it.id);
+  if (cached) {
+    tiraDlCache.delete(it.id); setLabel(T('Descargar', 'Download'));
+    if (mobile && navigator.canShare({ files: cached })) {
+      try { await navigator.share({ files: cached, title: titulo }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    await zipear(cached);
+    return;
+  }
+  const urls = it.slide_urls || [];
+  const files = [];
+  for (let i = 0; i < urls.length; i++) {
+    setLabel(`${T('Preparando…', 'Preparing…')} ${i + 1}/${urls.length}`);
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(urls[i], { credentials: 'include' });
+    if (!r.ok) throw new Error(T(`No se pudo descargar el slide ${i + 1}.`, `Could not download slide ${i + 1}.`));
+    // eslint-disable-next-line no-await-in-loop
+    files.push(new File([await r.blob()], `${base}-${String(i + 1).padStart(2, '0')}.mp4`, { type: 'video/mp4' }));
+  }
+  setLabel(T('Descargar', 'Download'));
+  if (mobile && navigator.canShare({ files })) {
+    try { await navigator.share({ files, title: titulo }); return; }
+    catch (e) {
+      if (e && e.name === 'AbortError') return;   // canceló: no duplicar
+      // iOS: el gesto caducó -> dejar listos y pedir el 2º toque
+      tiraDlCache.set(it.id, files);
+      setLabel(T('Toca de nuevo para guardar', 'Tap again to save'));
+      return;
+    }
+  }
+  await zipear(files);
 }
 
 async function removeItem(it) {
@@ -1896,14 +2093,18 @@ function buildAddBar() {
     // Barra de progreso (refs vivos -> updateProgressUI los actualiza sin re-render).
     const fill = el('div', { class: 'dlv-prog__fill' });
     fill.style.width = uploadPct + '%';
-    const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%` });
+    const label = el('span', { class: 'dlv-drop__t dlv-prog__label' });
     progressEls = { fill, label };
+    updateProgressUI();
     dropKids = [
       icon('camera', 26),
       label,
       el('div', { class: 'dlv-prog' }, [fill]),
-      el('span', { class: 'dlv-drop__s', text: T('No cierres esta pantalla mientras sube el video.', 'Don\'t close this screen while the video uploads.') }),
+      // La tira que se está cortando, a la vista (y en el documento: el corte la reproduce).
+      cutPreview.length ? el('div', { class: 'dlv-cut' }, cutPreview) : null,
+      el('span', { class: 'dlv-drop__s', text: cutPreview.length
+        ? T('No cierres esta pantalla: se están cortando y subiendo los slides.', 'Don\'t close this screen: the slides are being cut and uploaded.')
+        : T('No cierres esta pantalla mientras sube el video.', 'Don\'t close this screen while the video uploads.') }),
     ];
   } else {
     dropKids = [
@@ -2264,10 +2465,21 @@ function buildItem(it, staff) {
   }
   // carrusel: SLIDES de la tira (si hay) o el ícono de siempre; el link queda
   // como acceso secundario. Staff puede subir/cambiar la tira aquí mismo.
-  const tiraIn = el('input', { type: 'file', accept: 'image/*', hidden: true });
+  const tiraIn = el('input', { type: 'file', accept: 'image/*,video/*', multiple: true, hidden: true });
   tiraIn.addEventListener('change', async () => {
-    const f = tiraIn.files && tiraIn.files[0];
-    if (!f) return;
+    const files = [...(tiraIn.files || [])];
+    tiraIn.value = '';
+    if (!files.length) return;
+    // Video(s) = la tira de video (una o dos páginas): se corta en slides y
+    // REEMPLAZA los videos de este carrusel. Imagen = la tira de cuadros.
+    const videos = files.filter((f) => !/^image\//i.test(f.type || ''));
+    if (videos.length) {
+      if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the current upload to finish.'), 'info'); return; }
+      const ok = await subirCarruselDeVideo(videos, null, it);
+      if (ok) await load();
+      return;
+    }
+    const f = files[0];
     busy = true; render();
     try {
       const res = await componerTiras([f]).catch(() => null);
@@ -2283,12 +2495,14 @@ function buildItem(it, staff) {
     finally { busy = false; render(); }
   });
   const titleEl = el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') });
+  const slidesVideo = Array.isArray(it.slide_urls) ? it.slide_urls : [];
   let visor = null;
-  if (it.poster_url || it.video_url) {
+  if (slidesVideo.length || it.poster_url || it.video_url) {
     visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
-    // Carrusel de VIDEO: el video corriendo en bucle, sin botón (la tira solo
-    // sirve para el PDF y la IA). Carrusel de imagen: la tira en cuadros.
-    if (it.video_url) pintarVideoEn(it, visor);
+    // Carrusel de VIDEO en slides: cada video corriendo en bucle. Tira de video
+    // entera (carruseles viejos): el video corriendo. Imagen: la tira en cuadros.
+    if (slidesVideo.length) pintarSlidesVideoEn(it, visor);
+    else if (it.video_url) pintarVideoEn(it, visor);
     else pintarSlidesDe(it, visor, titleEl);
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
@@ -2301,13 +2515,15 @@ function buildItem(it, staff) {
       it.link ? el('a', {
         class: 'dlv-carrusel-btn', href: it.link, target: '_blank', rel: 'noopener noreferrer',
       }, [icon('eye', 16), el('span', { text: T('Ver carrusel', 'View carousel') })]) : null,
-      ((staff || descargasActivas()) && it.poster_url) ? el('button', {
+      ((staff || descargasActivas()) && (slidesVideo.length || it.poster_url || it.video_url)) ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button',
         onclick: async (e) => {
           const b = e.currentTarget; b.disabled = true;
           try {
-            // Carrusel de VIDEO: lo que vale es el archivo, no los cuadros.
-            if (it.video_url) await saveVideo(it, b);
+            // Carrusel de VIDEO: los N videos listos para publicar (o la tira
+            // entera en los carruseles viejos). Imagen: los cuadros.
+            if (slidesVideo.length) await descargarSlidesVideo(it, b);
+            else if (it.video_url) await saveVideo(it, b);
             else await descargarSlides(it, b);
           } catch (err) { toast((err && err.message) || T('No se pudo descargar.', 'Could not download.'), 'error'); }
           finally { b.disabled = false; }
@@ -2316,7 +2532,7 @@ function buildItem(it, staff) {
       staff ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
         onclick: () => tiraIn.click(),
-      }, [icon('camera', 15), el('span', { text: it.poster_url ? T('Cambiar tira', 'Replace strip') : T('Subir tira', 'Upload strip') })]) : null,
+      }, [icon('camera', 15), el('span', { text: slidesVideo.length ? T('Cambiar videos', 'Replace videos') : it.poster_url ? T('Cambiar tira', 'Replace strip') : T('Subir tira', 'Upload strip') })]) : null,
       // Vincular con la pieza del calendario, igual que los reels (pedido
       // 2026-08-26): la etiqueta CARRUSEL N aparece en la tarjeta y el PDF.
       staff ? el('button', {
@@ -2330,7 +2546,7 @@ function buildItem(it, staff) {
     ]),
     // Carrusel sin pieza: la IA lee la TIRA (todos los slides) y escribe el
     // guion slide por slide, el copy y los hashtags (mismo flujo que el reel).
-    (staff && !it.post_id && (it.poster_url || it.video_url)) ? el('button', {
+    (staff && !it.post_id && (it.poster_url || it.video_url || slidesVideo.length)) ? el('button', {
       class: 'btn btn--primary dlv-alcal', type: 'button',
       onclick: (e) => alCalendario(it, e.currentTarget),
     }, [icon('calendar', 16), el('span', { text: T('Agregar al calendario (IA)', 'Add to calendar (AI)') })]) : null,
@@ -2511,10 +2727,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202609301214');
+        const mod = await import('../lib/pdf-entregables.js?v=202609301257');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301214');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609301257');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

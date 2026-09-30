@@ -478,3 +478,13 @@
   background: rgba(0,0,0,.55); color: #fff; pointer-events: none; }
 @media (min-width: 768px) { .dlv-slides__video { height: 380px; } }
 @media (min-width: 1600px) { .dlv-slides__video { height: 520px; } }
+
+/* Carrusel de VIDEO en slides: cada slide es su propio video corriendo en bucle
+   dentro del visor (mismo alto que los cuadros de imagen). */
+.dlv-slides__video--slide { scroll-snap-align: start; }
+
+/* La tira que se está cortando, a la vista en la zona de subida (y en el
+   documento: el corte la reproduce cuadro a cuadro). */
+.dlv-cut { display: flex; flex-direction: column; gap: 6px; width: min(100%, 720px); margin: 8px auto 0; }
+.dlv-cut__vid { display: block; width: 100%; height: auto; max-height: 140px; object-fit: contain; border-radius: 8px; background: #000; }
+

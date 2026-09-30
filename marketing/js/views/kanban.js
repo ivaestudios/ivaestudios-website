@@ -23,16 +23,16 @@ import {
   STATUSES, STATUS_ORDER, statusLabel,
   CONTENT_TYPES, CONTENT_TYPE_ORDER, contentTypeLabel,
   fmtDate,
-} from '../api.js?v=202609301214';
-import { icon } from '../shell/icons.js?v=202609301214';
-import { T } from '../shell/i18n.js?v=202609301214';
-import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202609301214';
-import { createBattery } from '../kanban/battery.js?v=202609301214';
-import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202609301214';
+} from '../api.js?v=202609301257';
+import { icon } from '../shell/icons.js?v=202609301257';
+import { T } from '../shell/i18n.js?v=202609301257';
+import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202609301257';
+import { createBattery } from '../kanban/battery.js?v=202609301257';
+import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202609301257';
 import {
   openMoveSheet, buildInsertUpdates, snapshotFor, sortColumn, columnKeyOf,
   OTHERS_KEY, OTHERS_LABEL, OTHERS_COLOR, STEP,
-} from '../kanban/move-sheet.js?v=202609301214';
+} from '../kanban/move-sheet.js?v=202609301257';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 

@@ -4546,6 +4546,19 @@ async function handleDeleteVideo(env, session, postId) {
 // (calidad original, mismo patron que el video de post). Carrusel: link externo.
 // Staff sube/gestiona; el cliente DUENO de la marca ve y descarga (solo lectura).
 const MKT_DLV_TYPES = new Set(['reel', 'carrusel']);
+// Carrusel de VIDEO = sus N videos de slide (1080×1350 cada uno), listos para
+// publicar: marketing/deliverable/<id>.sNN.mp4, NN = 01..20 (tope de Instagram);
+// slides_n dice cuántos hay. Antes era UNA tira ancha (los slides pegados en un
+// solo video) que el cliente no podía publicar y que desde 7 slides ya no
+// decodifica un iPhone (nivel H.264) — Vianey, 30-sep-2026: "tiene que quedar
+// perfecto".
+const MKT_DLV_MAX_SLIDES = 20;
+const dlvSlideKey = (id, n) => `marketing/deliverable/${id}.s${String(n).padStart(2, '0')}.mp4`;
+async function dlvBorrarSlides(env, id, desde = 1) {
+  for (let n = desde; n <= MKT_DLV_MAX_SLIDES; n++) {
+    try { await env.R2_BUCKET.delete(dlvSlideKey(id, n)); } catch { /* noop */ }
+  }
+}
 
 // Sello ANTI-CACHÉ derivado de updated_at. El video y el póster se sirven con
 // Cache-Control de 1 hora / 1 día, así que al CAMBIAR el video (mismo id, mismos
@@ -4603,6 +4616,12 @@ function shapeDeliverable(d, origin, comments = [], piece = null, firma = null) 
     // El poster también viste a los CARRUSELES: ahí es LA TIRA completa que
     // el cliente ve dividida en slides (pedido de Vianey 2026-08-07).
     poster_url: (d.poster_ok && (d.video_ext || d.type === 'carrusel')) ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
+    // Carrusel de VIDEO: un video por slide, en orden (el visor los corre en
+    // fila y "Descargar" entrega los N archivos listos para publicar).
+    slides_n: Number(d.slides_n) || 0,
+    slide_urls: (Number(d.slides_n) > 0)
+      ? Array.from({ length: Math.min(MKT_DLV_MAX_SLIDES, Number(d.slides_n)) }, (_, i) => `${origin}/api/marketing/deliverables/${d.id}/slide/${i + 1}?v=${v}`)
+      : [],
     // Enlace público firmado (solo staff lo recibe; viaja dentro del PDF).
     public_video_url: (firma && d.video_ext) ? `${origin}/api/marketing/publico/entregable/${d.id}/video?f=${firma}` : null,
     created_at: d.created_at, updated_at: d.updated_at || null,
@@ -4962,9 +4981,13 @@ async function handlePublicDeliverableVideo(request, env, id) {
 // borrar). Sin poster_ok = 0 el listado seguía diciendo "hay tira": el visor
 // del carrusel de video pedía un poster que ya no existía (404) y la tarjeta
 // salía en blanco (Vianey, 2026-09-30). El poster nuevo la vuelve a poner en 1.
+// Una tira entera reemplaza a los SLIDES que hubiera: un carrusel es lo uno o
+// lo otro, nunca los dos.
 async function dlvVideoNuevo(env, id, ext) {
   try {
-    await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, poster_ok = 0, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
+    const row = await env.DB.prepare('SELECT slides_n FROM mkt_deliverables WHERE id = ?').bind(id).first();
+    if (row && Number(row.slides_n) > 0) await dlvBorrarSlides(env, id);
+    await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, poster_ok = 0, slides_n = 0, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
   } catch (e) {
     if (!isMissingColumnError(e)) throw e;
     await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
@@ -4991,9 +5014,10 @@ async function handlePatchDeliverable(request, env, session, id) {
 
 async function handleDeleteDeliverable(request, env, session, id) {
   if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
-  const { error } = await dlvForAccess(env, session, id);
+  const { d, error } = await dlvForAccess(env, session, id);
   if (error) return error;
   for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} }
+  if (Number(d.slides_n) > 0) await dlvBorrarSlides(env, id);
   try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch {}
   try { await env.DB.prepare('DELETE FROM mkt_deliverable_comments WHERE deliverable_id = ?').bind(id).run(); } catch { /* tabla puede no existir aún */ }
   await env.DB.prepare('DELETE FROM mkt_deliverables WHERE id = ?').bind(id).run();
@@ -5022,6 +5046,87 @@ async function handleUploadDeliverablePoster(request, env, session, id) {
     await env.DB.prepare(`UPDATE mkt_deliverables SET poster_ok = 1, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(id).run();
   } catch (e) { if (!isMissingColumnError(e)) throw e; }
   return json({ ok: true });
+}
+
+// ── SLIDES del carrusel de video ─────────────────────────────────────────────
+// El navegador del equipo corta la tira en N MP4 (lib/cortador-video.js) y los
+// sube de uno en uno; al final cierra con /slides { count } y recién entonces el
+// listado anuncia slide_urls. Cada slide es chico (≤100 MB): subida de un solo
+// request, sin partes.
+async function handleUploadDeliverableSlide(request, env, session, id, n) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  if (!Number.isInteger(n) || n < 1 || n > MKT_DLV_MAX_SLIDES) return json({ error: `El slide debe ir de 1 a ${MKT_DLV_MAX_SLIDES}.` }, 400);
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  if (d.type !== 'carrusel') return json({ error: 'Solo los carruseles llevan slides.' }, 400);
+  const ct = request.headers.get('Content-Type') || '';
+  let file = null;
+  if (ct.includes('multipart/form-data')) { const form = await request.formData(); file = form.get('video') || form.get('file'); }
+  if (!file || typeof file === 'string' || typeof file.stream !== 'function') return json({ error: 'Adjunta el video en el campo "video".' }, 400);
+  const mime = String(file.type || '').toLowerCase();
+  if (mime && mime !== 'video/mp4') return json({ error: 'Cada slide debe ser un MP4 (H.264).' }, 415);
+  if (file.size && file.size > MKT_MAX_VIDEO_BYTES) return json({ error: 'El slide supera 100 MB.' }, 413);
+  await env.R2_BUCKET.put(dlvSlideKey(id, n), file.stream(), {
+    httpMetadata: { contentType: 'video/mp4', cacheControl: 'private, max-age=3600' },
+  });
+  return json({ ok: true, n, size: file.size || null });
+}
+
+// Cierra la subida: verifica que estén TODOS (1..count), borra los que sobren de
+// una versión anterior, retira la tira entera (los slides SON el entregable) y
+// anota slides_n. Sin este paso el carrusel no anuncia nada a medias.
+async function handleFinishDeliverableSlides(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const count = Number(b.count);
+  if (!Number.isInteger(count) || count < 1 || count > MKT_DLV_MAX_SLIDES) return json({ error: `count debe ir de 1 a ${MKT_DLV_MAX_SLIDES}.` }, 400);
+  const faltan = [];
+  for (let n = 1; n <= count; n++) {
+    let h = null;
+    try { h = await env.R2_BUCKET.head(dlvSlideKey(id, n)); } catch { h = null; }
+    if (!h) faltan.push(n);
+  }
+  if (faltan.length) return json({ error: `Faltan los slides ${faltan.join(', ')}: vuelve a subirlos.`, faltan }, 409);
+  await dlvBorrarSlides(env, id, count + 1);
+  if (d.video_ext) {
+    for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch { /* noop */ } }
+  }
+  try {
+    await env.DB.prepare(`UPDATE mkt_deliverables SET slides_n = ?, video_ext = NULL, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(count, id).run();
+  } catch (e) {
+    if (isMissingColumnError(e)) return json({ error: 'Falta la migración 024 (slides_n) en la base.' }, 500);
+    throw e;
+  }
+  const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  return json(shapeDeliverable(updated, new URL(request.url).origin));
+}
+
+async function handleServeDeliverableSlide(request, env, session, id, n) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  if (!Number.isInteger(n) || n < 1 || n > MKT_DLV_MAX_SLIDES) return new Response('Sin slide', { status: 404 });
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return new Response('Forbidden', { status: 403 });
+  const headers = new Headers();
+  headers.set('Cache-Control', 'private, max-age=3600');
+  headers.set('Accept-Ranges', 'bytes');
+  const wantsDownload = new URL(request.url).searchParams.get('download');
+  // Mismo candado que el video del reel: el interruptor de descargas de la marca.
+  if (wantsDownload && !(await descargaPermitida(env, session, d.client_id))) {
+    return new Response('Las descargas están desactivadas para esta marca.', { status: 403 });
+  }
+  if (wantsDownload) {
+    const safe = String(d.title || 'carrusel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'carrusel';
+    headers.set('Content-Disposition', `attachment; filename="${safe}-${String(n).padStart(2, '0')}.mp4"`);
+  } else {
+    headers.set('Content-Disposition', 'inline');
+  }
+  const res = await mktServeRangedWithMeta(request, (rangeOpt) => env.R2_BUCKET.get(dlvSlideKey(id, n), rangeOpt), headers);
+  if (!res) return new Response('Sin slide', { status: 404 });
+  return res;
 }
 
 async function handleServeDeliverablePoster(request, env, session, id) {
@@ -5712,6 +5817,15 @@ async function route(request, env, authCtx) {
         if (method === 'DELETE') return handleDeleteDeliverableComment(request, env, session, id, parts[3]);
         return json({ error: 'Method not allowed' }, 405);
       }
+      // Slides del carrusel de video: /deliverables/:id/slide/:n (subir / servir)
+      // y /deliverables/:id/slides (cerrar la subida con { count }).
+      if (parts.length === 4 && parts[2] === 'slide') {
+        const id = parts[1]; const n = Number(parts[3]);
+        if (method === 'POST') return handleUploadDeliverableSlide(request, env, session, id, n);
+        if (method === 'GET' || method === 'HEAD') return handleServeDeliverableSlide(request, env, session, id, n);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      if (parts.length === 3 && parts[2] === 'slides' && method === 'POST') return handleFinishDeliverableSlides(request, env, session, parts[1]);
       // Subida por partes (videos grandes): /deliverables/:id/video/multipart/{start|part|complete}
       if (parts.length === 5 && parts[2] === 'video' && parts[3] === 'multipart') {
         const id = parts[1];
