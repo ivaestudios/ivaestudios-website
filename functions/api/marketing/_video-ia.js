@@ -684,6 +684,10 @@ export async function crearJob(request, env, session) {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?)`
   ).bind(id, client_id, post_id, tier, modelo, prompt, aspect, seconds, via, costo, session.email || null, objetivo).run();
 
+  // OJO: los fallos del proveedor se contestan con 422, NUNCA 502: Cloudflare
+  // reemplaza el cuerpo de un 502 por su propia página ("Error code: 502") y el
+  // motivo real ("insufficient credit", "cuota agotada") jamás llegaba a la
+  // pantalla (probado con Seedance el 30-sep-2026).
   const falla = async (msg) => {
     // cost_usd=0 por lo mismo: si no salió video, Google no lo cobra.
     await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, cost_usd=0, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
@@ -697,7 +701,7 @@ export async function crearJob(request, env, session) {
       if (!r.res.ok || !operacion) {
         const msg = (r.data && r.data.error && (r.data.error.message || r.data.error.status)) || `Google respondió ${r.res.status}`;
         await falla(msg);
-        return json({ error: String(msg) }, 502);
+        return json({ error: String(msg) }, 422);
       }
       await env.DB.prepare(
         `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
@@ -709,7 +713,7 @@ export async function crearJob(request, env, session) {
       if (!r.res.ok || !pid) {
         const msg = (r.data && (r.data.detail || r.data.title)) || `Replicate respondió ${r.res.status}`;
         await falla(msg);
-        return json({ error: String(msg) }, 502);
+        return json({ error: String(msg) }, 422);
       }
       await env.DB.prepare(
         `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
@@ -720,7 +724,7 @@ export async function crearJob(request, env, session) {
       if (!r.res.ok || !vid) {
         const msg = (r.data && r.data.error && r.data.error.message) || `OpenAI respondió ${r.res.status}`;
         await falla(msg);
-        return json({ error: String(msg) }, 502);
+        return json({ error: String(msg) }, 422);
       }
       await env.DB.prepare(
         `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
@@ -833,7 +837,7 @@ export async function alargarJob(request, env, session, id) {
       const msg = (r.data && r.data.error && (r.data.error.message || r.data.error.status)) || `Google respondió ${r.res.status}`;
       await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
         .bind(String(msg).slice(0, 400), nuevo).run();
-      return json({ error: String(msg) }, 502);
+      return json({ error: String(msg) }, 422);
     }
     await env.DB.prepare(
       `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
