@@ -213,6 +213,24 @@ function captionFb(post) {
  * Reel (video firmado) → Reels API de páginas; carrusel (slides firmados) →
  * post multi-foto; foto única → /photos. Devuelve { fbPostId, permalink }.
  */
+// POST /fb/disconnect { client_id } (staff) — quitar la página de Facebook de
+// la marca (30-sep-2026: faltaba el botón). Solo limpia la fila: el permiso de
+// Meta es del usuario que conectó (el mismo de Instagram), no de la página, así
+// que no se revoca aquí para no tumbar Instagram de paso.
+export async function handleFbDisconnect(request, env, session) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const clientId = String(b.client_id || '');
+  if (!clientId) return json({ error: 'Falta client_id' }, 400);
+  const c = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!c) return json({ error: 'Cliente no encontrado' }, 404);
+  await env.DB.prepare(
+    `UPDATE mkt_clients SET fb_page_id = NULL, fb_page_name = NULL, fb_access_token = NULL, fb_connected_at = NULL,
+     updated_at = datetime('now') WHERE id = ?`
+  ).bind(clientId).run();
+  return json({ ok: true });
+}
+
 export async function publicarEnFacebook(env, { client, post, videoUrl, slides }) {
   if (!client || !client.fb_page_id || !client.fb_access_token) {
     throw new Error('La marca no tiene página de Facebook conectada (ficha del cliente → Conectar Facebook).');

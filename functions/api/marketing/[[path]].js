@@ -56,9 +56,9 @@ import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHea
 import { pedirMes } from './_mes-ia.js';
 import { leerEntregable, escribirCopy } from './_entregable-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
-import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
+import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
-import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
+import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos } from './_bandeja.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
@@ -5904,11 +5904,13 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'fb') {
     if (path === '/fb/login' && method === 'GET') return handleFbLogin(request, env, session, url);
     if (path === '/fb/metrics' && method === 'GET') return handleFbMetrics(request, env, session, url);
+    if (path === '/fb/disconnect' && method === 'POST') return handleFbDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
   if (parts[0] === 'tt') {
     if (path === '/tt/login' && method === 'GET') return handleTtLogin(request, env, session, url);
     if (path === '/tt/creator' && method === 'GET') return handleTtCreator(env, session, url);
+    if (path === '/tt/disconnect' && method === 'POST') return handleTtDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
   if (parts[0] === 'yt') {

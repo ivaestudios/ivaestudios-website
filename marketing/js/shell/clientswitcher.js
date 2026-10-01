@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el, esCreador } from '../api.js?v=202609302315';
-import { openSheet } from './sheet.js?v=202609302315';
-import { toast } from './toast.js?v=202609302315';
-import * as store from './store.js?v=202609302315';
-import { icon } from './icons.js?v=202609302315';
-import { T, isEN } from './i18n.js?v=202609302315';
+import { api, el, esCreador } from '../api.js?v=202609302342';
+import { openSheet } from './sheet.js?v=202609302342';
+import { toast } from './toast.js?v=202609302342';
+import * as store from './store.js?v=202609302342';
+import { icon } from './icons.js?v=202609302342';
+import { T, isEN } from './i18n.js?v=202609302342';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
@@ -332,7 +332,22 @@ export function openEditClient(client, { selectClient } = {}) {
                   },
                 }, [icon('camera', 16), el('span', { text: T('Conectar Instagram', 'Connect Instagram') })]),
             client.fb_page_name
-              ? el('div', { class: 'cs-igrow', text: 'Facebook · ' + client.fb_page_name })
+              ? el('div', { class: 'cs-igrow' }, [
+                  el('span', { text: 'Facebook · ' + client.fb_page_name }),
+                  el('button', {
+                    class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
+                    onclick: async (e) => {
+                      e.currentTarget.disabled = true;
+                      const r = await fetch('/api/marketing/fb/disconnect', {
+                        method: 'POST', credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ client_id: client.id }),
+                      });
+                      if (r.ok) { await store.refreshClientCounts(); toast(T('Facebook desconectado.', 'Facebook disconnected.'), { type: 'success' }); close({ source: 'fb' }); }
+                      else { e.currentTarget.disabled = false; toast(T('No se pudo desconectar Facebook.', 'Could not disconnect Facebook.'), { type: 'error' }); }
+                    },
+                  }),
+                ])
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
@@ -342,7 +357,24 @@ export function openEditClient(client, { selectClient } = {}) {
                   },
                 }, [icon('link', 16), el('span', { text: T('Conectar Facebook', 'Connect Facebook') })]),
             client.tt_username
-              ? el('div', { class: 'cs-igrow', text: 'TikTok · ' + client.tt_username })
+              // Desconectar TikTok desde la app (30-sep-2026): la revisión de TikTok
+              // lo pide y el backend además REVOCA el token en TikTok.
+              ? el('div', { class: 'cs-igrow' }, [
+                  el('span', { text: 'TikTok · ' + client.tt_username }),
+                  el('button', {
+                    class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
+                    onclick: async (e) => {
+                      e.currentTarget.disabled = true;
+                      const r = await fetch('/api/marketing/tt/disconnect', {
+                        method: 'POST', credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ client_id: client.id }),
+                      });
+                      if (r.ok) { await store.refreshClientCounts(); toast(T('TikTok desconectado y el permiso retirado en TikTok.', 'TikTok disconnected and access revoked at TikTok.'), { type: 'success' }); close({ source: 'tt' }); }
+                      else { e.currentTarget.disabled = false; toast(T('No se pudo desconectar TikTok.', 'Could not disconnect TikTok.'), { type: 'error' }); }
+                    },
+                  }),
+                ])
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {

@@ -214,6 +214,38 @@ function captionTikTok(post, max = 2200) {
  * (borrador al buzón). Video via FILE_UPLOAD (1 chunk); carrusel via
  * PULL_FROM_URL (exige dominio verificado). Devuelve { ttPostId, modo }.
  */
+// POST /tt/disconnect { client_id } (staff) — desconectar la marca de TikTok.
+// Vive AQUÍ, en la app (30-sep-2026, Vianey: "debería haber un botón de
+// desconectar"): la revisión de TikTok también pide que el permiso se pueda
+// retirar desde la propia app. Se REVOCA el token en TikTok y luego se limpia
+// la fila; si la revocación falla, la limpieza local sigue pasando igual.
+export async function handleTtDisconnect(request, env, session) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const clientId = String(b.client_id || '');
+  if (!clientId) return json({ error: 'Falta client_id' }, 400);
+  const c = await env.DB.prepare('SELECT tt_access_token, tt_refresh_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!c) return json({ error: 'Cliente no encontrado' }, 404);
+  let revocado = false;
+  const token = c.tt_access_token || c.tt_refresh_token;
+  if (token) {
+    try {
+      const creds = await ttCreds(env);
+      const r = await fetch(`${TT_API}/oauth/revoke/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ client_key: creds.key || '', client_secret: creds.secret || '', token }),
+      });
+      revocado = r.ok;
+    } catch { /* la limpieza local sigue pasando */ }
+  }
+  await env.DB.prepare(
+    `UPDATE mkt_clients SET tt_open_id = NULL, tt_username = NULL, tt_access_token = NULL, tt_refresh_token = NULL,
+     tt_access_expires_at = NULL, tt_refresh_expires_at = NULL, updated_at = datetime('now') WHERE id = ?`
+  ).bind(clientId).run();
+  return json({ ok: true, revocado });
+}
+
 export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }) {
   const tok = await tokenTikTokVigente(env, clientId);
   const auth = { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json; charset=UTF-8' };
