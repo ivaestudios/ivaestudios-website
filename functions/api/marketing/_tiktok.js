@@ -229,7 +229,8 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   // el video llega al buzón de la marca y se publica con un tap, sin
   // obligar a nadie a poner su cuenta en privado.
   const auditRow = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tt_app_auditada'").first();
-  const publico = !!(auditRow && auditRow.value === '1') && opciones.includes('PUBLIC_TO_EVERYONE');
+  const auditada = !!(auditRow && auditRow.value === '1');
+  const publico = auditada && opciones.includes('PUBLIC_TO_EVERYONE');
 
   // Lo que el humano eligió en la pantalla de la app (guidelines de TikTok:
   // la privacidad la elige el usuario y las interacciones nacen apagadas).
@@ -238,8 +239,16 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   // Sin elección explícita del humano NO hay Direct Post (regla de TikTok:
   // "no default value"): si falta, la pieza cae al buzón para que la persona
   // decida en la app de TikTok. Jamás inventamos una privacidad.
-  const privacidad = opciones.includes(elec.privacy_level) ? elec.privacy_level : null;
-  const directo = publico && !!privacidad;
+  let privacidad = opciones.includes(elec.privacy_level) ? elec.privacy_level : null;
+  // SIN AUDITORÍA (30-sep-2026): TikTok sí permite Direct Post a clientes no
+  // auditados, pero SOLO como SELF_ONLY (privado, lo ve la cuenta). Eso es lo
+  // que la revisión quiere ver en el demo: el video EN EL PERFIL, no en el
+  // buzón. Vianey hizo el flujo entero y "no se publicó nada" porque caía al
+  // buzón. Cuando aprueben (tt_app_auditada = 1) manda la elección humana.
+  let privado = false;
+  if (!auditada && opciones.includes('SELF_ONLY')) { privacidad = 'SELF_ONLY'; privado = true; }
+  const directo = (publico || privado) && !!privacidad;
+  const modoDirecto = privado ? 'privado' : 'directo';
 
   // CARRUSEL de fotos → content/init (solo PULL_FROM_URL).
   if (slides && slides.length >= 2) {
@@ -255,7 +264,7 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
       source_info: { source: 'PULL_FROM_URL', photo_images: slides.slice(0, 35), photo_cover_index: 0 },
     };
     const r = await ttJson(`${TT_API}/post/publish/content/init/`, { method: 'POST', headers: auth, body: JSON.stringify(body) });
-    return { ttPostId: r.data && r.data.publish_id, modo: directo ? 'directo' : 'buzon' };
+    return { ttPostId: r.data && r.data.publish_id, modo: directo ? modoDirecto : 'buzon' };
   }
 
   // REEL/VIDEO → FILE_UPLOAD en 1 chunk (nuestros videos son ≤64MB).
@@ -272,9 +281,10 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
           post_info: {
             privacy_level: privacidad,
             title: captionTikTok(post),
-            disable_comment: elec.allow_comment ? false : true,
-            disable_duet: (ci.data && ci.data.duet_disabled) || !elec.allow_duet,
-            disable_stitch: (ci.data && ci.data.stitch_disabled) || !elec.allow_stitch,
+            // Privado (sin auditoría): las interacciones van apagadas sí o sí.
+            disable_comment: privado ? true : (elec.allow_comment ? false : true),
+            disable_duet: privado || (ci.data && ci.data.duet_disabled) || !elec.allow_duet,
+            disable_stitch: privado || (ci.data && ci.data.stitch_disabled) || !elec.allow_stitch,
             ...(elec.brand_content ? { brand_content_toggle: true } : {}),
             ...(elec.brand_organic ? { brand_organic_toggle: true } : {}),
           },
@@ -312,5 +322,5 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
     if (s === 'PUBLISH_COMPLETE' || s === 'SEND_TO_USER_INBOX') break;
     if (s === 'FAILED') throw new Error('TikTok no pudo procesar el video: ' + ((st.data && st.data.fail_reason) || 'sin motivo'));
   }
-  return { ttPostId: publishId, modo: directo ? 'directo' : 'buzon' };
+  return { ttPostId: publishId, modo: directo ? modoDirecto : 'buzon' };
 }

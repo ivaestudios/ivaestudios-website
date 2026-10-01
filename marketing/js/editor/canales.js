@@ -19,9 +19,9 @@
 // publicador del backend).
 // ============================================================================
 
-import { el, api } from '../api.js?v=202609302251';
-import { T } from '../shell/i18n.js?v=202609302251';
-import { openSheet } from '../shell/sheet.js?v=202609302251';
+import { el, api } from '../api.js?v=202609302306';
+import { T } from '../shell/i18n.js?v=202609302306';
+import { openSheet } from '../shell/sheet.js?v=202609302306';
 
 // Fila de opción única (radio) con el mismo lenguaje visual de los pickers.
 function filaOpcion({ label, sub, activa, onPick }) {
@@ -145,7 +145,7 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
           return;
         }
         cuenta.textContent = `${T('Se publicará en', 'Will publish to')}: ${d.nickname || d.username || T('la cuenta conectada', 'the connected account')}` +
-          (d.auditada ? '' : T(' · llegará a su BUZÓN de TikTok para publicar con un tap', ' · it will land in its TikTok inbox to publish with one tap'));
+          (d.auditada ? '' : T(' · hasta que TikTok apruebe la app, se publica en su perfil como PRIVADO (solo lo ve la cuenta)', ' · until TikTok approves the app, it posts to the profile as PRIVATE (only the account can see it)'));
 
         function pintar() {
           while (lista.firstChild) lista.removeChild(lista.firstChild);
