@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609302312';
-import { icon, iconMarca } from '../shell/icons.js?v=202609302312';
-import { T } from '../shell/i18n.js?v=202609302312';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609302312';
-import { confirmar } from '../shell/sheet.js?v=202609302312';
-import { openNewClient } from '../shell/clientswitcher.js?v=202609302312';
+} from '../api.js?v=202609302315';
+import { icon, iconMarca } from '../shell/icons.js?v=202609302315';
+import { T } from '../shell/i18n.js?v=202609302315';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609302315';
+import { confirmar } from '../shell/sheet.js?v=202609302315';
+import { openNewClient } from '../shell/clientswitcher.js?v=202609302315';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609302312';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609302312';
+import { errorCard } from '../ui/states.js?v=202609302315';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609302315';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609302312';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609302315';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609302312';
+} from '../lib/video-upload.js?v=202609302315';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -266,12 +266,20 @@ function pieceNumNode(post, extraClass) {
 
 // Sin approval_state guardado = pendiente (mismo default que tabla y editor).
 function approvalOf(post) { return (post && post.approval_state) || 'pending'; }
+// ¿La marca activa trabaja con aprobación del cliente? (migración 025). Si no,
+// no se pinta ningún puntito, chip ni conteo de aprobación.
+function aprobacionActivaMarca() {
+  const { activeClientId, clients } = ctx.store.getState();
+  const b = (clients || []).find((c) => c.id === activeClientId);
+  return !(b && Number(b.approval_enabled) === 0);
+}
 
 // isClientRole() vive ahora en api.js (mismo criterio para editor y calendario).
 
 // Puntito de aprobación junto al badge de Estado (desktop): el color dice si
 // la pieza está pendiente/aprobada/con cambios; el detalle va en el title.
 function approvalDotNode(post) {
+  if (!aprobacionActivaMarca()) return null;
   const state = approvalOf(post);
   const def = APPROVALS[state] || APPROVALS.pending;
   const dot = el('span', {
@@ -977,7 +985,7 @@ function buildMonthStats(rows) {
     stat(T('Piezas', 'Pieces'), total),
     stat(T('Publicado', 'Published'), `${Math.round((pub / total) * 100)}%`),
     stat(T('Atrasados', 'Overdue'), atrasados, atrasados ? 'is-danger' : 'is-ok'),
-    stat(T('Sin aprobar', 'Unapproved'), sinAprobar, sinAprobar ? 'is-warn' : 'is-ok'),
+    aprobacionActivaMarca() ? stat(T('Sin aprobar', 'Unapproved'), sinAprobar, sinAprobar ? 'is-warn' : 'is-ok') : null,
   ]);
 }
 
@@ -1516,16 +1524,18 @@ function buildMobileItem(post, noteLabels) {
   // Chip de aprobación (solo lectura): cliente y dueña ven de un vistazo si la
   // pieza está pendiente, aprobada o con cambios pedidos.
   const apprState = approvalOf(post);
-  const apprDef = APPROVALS[apprState] || APPROVALS.pending;
-  const apprChip = el('span', {
-    class: 'meses-chip meses-chip--appr',
-    'aria-label': `${T('Aprobación:', 'Approval:')} ${approvalLabel(apprState)}`,
-  }, [
-    el('span', { class: 'meses-chip__dot', 'aria-hidden': 'true' }),
-    el('span', { text: approvalLabel(apprState) }),
-  ]);
-  apprChip.style.setProperty('--chipc', apprDef.color);
-  chips.appendChild(apprChip);
+  if (aprobacionActivaMarca()) {
+    const apprDef = APPROVALS[apprState] || APPROVALS.pending;
+    const apprChip = el('span', {
+      class: 'meses-chip meses-chip--appr',
+      'aria-label': `${T('Aprobación:', 'Approval:')} ${approvalLabel(apprState)}`,
+    }, [
+      el('span', { class: 'meses-chip__dot', 'aria-hidden': 'true' }),
+      el('span', { text: approvalLabel(apprState) }),
+    ]);
+    apprChip.style.setProperty('--chipc', apprDef.color);
+    chips.appendChild(apprChip);
+  }
   // Copiar caption + hashtags sin abrir la pieza. SOLO EQUIPO (pedido de
   // Vianey 2026-08-29: "solo para mí, no para el cliente"): pegar el caption en
   // Instagram es trabajo nuestro, el cliente solo aprueba o pide cambios.
@@ -2018,8 +2028,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609302312');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609302312');
+        const mod = await import('../lib/pdf-contenido.js?v=202609302315');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609302315');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609302312';
-import { T } from '../shell/i18n.js?v=202609302312';
-import { icon } from '../shell/icons.js?v=202609302312';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609302312';
-import * as store from '../shell/store.js?v=202609302312';
-import * as cl from '../services/checklist.js?v=202609302312';
-import { createAutosave } from './autosave.js?v=202609302312';
-import { textExpand } from '../ui/pickers.js?v=202609302312';
-import { openActionsMenu } from './actions.js?v=202609302312';
-import { mount as mountContenido } from './tab-contenido.js?v=202609302312';
-import { mount as mountGuion } from './tab-guion.js?v=202609302312';
-import { mount as mountChecklist } from './tab-checklist.js?v=202609302312';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202609302312';
-import { mount as mountActividad } from './tab-actividad.js?v=202609302312';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609302315';
+import { T } from '../shell/i18n.js?v=202609302315';
+import { icon } from '../shell/icons.js?v=202609302315';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609302315';
+import * as store from '../shell/store.js?v=202609302315';
+import * as cl from '../services/checklist.js?v=202609302315';
+import { createAutosave } from './autosave.js?v=202609302315';
+import { textExpand } from '../ui/pickers.js?v=202609302315';
+import { openActionsMenu } from './actions.js?v=202609302315';
+import { mount as mountContenido } from './tab-contenido.js?v=202609302315';
+import { mount as mountGuion } from './tab-guion.js?v=202609302315';
+import { mount as mountChecklist } from './tab-checklist.js?v=202609302315';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202609302315';
+import { mount as mountActividad } from './tab-actividad.js?v=202609302315';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -174,10 +174,14 @@ function refreshHeader() {
     },
   }, [statusBadge(p.status)]));
 
-  chipsEl.appendChild(el('button', {
-    class: 'edchip', type: 'button', 'aria-label': T('Cambiar aprobación', 'Change approval'),
-    onclick: (e) => openApprovalPicker(e.currentTarget),
-  }, [approvalBadge(p.approval_state)]));
+  // Marca sin aprobación del cliente (migración 025): el chip "Pendiente" sobra.
+  const marcaChip = ed.getClient();
+  if (!(marcaChip && Number(marcaChip.approval_enabled) === 0)) {
+    chipsEl.appendChild(el('button', {
+      class: 'edchip', type: 'button', 'aria-label': T('Cambiar aprobación', 'Change approval'),
+      onclick: (e) => openApprovalPicker(e.currentTarget),
+    }, [approvalBadge(p.approval_state)]));
+  }
 
   // ÚLTIMA ACTIVIDAD: quién tocó la pieza por última vez y qué hizo — a un
   // vistazo, sin abrir el tab (con varias revisoras por marca es oro).
