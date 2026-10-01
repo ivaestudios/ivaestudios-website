@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202609302209';
-import { icon } from '../shell/icons.js?v=202609302209';
-import { T, isEN } from '../shell/i18n.js?v=202609302209';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202609302251';
+import { icon } from '../shell/icons.js?v=202609302251';
+import { T, isEN } from '../shell/i18n.js?v=202609302251';
 
 const VIEW_ID = 'conexiones';
 
@@ -42,7 +42,9 @@ async function conectar(kind, clientId) {
   if (r.status === 503) {
     toast(kind === 'yt'
       ? T('Falta configurar la app de YouTube (pídeme la guía).', 'YouTube still needs setup (ask me for the guide).')
-      : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
+      : kind === 'tt'
+        ? T('Falta configurar la app de TikTok (pídeme la guía).', 'TikTok still needs setup (ask me for the guide).')
+        : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
     return;
   }
   window.location.href = url;
@@ -80,6 +82,7 @@ function tarjeta(c) {
   const ig = c.ig_username ? '@' + c.ig_username : null;
   const fb = c.fb_page_name || null;
   const yt = c.yt_channel_title || null;
+  const tt = c.tt_username ? '@' + c.tt_username : null;
   const completa = !!(ig && fb);
   return el('article', { class: 'cx-card' + (completa ? ' cx-card--full' : '') }, [
     el('header', { class: 'cx-card__head' }, [
@@ -110,6 +113,14 @@ function tarjeta(c) {
       nombre: 'YouTube', icono: 'play',
       conectado: !!yt, detalle: yt ? `${yt} ✓` : '',
       onConnect: cliente ? null : () => conectar('yt', c.id),
+    }) : null,
+    // TikTok (30-sep-2026): la fila NO existía y la cuenta conectada con Login
+    // Kit no se veía por ningún lado ("no se conecta con el de ivae studios").
+    // Mismo flujo que la ficha de la marca (/tt/login).
+    (tt || !cliente) ? filaRed({
+      nombre: 'TikTok', icono: 'spark',
+      conectado: !!tt, detalle: tt ? `${tt} ✓` : '',
+      onConnect: cliente ? null : () => conectar('tt', c.id),
     }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
@@ -328,7 +339,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202609302209';
+  link.href = '/marketing/css/conexiones.css?v=202609302251';
   document.head.appendChild(link);
 }
 
