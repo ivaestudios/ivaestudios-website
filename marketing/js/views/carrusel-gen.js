@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202609301257';
-import { icon } from '../shell/icons.js?v=202609301257';
-import { T } from '../shell/i18n.js?v=202609301257';
-import * as store from '../shell/store.js?v=202609301257';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202609301257';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202609301257';
-import { slidesFromPost } from '../editor/slides.js?v=202609301257';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202609301257';
+import { el, clear, toast, api } from '../api.js?v=202609302209';
+import { icon } from '../shell/icons.js?v=202609302209';
+import { T } from '../shell/i18n.js?v=202609302209';
+import * as store from '../shell/store.js?v=202609302209';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202609302209';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202609302209';
+import { slidesFromPost } from '../editor/slides.js?v=202609302209';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202609302209';
 
 const W = 1080;
 const H = 1350;

@@ -19,13 +19,13 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, timeAgo, STATUSES } from '../api.js?v=202609301257';
-import { icon } from '../shell/icons.js?v=202609301257';
-import { openSheet } from '../shell/sheet.js?v=202609301257';
-import * as store from '../shell/store.js?v=202609301257';
-import * as cl from '../services/checklist.js?v=202609301257';
-import { checklistFor, applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609301257';
-import { T } from '../shell/i18n.js?v=202609301257';
+import { el, timeAgo, STATUSES } from '../api.js?v=202609302209';
+import { icon } from '../shell/icons.js?v=202609302209';
+import { openSheet } from '../shell/sheet.js?v=202609302209';
+import * as store from '../shell/store.js?v=202609302209';
+import * as cl from '../services/checklist.js?v=202609302209';
+import { checklistFor, applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609302209';
+import { T } from '../shell/i18n.js?v=202609302209';
 
 export function mount(host, ed) {
   const { ctx } = ed;
