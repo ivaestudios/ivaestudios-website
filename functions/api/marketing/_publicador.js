@@ -66,7 +66,7 @@ function captionFinal(post) {
  * Publica UNA pieza en el Instagram de su marca. Devuelve { mediaId, permalink }.
  * Lanza Error con mensaje humano si algo falta o IG rechaza.
  */
-export async function publicarEnInstagram(env, { client, post, slides, cover, onContainer }) {
+export async function publicarEnInstagram(env, { client, post, slides, slidesVideo = null, cover, onContainer }) {
   if (!client || !client.ig_user_id || !client.ig_access_token) {
     throw new Error('La marca no tiene Instagram conectado (ficha del cliente → Conectar Instagram).');
   }
@@ -135,13 +135,33 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
 
   if (slides && slides.length >= 2) {
     const hijos = [];
-    for (const u of slides.slice(0, 10)) {
-      const h = await gJson(`${GRAPH}/${client.ig_user_id}/media`, {
-        method: 'POST',
-        body: new URLSearchParams({ image_url: u, is_carousel_item: 'true', access_token: tok }),
-      });
+    const hijosVideo = [];
+    const lista = slides.slice(0, 10);
+    for (let i = 0; i < lista.length; i++) {
+      // CARRUSEL CON MÚSICA (1-oct-2026): si el slide tiene su versión MP4
+      // (imagen + su tramo de la pista), ese hijo va como VIDEO y suena al
+      // deslizar. La API no permite música de la biblioteca de Instagram.
+      const vid = slidesVideo && slidesVideo[i];
+      const ph = vid
+        ? new URLSearchParams({ media_type: 'VIDEO', video_url: vid, is_carousel_item: 'true', access_token: tok })
+        : new URLSearchParams({ image_url: lista[i], is_carousel_item: 'true', access_token: tok });
+      const h = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: ph });
       if (!h.id) throw new Error('Instagram no devolvió el contenedor de un slide.');
       hijos.push(h.id);
+      if (vid) hijosVideo.push(h.id);
+    }
+    // Los hijos de VIDEO procesan aparte: el padre no se puede armar hasta
+    // que cada uno diga FINISHED.
+    for (const hid of hijosVideo) {
+      let ok = false;
+      for (let i = 0; !ok && i < 30; i++) {
+        await espera(4000);
+        let st = null;
+        try { st = await gJson(`${GRAPH}/${hid}?fields=status_code&access_token=${encodeURIComponent(tok)}`); } catch { /* aún no consultable */ }
+        if (st && st.status_code === 'FINISHED') ok = true;
+        else if (st && st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar un slide de video (MP4 H.264 con audio AAC, de 3 a 60 s).');
+      }
+      if (!ok) throw new Error('Instagram sigue procesando los slides de video. Intenta de nuevo en unos minutos.');
     }
     const paramsPadre = new URLSearchParams({ media_type: 'CAROUSEL', children: hijos.join(','), caption, access_token: tok });
     const colabCar = listaColaboradores(post);
@@ -154,7 +174,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
     if (onContainer) { try { await onContainer(padre.id); } catch { /* best effort */ } }
     // Los JPEG procesan casi al instante; un respiro corto y a publicar.
     let carruselListo = false;
-    for (let i = 0; !carruselListo && i < 10; i++) {
+    for (let i = 0; !carruselListo && i < (hijosVideo.length ? 20 : 10); i++) {
       const st = await gJson(`${GRAPH}/${padre.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
       if (st.status_code === 'FINISHED') carruselListo = true;
       else if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar el carrusel (¿todos los slides son JPEG?).');

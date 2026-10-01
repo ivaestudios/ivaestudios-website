@@ -6195,6 +6195,20 @@ async function handleUploadCarouselSlide(request, env, postId) {
   const n = Math.max(1, Math.min(10, Number(new URL(request.url).searchParams.get('n')) || 0));
   if (!n) return json({ error: 'Falta n (1-10)' }, 400);
   const body = await request.arrayBuffer();
+  // CARRUSEL CON MÚSICA (1-oct-2026): la API de Instagram no deja poner
+  // música de su biblioteca, pero un hijo de carrusel puede ser VIDEO con su
+  // propio audio. ?tipo=video sube la versión MP4 (imagen + su tramo de la
+  // pista) del slide N; el JPEG sigue siendo lo que ve la app (feed, editor).
+  if (new URL(request.url).searchParams.get('tipo') === 'video') {
+    if (!body || body.byteLength < 10 * 1024) return json({ error: 'Video vacío' }, 400);
+    if (body.byteLength > 95 * 1024 * 1024) return json({ error: 'Slide de video muy pesado (max 95MB)' }, 413);
+    const ftyp = new TextDecoder().decode(new Uint8Array(body.slice(4, 8)));
+    if (ftyp !== 'ftyp') return json({ error: 'Debe ser MP4' }, 400);
+    await env.R2_BUCKET.put(`marketing/carrusel/${postId}/${n}.mp4`, body, {
+      httpMetadata: { contentType: 'video/mp4' },
+    });
+    return json({ ok: true, n, tipo: 'video' });
+  }
   if (!body || body.byteLength < 1024) return json({ error: 'Imagen vacía' }, 400);
   if (body.byteLength > 8 * 1024 * 1024) return json({ error: 'Slide muy pesado (max 8MB)' }, 413);
   // JPEG de verdad (magia FFD8) — el publicador solo sirve image/jpeg.
@@ -6203,6 +6217,9 @@ async function handleUploadCarouselSlide(request, env, postId) {
   await env.R2_BUCKET.put(`marketing/carrusel/${postId}/${n}.jpg`, body, {
     httpMetadata: { contentType: 'image/jpeg' },
   });
+  // Un JPEG nuevo deja viejo el video de ese slide: se borra, para que el
+  // publicador jamás mande la versión con audio de un diseño anterior.
+  try { await env.R2_BUCKET.delete(`marketing/carrusel/${postId}/${n}.mp4`); } catch { /* no había */ }
   return json({ ok: true, n });
 }
 
@@ -6266,14 +6283,57 @@ async function slidesFirmadosDePieza(env, post) {
   return urls;
 }
 
+// Las versiones con AUDIO de los slides (N.mp4), en el MISMO orden que los
+// JPEG de slidesFirmadosDePieza: null donde ese slide no tiene video. Si
+// ningún slide tiene video devuelve null y el carrusel sale como siempre.
+async function slidesVideoFirmadosDePieza(env, post) {
+  if (!env.R2_BUCKET) return null;
+  const lista = await env.R2_BUCKET.list({ prefix: `marketing/carrusel/${post.id}/` });
+  const nombres = (lista.objects || []).map((o) => o.key.split('/').pop());
+  const jpgs = nombres.filter((k) => /\.jpe?g$/i.test(k))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).slice(0, 10);
+  const mp4 = new Set(nombres.filter((k) => /\.mp4$/i.test(k)));
+  if (!mp4.size || !jpgs.length) return null;
+  const urls = [];
+  for (const j of jpgs) {
+    const v = j.replace(/\.jpe?g$/i, '.mp4');
+    if (!mp4.has(v)) { urls.push(null); continue; }
+    const f = await firmaEntregable(env, `carrusel-${post.id}-${v}`);
+    urls.push(`https://ivaestudios.com/api/marketing/publico/carrusel/${post.id}/${v}?f=${f}`);
+  }
+  return urls.some(Boolean) ? urls : null;
+}
+
 // Sirve UN slide de carrusel con firma válida — sin sesión, solo inline.
+// JPEG, o el MP4 con audio del slide (con rangos: Meta baja videos por partes).
 async function handlePublicCarouselSlide(request, env, postId, archivo) {
   if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
-  if (!/^[\w.-]+\.jpe?g$/i.test(archivo) || !/^[\w-]+$/.test(postId)) return new Response('No', { status: 400 });
+  if (!/^[\w.-]+\.(jpe?g|mp4)$/i.test(archivo) || !/^[\w-]+$/.test(postId)) return new Response('No', { status: 400 });
   const f = new URL(request.url).searchParams.get('f') || '';
   const esperada = await firmaEntregable(env, `carrusel-${postId}-${archivo}`);
   if (!f || f !== esperada) return new Response('Enlace no válido', { status: 403 });
-  const o = await env.R2_BUCKET.get(`marketing/carrusel/${postId}/${archivo}`);
+  const key = `marketing/carrusel/${postId}/${archivo}`;
+  if (/\.mp4$/i.test(archivo)) {
+    const head = await env.R2_BUCKET.head(key);
+    if (!head) return new Response('Sin video', { status: 404 });
+    const size = head.size;
+    const rango = request.headers.get('Range');
+    const m = rango && /bytes=(\d*)-(\d*)/.exec(rango);
+    if (m && (m[1] || m[2])) {
+      let ini = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]));
+      let fin = m[1] && m[2] ? Number(m[2]) : size - 1;
+      if (ini >= size) return new Response('Rango no válido', { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+      fin = Math.min(fin, size - 1);
+      const o = await env.R2_BUCKET.get(key, { range: { offset: ini, length: fin - ini + 1 } });
+      return new Response(o.body, { status: 206, headers: {
+        'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Content-Length': String(fin - ini + 1),
+        'Content-Range': `bytes ${ini}-${fin}/${size}`, 'Cache-Control': 'private, max-age=3600' } });
+    }
+    const o = await env.R2_BUCKET.get(key);
+    return new Response(o.body, { status: 200, headers: {
+      'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Content-Length': String(size), 'Cache-Control': 'private, max-age=3600' } });
+  }
+  const o = await env.R2_BUCKET.get(key);
   if (!o) return new Response('Sin imagen', { status: 404 });
   return new Response(o.body, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600' } });
 }
@@ -6510,13 +6570,14 @@ async function publicarPendientes(env) {
       if (!r) {
         const videoUrl = await videoFirmadoDePieza(env, post);
         const slides = await slidesFirmadosDePieza(env, post);
+        const slidesVideo = await slidesVideoFirmadosDePieza(env, post);
         const cover = await portadaFirmadaDePieza(env, post);
         const guardarContenedor = async (cid) => {
           await env.DB.prepare('UPDATE mkt_posts SET publish_creation_id = ?, updated_at = datetime(\'now\') WHERE id = ?')
             .bind(cid, post.id).run();
         };
         try {
-          r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover, onContainer: guardarContenedor });
+          r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, slidesVideo, cover, onContainer: guardarContenedor });
         } catch (ePub) {
           // Meta a veces publica Y responde error: esperar y mirar el feed real.
           await new Promise((res) => setTimeout(res, 8000));
@@ -6732,8 +6793,9 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
     const slides = await slidesFirmadosDePieza(env, post);
+    const slidesVideo = await slidesVideoFirmadosDePieza(env, post);
     const cover = await portadaFirmadaDePieza(env, post);
-    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
+    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, slidesVideo, cover });
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
