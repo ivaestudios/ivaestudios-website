@@ -6,23 +6,23 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202610010057';
-import { icon } from '../shell/icons.js?v=202610010057';
-import { T } from '../shell/i18n.js?v=202610010057';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610010057';
+import { api, el, clear, toast } from '../api.js?v=202610011617';
+import { icon } from '../shell/icons.js?v=202610011617';
+import { T } from '../shell/i18n.js?v=202610011617';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610011617';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202610010057';
+import { moderarComentario } from '../shell/moderacion.js?v=202610011617';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202610010057';
+import { errorCard } from '../ui/states.js?v=202610011617';
 import {
   tieneWebCodecs, cargarVideo, soltarPagina, analizarPagina, slidesRealesDe,
   cortarWebCodecs, cuadroDeSlides, armarZip, MAX_SLIDES,
-} from '../lib/cortador-video.js?v=202610010057';
+} from '../lib/cortador-video.js?v=202610011617';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202610010057';
+} from '../lib/video-upload.js?v=202610011617';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -198,7 +198,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202610010057';
+  link.href = '/marketing/css/entregables.css?v=202610011617';
   document.head.appendChild(link);
 }
 
@@ -2650,11 +2650,20 @@ function render() {
   if (months.length > 1) rootEl.appendChild(buildMonthBar(months, byMonth));
 
   const m = activeMonthNav;
-  // Ordenar SIEMPRE por nombre, con orden numérico natural (2 < 11 < 12),
-  // sin importar cuándo se subió cada uno (re-subir el 11 no lo manda al final).
-  const list = byMonth.get(m).sort(
-    (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' }),
-  );
+  // Orden del CALENDARIO (Vianey, 1-oct-2026: "que no sea carrusel con
+  // carrusel"): lo vinculado a una pieza va en la fecha de esa pieza, así
+  // reels y carruseles se intercalan igual que en el feed. Lo que aún no
+  // tiene pieza va al final, por nombre con orden natural (2 < 11 < 12), sin
+  // importar cuándo se subió (re-subir el 11 no lo manda al final).
+  const porNombre = (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' });
+  const fechaPieza = (it) => (it.piece && it.piece.date) || '';
+  const list = byMonth.get(m).sort((a, b) => {
+    const fa = fechaPieza(a), fb = fechaPieza(b);
+    if (fa && fb && fa !== fb) return fa < fb ? -1 : 1;
+    if (fa && !fb) return -1;
+    if (!fa && fb) return 1;
+    return porNombre(a, b);
+  });
   const reels = list.filter((it) => it.type === 'reel' && it.video_url);
   // El atajo de arriba: mismo botón, para no tener que bajar a buscarlo.
   if (reels.length >= 2 && (!isClient() || descargasActivas())) {
@@ -2727,10 +2736,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202610010057');
+        const mod = await import('../lib/pdf-entregables.js?v=202610011617');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610010057');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610011617');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
