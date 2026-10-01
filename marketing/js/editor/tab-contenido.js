@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202610010035';
-import { pickFrom } from '../shell/sheet.js?v=202610010035';
-import * as store from '../shell/store.js?v=202610010035';
-import * as checklistService from '../services/checklist.js?v=202610010035';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202610010035';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202610010035';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202610010035';
-import { T } from '../shell/i18n.js?v=202610010035';
+} from '../api.js?v=202610010057';
+import { pickFrom } from '../shell/sheet.js?v=202610010057';
+import * as store from '../shell/store.js?v=202610010057';
+import * as checklistService from '../services/checklist.js?v=202610010057';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202610010057';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202610010057';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202610010057';
+import { T } from '../shell/i18n.js?v=202610010057';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -56,6 +56,7 @@ export function mount(host, ed) {
       refreshAll();
     },
   });
+  rEstado.el.dataset.row = 'estado'; // la visita guiada del cliente la señala
 
   // ── Aprobacion (solo staff; fuerza la decision del cliente) ───────────────
   // Marca SIN aprobación del cliente (Vianey, 30-sep-2026: "esa opción no me

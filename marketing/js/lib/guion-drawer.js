@@ -15,14 +15,14 @@
 //   abrirEditor()           si existe, el pie muestra "Abrir contenido"
 // ============================================================================
 
-import { el, copyText, clearClipboard } from '../api.js?v=202610010035';
-import { icon } from '../shell/icons.js?v=202610010035';
-import { T } from '../shell/i18n.js?v=202610010035';
-import { pushLayer } from '../shell/router.js?v=202610010035';
+import { el, copyText, clearClipboard } from '../api.js?v=202610010057';
+import { icon } from '../shell/icons.js?v=202610010057';
+import { T } from '../shell/i18n.js?v=202610010057';
+import { pushLayer } from '../shell/router.js?v=202610010057';
 import {
   slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder,
   slidesToText, altsFromText, altsToText,
-} from '../editor/slides.js?v=202610010035';
+} from '../editor/slides.js?v=202610010057';
 
 // Contexto y ganchos de la apertura en curso.
 let ctx = null;

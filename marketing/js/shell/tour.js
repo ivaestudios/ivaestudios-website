@@ -17,8 +17,8 @@
 // Tu cuenta → Visita guiada. router/store/prefs/closeAll llegan por
 // parámetro: shell.js importa este módulo y no puede haber ciclo.
 // ============================================================================
-import { el, esCreador } from '../api.js?v=202610010035';
-import { T } from './i18n.js?v=202610010035';
+import { el, esCreador } from '../api.js?v=202610010057';
+import { T } from './i18n.js?v=202610010057';
 
 export const TOUR_VERSION = 2;
 let activo = null;
@@ -84,7 +84,7 @@ function pasosEquipo() {
       sinElemento: T('Cuando el mes tenga piezas, cada fila trae un lápiz que la abre completa: guion, caption, fecha, hora y redes.', 'Once the month has pieces, each row has a pencil that opens it in full: script, caption, date, time and networks.'),
     },
     {
-      libre: true, empiezaCuando: (store) => store.getState().view === 'post', sigueCuando: (store) => store.getState().view !== 'post',
+      libre: true, cierraPieza: true, empiezaCuando: (store) => store.getState().view === 'post', sigueCuando: (store) => store.getState().view !== 'post',
       titulo: T('La pieza por dentro', 'Inside the piece'),
       texto: T('Guion, caption, fecha y hora, y las redes donde sale. Sin hora NO se publica: ponle hora y pásala a Programado, y el reloj la publica solo en Instagram, Facebook, TikTok y YouTube. Cierra la pieza para seguir.', 'Script, caption, date and time, and the networks it goes out to. With no time it does NOT publish: set a time and mark it Scheduled, and the clock posts it by itself to Instagram, Facebook, TikTok and YouTube. Close the piece to continue.'),
       siguiente: T('Cerrar y seguir', 'Close and continue'),
@@ -113,29 +113,67 @@ function pasosEquipo() {
   ];
 }
 
-function pasosCliente() {
+// La marca del cliente, ¿lleva aprobación? (mismo criterio que el calendario)
+function aprobacionActiva(store) {
+  const { activeClientId, clients } = store.getState();
+  const b = (clients || []).find((c) => c.id === activeClientId);
+  return !(b && Number(b.approval_enabled) === 0);
+}
+const enPieza = (store) => store.getState().view === 'post';
+
+// CLIENTE: visita OBLIGATORIA (Vianey, 1-oct-2026: "que no se pueda salir
+// hasta que la terminen"): sin Saltar, sin Escape, y si recarga retoma donde iba.
+function pasosCliente(store) {
+  const aprueba = aprobacionActiva(store);
   return [
     {
       titulo: T('Bienvenido a tu calendario', 'Welcome to your calendar'),
-      texto: T('Aquí ves el contenido que tu agencia prepara para tu marca, lo apruebas o pides cambios, y descargas tus videos finales. Un minuto.', 'Here you see the content your agency prepares for your brand, you approve it or request changes, and you download your final videos. One minute.'),
+      texto: aprueba
+        ? T('Aquí ves el contenido que tu agencia prepara para tu marca, lo apruebas o pides cambios, y descargas tus videos finales. Son dos minutos y al terminar sabrás usarlo todo.', 'Here you see the content your agency prepares for your brand, you approve it or request changes, and you download your final videos. Two minutes and you will know how to use it all.')
+        : T('Aquí ves el contenido que tu agencia prepara para tu marca, lo comentas y descargas tus videos finales. Son dos minutos y al terminar sabrás usarlo todo.', 'Here you see the content your agency prepares for your brand, you comment on it and download your final videos. Two minutes and you will know how to use it all.'),
     },
     {
       view: 'meses', sel: SEL_ABRIR_PIEZA, accion: true,
       titulo: T('Abre una pieza', 'Open a piece'),
-      texto: esMovil() ? T('Cada tarjeta es una pieza del mes. Toca una para verla completa.', 'Each card is one piece of the month. Tap one to see it in full.') : T('Cada fila es una pieza del mes. Toca el lápiz para verla completa.', 'Each row is one piece of the month. Tap the pencil to see it in full.'),
+      texto: esMovil() ? T('Cada tarjeta es una pieza del mes: un post, un reel o un carrusel. Toca una para verla completa.', 'Each card is one piece of the month: a post, a reel or a carousel. Tap one to see it in full.') : T('Cada fila es una pieza del mes: un post, un reel o un carrusel. Toca el lápiz para verla completa.', 'Each row is one piece of the month: a post, a reel or a carousel. Tap the pencil to see it in full.'),
       pista: pistaAbrir(),
-      sinElemento: T('Cuando tu agencia suba piezas, cada fila trae un lápiz para verla completa y aprobarla.', 'Once your agency adds pieces, each row has a pencil to see it in full and approve it.'),
+      sinElemento: T('Cuando tu agencia suba piezas, cada una aparece aquí con su fecha, su texto y su estado; la tocas para verla completa.', 'Once your agency adds pieces, each one appears here with its date, text and status; tap it to see it in full.'),
     },
+    ...(aprueba ? [{
+      soloSi: enPieza, sel: '[data-row="estado"]', accion: true,
+      titulo: T('Tu decisión: la fila Estado', 'Your decision: the Status row'),
+      texto: T('Esta fila es tuya. Tócala para ver tus dos opciones.', 'This row is yours. Tap it to see your two options.'),
+      pista: T('Toca aquí', 'Tap here'),
+    }, {
+      soloSi: enPieza, libre: true, empiezaCuando: () => hayCapa(), sigueCuando: () => !hayCapa(),
+      titulo: T('Aprobado o Modificar', 'Approved or Modify'),
+      texto: T('Aprobado deja la pieza lista y tu agencia se entera al instante. Modificar le pide cambios con tu comentario. Elige una si ya revisaste la pieza, o cierra para seguir.', 'Approved marks the piece ready and your agency is notified instantly. Modify requests changes with your comment. Pick one if you already reviewed the piece, or close to continue.'),
+      siguiente: T('Cerrar y seguir', 'Close and continue'),
+    }] : []),
     {
-      libre: true, empiezaCuando: (store) => store.getState().view === 'post', sigueCuando: (store) => store.getState().view !== 'post',
-      titulo: T('Aprobar o pedir cambios', 'Approve or request changes'),
-      texto: T('Arriba tienes dos botones: Aprobado, o Modificar con tu comentario. Tu agencia recibe el aviso al instante. Cierra la pieza para seguir.', 'At the top you have two buttons: Approved, or Modify with your comment. Your agency is notified instantly. Close the piece to continue.'),
+      soloSi: enPieza, libre: true, cierraPieza: true, empiezaCuando: enPieza, sigueCuando: (st) => !enPieza(st),
+      titulo: T('La pieza por dentro', 'Inside the piece'),
+      texto: T('Arriba: Guion muestra el texto completo de la pieza y Conversación es tu chat con la agencia. Explora lo que quieras y, cuando termines, cierra con la X para seguir.', 'At the top: Script shows the full text of the piece and Conversation is your chat with the agency. Explore as you like and, when you are done, close with the X to continue.'),
       siguiente: T('Cerrar y seguir', 'Close and continue'),
     },
+    ...(aprueba ? [{
+      view: 'meses', sel: esMovil() ? '.meses-approve' : '.meses-statuscell', soloResaltar: true,
+      titulo: T('Decidir desde la lista', 'Decide from the list'),
+      texto: esMovil()
+        ? T('Sin abrir la pieza también puedes decidir: cada pieza pendiente trae aquí mismo Aprobar y Pedir cambios.', 'You can also decide without opening the piece: each pending piece has Approve and Request changes right here.')
+        : T('Sin abrir la pieza también puedes decidir: la columna Estado abre Aprobado o Modificar en cualquier pieza.', 'You can also decide without opening the piece: the Status column opens Approved or Modify on any piece.'),
+      sinElemento: T('Cuando haya piezas pendientes de tu aprobación, cada una trae aquí mismo los botones Aprobar y Pedir cambios, sin abrirla.', 'Once there are pieces pending your approval, each one has Approve and Request changes right here, without opening it.'),
+    }] : []),
     {
-      view: 'entregables',
+      view: 'entregables', sel: '.dlv-dl, .dlv-card', soloResaltar: true,
       titulo: T('Tus entregables', 'Your deliverables'),
-      texto: T('Los reels y carruseles finales viven en Entregables: velos, comenta y descárgalos a tu teléfono con un toque.', 'The final reels and carousels live in Deliverables: watch them, comment and download them to your phone with one tap.'),
+      texto: T('Aquí viven tus reels y carruseles finales: míralos, comenta y descárgalos a tu teléfono con un toque.', 'Your final reels and carousels live here: watch them, comment and download them to your phone with one tap.'),
+      sinElemento: T('Cuando tu agencia suba tus videos finales aparecen aquí, listos para ver, comentar y descargar con un toque.', 'Once your agency uploads your final videos they appear here, ready to watch, comment and download with one tap.'),
+    },
+    {
+      view: 'meses',
+      titulo: T('Listo', 'All set'),
+      texto: T('Cada vez que tu agencia suba o cambie algo te llega un aviso en la campana. Puedes repetir esta visita desde tu foto, arriba a la derecha → Visita guiada.', 'Every time your agency adds or changes something you get a notification in the bell. You can replay this tour from your photo, top right → Guided tour.'),
     },
   ];
 }
@@ -182,7 +220,8 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   if (activo) return;
   if (!forzar && !tourPendiente(me, prefs)) return;
   const cliente = !!(me && me.role === 'client');
-  const pasos = cliente ? pasosCliente() : pasosEquipo();
+  const obligatoria = cliente; // el cliente no puede salir hasta terminarla
+  const pasos = cliente ? pasosCliente(store) : pasosEquipo();
   const st = store.getState();
   const clienteId = st.activeClientId && st.activeClientId !== 'todos' ? st.activeClientId : null;
   const params = clienteId ? { cliente: clienteId } : {};
@@ -205,6 +244,7 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   document.body.appendChild(root);
 
   let i = 0; let target = null; let iv = null; let cerrado = false; let p = null; let listo = false; let pasoT0 = 0;
+  let libreActual = false; // el paso se muestra libre SOLO si lo que debía abrirse está abierto
   activo = { root };
 
   function ponerMascara(r) {
@@ -223,14 +263,15 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   function colocar() {
     if (cerrado || !p) return;
     const vw = window.innerWidth, vh = window.innerHeight;
-    root.classList.toggle('tour--libre', !!p.libre);
-    if (p.libre) { // sin máscara: la persona usa lo que abrió; la tarjeta se hace a un lado
+    root.classList.toggle('tour--libre', libreActual);
+    if (libreActual) { // sin máscara: la persona usa lo que abrió; la tarjeta se hace a un lado
       for (const m of masks) m.hidden = true;
       foco.hidden = true; pista.hidden = true;
       card.classList.remove('tour__card--centro'); card.classList.add('tour__card--lado');
       // Móvil: hojas y diálogo suben desde abajo → la tarjeta va arriba, sobre el velo.
       // En el editor (pantalla completa, con su X arriba) va abajo.
-      card.classList.toggle('tour__card--arriba', esMovil() && store.getState().view !== 'post');
+      // Con una hoja abierta (vienen de abajo) la tarjeta va arriba aunque sea el editor.
+      card.classList.toggle('tour__card--arriba', esMovil() && (hayCapa() || store.getState().view !== 'post'));
       card.style.left = ''; card.style.top = ''; card.style.width = '';
       return;
     }
@@ -252,7 +293,10 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
       const pad = 6;
       const r = { left: r0.left - pad, top: r0.top - pad, width: r0.width + pad * 2, height: r0.height + pad * 2 };
       r.right = r.left + r.width; r.bottom = r.top + r.height;
-      ponerMascara(r);
+      // soloResaltar: se ve el aro pero NO hay hueco (tocar ahí abriría algo
+      // DEBAJO de la máscara, p.ej. Aprobar de la lista).
+      ponerMascara(p.soloResaltar ? null : r);
+      root.dataset.hueco = p.soloResaltar ? '0' : '1';
       foco.hidden = false;
       Object.assign(foco.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
       if (p.accion && p.pista) {
@@ -269,7 +313,7 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
       if (top + ch > vh - 16) top = Math.max(16, r.top - ch - 14);
       card.style.left = `${left}px`; card.style.top = `${top}px`; card.style.width = `${cw}px`;
     } else {
-      ponerMascara(null);
+      ponerMascara(null); root.dataset.hueco = '0';
       foco.hidden = true; pista.hidden = true;
       card.classList.add('tour__card--centro');
       card.style.left = ''; card.style.top = ''; card.style.width = '';
@@ -284,14 +328,30 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   }
 
   async function mostrar(n) {
+    const dir = n >= i ? 1 : -1;
+    n = Math.max(0, Math.min(pasos.length - 1, n));
+    // Pasos que solo tienen sentido en cierto estado (p.ej. dentro de la pieza):
+    // si no se cumple, se brincan en la dirección en que se venía.
+    while (pasos[n].soloSi && !pasos[n].soloSi(store)) {
+      const m = n + dir;
+      if (m < 0 || m >= pasos.length) break;
+      n = m;
+    }
     listo = false; root.classList.remove('tour--listo'); pasoT0 = Date.now();
-    i = Math.max(0, Math.min(pasos.length - 1, n));
-    p = pasos[i];
+    i = n; p = pasos[i]; libreActual = false;
+    if (obligatoria) prefs.set('tourPaso', i); // si recarga, retoma aquí
     target = null; colocar();
     paso.textContent = `${i + 1} ${T('de', 'of')} ${pasos.length}`;
     titulo.textContent = p.titulo; texto.textContent = p.texto;
     bPrev.hidden = i === 0;
     bNext.textContent = i === pasos.length - 1 ? T('Empezar', 'Start') : (p.siguiente || (p.accion ? T('Lo hago después', 'Later') : T('Siguiente', 'Next')));
+    // Obligatoria: en un paso de acción el botón para seguir sin hacerla
+    // aparece hasta pasados unos segundos (primero que lo intente).
+    bNext.hidden = false;
+    if (obligatoria && p.accion) {
+      bNext.hidden = true; bNext.textContent = T('Seguir', 'Continue');
+      const n0 = i; setTimeout(() => { if (!cerrado && i === n0 && p && p.accion) bNext.hidden = false; }, 7000);
+    }
     if (p.view && store.getState().view !== p.view) {
       if (typeof closeAll === 'function') { try { closeAll(); } catch { /* noop */ } }
       router.navigate(p.view, params);
@@ -306,12 +366,16 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
         await new Promise((r) => setTimeout(r, 380));
       } else if (p.sinElemento) {
         texto.textContent = p.sinElemento;
-        bNext.textContent = T('Siguiente', 'Next');
+        bNext.textContent = T('Siguiente', 'Next'); bNext.hidden = false;
       }
     }
     if (cerrado) return;
-    // Paso libre: esperar a que lo abierto esté de verdad abierto antes de vigilar su cierre.
-    if (p.libre && typeof p.empiezaCuando === 'function') await esperar(() => p.empiezaCuando(store), 3000);
+    // Paso libre: esperar a que lo abierto esté de verdad abierto antes de vigilar su
+    // cierre. Si no abrió (eligió seguir sin tocar), el paso se muestra como texto normal.
+    if (p.libre) {
+      libreActual = typeof p.empiezaCuando === 'function' ? await esperar(() => p.empiezaCuando(store), 3000) : true;
+      if (!libreActual) bNext.textContent = i === pasos.length - 1 ? T('Empezar', 'Start') : T('Siguiente', 'Next');
+    }
     if (cerrado) return;
     colocar();
     if (!p.accion && !p.libre) bNext.focus();
@@ -326,16 +390,18 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
     document.removeEventListener('keydown', teclas, true);
     document.removeEventListener('click', alTocar, true);
     root.remove();
-    prefs.set('tourDone', TOUR_VERSION);
+    // Obligatoria: solo cuenta como vista cuando se TERMINA.
+    if (terminada || !obligatoria) prefs.set('tourDone', TOUR_VERSION);
+    if (terminada) prefs.set('tourPaso', undefined);
     if (terminada && store.getState().view !== 'meses') router.navigate('meses', params);
   }
   function teclas(e) {
-    if (e.key !== 'Escape' || (p && p.libre)) return;
+    if (e.key !== 'Escape' || obligatoria || libreActual) return;
     e.preventDefault(); cerrar(false);
   }
   bNext.onclick = async () => {
-    if (p && p.libre && typeof closeAll === 'function') { try { closeAll(); } catch { /* noop */ } }
-    if (p && p.libre && store.getState().view === 'post') {
+    if (p && libreActual && typeof closeAll === 'function') { try { closeAll(); } catch { /* noop */ } }
+    if (p && libreActual && p.cierraPieza && store.getState().view === 'post') {
       const n = i; p = null; listo = false;
       const x = document.querySelector('.edhead .edicon[aria-label]');
       if (x) x.click(); else router.navigate('meses', params);
@@ -348,18 +414,21 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   };
   bPrev.onclick = () => mostrar(i - 1);
   bSkip.onclick = () => cerrar(false);
+  bSkip.hidden = obligatoria;
   document.addEventListener('keydown', teclas, true);
   document.addEventListener('click', alTocar, true);
   window.addEventListener('resize', colocar);
   iv = setInterval(() => {
     colocar();
     // Paso libre: cuando la persona cerró la hoja / la pieza, la visita sigue sola.
-    if (listo && p && p.libre && typeof p.sigueCuando === 'function') {
+    if (listo && p && libreActual && typeof p.sigueCuando === 'function') {
       let ok = false; try { ok = !!p.sigueCuando(store); } catch { ok = false; }
       if (ok) { const n = i; p = null; mostrar(n + 1); }
     }
   }, 300);
-  await mostrar(0);
+  // Obligatoria: si recargó a medio camino, retoma en el paso donde iba.
+  const guardado = obligatoria && !forzar ? Number(prefs.get('tourPaso', 0)) : 0;
+  await mostrar(Number.isFinite(guardado) && guardado > 0 && guardado < pasos.length ? guardado : 0);
 }
 
 export function tourActiva() { return !!activo; }
