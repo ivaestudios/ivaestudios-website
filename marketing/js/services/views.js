@@ -28,12 +28,12 @@
 // filters} (evento de dominio canonico del store).
 // ============================================================================
 
-import { api } from '../api.js?v=202609302344';
-import { toast } from '../shell/toast.js?v=202609302344';
-import * as store from '../shell/store.js?v=202609302344';
-import * as prefs from '../shell/prefs.js?v=202609302344';
-import { navigate, current } from '../shell/router.js?v=202609302344';
-import { T } from '../shell/i18n.js?v=202609302344';
+import { api } from '../api.js?v=202610010035';
+import { toast } from '../shell/toast.js?v=202610010035';
+import * as store from '../shell/store.js?v=202610010035';
+import * as prefs from '../shell/prefs.js?v=202610010035';
+import { navigate, current } from '../shell/router.js?v=202610010035';
+import { T } from '../shell/i18n.js?v=202610010035';
 
 const TTL = 60000;
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");

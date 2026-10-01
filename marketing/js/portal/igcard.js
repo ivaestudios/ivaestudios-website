@@ -9,7 +9,7 @@
 // {title, content_type, publish_date, caption, video_url, approval_state}.
 // ============================================================================
 
-import { el, fmtDate, initials, CONTENT_TYPES, contentTypeLabel, approvalBadge } from '../api.js?v=202609302344';
+import { el, fmtDate, initials, CONTENT_TYPES, contentTypeLabel, approvalBadge } from '../api.js?v=202610010035';
 
 // SVG estaticos (unico innerHTML permitido). Stroke = currentColor.
 export const ICONS = {

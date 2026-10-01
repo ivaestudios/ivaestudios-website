@@ -10,19 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202609302344';
-import * as store from './store.js?v=202609302344';
-import { openSheet, pickFrom } from './sheet.js?v=202609302344';
-import { toast } from './toast.js?v=202609302344';
-import { icon } from './icons.js?v=202609302344';
-import { openClientSwitcher } from './clientswitcher.js?v=202609302344';
-import { T, isEN, setLang } from './i18n.js?v=202609302344';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610010035';
+import * as store from './store.js?v=202610010035';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610010035';
+import { toast } from './toast.js?v=202610010035';
+import { icon } from './icons.js?v=202610010035';
+import { openClientSwitcher } from './clientswitcher.js?v=202610010035';
+import { T, isEN, setLang } from './i18n.js?v=202610010035';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609302344';
-import { getTheme, setTheme } from './theme.js?v=202609302344';
-import * as version from './version.js?v=202609302344';
-import * as tienda from './tienda.js?v=202609302344';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609302344';
+import { abrirBloqueados } from './moderacion.js?v=202610010035';
+import { getTheme, setTheme } from './theme.js?v=202610010035';
+import * as version from './version.js?v=202610010035';
+import * as tienda from './tienda.js?v=202610010035';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610010035';
+import * as prefs from './prefs.js?v=202610010035';
+import { startTour } from './tour.js?v=202610010035';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -127,7 +129,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
     if (dentro.length === 1) {                       // sin desplegable: no hay nada que elegir
       const id = dentro[0];
-      const b = el('button', { class: 'tb-tab', type: 'button', text: etiqueta(id), onclick: () => irA(id) });
+      const b = el('button', { class: 'tb-tab', type: 'button', text: etiqueta(id), dataset: { tab: id }, onclick: () => irA(id) });
       tabBtns.set(id, b);
       tabsWrap.appendChild(b);
       continue;
@@ -135,7 +137,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
     const panel = el('div', { class: 'tb-menu', role: 'menu', hidden: true });
     const btn = el('button', {
-      class: 'tb-tab tb-tab--grupo', type: 'button',
+      class: 'tb-tab tb-tab--grupo', type: 'button', dataset: { grupo: g.id },
       'aria-haspopup': 'true', 'aria-expanded': 'false',
     }, [el('span', { text: g.label }), icon('down', 15)]);
     const caja = el('div', { class: 'tb-grupo' }, [btn, panel]);
@@ -152,7 +154,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
     for (const id of dentro) {
       const item = el('button', {
-        class: 'tb-menu__i', type: 'button', role: 'menuitem', text: etiqueta(id),
+        class: 'tb-menu__i', type: 'button', role: 'menuitem', text: etiqueta(id), dataset: { tab: id },
         onclick: () => { api.cerrar(); irA(id); },
       });
       tabBtns.set(id, item);
@@ -459,6 +461,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ] : []),
           // Antes este renglon abria la LISTA de avisos, o sea que "ajustes" no
           // ajustaba nada. Ahora abre el interruptor de los avisos al telefono.
+          // Visita guiada (1-oct-2026): la misma que sale al primer ingreso, a la mano.
+          accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true }), 380); }),
           accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
