@@ -195,6 +195,12 @@ async function ttJson(url, init) {
   if (!res.ok || err) {
     let msg = (err && (err.message || err.code)) || `HTTP ${res.status}`;
     if (/url_ownership_unverified/.test(msg)) msg = 'TikTok exige verificar el dominio ivaestudios.com en su portal (TXT en el DNS) para carruseles — checklist paso 7.';
+    // Código real: unaudited_client_can_only_post_to_private_accounts. Mientras
+    // TikTok no apruebe la app, el Direct Post solo entra en cuentas PRIVADAS.
+    if (/integration guidelines|unaudited_client|private accounts/i.test(msg)) {
+      const e2 = new Error('TikTok solo deja publicar DIRECTO a apps sin aprobar si la cuenta de TikTok está en PRIVADO (Ajustes → Privacidad → Cuenta privada). Mientras tanto el video va al BUZÓN de la cuenta.');
+      e2.cuentaPublica = true; throw e2;
+    }
     if (/spam_risk_too_many_posts|too_many_pending_share/.test(msg)) msg = 'TikTok frenó por límite de publicaciones del día en esta cuenta — reintentar mañana. (' + msg + ')';
     throw new Error(msg);
   }
@@ -306,8 +312,17 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   const bytes = await vid.arrayBuffer();
   if (bytes.byteLength > 64 * 1024 * 1024) throw new Error('El video pasa de 64MB — comprimirlo para TikTok.');
 
-  const init = directo
-    ? await ttJson(`${TT_API}/post/publish/video/init/`, {
+  let modoFinal = directo ? modoDirecto : 'buzon';
+  const initBuzon = () => ttJson(`${TT_API}/post/publish/inbox/video/init/`, {
+    method: 'POST', headers: auth,
+    body: JSON.stringify({
+      source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
+    }),
+  });
+  let init;
+  if (directo) {
+    try {
+      init = await ttJson(`${TT_API}/post/publish/video/init/`, {
         method: 'POST', headers: auth,
         body: JSON.stringify({
           post_info: {
@@ -322,13 +337,17 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
           },
           source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
         }),
-      })
-    : await ttJson(`${TT_API}/post/publish/inbox/video/init/`, {
-        method: 'POST', headers: auth,
-        body: JSON.stringify({
-          source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
-        }),
       });
+    } catch (e) {
+      // Cuenta pública + app sin aprobar: no se pierde la publicación, se va
+      // al buzón (y la actividad dice por qué). Cualquier otro error sí sube.
+      if (!(e && e.cuentaPublica)) throw e;
+      init = await initBuzon();
+      modoFinal = 'buzon-por-cuenta-publica';
+    }
+  } else {
+    init = await initBuzon();
+  }
   const publishId = init.data && init.data.publish_id;
   const uploadUrl = init.data && init.data.upload_url;
   if (!publishId || !uploadUrl) throw new Error('TikTok no devolvió el destino de subida.');
@@ -354,5 +373,5 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
     if (s === 'PUBLISH_COMPLETE' || s === 'SEND_TO_USER_INBOX') break;
     if (s === 'FAILED') throw new Error('TikTok no pudo procesar el video: ' + ((st.data && st.data.fail_reason) || 'sin motivo'));
   }
-  return { ttPostId: publishId, modo: directo ? modoDirecto : 'buzon' };
+  return { ttPostId: publishId, modo: modoFinal };
 }

@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609302342';
-import { T } from '../shell/i18n.js?v=202609302342';
-import { icon } from '../shell/icons.js?v=202609302342';
-import { openSheet } from '../shell/sheet.js?v=202609302342';
-import * as store from '../shell/store.js?v=202609302342';
-import * as cl from '../services/checklist.js?v=202609302342';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609302344';
+import { T } from '../shell/i18n.js?v=202609302344';
+import { icon } from '../shell/icons.js?v=202609302344';
+import { openSheet } from '../shell/sheet.js?v=202609302344';
+import * as store from '../shell/store.js?v=202609302344';
+import * as cl from '../services/checklist.js?v=202609302344';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -303,7 +303,7 @@ export function openPublishNowSheet(ed) {
             const subiendo = [];
             if (r && r.media_id) salio.push('Instagram');
             if (r && r.fb) (r.fb.ok ? salio : fallo).push('Facebook');
-            if (r && r.tt) (r.tt.ok ? salio : fallo).push(r.tt.ok && r.tt.modo === 'buzon' ? T('TikTok (a su buzón)', 'TikTok (to its inbox)') : r.tt.ok && r.tt.modo === 'privado' ? T('TikTok (privado hasta la aprobación)', 'TikTok (private until approval)') : 'TikTok');
+            if (r && r.tt) (r.tt.ok ? salio : fallo).push(r.tt.ok && r.tt.modo === 'buzon-por-cuenta-publica' ? T('TikTok (al buzón: la cuenta es pública y la app aún no está aprobada)', 'TikTok (to the inbox: the account is public and the app is not approved yet)') : r.tt.ok && r.tt.modo === 'buzon' ? T('TikTok (a su buzón)', 'TikTok (to its inbox)') : r.tt.ok && r.tt.modo === 'privado' ? T('TikTok (privado hasta la aprobación)', 'TikTok (private until approval)') : 'TikTok');
             // YouTube con video grande: no terminó en esta petición, pero NO
             // falló. El reloj la continúa sola, así que se dice tal cual.
             const ytPend = r && r.yt && r.yt.pendiente;

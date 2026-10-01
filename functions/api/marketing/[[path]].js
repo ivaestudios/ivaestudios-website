@@ -6365,7 +6365,9 @@ async function extraTikTok(env, post, session, permitido = true) {
       .bind(rt.ttPostId, post.id).run();
     await logActivity(env, {
       client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_tt',
-      detail: rt.modo === 'buzon'
+      detail: rt.modo === 'buzon-por-cuenta-publica'
+        ? 'Enviado al BUZÓN de TikTok: hasta que TikTok apruebe la app, el directo solo entra en cuentas PRIVADAS (Ajustes → Privacidad → Cuenta privada).'
+        : rt.modo === 'buzon'
         ? 'Enviado al BUZÓN de TikTok de la marca — publicar con un tap desde la app.'
         : rt.modo === 'privado'
           ? `Publicado en TikTok como PRIVADO (solo lo ve la cuenta) hasta que TikTok apruebe la app · ${rt.ttPostId}`
