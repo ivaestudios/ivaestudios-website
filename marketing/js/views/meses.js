@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609302306';
-import { icon, iconMarca } from '../shell/icons.js?v=202609302306';
-import { T } from '../shell/i18n.js?v=202609302306';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609302306';
-import { confirmar } from '../shell/sheet.js?v=202609302306';
-import { openNewClient } from '../shell/clientswitcher.js?v=202609302306';
+} from '../api.js?v=202609302312';
+import { icon, iconMarca } from '../shell/icons.js?v=202609302312';
+import { T } from '../shell/i18n.js?v=202609302312';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609302312';
+import { confirmar } from '../shell/sheet.js?v=202609302312';
+import { openNewClient } from '../shell/clientswitcher.js?v=202609302312';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609302306';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609302306';
+import { errorCard } from '../ui/states.js?v=202609302312';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609302312';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609302306';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609302312';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609302306';
+} from '../lib/video-upload.js?v=202609302312';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1926,6 +1926,35 @@ async function openBrief() {
   });
 }
 
+// Interruptor de APROBACIÓN DEL CLIENTE por marca (migración 025). Apagado:
+// la marca no pide aprobación ni enseña "Pendiente"; sus piezas se programan
+// y publican igual. Persiste en mkt_clients.approval_enabled vía PATCH.
+async function toggleAprobacion(btn) {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  if (!brand) return;
+  const next = brand.approval_enabled === 0 ? 1 : 0;
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/marketing/clients/${activeClientId}`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approval_enabled: next }),
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || T('No se pudo guardar.', 'Could not save.'));
+    ctx.store.set({ clients: clients.map((c) => (c.id === activeClientId ? { ...c, approval_enabled: next } : c)) });
+    const span = btn.querySelector('.meses-remtoggle__txt');
+    if (span) span.textContent = `${T('Aprobación del cliente:', 'Client approval:')} ${next ? T('Activada', 'On') : T('Desactivada', 'Off')}`;
+    btn.classList.toggle('is-off', !next);
+    ctx.toast(next
+      ? `${T('Aprobación del cliente activada para', 'Client approval turned on for')} ${brand.name}.`
+      : `${T('Aprobación del cliente desactivada para', 'Client approval turned off for')} ${brand.name}: ${T('todo se programa y publica sin pedirla.', 'everything schedules and publishes without asking.')}`, { type: 'success' });
+  } catch (e) {
+    ctx.toast(e.message, { type: 'error' });
+  } finally { btn.disabled = false; }
+}
+
 // Interruptor de avisos automáticos por marca (recordatorios, atrasados,
 // sin-aprobar). Persiste en mkt_clients.reminders_enabled vía PATCH.
 async function toggleReminders(btn) {
@@ -1989,8 +2018,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609302306');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609302306');
+        const mod = await import('../lib/pdf-contenido.js?v=202609302312');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609302312');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -2884,6 +2913,13 @@ function render() {
       title: T('Recordatorios de publicación, atrasados y sin-aprobar de esta marca', 'Publish, overdue and unapproved reminders for this brand'),
       onclick: (e) => toggleReminders(e.currentTarget),
     }, [icon('bell', 16), el('span', { class: 'meses-remtoggle__txt', text: `${T('Avisos automáticos:', 'Automatic alerts:')} ${remOn ? T('Activados', 'On') : T('Desactivados', 'Off')}` })]));
+    // Aprobación del cliente por marca (migración 025): apagada = sin pedirla.
+    const aprOn = !brandRow || brandRow.approval_enabled !== 0;
+    sectionsEl.appendChild(el('button', {
+      class: 'meses-addmonth meses-remtoggle' + (aprOn ? '' : ' is-off'), type: 'button',
+      title: T('Si está apagada, las piezas de esta marca no piden aprobación al cliente: se programan y publican directo', 'If off, this brand\'s pieces never ask the client for approval: they schedule and publish directly'),
+      onclick: (e) => toggleAprobacion(e.currentTarget),
+    }, [icon('check', 16), el('span', { class: 'meses-remtoggle__txt', text: `${T('Aprobación del cliente:', 'Client approval:')} ${aprOn ? T('Activada', 'On') : T('Desactivada', 'Off')}` })]));
   }
   // Reporte mensual imprimible con el branding de la marca (admin y cliente).
   if (!isTodos && activeClientId && activeMonth && activeMonth !== SIN_MES) {

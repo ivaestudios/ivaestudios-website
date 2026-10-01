@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609302306';
-import { pickFrom } from '../shell/sheet.js?v=202609302306';
-import * as store from '../shell/store.js?v=202609302306';
-import * as checklistService from '../services/checklist.js?v=202609302306';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609302306';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609302306';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609302306';
-import { T } from '../shell/i18n.js?v=202609302306';
+} from '../api.js?v=202609302312';
+import { pickFrom } from '../shell/sheet.js?v=202609302312';
+import * as store from '../shell/store.js?v=202609302312';
+import * as checklistService from '../services/checklist.js?v=202609302312';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609302312';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202609302312';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609302312';
+import { T } from '../shell/i18n.js?v=202609302312';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -58,6 +58,11 @@ export function mount(host, ed) {
   });
 
   // ── Aprobacion (solo staff; fuerza la decision del cliente) ───────────────
+  // Marca SIN aprobación del cliente (Vianey, 30-sep-2026: "esa opción no me
+  // sirve, quítala"): ni esta fila ni "Pedir aprobación" se pintan. Publicar
+  // nunca dependió de la aprobación; solo sobraba el ruido.
+  const marcaActual = ed.getClient();
+  const aprobacionActiva = !(marcaActual && Number(marcaActual.approval_enabled) === 0);
   const rAprobacion = rowButton({
     label: T('Aprobación', 'Approval'),
     render: (v) => v.appendChild(approvalBadge(post().approval_state)),
@@ -350,12 +355,12 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rHora, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rNotas, ...personRows]),
+    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rNotas, ...personRows]),
   );
 
-  addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
+  addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente || !aprobacionActiva ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
-  if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
+  if (!esCliente && aprobacionActiva) addSection(T('Cliente', 'Client'), [rVisible.el]);
   if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);

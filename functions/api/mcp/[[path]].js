@@ -231,7 +231,7 @@ function wsDe(scope) { return (scope && scope.workspaceId) || 'ivae'; }
 
 async function brandById(env, id, scope) {
   return env.DB.prepare(
-    `SELECT id, name, slug, instagram_handle FROM mkt_clients
+    `SELECT id, name, slug, instagram_handle, approval_enabled FROM mkt_clients
       WHERE id = ? AND archived = 0 AND COALESCE(workspace_id, 'ivae') = ? LIMIT 1`
   ).bind(id, wsDe(scope)).first();
 }
@@ -241,7 +241,7 @@ async function resolveBrandArg(env, brand, scope) {
   const noAt = b.replace(/^@/, '');
   const ws = wsDe(scope);
   let row = await env.DB.prepare(
-    `SELECT id, name, slug, instagram_handle FROM mkt_clients
+    `SELECT id, name, slug, instagram_handle, approval_enabled FROM mkt_clients
        WHERE archived = 0 AND COALESCE(workspace_id, 'ivae') = ?4 AND (
          id = ?1 OR slug = ?1 COLLATE NOCASE OR name = ?1 COLLATE NOCASE
          OR instagram_handle = ?1 COLLATE NOCASE OR instagram_handle = ?2 COLLATE NOCASE
@@ -251,7 +251,7 @@ async function resolveBrandArg(env, brand, scope) {
   if (row) return row;
   const like = '%' + noAt + '%';
   const res = await env.DB.prepare(
-    `SELECT id, name, slug, instagram_handle FROM mkt_clients
+    `SELECT id, name, slug, instagram_handle, approval_enabled FROM mkt_clients
        WHERE archived = 0 AND COALESCE(workspace_id, 'ivae') = ?2 AND (name LIKE ?1 COLLATE NOCASE OR slug LIKE ?1 COLLATE NOCASE
          OR instagram_handle LIKE ?1 COLLATE NOCASE) LIMIT 3`
   ).bind(like, ws).all();
@@ -376,6 +376,8 @@ async function createPost(env, scope, args) {
     if (u.err) return toolErr(`${f} debe ser una URL válida (ej. https://...).`);
     cols.push(f); vals.push(u.value);
   }
+  // Marca sin aprobación del cliente (migración 025): la pieza nace sin pedirla.
+  if (Number(brand.approval_enabled) === 0 && !cols.includes('client_visible')) { cols.push('client_visible'); vals.push(0); }
   const placeholders = cols.map(() => '?').join(', ');
   await env.DB.prepare(`INSERT INTO mkt_posts (${cols.join(', ')}) VALUES (${placeholders})`).bind(...vals).run();
   logActivity(env, brand.id, id, 'post.create', title.slice(0, 140));

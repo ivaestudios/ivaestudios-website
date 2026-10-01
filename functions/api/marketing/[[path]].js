@@ -1607,6 +1607,10 @@ function shapeClient(c, counts) {
     // "Avisos automáticos" siempre se pintaba en Activado aunque estuviera
     // apagado en la base (el backend sí lo respetaba; mentía la pantalla).
     reminders_enabled: c.reminders_enabled == null ? 1 : (c.reminders_enabled ? 1 : 0),
+    // ¿La marca trabaja con aprobación del cliente? (migración 025). Apagada:
+    // sin interruptor "Pedir aprobación", sin etiqueta "Pendiente" y las
+    // piezas nacen con client_visible = 0. Publicar nunca dependió de esto.
+    approval_enabled: c.approval_enabled == null ? 1 : (c.approval_enabled ? 1 : 0),
     // Conexiones sociales (solo lectura para la ficha; los tokens jamás viajan)
     ig_username: c.ig_username || null,
     fb_page_name: c.fb_page_name || null,
@@ -1708,13 +1712,13 @@ async function handlePatchClient(request, env, session, clientId) {
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
-  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email', 'reminders_enabled', 'downloads_enabled'];
+  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email', 'reminders_enabled', 'downloads_enabled', 'approval_enabled'];
   const sets = [];
   const vals = [];
   for (const f of allowed) {
     if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, f)) {
       sets.push(`${f} = ?`);
-      vals.push(['archived', 'reminders_enabled', 'downloads_enabled'].includes(f) ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
+      vals.push(['archived', 'reminders_enabled', 'downloads_enabled', 'approval_enabled'].includes(f) ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
     }
   }
   // note_labels is a JSON column → validate + stringify separately.
@@ -2751,6 +2755,14 @@ async function handleCreatePost(request, env, session) {
       if (f === 'grabacion') v = (v === '' || v == null) ? null : Number(v);
       vals.push(v);
     }
+  }
+  // Marca SIN aprobación del cliente (migración 025): la pieza nace sin pedir
+  // aprobación, salvo que quien la crea lo diga explícitamente.
+  if (!cols.includes('client_visible')) {
+    try {
+      const br = await env.DB.prepare('SELECT approval_enabled FROM mkt_clients WHERE id = ?').bind(clientId).first();
+      if (br && Number(br.approval_enabled) === 0) { cols.push('client_visible'); placeholders.push('?'); vals.push(0); }
+    } catch (e) { if (!isMissingColumnError(e)) throw e; }
   }
   // notes_people is INTERNAL (team/admin only) + a JSON column → handle apart.
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'notes_people')) {
