@@ -6,10 +6,10 @@
 // nuevo lo reemplaza. Backend: GET/POST/DELETE /clients/:id/manual
 // (?info=1 = metadata, ?dl=1 = descarga con attachment).
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202610062330';
-import { icon } from '../shell/icons.js?v=202610062330';
-import { T } from '../shell/i18n.js?v=202610062330';
-import { confirmar } from '../shell/sheet.js?v=202610062330';
+import { el, clear, toast } from '../api.js?v=202610070010';
+import { icon } from '../shell/icons.js?v=202610070010';
+import { T } from '../shell/i18n.js?v=202610070010';
+import { confirmar } from '../shell/sheet.js?v=202610070010';
 
 const VIEW_ID = 'marca';
 
@@ -196,7 +196,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/marca.css?v=202610062330';
+  link.href = '/marketing/css/marca.css?v=202610070010';
   document.head.appendChild(link);
 }
 
