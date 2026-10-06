@@ -14,19 +14,22 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202610011617';
-import { slidesFromPost } from '../editor/slides.js?v=202610011617';
+import { T } from '../shell/i18n.js?v=202610062330';
+import { slidesFromPost } from '../editor/slides.js?v=202610062330';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas, pastilla,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202610011617';
+} from './pdf-lienzo.js?v=202610062330';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
-// slidesFromPost. Solo foto/post quedan fuera (no llevan guion).
+// slidesFromPost. Los POSTS de imagen entran desde 2026-10-06 (Israel:
+// "no descarga los posts, solo los carruseles"): llevan gancho, la
+// descripción de la imagen con sus textos, y el cierre.
 const TIPOS_VIDEO = ['reel', 'tiktok', 'historia', 'informativo', 'pauta', 'tratamientos'];
+const TIPOS_POST = ['post', 'foto'];
 // Los TESTIMONIOS (tipo "Experiencia/Testimonial") son su propia familia:
 // llevan TAG visible y van SIEMPRE al final del documento — el material lo
 // comparte el cliente, no lo produce el estudio (pedido 2026-08-07).
@@ -64,7 +67,7 @@ function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, se
     texto(cx, 'Toca el botón: es el video de referencia de esta pieza.', { ...NOTA, size: 24, x: W / 2, y: y0 + 32 + 132 + 46 });
     links.push({ x: b.x, y: b.y - 14, w: b.w, h: b.h + 28, url: inspo });
     regla(cx, W / 2, CONT_W, y0 + 32 + 132 + 96);
-    const lee = etiqueta === 'carrusel' ? 'DESPUÉS — LEE LOS TEXTOS' : 'DESPUÉS — LEE EL GUION';
+    const lee = (etiqueta === 'carrusel' || etiqueta === 'post') ? 'DESPUÉS — LEE LOS TEXTOS' : 'DESPUÉS — LEE EL GUION';
     texto(cx, lee, { x: MX, y: y0 + 32 + 132 + 158, size: 21, peso: 500, esp: 0.3, color: HUMO });
     yTop = y0 + 32 + 132 + 236;   // aire entre el rótulo del paso y el primer bloque
   }
@@ -140,15 +143,18 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   const tipo = (p) => String(p.content_type || '').toLowerCase();
   const esVideo = (p) => TIPOS_VIDEO.includes(tipo(p));
   const esCarrusel = (p) => tipo(p) === 'carrusel';
+  const esPost = (p) => TIPOS_POST.includes(tipo(p));
   const esTestimonio = (p) => TIPOS_TESTIMONIO.includes(tipo(p));
-  const familiaDe = (p) => (esTestimonio(p) ? 2 : (esCarrusel(p) ? 1 : 0));
+  // Familias en orden: videos → carruseles → posts → testimonios.
+  const familiaDe = (p) => (esTestimonio(p) ? 3 : (esPost(p) ? 2 : (esCarrusel(p) ? 1 : 0)));
   const plan = (piezas || [])
-    .filter((p) => esVideo(p) || esCarrusel(p) || esTestimonio(p))
+    .filter((p) => esVideo(p) || esCarrusel(p) || esPost(p) || esTestimonio(p))
     .sort((a, b) => (familiaDe(a) - familiaDe(b))
       || String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999')));
   if (!plan.length) throw new Error(T('Este mes no tiene contenido planeado.', 'This month has no planned content.'));
   const nVideos = plan.filter(esVideo).length;
   const nCarruseles = plan.filter(esCarrusel).length;
+  const nPosts = plan.filter(esPost).length;
   const nTestimonios = plan.filter(esTestimonio).length;
 
   const total = 2 + plan.length;
@@ -157,6 +163,7 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   const resumen = [
     nVideos ? `${nVideos} ${nVideos === 1 ? 'VIDEO' : 'VIDEOS'}` : null,
     nCarruseles ? `${nCarruseles} ${nCarruseles === 1 ? 'CARRUSEL' : 'CARRUSELES'}` : null,
+    nPosts ? `${nPosts} ${nPosts === 1 ? 'POST' : 'POSTS'}` : null,
     nTestimonios ? `${nTestimonios} ${nTestimonios === 1 ? 'TESTIMONIO' : 'TESTIMONIOS'}` : null,
   ].filter(Boolean).join('   ·   ');
   paginas.push(paginaPortadaBase({
@@ -165,7 +172,7 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
     lineas: ['El plan de tu contenido de este mes —', 'guiones e inspiración, antes de producir.'],
   }));
 
-  let folio = 1; let iVideo = 0; let iCarrusel = 0; let iTestimonio = 0;
+  let folio = 1; let iVideo = 0; let iCarrusel = 0; let iPost = 0; let iTestimonio = 0;
   for (const p of plan) {
     paso(T(`Pieza ${folio} de ${plan.length}…`, `Piece ${folio} of ${plan.length}…`));
     const inspo = String(p.inspo_url || '').trim() || null;
@@ -200,6 +207,21 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
         titulo: `Carrusel ${++iCarrusel}`,
         etiqueta: 'carrusel',
         sub: p.title || '', fecha, secciones, inspo,
+        folio: ++folio, total,
+      }));
+    } else if (esPost(p)) {
+      // POST de imagen: gancho, la imagen con sus textos (van en body) y cierre.
+      paginas.push(paginaGuion({
+        marca, handle, mesLabel,
+        titulo: `Post ${++iPost}`,
+        etiqueta: 'post',
+        sub: p.title || '', fecha,
+        secciones: [
+          { etiqueta: 'Gancho', texto: String(p.hook || '').trim() },
+          { etiqueta: 'Imagen y textos', texto: String(p.body || '').trim() },
+          { etiqueta: 'Cierre', texto: String(p.cta || '').trim() },
+        ],
+        inspo,
         folio: ++folio, total,
       }));
     } else {
