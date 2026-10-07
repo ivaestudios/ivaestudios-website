@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610071800';
-import { toast } from '../shell/toast.js?v=202610071800';
-import { icon, iconMarca } from '../shell/icons.js?v=202610071800';
-import { T, isEN } from '../shell/i18n.js?v=202610071800';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610071830';
+import { toast } from '../shell/toast.js?v=202610071830';
+import { icon, iconMarca } from '../shell/icons.js?v=202610071830';
+import { T, isEN } from '../shell/i18n.js?v=202610071830';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -482,7 +482,8 @@ function chat() {
           el('strong', { text: horas >= 23.9
             ? T('Pasaron más de 24 h: sale dentro de la plantilla', 'Over 24 h: it goes inside the template')
             : T('Sale con botones de confirmación', 'Goes with confirmation buttons') }),
-          el('span', { class: 'bj-plantilla__costo', text: T('≈ 15 centavos', '≈ USD 0.01') }),
+          // Meta decide la categoría: utilidad ≈ USD 0.0085, marketing ≈ USD 0.0397 (México, oct-2026).
+          el('span', { class: 'bj-plantilla__costo', text: pl.categoria === 'MARKETING' ? T('≈ 75 centavos (Meta la cobra como marketing)', '≈ USD 0.04 (billed as marketing)') : T('≈ 15 centavos', '≈ USD 0.01') }),
         ]),
         el('div', { class: 'seg bj-plantilla__seg', role: 'tablist' }, [
           ['seguimiento', T('Seguimiento', 'Follow-up')], ['confirmacion', T('Con botones', 'With buttons')],
@@ -1161,10 +1162,11 @@ function seccionPlantillas(body, cli) {
     const ul = el('ul', { class: 'bj-aj__lista' });
     for (const [k, p] of Object.entries(plantillas || {})) {
       const ok = p.estado === 'APPROVED';
+      const cat = p.categoria === 'MARKETING' ? T(' · Meta la clasificó como marketing (≈ 75 centavos y con tope por persona)', ' · Meta classified it as marketing') : (p.categoria === 'UTILITY' ? T(' · utilidad (≈ 15 centavos)', ' · utility') : '');
       const txtEstado = ({ APPROVED: T('aprobada', 'approved'), PENDING: T('en revisión de Meta', 'in Meta review'), REJECTED: T('rechazada', 'rejected'), PAUSED: T('pausada', 'paused'), DISABLED: T('desactivada', 'disabled'), EXISTE: T('creada, revisando estado', 'created, checking status'), ERROR: T('error al crear', 'creation error') })[p.estado] || T('sin crear', 'not created');
       ul.appendChild(el('li', { class: ok ? 'is-ok' : 'is-bad' }, [
         icon(ok ? 'check' : 'clock', 14),
-        el('span', {}, [el('strong', { text: `${p.titulo || k}: ${txtEstado}` }), el('br'), el('span', { class: 'muted', text: p.cuerpo || '' }), p.motivo ? el('span', { class: 'bj-burbuja__err', text: ' · ' + p.motivo }) : null].filter(Boolean)),
+        el('span', {}, [el('strong', { text: `${p.titulo || k}: ${txtEstado}` }), cat ? el('span', { class: 'muted', text: cat }) : null, el('br'), el('span', { class: 'muted', text: p.cuerpo || '' }), p.motivo ? el('span', { class: 'bj-burbuja__err', text: ' · ' + p.motivo }) : null].filter(Boolean)),
       ]));
     }
     caja.appendChild(ul);
@@ -1330,7 +1332,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610071800';
+  link.href = '/marketing/css/bandeja.css?v=202610071830';
   document.head.appendChild(link);
 }
 

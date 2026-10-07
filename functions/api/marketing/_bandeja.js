@@ -1320,7 +1320,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       const d = defPlantilla(c, k);
       const p = cfg.plantillas[k];
       const vigente = p && p.nombre === d.nombre;
-      plantillas[k] = { titulo: d.titulo, estado: vigente ? p.estado || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
+      plantillas[k] = { titulo: d.titulo, estado: vigente ? p.estado || null : null, categoria: vigente ? p.categoria || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
     }
     return json({
       marca: { id: c.id, name: c.name },
