@@ -10,20 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610071930';
-import * as store from './store.js?v=202610071930';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610071930';
-import { toast } from './toast.js?v=202610071930';
-import { icon } from './icons.js?v=202610071930';
-import { openClientSwitcher } from './clientswitcher.js?v=202610071930';
-import { T, isEN, setLang } from './i18n.js?v=202610071930';
+import { startTour } from './tour.js?v=202610072000';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610072000';
+import * as store from './store.js?v=202610072000';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610072000';
+import { toast } from './toast.js?v=202610072000';
+import { icon } from './icons.js?v=202610072000';
+import { openClientSwitcher } from './clientswitcher.js?v=202610072000';
+import { T, isEN, setLang } from './i18n.js?v=202610072000';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610071930';
-import { getTheme, setTheme } from './theme.js?v=202610071930';
-import * as version from './version.js?v=202610071930';
-import * as tienda from './tienda.js?v=202610071930';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610071930';
-import * as prefs from './prefs.js?v=202610071930';
+import { abrirBloqueados } from './moderacion.js?v=202610072000';
+import { getTheme, setTheme } from './theme.js?v=202610072000';
+import * as version from './version.js?v=202610072000';
+import * as tienda from './tienda.js?v=202610072000';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610072000';
+import * as prefs from './prefs.js?v=202610072000';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -465,7 +466,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ] : []),
           // Antes este renglon abria la LISTA de avisos, o sea que "ajustes" no
           // ajustaba nada. Ahora abre el interruptor de los avisos al telefono.
-          // Visita guiada: quitada a pedido de Israel (7-oct-2026), también de este menú.
+          // Visita guiada (1-oct-2026): repetirla a mano desde aquí.
+          accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true }), 380); }),
           accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.

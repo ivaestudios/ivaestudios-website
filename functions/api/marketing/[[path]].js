@@ -765,6 +765,13 @@ async function handleMe(session, env) {
     const r = await env.DB.prepare('SELECT email_verified FROM mkt_users WHERE id = ?').bind(session.user_id).first();
     if (r && r.email_verified === 0) emailVerified = false;
   } catch { /* pre-migración */ }
+  // Visita guiada (migración 041): solo para cuentas NUEVAS y una sola vez. Lo
+  // recuerda el servidor; si la columna no existe, nadie la ve (falla cerrado).
+  let tourPendiente = false;
+  try {
+    const r = await env.DB.prepare('SELECT tour_visto_at FROM mkt_users WHERE id = ?').bind(session.user_id).first();
+    tourPendiente = !!(r && !r.tour_visto_at);
+  } catch { tourPendiente = false; }
   return json({
     id: session.user_id,
     email: session.email,
@@ -775,6 +782,8 @@ async function handleMe(session, env) {
     // 'agente' (atiende sus chats) o 'supervisor' (ve todo + desempeño).
     bandeja_rol: session.role === 'client' ? (session.bandeja_rol || null) : null,
     bandeja_disponible: session.bandeja_disponible !== 0,
+    // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo).
+    tour_pendiente: tourPendiente && !(session.role === 'client' && session.bandeja_rol === 'agente'),
     email_verified: emailVerified,
     // Apple 1.2: el shell exige aceptar el EULA antes de dejar entrar.
     eula_accepted: await eulaAceptado(env, session.user_id),
@@ -5538,6 +5547,12 @@ async function route(request, env, authCtx) {
   if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
   // EULA (Apple 1.2): aceptación afirmativa, exigida al entrar.
   if (path === '/auth/accept-eula' && method === 'POST') return handleAcceptEula(env, session);
+  // Visita guiada vista: se marca al EMPEZAR, para que salga una sola vez.
+  if (path === '/auth/tour-visto' && method === 'POST') {
+    try { await env.DB.prepare("UPDATE mkt_users SET tour_visto_at = COALESCE(tour_visto_at, datetime('now')) WHERE id = ?").bind(session.user_id).run(); }
+    catch { /* pre-migración: no hay nada que marcar */ }
+    return json({ ok: true });
+  }
 
   // Version publicada de la app en las tiendas (para el aviso "actualiza la
   // app" dentro del envoltorio de iOS). Ver handleAppVersion.

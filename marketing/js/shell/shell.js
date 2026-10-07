@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610071930';
-import { setRoleDefault } from './theme.js?v=202610071930';
-import { vigilarSegmentados } from './segfade.js?v=202610071930';
-import * as store from './store.js?v=202610071930';
-import * as prefs from './prefs.js?v=202610071930';
-import * as router from './router.js?v=202610071930';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610071930';
-import { toast } from './toast.js?v=202610071930';
-import { icon } from './icons.js?v=202610071930';
-import * as iconsMod from './icons.js?v=202610071930';
-import { createTopbar } from './topbar.js?v=202610071930';
-import { createBottomNav } from './bottomnav.js?v=202610071930';
-import { createSearch } from './search.js?v=202610071930';
-import { createNotifications } from './notifications.js?v=202610071930';
-import { T } from './i18n.js?v=202610071930';
-import { startTour, tourPendiente } from './tour.js?v=202610071930';
-import * as version from './version.js?v=202610071930';
-import * as tienda from './tienda.js?v=202610071930';
-import * as pickers from '../ui/pickers.js?v=202610071930';
-import * as dnd from '../ui/dnd.js?v=202610071930';
+import { api, el, clear } from '../api.js?v=202610072000';
+import { setRoleDefault } from './theme.js?v=202610072000';
+import { vigilarSegmentados } from './segfade.js?v=202610072000';
+import * as store from './store.js?v=202610072000';
+import * as prefs from './prefs.js?v=202610072000';
+import * as router from './router.js?v=202610072000';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610072000';
+import { toast } from './toast.js?v=202610072000';
+import { icon } from './icons.js?v=202610072000';
+import * as iconsMod from './icons.js?v=202610072000';
+import { createTopbar } from './topbar.js?v=202610072000';
+import { createBottomNav } from './bottomnav.js?v=202610072000';
+import { createSearch } from './search.js?v=202610072000';
+import { createNotifications } from './notifications.js?v=202610072000';
+import { T } from './i18n.js?v=202610072000';
+import { startTour, tourPendiente } from './tour.js?v=202610072000';
+import * as version from './version.js?v=202610072000';
+import * as tienda from './tienda.js?v=202610072000';
+import * as pickers from '../ui/pickers.js?v=202610072000';
+import * as dnd from '../ui/dnd.js?v=202610072000';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -826,11 +826,10 @@ export async function boot() {
   }
   const appEl = document.getElementById('app');
   if (appEl) appEl.hidden = false;
-  // Visita guiada APAGADA (Israel, 7-oct-2026: "quiero que quites esa visita
-  // guiada"). Salía sola al primer ingreso y, en la versión cliente, no se
-  // podía cerrar. El motor sigue en tour.js por si algún día se reactiva.
-  const VISITA_GUIADA_ACTIVA = false;
-  if (VISITA_GUIADA_ACTIVA && tourPendiente(me, prefs)) setTimeout(() => startTour({ router, store, prefs, closeAll, me }).catch(() => { /* la visita jamás tumba la app */ }), 1600);
+  // Visita guiada: SOLO para cuentas nuevas y UNA vez (Israel, 7-oct-2026:
+  // "solo es una vez y para empresas nuevas y negocios nuevos; para Regeneris
+  // y las cuentas no debería aparecer ya"). Lo decide el servidor (041).
+  if (tourPendiente(me)) setTimeout(() => startTour({ router, store, prefs, closeAll, me }).catch(() => { /* la visita jamás tumba la app */ }), 1600);
   // #barsHost vive DENTRO de #app, así que todo lo que se midió durante el
   // arranque (offline / verifica tu correo) midió 0: #app estaba hidden. Ahora
   // que es visible hay que volver a publicar --bars-h, o la franja se quedaría

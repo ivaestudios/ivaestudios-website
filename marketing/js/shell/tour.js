@@ -17,8 +17,8 @@
 // Tu cuenta → Visita guiada. router/store/prefs/closeAll llegan por
 // parámetro: shell.js importa este módulo y no puede haber ciclo.
 // ============================================================================
-import { el, esCreador } from '../api.js?v=202610071930';
-import { T } from './i18n.js?v=202610071930';
+import { el, esCreador } from '../api.js?v=202610072000';
+import { T } from './i18n.js?v=202610072000';
 
 export const TOUR_VERSION = 2;
 let activo = null;
@@ -178,9 +178,11 @@ function pasosCliente(store) {
   ];
 }
 
-export function tourPendiente(me, prefs) {
-  if (!me) return false;
-  return Number(prefs.get('tourDone', 0)) < TOUR_VERSION;
+// Solo cuentas NUEVAS y una sola vez (Israel, 7-oct-2026): lo decide el
+// servidor (me.tour_pendiente, migración 041). El localStorage ya no manda:
+// Safari lo borra y a clientes de siempre (Regeneris) les volvía a salir.
+export function tourPendiente(me) {
+  return !!(me && me.tour_pendiente === true);
 }
 
 function esperar(cond, ms) {
@@ -218,7 +220,13 @@ async function esperarEl(sel, ms) {
 
 export async function startTour({ router, store, prefs, closeAll, me, forzar = false }) {
   if (activo) return;
-  if (!forzar && !tourPendiente(me, prefs)) return;
+  if (!forzar && !tourPendiente(me)) return;
+  // Se marca vista en el servidor al EMPEZAR: no vuelve a salir aunque recargue
+  // o cambie de teléfono. (Desde el menú, forzar, no hace falta marcar nada.)
+  if (!forzar) {
+    try { await fetch('/api/marketing/auth/tour-visto', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }); } catch { /* sin red: la próxima vez */ }
+    try { store.set({ me: { ...(store.getState().me || {}), tour_pendiente: false } }); } catch { /* opcional */ }
+  }
   const cliente = !!(me && me.role === 'client');
   const obligatoria = cliente; // el cliente no puede salir hasta terminarla
   const pasos = cliente ? pasosCliente(store) : pasosEquipo();
@@ -427,7 +435,7 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
     }
   }, 300);
   // Obligatoria: si recargó a medio camino, retoma en el paso donde iba.
-  const guardado = obligatoria && !forzar ? Number(prefs.get('tourPaso', 0)) : 0;
+  const guardado = 0; // ya no se retoma a la mitad: la visita sale una sola vez
   await mostrar(Number.isFinite(guardado) && guardado > 0 && guardado < pasos.length ? guardado : 0);
 }
 
