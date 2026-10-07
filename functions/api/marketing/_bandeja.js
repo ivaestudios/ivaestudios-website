@@ -141,8 +141,16 @@ export function partirTexto(texto, lim) {
 
 // ── Marcas ───────────────────────────────────────────────────────────────────
 const COLS_MARCA = `id, name, brief, notes, instagram_handle, COALESCE(workspace_id, 'ivae') AS workspace_id,
-  ig_user_id, ig_username, ig_access_token, fb_page_id, fb_page_name, fb_access_token,
+  ig_user_id, ig_igsid, ig_username, ig_access_token, fb_page_id, fb_page_name, fb_access_token,
   wa_phone_id, wa_waba_id, wa_numero, wa_access_token, bandeja_sondeo_at, bandeja_estado`;
+
+// Los ids con los que Meta puede nombrar a la PROPIA cuenta de la marca en un
+// canal. En Instagram son dos (migración 039): ig_user_id (36610…, el de la
+// API) e ig_igsid (17841…, el de webhooks y participantes de /conversations).
+function idsPropios(c, canal) {
+  if (canal === 'instagram') return new Set([c.ig_user_id, c.ig_igsid].filter(Boolean).map(String));
+  return new Set([c.fb_page_id].filter(Boolean).map(String));
+}
 
 async function marca(env, clientId) {
   if (!clientId) return null;
@@ -152,7 +160,9 @@ async function marcaPorIg(env, igId) {
   if (!igId) return null;
   // La marca DEMO comparte @ivae.studios con la marca real: gana la real
   // (la que no es demo) para que los mensajes no caigan en la de los revisores.
-  return env.DB.prepare(`SELECT ${COLS_MARCA} FROM mkt_clients WHERE ig_user_id = ? AND ig_access_token IS NOT NULL ORDER BY (id = '67322bb3c5f64991a9178b1d1784231a') ASC LIMIT 1`).bind(igId).first();
+  // Meta manda en los webhooks el user_id (17841…), no el id de la API: se
+  // busca por los dos.
+  return env.DB.prepare(`SELECT ${COLS_MARCA} FROM mkt_clients WHERE (ig_user_id = ? OR ig_igsid = ?) AND ig_access_token IS NOT NULL ORDER BY (id = '67322bb3c5f64991a9178b1d1784231a') ASC LIMIT 1`).bind(igId, igId).first();
 }
 async function marcaPorPagina(env, pageId) {
   if (!pageId) return null;
@@ -278,14 +288,14 @@ function textoDeAdjunto(adj) {
 async function ingerirMensajeMeta(env, c, canal, ev) {
   const m = ev && ev.message;
   if (!m && !(ev && ev.postback)) return 0; // delivery / read / reaction: no interesan
-  const propioId = canal === 'instagram' ? String(c.ig_user_id || '') : String(c.fb_page_id || '');
+  const propios = idsPropios(c, canal);
   const cuando = fechaDeMs(ev.timestamp);
   if (m && m.is_echo) {
     // ECO de un mensaje SALIENTE (nuestro por API, o escrito en la bandeja de
     // Meta / la app de Instagram). Si lo mandamos nosotros ya está guardado
     // con ese mid y el INSERT OR IGNORE lo deja pasar.
     const contacto = String((ev.recipient && ev.recipient.id) || '');
-    if (!contacto || contacto === propioId) return 0;
+    if (!contacto || propios.has(contacto)) return 0;
     const conv = await convDe(env, c, canal, contacto);
     const adj = adjuntoDeMeta(m);
     const ok = await insertarMensaje(env, { convId: conv.id, mid: m.mid, direccion: 'out', texto: m.text || '', adjunto: adj, autorNombre: 'Meta', estado: 'enviado', creado: cuando });
@@ -293,7 +303,7 @@ async function ingerirMensajeMeta(env, c, canal, ev) {
     return ok ? 1 : 0;
   }
   const contacto = String((ev.sender && ev.sender.id) || '');
-  if (!contacto || contacto === propioId) return 0;
+  if (!contacto || propios.has(contacto)) return 0;
   const texto = m ? (m.text || '') : (ev.postback.title || ev.postback.payload || '');
   const mid = m ? m.mid : `pb:${contacto}:${ev.timestamp}`;
   const adj = m ? adjuntoDeMeta(m) : null;
@@ -354,7 +364,7 @@ async function ingerirMensajeWa(env, c, m, nombre) {
 // y sin aviso (si no, el primer día llegarían 200 avisos de comentarios viejos).
 async function guardarComentario(env, c, cm, { frescoDesde = null, avisar = true } = {}) {
   if (!cm.commentId) return 0;
-  const propio = cm.autorId && (cm.autorId === String(c.ig_user_id || '') || cm.autorId === String(c.fb_page_id || ''));
+  const propio = cm.autorId && (idsPropios(c, 'instagram').has(String(cm.autorId)) || cm.autorId === String(c.fb_page_id || ''));
   if (propio) return 0; // lo escribió la marca (o nosotros): no es algo que atender
   const viejo = !!(frescoDesde && cm.cuando && cm.cuando < frescoDesde);
   const r = await env.DB.prepare(
@@ -543,20 +553,26 @@ async function sondearConversaciones(env, c, canal, desde, primera) {
   const esIG = canal === 'instagram';
   const base = esIG ? `${GRAPH_IG}/${c.ig_user_id}` : `${GRAPH_FB}/${c.fb_page_id}`;
   const token = esIG ? c.ig_access_token : c.fb_access_token;
-  const propioId = String(esIG ? c.ig_user_id : c.fb_page_id);
+  const propios = idsPropios(c, canal);
+  const yoUser = String((esIG ? c.ig_username : '') || '').toLowerCase();
   const r = await graph(`${base}/conversations?platform=${esIG ? 'instagram' : 'messenger'}&fields=id,updated_time,participants,messages.limit(15){id,from,to,message,created_time,attachments}&limit=12`, { token });
   let n = 0;
   for (const conv of r.data || []) {
     const actualizada = fechaDeIso(conv.updated_time);
     if (desde && actualizada <= desde) continue;
-    const otro = ((conv.participants && conv.participants.data) || []).find((p) => String(p.id) !== propioId);
+    const parts = (conv.participants && conv.participants.data) || [];
+    // La propia cuenta se reconoce por id O por username (en Instagram el id de
+    // los participantes es el 17841…, no el que guardamos).
+    const esYo = (p) => propios.has(String(p.id)) || (yoUser && String(p.username || '').toLowerCase() === yoUser);
+    for (const p of parts) if (esYo(p)) propios.add(String(p.id));
+    const otro = parts.find((p) => !esYo(p));
     if (!otro) continue;
     const cv = await convDe(env, c, canal, String(otro.id), { nombre: otro.name || null, username: otro.username || null });
     let entrantes = 0;
     let ultimoTexto = '';
     const msgs = ((conv.messages && conv.messages.data) || []).slice().reverse(); // Meta los manda del más nuevo al más viejo
     for (const m of msgs) {
-      const mio = String((m.from && m.from.id) || '') === propioId;
+      const mio = propios.has(String((m.from && m.from.id) || ''));
       const a = m.attachments && m.attachments.data && m.attachments.data[0];
       const adj = a ? { tipo: a.video_data ? 'video' : a.image_data ? 'image' : a.file_url ? 'file' : 'share', url: (a.video_data && a.video_data.url) || (a.image_data && a.image_data.url) || a.file_url || null } : null;
       const creado = fechaDeIso(m.created_time);
@@ -597,13 +613,30 @@ export async function sondearBandeja(env, { clientId = null, max = 4 } = {}) {
     const desde = primera ? null : c.bandeja_sondeo_at;
     const estado = {};
     const n = { comentarios: 0, mensajes: 0 };
+    // Un canal que venía FALLANDO (permiso faltante, cuenta reconectada) nunca
+    // trajo su historial: esta vez se recorre completo, como un primer sondeo
+    // (lo viejo entra leído y sin aviso). Si no, "solo lo nuevo desde el último
+    // sondeo" dejaba fuera para siempre todo lo anterior al arreglo.
+    let prev = {};
+    try { prev = c.bandeja_estado ? JSON.parse(c.bandeja_estado) : {}; } catch { prev = {}; }
+    const rango = (clave) => (primera || prev[clave] !== 'ok' ? [null, true] : [desde, false]);
     if (c.ig_user_id && c.ig_access_token) {
+      // El id de webhooks (17841…) se guarda una vez por marca (migración 039).
+      if (!c.ig_igsid) {
+        try {
+          const me = await graph(`${GRAPH_IG}/me?fields=user_id`, { token: c.ig_access_token });
+          if (me && me.user_id) {
+            c.ig_igsid = String(me.user_id);
+            await env.DB.prepare('UPDATE mkt_clients SET ig_igsid = ? WHERE id = ?').bind(c.ig_igsid, c.id).run();
+          }
+        } catch { /* se reintenta en el siguiente sondeo */ }
+      }
       try { n.comentarios += await sondearComentariosIG(env, c, frescoDesde); estado.ig_comentarios = 'ok'; } catch (e) { estado.ig_comentarios = resumirError(e); }
-      try { n.mensajes += await sondearConversaciones(env, c, 'instagram', desde, primera); estado.ig_mensajes = 'ok'; } catch (e) { estado.ig_mensajes = resumirError(e); }
+      try { const [d, p] = rango('ig_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'instagram', d, p); estado.ig_mensajes = 'ok'; } catch (e) { estado.ig_mensajes = resumirError(e); }
     }
     if (c.fb_page_id && c.fb_access_token) {
       try { n.comentarios += await sondearComentariosFB(env, c, frescoDesde); estado.fb_comentarios = 'ok'; } catch (e) { estado.fb_comentarios = resumirError(e); }
-      try { n.mensajes += await sondearConversaciones(env, c, 'messenger', desde, primera); estado.fb_mensajes = 'ok'; } catch (e) { estado.fb_mensajes = resumirError(e); }
+      try { const [d, p] = rango('fb_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'messenger', d, p); estado.fb_mensajes = 'ok'; } catch (e) { estado.fb_mensajes = resumirError(e); }
     }
     await env.DB.prepare("UPDATE mkt_clients SET bandeja_sondeo_at = datetime('now'), bandeja_estado = ? WHERE id = ?")
       .bind(JSON.stringify({ ...estado, en: new Date().toISOString() }), c.id).run();

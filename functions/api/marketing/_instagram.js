@@ -123,11 +123,15 @@ export async function handleIgCallback(request, env, url) {
     // /insights contesta error 100/33 y la demografia salia siempre vacia.
     // /me devuelve el id como TEXTO, sin perder digitos.
     let username = '';
+    let igsid = null;
     let cuentaId = String(t1.user_id);
     try {
-      const me = await (await fetch(`${GRAPH}/me?fields=id,username&access_token=${encodeURIComponent(token)}`)).json();
+      const me = await (await fetch(`${GRAPH}/me?fields=id,username,user_id&access_token=${encodeURIComponent(token)}`)).json();
       username = me.username || '';
       if (me.id) cuentaId = String(me.id);
+      // user_id (17841…) es el id que Meta usa en los WEBHOOKS y en /conversations;
+      // sin él la Bandeja no reconoce a qué marca va un DM (migración 039).
+      if (me.user_id) igsid = String(me.user_id);
     } catch { /* opcional */ }
 
     // GUARDA ANTI-CRUCE (2026-07-30): el callback guardaba CUALQUIER cuenta que
@@ -153,8 +157,8 @@ export async function handleIgCallback(request, env, url) {
     }
 
     await env.DB.prepare(
-      "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
-    ).bind(cuentaId, username, token, st.c).run();
+      "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, ig_igsid = ?, updated_at = datetime('now') WHERE id = ?"
+    ).bind(cuentaId, username, token, igsid, st.c).run();
     await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch(() => {});
     // Bandeja: que Meta nos mande los comentarios y DMs de esta cuenta.
     await suscribirTrasConectar(env, st.c);
@@ -182,7 +186,7 @@ export async function handleIgDisconnect(request, env, session) {
   if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
   let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   await env.DB.prepare(
-    "UPDATE mkt_clients SET ig_user_id = NULL, ig_username = NULL, ig_access_token = NULL, updated_at = datetime('now') WHERE id = ?"
+    "UPDATE mkt_clients SET ig_user_id = NULL, ig_username = NULL, ig_access_token = NULL, ig_igsid = NULL, updated_at = datetime('now') WHERE id = ?"
   ).bind(b.client_id || '').run();
   await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(b.client_id || '').run();
   return json({ ok: true });
