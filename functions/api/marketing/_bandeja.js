@@ -54,7 +54,12 @@ const FIRMA_HTML = `<img src="${FIRMA_IMG}" width="420" height="210" alt="Vianey
 function citaCorreo(ult, conv) {
   if (!ult || !ult.texto) return { html: '', txt: '' };
   const quien = conv.nombre ? `${conv.nombre} <${conv.contacto_id}>` : conv.contacto_id;
-  const fecha = String(ult.creado || '').slice(0, 16);
+  // creado viene en UTC ("AAAA-MM-DD HH:MM:SS"): se muestra en hora de Cancún.
+  let fecha = String(ult.creado || '').slice(0, 16);
+  try {
+    const d = new Date(String(ult.creado).replace(' ', 'T') + 'Z');
+    if (!isNaN(d)) fecha = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Cancun', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(d);
+  } catch { /* se queda la fecha cruda */ }
   const cuerpo = String(ult.texto).replace(/^Asunto:.*\n+/, '').slice(0, 6000);
   return {
     html: `<div style="margin-top:18px;color:#5f6368;font-size:13px">El ${escHtml(fecha)}, ${escHtml(quien)} escribió:</div>`
