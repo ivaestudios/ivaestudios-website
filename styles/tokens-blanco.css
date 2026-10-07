@@ -1,0 +1,673 @@
+/* GENERADO por scripts/base-blanca/blanquear_home.py a partir de styles/tokens.css: no editar a mano. */
+/* ═══════════════════════════════════════════════════════════════
+   IVAE Studios — Canonical Design Tokens
+   ───────────────────────────────────────────────────────────────
+   Single source of truth for color, typography, spacing, motion.
+   Loaded BEFORE dark-mode.css and components.css.
+
+   Backward-compat aliases preserve existing var() references
+   sitewide (--ink, --gold, --paper, --serif, --ease, etc.).
+
+   Structured tokens (--ink-1, --gold-deep, --s-4, --fs-15...) are
+   the going-forward names. Pages will migrate to these gradually
+   via Wave 5.
+
+   Refs: seo/design-audit/wave-1-audit.md §5
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── COLOR — INKS (dark surfaces) ─────────────────────────── */
+  --ink-1: #1a2230;
+  --ink-2: #131c2a;
+  --ink-3: #0c1219;
+  --ink-4: #0a0f17;
+
+  /* Legacy ink aliases (preserve current behavior) */
+  --ink:  #1a2230;
+  --ink2: #0c1219;
+
+  /* ── COLOR — CREAMS / SANDS (light surfaces) ──────────────── */
+  --cream-1: #ffffff;
+  --cream-2: #f7f7f5;
+  --sand-1: #f7f7f5;
+  --sand-2: #f7f7f5;
+
+  /* Legacy cream/sand aliases */
+  --cream: #ffffff;
+  --sand: #f7f7f5;
+  --sand2: #f7f7f5;
+
+  /* ── COLOR — GOLD (accent) ────────────────────────────────── */
+  --gold:       #c9a54e;
+  --gold-deep:  #a8894a;
+  --gold-hover: #ceae64;
+  --gold-soft:  rgba(201,165,78,0.18);
+  --gold-line:  rgba(201,165,78,0.28);
+  --gold-glow:  rgba(201,165,78,0.06);
+
+  /* Legacy gold aliases */
+  --gold2: #b08e42;
+
+  /* ── COLOR — TEXT (semantic) ──────────────────────────────── */
+  --text-on-light:    #0e1620;
+  --text-on-light-2:  rgba(14,22,32,0.62);
+  --text-on-light-3:  rgba(14,22,32,0.40);
+  --text-on-dark:     #faf8f5;
+  --text-on-dark-2:   rgba(250,248,245,0.62);
+  /* --text-on-dark-3 raised from 0.34 → 0.55 for WCAG AA (Agent 16 audit).
+     0.34 produced ~2.8:1 contrast on #0c1219 ink-3, failing 4.5:1 for body
+     copy. 0.55 yields ~4.6:1. Decorative-only usages (separators) may pass
+     at lower; everything reading as body text now meets AA. */
+  --text-on-dark-3:   rgba(250,248,245,0.55);
+
+  /* Legacy muted aliases (preserve current behavior) */
+  --muted:    rgba(250,248,245,0.58);
+  /* --muted2 raised from 0.34 → 0.55 (mirror of --text-on-dark-3 fix). */
+  --muted2:   rgba(250,248,245,0.55);
+  /* 0.60 daba 4.21 de contraste sobre el crema, por debajo del 4.5 que
+     pide la norma: medido en 20 celdas de la tabla comparativa a 14px.
+     Con 0.68 sube a 5.34 y el texto sigue leyéndose como secundario. */
+  --muted-l:  rgba(26,34,48,0.68);
+  --muted-l2: rgba(26,34,48,0.38);
+
+  /* ── COLOR — LINES / BORDERS ──────────────────────────────── */
+  --line-on-light: rgba(14,22,32,0.10);
+  --line-on-dark:  rgba(250,248,245,0.10);
+
+  /* Legacy border aliases (preserve current behavior) */
+  --border:   rgba(201,165,78,0.18);
+  --border-l: rgba(26,34,48,0.09);
+
+  /* ── TYPOGRAPHY — FAMILIES ────────────────────────────────── */
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ── TYPOGRAPHY — SCALE (modular ratio ~1.333) ────────────── */
+  --fs-9:  9px;
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-13: 13px;
+  --fs-15: 15px;
+  --fs-18: 18px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+  --fs-44: 44px;
+  --fs-60: 60px;
+  --fs-display: clamp(48px, 8.5vw, 120px);
+
+  /* ── SPACING (4px base) ────────────────────────────────────── */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+  --s-32: 128px;
+
+  /* Section / gutter clamps */
+  --s-section-y: clamp(80px, 9vw, 140px);
+  --s-gutter:    clamp(24px, 5vw, 64px);
+
+  /* ── ELEVATION ─────────────────────────────────────────────── */
+  --shadow-1:       0 2px 12px rgba(14,22,32,0.04);
+  --shadow-2:       0 6px 24px rgba(14,22,32,0.08);
+  --shadow-3:       0 12px 40px rgba(14,22,32,0.16);
+  --shadow-gold-sm: 0 2px 16px rgba(201,165,78,0.12);
+  --shadow-gold-lg: 0 6px 28px rgba(201,165,78,0.28);
+
+  /* ── MOTION (preserve current canonical curves) ───────────── */
+  --ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.05, 1);
+  --t-fast: 0.25s;
+  --t-med:  0.45s;
+  --t-slow: 0.9s;
+
+  /* Legacy motion aliases (verbatim from current index.html) */
+  --lux:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --smooth: cubic-bezier(0.65, 0, 0.05, 1);
+  --expo:   cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── RADIUS ────────────────────────────────────────────────── */
+  --r-0:      0;       /* default — keep edge-flush brand */
+  --r-sm:     2px;
+  --r-pill:   999px;
+  --r-circle: 50%;
+
+  /* ── BLOG ALIASES (so blog.html needs zero selector changes) */
+  --paper: #ffffff;
+  --paper-2: #f7f7f5;
+  --serif:   'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans:    'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 2C additions — added by design-system extend skill so the
+     v2 homepage can reference canonical values rather than inline
+     literals. All purely additive; nothing above is changed.
+     Refs: seo/design-audit/wave-2c-critique-report.md §4 (consistency)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── SPACING (extras) ─────────────────────────────────────── */
+  --s-1-5:  6px;   /* editorial seam spacing for image grids */
+
+  /* ── TYPOGRAPHY (extras) ──────────────────────────────────── */
+  --fs-12: 12px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-21: 21px;
+
+  /* Letter-spacing scale (canonicalize uppercase eyebrow spread) */
+  --tracking-eyebrow-tight: 0.18em;  /* tags inside cards */
+  --tracking-eyebrow-base:  0.26em;  /* default eyebrow / link */
+  --tracking-eyebrow-wide:  0.32em;  /* section eyebrows / labels */
+  /* Cap on tracking — never exceed .32em. The previous .42em hero eyebrow
+     was at the upper edge of legibility per design-critique §3. */
+
+  /* Hover canon — used by all editorial card image treatments
+     (services, destinations, journal-feat, portfolio, pg-i) */
+  --hover-image-scale:      1.045;
+  --hover-image-brightness: 0.7;
+  --hover-image-saturate:   1;
+
+  /* ── COLOR — TEXT (additions for WCAG AA) ─────────────────── */
+  /* On hero and dark images, the text-on-dark-2 alpha .62 falls just
+     under the 7:1 ratio at small body sizes. New
+     --text-on-dark-readable raises alpha to .82 for hero subhead,
+     pillar lede, and any body-size copy on dark imagery.
+     Refs: wave-2c-accessibility-report.md §1 (contrast) */
+  --text-on-dark-readable:  rgba(250,248,245,0.82);
+  --text-on-light-readable: rgba(14,22,32,0.78);
+
+  /* ── ELEVATION (extras) ───────────────────────────────────── */
+  /* Hero text vignette — subtle radial darken behind hero copy so
+     body text on imagery passes contrast without changing image. */
+  --shadow-hero-vignette:    inset 0 0 240px 40px rgba(0,0,0,0.55);
+  --shadow-hero-text-scrim:  0 0 80px 30px rgba(10,15,23,0.55);
+
+  /* ── FOCUS RINGS (a11y canonical) ─────────────────────────── */
+  /* On gold backgrounds the gold focus ring is invisible — use ink. */
+  --focus-ring-on-light: 2px solid var(--ink-1);
+  --focus-ring-on-dark:  2px solid var(--gold);
+  --focus-ring-on-gold:  2px solid var(--ink-1);
+  --focus-ring-offset:   3px;
+
+  /* ── TOUCH TARGETS (a11y) ─────────────────────────────────── */
+  --touch-target-min: 44px;  /* WCAG 2.5.5 minimum */
+
+  /* ── Z-INDEX SCALE (canonical) ────────────────────────────── */
+  --z-base:      1;
+  --z-content:   10;
+  --z-sticky:    900;
+  --z-header:    1000;
+  --z-progress:  1001;
+  --z-banner:    1100;
+  --z-overlay:   9998;
+  --z-cursor:    9999;
+  --z-loader:    10000;
+  --z-skiplink:  10001;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 4 additions — enterprise homepage tokens. All purely
+     additive; nothing above is changed. Used only by
+     /index-preview-v4.html. Refs: seo/design-audit/wave-4-*.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Cinemascope aspect ratios ─────────────────────────────── */
+  --ratio-cinemascope: 21/9;
+  --ratio-academy:     4/3;
+  --ratio-wide:        16/9;
+  --ratio-portrait:    4/5;
+  --ratio-vertical:    3/4;
+
+  /* ── Particle field (canvas) ───────────────────────────────── */
+  --particle-soft:   rgba(201,165,78,0.18);
+  --particle-mid:    rgba(201,165,78,0.32);
+  --particle-bright: rgba(201,165,78,0.58);
+  --particle-count-desktop: 64;
+  --particle-count-tablet:  40;
+  --particle-count-mobile:  0;
+
+  /* ── WebGL fallback CSS filter ─────────────────────────────── */
+  --filter-shimmer-still: saturate(1.06) contrast(1.03) brightness(0.92);
+  --filter-shimmer-warm:  saturate(1.10) contrast(1.05) brightness(0.96);
+  --filter-shimmer-cool:  saturate(0.92) contrast(1.05) brightness(0.92);
+
+  /* ── Film grain stops ──────────────────────────────────────── */
+  --grain-static: 0.022;
+  --grain-moving: 0.030;
+
+  /* ── Chapter card colorways (ACT I-V) ──────────────────────── */
+  --act-1-tint: rgba(201,165,78,0.06);
+  --act-2-tint: rgba(46, 80, 80,0.10);
+  --act-3-tint: rgba(110,90, 60,0.10);
+  --act-4-tint: rgba(20, 30, 50,0.10);
+  --act-5-tint: rgba(168,137,74,0.10);
+
+  /* ── Before/after slider ───────────────────────────────────── */
+  --slider-handle-size:    56px;
+  --slider-handle-bg:      var(--cream-1);
+  --slider-handle-ring:    1px solid var(--gold);
+  --slider-handle-shadow:  0 6px 24px rgba(14,22,32,0.32);
+  --slider-divider-w:      2px;
+  --slider-divider-color:  var(--gold);
+
+  /* ── Heatmap density (5 levels) ────────────────────────────── */
+  --heat-0: rgba(201,165,78,0.04);
+  --heat-1: rgba(201,165,78,0.18);
+  --heat-2: rgba(201,165,78,0.36);
+  --heat-3: rgba(201,165,78,0.58);
+  --heat-4: rgba(201,165,78,0.88);
+
+  /* ── Process timeline ──────────────────────────────────────── */
+  --timeline-rail-w:     1px;
+  --timeline-rail-color: rgba(201,165,78,0.22);
+  --timeline-node:        14px;
+  --timeline-node-active: 18px;
+
+  /* ── Cinematic scroll blur ─────────────────────────────────── */
+  --blur-far:  6px;
+  --blur-mid:  3px;
+  --blur-near: 0px;
+
+  /* ── Pull-quote ornament scale ─────────────────────────────── */
+  --ornament-pull-quote:         clamp(280px, 40vw, 560px);
+  --ornament-pull-quote-opacity: 0.045;
+
+  /* ── Magazine masthead rules ───────────────────────────────── */
+  --rule-hairline: 1px;
+  --rule-medium:   2px;
+  --rule-heavy:    4px;
+
+  /* ── Issue / Volume framing ────────────────────────────────── */
+  --mast-issue-tracking: 0.42em;
+  --mast-issue-color:    var(--gold);
+
+  /* ── Editor's letter ───────────────────────────────────────── */
+  --letter-max-w:              640px;
+  --letter-italic-color:       var(--text-on-dark-readable);
+  --letter-signature-tracking: 0.18em;
+
+  /* ── View Transitions ──────────────────────────────────────── */
+  --vt-duration: 600ms;
+  --vt-ease:     var(--ease-smooth);
+
+  /* ── Velocity hairline ─────────────────────────────────────── */
+  --velocity-bar-h:    1.5px;
+  --velocity-bar-glow: 0 0 8px rgba(201,165,78,0.35);
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 5 additions — animation tokens for /index-preview-v5.html.
+     All purely additive; nothing above is changed.
+     Refs: seo/design-audit/wave-5-animation-spec.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Animation durations ──────────────────────────────────── */
+  --t-micro:   0.18s;   /* hover swaps, focus rings */
+  --t-quick:   0.28s;   /* button transforms */
+  --t-medium:  0.55s;   /* word reveals, image scales */
+  --t-cinema:  0.95s;   /* clip-path reveals, hero cascades */
+  --t-arc:     2.4s;    /* SVG stroke draws */
+  --t-loop-s:  4s;      /* eyebrow ornament pulse */
+  --t-loop-m:  8s;      /* marquee */
+  --t-loop-l:  18s;     /* Ken Burns */
+  --t-loop-xl: 25s;     /* hero parallax slow drift */
+
+  /* ── Animation easing (extras) ────────────────────────────── */
+  --ease-quint:    cubic-bezier(0.86, 0, 0.07, 1);     /* dramatic decel */
+  --ease-back:     cubic-bezier(0.34, 1.56, 0.64, 1);  /* tiny overshoot */
+  --ease-soft:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-cinema:   cubic-bezier(0.77, 0, 0.18, 1);     /* film cut */
+
+  /* ── Stagger increments ───────────────────────────────────── */
+  --stagger-tight:  60ms;
+  --stagger-base:   90ms;
+  --stagger-loose:  140ms;
+
+  /* ── Word/letter reveal y-offset ──────────────────────────── */
+  --reveal-y-sm:  14px;
+  --reveal-y-md:  28px;
+  --reveal-y-lg:  60px;
+
+  /* ── Cursor trail ─────────────────────────────────────────── */
+  --cursor-trail-count:  6;
+  --cursor-trail-fade:   600ms;
+
+  /* ── Scroll blur entrance ─────────────────────────────────── */
+  --enter-blur:  4px;
+
+  /* ── Image hover (cinema) ─────────────────────────────────── */
+  --hover-img-scale-cinema:      1.05;
+  --hover-img-brightness-cinema: 0.92;
+
+  /* ── Marquee speed (px/sec equivalent via duration) ───────── */
+  --marquee-duration-d:  48s;   /* desktop */
+  --marquee-duration-m:  32s;   /* mobile */
+
+  /* ── Count-up animation (number stat reveals) ─────────────── */
+  --count-up-duration:   1.6s;
+
+  /* ── Spotlight (gold radial under cursor on dark sections) ── */
+  --spotlight-radius:    420px;
+  --spotlight-color:     rgba(201,165,78,0.10);
+
+  /* ── Dust particle budget (canvas; mobile = 0) ────────────── */
+  --dust-count-desktop:  36;
+  --dust-count-tablet:   18;
+  --dust-count-mobile:   0;
+
+  /* ── Italic-to-roman crossfade ────────────────────────────── */
+  --italic-roman-fade:   0.7s;
+
+  /* ── Animated CTA border sweep (clockwise draw on hover) ──── */
+  --border-sweep-duration: 0.65s;
+
+  /* ── Section background blend (sticky color transitions) ──── */
+  --section-blend-duration: 1.2s;
+
+  /* ── Floating ornament range (translateY 0 → -2px → 0) ────── */
+  --float-y-range:       2px;
+
+  /* ── Map flight-path stroke draw (Cancún → Riviera → Cabos) ─ */
+  --flight-path-duration: 3.2s;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 6 additions — luxury-weddings v6 page tokens. All purely
+     additive; nothing above is changed. Used by /luxury-weddings.html
+     redesign (Phase 3 builds A / B / C consume these). Comments
+     identify the Phase 3 component owner for each token.
+     Refs: seo/design-audit/luxury-weddings-phase-1-brief.md §3 (Skill 2)
+     and §6 (visual / motion principles), §7 (direction prompts).
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Investment tier — program-style hairlines ─────────────────
+     Tier card top rule. Mimics a wedding-program hairline above
+     each tier name. Used on .tier-card::before in all 3 directions;
+     the featured (middle) tier upgrades the rule color/weight via
+     --inv-tier-rule-featured. */
+  --ceremony-program-rule: 1px solid var(--gold-line);
+  --inv-tier-rule:          1px solid var(--line-on-dark);
+  --inv-tier-rule-featured: 2px solid var(--gold);
+
+  /* Vertical seam between adjacent tier cards (Direction C edge-flush
+     uses this; A and B fall back to gap only). */
+  --inv-tier-divider:  1px solid var(--line-on-dark);
+
+  /* Gap between the three tier columns. Wider on Direction A
+     (editorial breathing room), tighter on Direction C (edge-flush
+     hairline rhythm). Phase 3 may override per direction. */
+  --inv-tier-gap:      clamp(24px, 3vw, 48px);
+
+  /* Tier card internal padding rhythm. Vertical generous, horizontal
+     restrained — mirrors a vow card / program insert. */
+  --vow-card-padding:  clamp(36px, 4vw, 64px) clamp(28px, 3vw, 48px);
+
+  /* ── Pull-quote / testimonial attribution ──────────────────────
+     Couple-name attribution tracking. Spread enough to read as
+     editorial caption (Vogue convention) but never shouty. Used on
+     .pull-quote .attribution and tier "Most Chosen" badge. */
+  --couple-name-tracking: 0.18em;
+
+  /* ── Manifesto / Studio section ────────────────────────────────
+     Single-column copy width on the manifesto. Tight enough that
+     each line reads as one editorial breath (~52-58 char measure).
+     Used on .studio-copy and .case-study-caption. */
+  --manifesto-copy-max-width: 540px;
+
+  /* Drop-cap and hanging-punctuation aware text column. Slightly
+     wider than --manifesto-copy-max-width to accommodate the 60px
+     drop cap without a ragged left edge. Used on .studio-lede only
+     (drop cap appears once per page, on this paragraph). */
+  --photo-essay-margin: 600px;
+
+  /* ── A Wedding (case study) ────────────────────────────────────
+     Caption deck max-width below the cinemascope hero. Slightly
+     wider than manifesto so the venue/date/scale meta strip reads
+     as one line at desktop. */
+  --case-study-caption-max-width: 720px;
+
+  /* ── The Method (process timeline) ─────────────────────────────
+     Vertical hairline running through the 6 process steps. The
+     rushed preview used --timeline-rail-color at 0.22 alpha; we
+     thicken that on desktop only via this token so the rail reads
+     at typical zoom levels. Used on .method-rail::before. */
+  --method-step-rule: 1px solid var(--gold-line);
+
+  /* Process step row max-width — keeps the body copy from spanning
+     the full grid; aligns to the manifesto rhythm. */
+  --method-rail-max-width: 920px;
+
+  /* ── The Reel ───────────────────────────────────────────────────
+     Canonical reel-frame aspect ratio. 4:5 portrait — the editorial
+     bridal-feature default. NEVER mix ratios in a single reel
+     (mixed ratios read as stock-photo listing, per Phase 1 §2). */
+  --reel-card-aspect: 4 / 5;
+
+  /* Frame width on desktop. Wide enough that 3-4 frames are visible
+     across a 1440 viewport; narrow enough to invite scroll. */
+  --reel-frame-min-width:  clamp(220px, 32vw, 360px);
+
+  /* Snap behavior — "mandatory" on touch, "proximity" on pointer
+     (assigned via media query in components.css); kept here as the
+     default for desktop. */
+  --reel-snap-type:   x mandatory;
+
+  /* ── The Coastlines (locations) ────────────────────────────────
+     Locations card aspect — 3:4 portrait per Phase 1 §6 image art
+     direction. Differs from reel-card-aspect (4:5) on purpose:
+     locations need slightly more vertical real estate for the
+     overlay caption. */
+  --locations-card-aspect: 3 / 4;
+
+  /* Locations grid gap — tighter than tier gap; the three coastlines
+     should read as a triptych, not three separate pieces. */
+  --locations-gap: clamp(16px, 2vw, 32px);
+
+  /* ── Considered Questions (FAQ) ─────────────────────────────────
+     FAQ accordion column max-width. Anchored to the optical 880px
+     measure that holds long answers without horizontal sprawl. Used
+     on .faq-list and the .faq-section inner container. */
+  --faq-max-width: 880px;
+
+  /* FAQ accordion answer max-height during expanded state. Tall
+     enough to fit the longest answer (the pricing FAQ at ~110 words)
+     without clipping. Phase 3 builders may scale per direction. */
+  --faq-answer-max-h: 480px;
+
+  /* ── Begin (Inquiry) ────────────────────────────────────────────
+     Inquiry copy width. Narrower than manifesto — the inquiry block
+     is a single editorial breath, ~80 words, centered on a dark
+     image background. */
+  --inquiry-copy-max-width: 720px;
+
+  /* Inquiry meta strip cell min-width — keeps "Response Time / Same
+     business day" on one line at desktop. */
+  --inquiry-meta-min: 220px;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 7 additions — site header tokens. Purely additive; nothing
+     above is changed. Values formalize what was previously hardcoded
+     across .site-header / .h-logo / .h-nav / .h-cta / .lang-switch /
+     .m-nav inline styles. Drives the redesigned header on
+     /index.html and /es/index.html.
+     Refs: seo/design-audit/header-redesign-skills.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Z-index — formalizes the !important override that fixes a stacking
+     bug elsewhere on the site. Header sits above everything except the
+     skiplink. */
+  --header-z:                  9000;
+
+  /* Heights — rest is the relaxed editorial state, scrolled tightens
+     by 8px so the page below feels like it gained breathing room. */
+  --header-height-rest:        68px;
+  --header-height-scrolled:    60px;
+
+  /* Padding — clamps so the header keeps generous gutters on desktop
+     and doesn't crush on mobile. */
+  --header-padding-x:          clamp(20px, 4vw, 56px);
+
+  /* Background fills — dark-ink transparent with subtle blur. The
+     scrolled state firms up to feel anchored. Light-mode equivalents
+     flip the value via dark-mode.css overrides. */
+  --header-bg-rest:            rgba(10, 15, 23, 0.85);
+  --header-bg-scrolled:        rgba(10, 15, 23, 0.94);
+  --header-bg-light-rest:      rgba(250, 248, 245, 0.86);
+  --header-bg-light-scrolled:  rgba(250, 248, 245, 0.96);
+
+  /* Backdrop filters — kept as a pair so saturate and blur scale
+     together. */
+  --header-blur-rest:          saturate(140%) blur(14px);
+  --header-blur-scrolled:      saturate(160%) blur(20px);
+
+  /* Borders — gold-line at low alpha, brightens on scroll. */
+  --header-border-rest:        1px solid rgba(201, 165, 78, 0.12);
+  --header-border-scrolled:    1px solid rgba(201, 165, 78, 0.28);
+
+  /* Logo sizing — IVAE in sans, Studios in italic serif. The serif
+     runs slightly larger to balance the optical weight of small-caps. */
+  --header-logo-fs:            15px;
+  --header-logo-italic-fs:     17px;
+  --header-logo-tracking:      0.32em;
+
+  /* Nav — small-caps editorial. Gap clamps tighter on scroll so the
+     nav reads as compact when the header firms up. */
+  --header-nav-gap-rest:       clamp(24px, 2.6vw, 36px);
+  --header-nav-gap-scrolled:   clamp(22px, 2.4vw, 32px);
+  --header-nav-fs:             11px;
+  --header-nav-tracking:       0.26em;
+  --header-nav-color-rest:     rgba(250, 248, 245, 0.82);
+  --header-nav-color-hover:    var(--cream);
+  --header-nav-color-active:   var(--gold);
+
+  /* Spacing between utility-cluster items (nav | lang | cta | theme | burger).
+     Single rhythm so the right side feels metronomic. */
+  --header-utility-gap:        clamp(18px, 2vw, 28px);
+
+  /* Lang-switch — raised inactive alpha from 0.55 → 0.62 (per
+     accessibility audit). Active gets full gold + underline. */
+  --lang-switch-fs:            11px;
+  --lang-switch-tracking:      0.22em;
+  --lang-switch-inactive:      rgba(250, 248, 245, 0.62);
+  --lang-switch-active:        var(--gold);
+  /* Separator (decorative pipe), raised 0.34 → 0.55 to stay visible at AA. */
+  --lang-switch-sep:           rgba(250, 248, 245, 0.55);
+
+  /* CTA — min-width forces "RESERVAR" (8 chars) and "INQUIRE" (7 chars)
+     onto a single line. Previously CTA had no width constraint and the
+     longer Spanish copy wrapped. */
+  --header-cta-min-w:          144px;
+  --header-cta-max-w:          200px;
+  --header-cta-padding:        14px 22px;
+  --header-cta-fs:             11px;
+  --header-cta-tracking:       0.26em;
+
+  /* Mobile drawer — same dark transparent treatment, slightly stronger
+     to fully obscure the page underneath. */
+  --mobile-drawer-bg:          rgba(10, 15, 23, 0.97);
+  --mobile-drawer-blur:        saturate(160%) blur(24px);
+  --mobile-drawer-padding:     32px clamp(20px, 5vw, 48px) 48px;
+
+  /* Header transition — single ease for height/bg/blur/border tightening. */
+  --header-transition:         0.55s var(--ease);
+
+  /* ═══════════════════════════════════════════════════════════════
+     IVAE Marketing (marca hermana). Distinta del oro editorial de
+     Studios: aqui manda el degradado magenta -> violeta del manual
+     de marca v1.1, el mismo del logo y el mismo que usa la app.
+     Hasta el 25-sep-2026 estas paginas iban en morado #a78bfa con
+     rosa #ec4899, que ya no era la identidad de nadie.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Colores de IVAE Marketing ─────────────────────────────── */
+  /* Los dos extremos del degradado oficial (los del logo). */
+  --imkt-acento-fuerte: #E24DA0;   /* magenta de marca */
+  --imkt-violeta:       #9D5BE0;   /* violeta de marca */
+  --imkt-gradient:      linear-gradient(135deg, var(--imkt-acento-fuerte), var(--imkt-violeta));
+  /* Para TEXTO sobre el fondo casi negro de estas paginas el magenta
+     puro se queda corto (5.46:1). Estos dos aclaran hasta 6.96 y
+     10.74 sin salirse de la familia. */
+  --imkt-acento:        #E96FB4;
+  --imkt-acento-suave:  #F5A8D3;
+  /* Para texto sobre fondo CLARO (los que si pasan AA, del manual). */
+  --imkt-acento-hondo:  #C93E8C;
+  --imkt-violeta-hondo: #8A4FD3;
+  /* Acento de la entrada "Marketing" dentro del cajon de Studios. */
+  --imkt-accent-text:   #F5A8D3;
+
+  /* ── IVAE Marketing typography ────────────────────────────── */
+  /* Display: a wide editorial sans (e.g. Space Grotesk) reserved
+     for marketing pages and brand pill labels. Mono: tabular code
+     font used for the marketing dashboard / pricing tables. */
+  --imkt-font-display:  'Space Grotesk', 'Syne', 'Inter', system-ui, sans-serif;
+  --imkt-font-mono:     'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ── Canonical font aliases (forward-compat names) ────────── */
+  /* Pages migrating off --font-serif / --font-sans can target these
+     semantic names instead. Both alias the existing canonical stacks
+     so nothing breaks. */
+  --font-display:       var(--font-serif);
+  --font-body:          var(--font-sans);
+
+  /* ── Breakpoint scale (single source of truth) ────────────── */
+  /* CSS custom properties are NOT usable inside @media queries
+     (per spec), but exposing the numeric values here lets JS read
+     them via getComputedStyle and keeps the magic numbers grep-able
+     across stylesheets. Conventional 3-tier scale. */
+  --bp-sm: 480px;   /* small phones */
+  --bp-md: 768px;   /* tablet / mobile-desktop break */
+  --bp-lg: 1024px;  /* small desktop */
+  --bp-xl: 1440px;  /* large desktop */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DORADO PROFUNDO EN LOS PANELES CLAROS · 2026-09-14
+
+   Las landings de servicio pintan sus etiquetas, folios y enlaces con
+   `var(--gold2)`, que vale #a8894a. Sobre los paneles claros de esas mismas
+   paginas ese dorado da 2.71 sobre arena (#ede8df) y 3.12 sobre crema
+   (#f9f8f7): por debajo del 4.5 que pide AA, que es el nivel que declara
+   la pagina de accesibilidad del sitio. Medido en WebKit y confirmado
+   muestreando los pixeles del trazo: 140 textos en 50 paginas.
+
+   Es exactamente el hallazgo de la ronda de contraste en las paginas de
+   ciudad: **un mismo dorado no puede vestir el fondo crema y el fondo
+   tinta**. Alli la salida fue el dorado profundo #7d6428, y es el mismo
+   que se usa aqui: 4.62 sobre arena y 5.31 sobre crema.
+
+   Se re-apunta la VARIABLE dentro de los paneles en vez de pintar cada
+   elemento, porque asi entran de una vez las etiquetas de seccion, los
+   `dt` de las fichas, los folios de paso, los enlaces y las cursivas.
+   Las variables se resuelven por CERCANIA, asi que esto le gana al
+   `:root{--gold2:#a8894a}` que cada pagina declara en linea.
+
+   NO va bajo `html.dark`: se comprobo que varias de estas paginas
+   (aniversario con invitados, compromiso, boda en playa, renovacion de
+   votos) NO llevan la clase `dark`, y el problema no depende del tema
+   sino de que el panel es claro. Los siete paneles se midieron en 8
+   paginas y SIEMPRE son claros.
+   ═══════════════════════════════════════════════════════════════════════ */
+.spots, .factbox, .svc, .step, .method, .pairing, .about,
+.services, .related, .distinct {
+  --gold2: #7d6428;
+  /* Y el texto atenuado: estas paginas declaran --muted-l con alfa 0.60, que
+     sobre crema da 4.14 y sobre arena 3.96, las dos por debajo del minimo.
+     Con 0.68 dan 5.31 y 4.96. Es el mismo alfa que ya se eligio para el
+     --muted-l global en la ronda de contraste, asi que el sitio queda
+     coherente en vez de tener dos atenuados distintos. */
+  --muted-l: rgba(26, 36, 51, 0.68);
+}
+
+/* La miga de pan de las landings usa un SEGUNDO atenuado, --muted-l2, que el
+   :root de arriba define con alfa 0.38: sobre crema da razon 2.27 en texto de
+   10px en mayusculas. Son 102 paginas, y es navegacion, no adorno.
+   Sube al mismo 0.68 (5.31) que --muted-l, para que el sitio tenga UN
+   atenuado y no tres. Acotado a .breadcrumb por si ese token se usa en algun
+   sitio donde el gris muy suave es justo lo que se quiere. */
+.breadcrumb {
+  --muted-l2: rgba(26, 36, 51, 0.68);
+}

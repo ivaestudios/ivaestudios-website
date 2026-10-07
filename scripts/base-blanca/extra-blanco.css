@@ -1,0 +1,30 @@
+/* ═══ Base blanca (2026-10): lo que el convertidor de colores no puede deducir ═══ */
+/* Al bajar, la barra es blanca: el logo pasa al azul (el crema solo sobre fotos) */
+.site-header.scrolled .lg-navy{opacity:1 !important}
+.site-header.scrolled .lg-cream{opacity:0 !important}
+html body .site-header.scrolled{background:rgba(255,255,255,.97) !important;box-shadow:0 1px 0 rgba(26,26,26,.10) !important;border-bottom-color:transparent !important}
+html body .site-header.scrolled .h-burger span{background:#1a1a1a !important}
+body .site-header.scrolled .lang-switch a,body .site-header.scrolled .h-lang a{color:#6e6e6e !important}
+body .site-header.scrolled .lang-switch a.is-active,body .site-header.scrolled .h-lang a.is-active{color:#1a1a1a !important}
+/* Velos de foto: sombra neutra, sin tinte azul */
+/* Botones oscuros dentro de la capa móvil: la regla general ".ivm a" les ganaba el color de letra */
+.ivm a.ivm-act-cta__btn,.ivm a.ivm-act-cta__btn span,.ivm a.ivm-st-cta__btn,.ivm a.ivm-st-cta__btn span,.ivm a.ivm-jl-sub__btn,.ivm a.ivm-jl-sub__btn span,.lw-loc-sticky a.primary,.lw-loc-sticky a.primary span{color:#ffffff !important}
+/* Texto que vive sobre la foto de "la hora" */
+.ivm-act-hour .handoff,.ivm-act-hour .handoff a{color:rgba(255,255,255,.9) !important}
+/* Migas de pan sobre blanco: gris legible */
+main > nav.breadcrumbs,main > nav.breadcrumbs a{color:#6e6e6e}
+/* "Acerca de" ya no abre con una foto: arriba la barra va blanca con el logo azul */
+@media (max-width:899px){
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled){background:rgba(255,255,255,.97) !important;box-shadow:0 1px 0 rgba(26,26,26,.10) !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled)::after{display:none !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lg-navy{opacity:1 !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lg-cream{opacity:0 !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .h-burger span{background:#1a1a1a !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lang-switch a,
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .h-lang a{color:#6e6e6e !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lang-switch a.is-active{color:#1a1a1a !important}
+}
+/* Migas de pan sobre blanco (fuera de las portadas con foto): gris legible */
+nav.breadcrumbs:not(.post-hero *),nav.breadcrumbs:not(.post-hero *) a{color:#6e6e6e !important}
+/* Enlaces sin estilo propio: tinta, no el azul del navegador (antes los pintaba dorados el modo oscuro). Especificidad cero: cualquier regla del sitio manda. */
+:where(a:not(.skip-link, .skip-to-content, .le-skip-link)){color:#1a1a1a}
