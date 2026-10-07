@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070230';
-import { toast } from '../shell/toast.js?v=202610070230';
-import { icon, iconMarca } from '../shell/icons.js?v=202610070230';
-import { T, isEN } from '../shell/i18n.js?v=202610070230';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070245';
+import { toast } from '../shell/toast.js?v=202610070245';
+import { icon, iconMarca } from '../shell/icons.js?v=202610070245';
+import { T, isEN } from '../shell/i18n.js?v=202610070245';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -96,9 +96,14 @@ function horasDesde(iso) {
 async function cargarResumen() {
   const id = cid();
   if (!id) return;
+  const conCorreoAntes = !!(resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado);
   try { resumen = await api.get(`/bandeja/resumen?client_id=${encodeURIComponent(id)}`); }
   catch (e) { resumen = { error: e.message }; }
   pintarCabecera();
+  // El filtro "Correo" depende del resumen, que llega después de pintar la
+  // lista: si cambió, se vuelve a pintar el cuerpo para que aparezca.
+  const conCorreo = !!(resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado);
+  if (conCorreo !== conCorreoAntes && tab === 'mensajes') pintarCuerpo();
 }
 
 async function cargarLista({ silencioso = false } = {}) {
@@ -753,7 +758,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610070230';
+  link.href = '/marketing/css/bandeja.css?v=202610070245';
   document.head.appendChild(link);
 }
 
