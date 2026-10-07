@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610070330';
-import { setRoleDefault } from './theme.js?v=202610070330';
-import { vigilarSegmentados } from './segfade.js?v=202610070330';
-import * as store from './store.js?v=202610070330';
-import * as prefs from './prefs.js?v=202610070330';
-import * as router from './router.js?v=202610070330';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610070330';
-import { toast } from './toast.js?v=202610070330';
-import { icon } from './icons.js?v=202610070330';
-import * as iconsMod from './icons.js?v=202610070330';
-import { createTopbar } from './topbar.js?v=202610070330';
-import { createBottomNav } from './bottomnav.js?v=202610070330';
-import { createSearch } from './search.js?v=202610070330';
-import { createNotifications } from './notifications.js?v=202610070330';
-import { T } from './i18n.js?v=202610070330';
-import { startTour, tourPendiente } from './tour.js?v=202610070330';
-import * as version from './version.js?v=202610070330';
-import * as tienda from './tienda.js?v=202610070330';
-import * as pickers from '../ui/pickers.js?v=202610070330';
-import * as dnd from '../ui/dnd.js?v=202610070330';
+import { api, el, clear } from '../api.js?v=202610071800';
+import { setRoleDefault } from './theme.js?v=202610071800';
+import { vigilarSegmentados } from './segfade.js?v=202610071800';
+import * as store from './store.js?v=202610071800';
+import * as prefs from './prefs.js?v=202610071800';
+import * as router from './router.js?v=202610071800';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610071800';
+import { toast } from './toast.js?v=202610071800';
+import { icon } from './icons.js?v=202610071800';
+import * as iconsMod from './icons.js?v=202610071800';
+import { createTopbar } from './topbar.js?v=202610071800';
+import { createBottomNav } from './bottomnav.js?v=202610071800';
+import { createSearch } from './search.js?v=202610071800';
+import { createNotifications } from './notifications.js?v=202610071800';
+import { T } from './i18n.js?v=202610071800';
+import { startTour, tourPendiente } from './tour.js?v=202610071800';
+import * as version from './version.js?v=202610071800';
+import * as tienda from './tienda.js?v=202610071800';
+import * as pickers from '../ui/pickers.js?v=202610071800';
+import * as dnd from '../ui/dnd.js?v=202610071800';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -67,8 +67,14 @@ const isClientRole = () => ((store.getState().me || {}).role === 'client');
 const CLIENT_CONEXIONES_IDS = [
   'demo-regeneris', // REGENERIS THERAPY
 ];
-const clientCanView = (view) => CLIENT_VIEWS.includes(view)
-  || (view === 'metricas' && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
+// Bandeja con equipo (migración 040): el AGENTE de una marca solo entra a la
+// Bandeja; el SUPERVISOR ve sus vistas de cliente y además la Bandeja.
+const rolBandeja = () => { const m = store.getState().me || {}; return m.role === 'client' ? (m.bandeja_rol || null) : null; };
+const esAgenteBandeja = () => rolBandeja() === 'agente';
+const clientCanView = (view) => (esAgenteBandeja() ? view === 'bandeja' : false)
+  || (!esAgenteBandeja() && CLIENT_VIEWS.includes(view))
+  || (view === 'bandeja' && !!rolBandeja())
+  || (view === 'metricas' && !esAgenteBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
   || (view === 'conexiones' && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
@@ -181,7 +187,7 @@ function updateSubhead() {
   // queda visible ahí para poder regresar a Calendario/Cuadrícula.
   const isContent = CONTENT_VIEWS.includes(view)
     || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
-    || (view === 'bandeja' && !isClientRole());
+    || (view === 'bandeja' && (!isClientRole() || !!rolBandeja()));
   subheadSeg.hidden = !isContent;
   const hasSlot = subheadSlot.children.length > 0;
   const show = isContent || hasSlot;
@@ -210,15 +216,15 @@ function buildSubhead(root) {
   // aquí queda invisible en el celular, que es donde Vianey trabaja: le pasó a
   // Feed el 12-sep-2026 ("¿en qué parte está?").
   const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'feed', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
-  const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
+  const segViews = esAgenteBandeja() ? [] : CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
   // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
   if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
-  // Bandeja (comentarios + mensajes + CRM): solo staff. Misma razón: en el
-  // teléfono este seg es la única puerta.
-  if (!isClientRole()) segViews.push('bandeja');
+  // Bandeja (comentarios + mensajes + CRM): staff, y el equipo de la marca
+  // (agente o supervisor). Misma razón: en el teléfono este seg es la única puerta.
+  if (!isClientRole() || rolBandeja()) segViews.push('bandeja');
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
     subheadSeg.appendChild(el('button', {
@@ -773,8 +779,8 @@ export async function boot() {
     onBeforeMount(view, params, { paramsOnly }) {
       // El cliente solo entra a las vistas de calendario (+ editor de post via
       // deep-link). Cualquier otra vista lo regresa a su Calendario.
-      if (isClientRole() && !clientCanView(view) && view !== 'post') {
-        router.navigate('meses', params.cliente ? { cliente: params.cliente } : {});
+      if (isClientRole() && !clientCanView(view) && (view !== 'post' || esAgenteBandeja())) {
+        router.navigate(esAgenteBandeja() ? 'bandeja' : 'meses', params.cliente ? { cliente: params.cliente } : {});
         return;
       }
       // Coherencia de cliente: la URL manda. La validez se calcula con el

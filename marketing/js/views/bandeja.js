@@ -14,11 +14,18 @@
 //
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
+//
+// EQUIPO DE VENTAS (7-oct-2026, SMILE NOW): la marca puede tener agentes y
+// supervisores (accesos de cliente con bandeja_rol). Los leads se reparten
+// parejo, cada agente ve sus chats, el supervisor ve el DESEMPEÑO (tiempos de
+// respuesta, llamadas, seguimientos, citas, leads por anuncio). En WhatsApp,
+// pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
+// y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070330';
-import { toast } from '../shell/toast.js?v=202610070330';
-import { icon, iconMarca } from '../shell/icons.js?v=202610070330';
-import { T, isEN } from '../shell/i18n.js?v=202610070330';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610071800';
+import { toast } from '../shell/toast.js?v=202610071800';
+import { icon, iconMarca } from '../shell/icons.js?v=202610071800';
+import { T, isEN } from '../shell/i18n.js?v=202610071800';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -29,12 +36,19 @@ let unsubs = [];
 let timer = null;
 let mounted = false;
 
-let tab = 'mensajes';          // 'mensajes' | 'comentarios'
+let tab = 'mensajes';          // 'mensajes' | 'comentarios' | 'desempeno'
 let canal = '';                // filtro de canal ('' = todos)
 let etapa = '';                // filtro de etapa ('' = todas)
 let soloSinLeer = false;
 let busqueda = '';
 let estadoCom = 'pendientes';  // 'pendientes' | 'todos'
+let asignado = '';             // '' | 'yo' | 'sin'
+let porSeguir = false;         // la persona lleva días sin contestar
+let sinResponder = false;      // el último mensaje es de la persona
+let periodo = 30;              // días del dashboard
+let desempeno = null;
+let plantillaClave = 'seguimiento';
+const infoPlantilla = new Map(); // `${convId}:${clave}` -> { max, antes, despues, botones }
 
 let resumen = null;
 let convs = [];
@@ -46,15 +60,24 @@ let enviando = false;
 const borradores = new Map();  // convId -> texto del composer
 
 // ── Etiquetas ────────────────────────────────────────────────────────────────
-const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cliente', 'perdido'];
+const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cita', 'cliente', 'perdido'];
 const ETAPA_TXT = {
   nuevo: () => T('Nuevo', 'New'),
   platica: () => T('En plática', 'Talking'),
   cotizado: () => T('Cotizado', 'Quoted'),
+  cita: () => T('Cita agendada', 'Booked'),
   cliente: () => T('Cliente', 'Customer'),
   perdido: () => T('Perdido', 'Lost'),
 };
-const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cliente: '#22c55e', perdido: '#6b7280' };
+const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cita: '#0d9488', cliente: '#22c55e', perdido: '#6b7280' };
+const RESULTADOS_LLAMADA = [
+  ['contesto', () => T('Contestó', 'Answered')],
+  ['cita', () => T('Agendó cita', 'Booked')],
+  ['no_contesto', () => T('No contestó', 'No answer')],
+  ['buzon', () => T('Buzón de voz', 'Voicemail')],
+  ['numero_mal', () => T('Número equivocado', 'Wrong number')],
+];
+const RESULTADO_TXT = Object.fromEntries(RESULTADOS_LLAMADA.map(([k, f]) => [k, f]));
 const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook', tiktok: 'TikTok', correo: T('Correo', 'Email') };
 const CANAL_ICO = { instagram: 'instagram', messenger: 'messenger', facebook: 'facebook', whatsapp: 'whatsapp', tiktok: 'tiktok' };
 // El logo de la red va RELLENO (iconMarca); si algún día llega un canal sin
@@ -70,8 +93,15 @@ const clienteActivo = () => {
   const st = ctx.store.getState();
   return (st.clients || []).find((c) => c.id === st.activeClientId) || null;
 };
-const esAdmin = () => ((ctx.store.getState().me || {}).role === 'admin');
+const yoMe = () => (ctx.store.getState().me || {});
+const esAdmin = () => yoMe().role === 'admin';
+const esStaff = () => yoMe().role === 'admin' || yoMe().role === 'team';
+// Equipo de la marca: el agente solo ve sus chats; el supervisor (y el staff)
+// ve todo, reasigna y abre el desempeño.
+const esAgente = () => yoMe().role === 'client' && yoMe().bandeja_rol === 'agente';
+const esSupervisor = () => esStaff() || (yoMe().role === 'client' && yoMe().bandeja_rol === 'supervisor');
 const cid = () => (clienteActivo() || {}).id || '';
+const equipoAgentes = () => ((resumen && !resumen.error && resumen.equipo) || []);
 
 function chipCanal(c) {
   return el('span', { class: 'chip bj-chip-canal', style: { '--c': colorDe(c) } }, [
@@ -86,6 +116,10 @@ function chipEtapa(e) {
 function nombreDe(v) {
   return v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : T('Sin nombre', 'No name'))));
 }
+function origenDe(v) {
+  try { return v && v.origen ? (typeof v.origen === 'string' ? JSON.parse(v.origen) : v.origen) : null; } catch { return null; }
+}
+function origenAnuncio(v) { const o = origenDe(v); return o && o.tipo === 'anuncio' ? o : null; }
 function horasDesde(iso) {
   if (!iso) return Infinity;
   const d = new Date(String(iso).replace(' ', 'T') + 'Z');
@@ -111,11 +145,16 @@ async function cargarLista({ silencioso = false } = {}) {
   if (!id) return;
   if (!silencioso) cargandoLista = true;
   try {
-    if (tab === 'mensajes') {
+    if (tab === 'desempeno') {
+      desempeno = await api.get(`/bandeja/desempeno?client_id=${encodeURIComponent(id)}&dias=${periodo}`);
+    } else if (tab === 'mensajes') {
       const qs = new URLSearchParams({ client_id: id });
       if (canal) qs.set('canal', canal);
       if (etapa) qs.set('etapa', etapa);
       if (soloSinLeer) qs.set('sin_leer', '1');
+      if (asignado) qs.set('asignado', asignado);
+      if (porSeguir) qs.set('por_seguir', '1');
+      if (sinResponder) qs.set('sin_responder', '1');
       if (busqueda) qs.set('q', busqueda);
       const r = await api.get(`/bandeja/conversaciones?${qs}`);
       convs = r.conversaciones || [];
@@ -126,13 +165,17 @@ async function cargarLista({ silencioso = false } = {}) {
       coms = r.comentarios || [];
     }
   } catch (e) {
+    if (tab === 'desempeno') desempeno = { error: e.message };
     if (!silencioso) toast(e.message, { type: 'error' });
   }
   cargandoLista = false;
+  // El refresco silencioso del dashboard no repinta (no salta la pantalla).
+  if (tab === 'desempeno' && silencioso) return;
   pintarCuerpo();
 }
 
 async function abrirConv(convId, { silencioso = false } = {}) {
+  if (!convAbierta || convAbierta.conversacion.id !== convId) plantillaClave = 'seguimiento';
   try {
     const r = await api.get(`/bandeja/conversaciones/${encodeURIComponent(convId)}`);
     convAbierta = r;
@@ -150,7 +193,7 @@ function programarRefresco() {
   clearInterval(timer);
   timer = setInterval(async () => {
     if (!mounted || document.hidden) return;
-    await cargarLista({ silencioso: true });
+    if (tab !== 'desempeno') await cargarLista({ silencioso: true });
     if (convAbierta) {
       const antes = convAbierta.mensajes.length;
       await abrirConv(convAbierta.conversacion.id, { silencioso: true });
@@ -176,7 +219,12 @@ function pintarCabecera() {
           ? T(`Comentarios y mensajes de ${cli.name}, en un solo lugar.`, `Comments and messages for ${cli.name}, all in one place.`)
           : T('Elige una marca arriba.', 'Pick a brand above.') }),
       ]),
-      esAdmin() ? el('button', {
+      // El agente marca si está disponible: si no, el reparto lo salta.
+      esAgente() && r ? el('button', {
+        type: 'button', class: 'bj-dispo' + (r.yo && r.yo.disponible ? ' is-on' : ''), 'aria-pressed': String(!!(r.yo && r.yo.disponible)),
+        onclick: () => cambiarDisponible(!(r.yo && r.yo.disponible)),
+      }, [el('span', { class: 'bj-dispo__punto' }), el('span', { text: r.yo && r.yo.disponible ? T('Disponible', 'Available') : T('No disponible', 'Away') })]) : null,
+      esStaff() ? el('button', {
         class: 'btn btn-ghost btn-icon bj-gear', type: 'button', 'aria-label': T('Ajustes de la bandeja', 'Inbox settings'),
         onclick: abrirAjustes,
       }, [icon('settings', 18)]) : null,
@@ -194,15 +242,28 @@ function pintarCabecera() {
     clear(segEl);
     const nMsg = r ? r.no_leidos : 0;
     const nCom = r ? r.comentarios_pendientes : 0;
-    segEl.append(
+    segEl.append(...[
       el('button', { type: 'button', role: 'tab', class: tab === 'mensajes' ? 'is-active' : '', 'aria-selected': String(tab === 'mensajes'), onclick: () => cambiarTab('mensajes') }, [
         el('span', { text: T('Mensajes', 'Messages') }), nMsg ? el('span', { class: 'bj-seg__n', text: String(nMsg) }) : null,
       ].filter(Boolean)),
       el('button', { type: 'button', role: 'tab', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
         el('span', { text: T('Comentarios', 'Comments') }), nCom ? el('span', { class: 'bj-seg__n', text: String(nCom) }) : null,
       ].filter(Boolean)),
-    );
+      esSupervisor() ? el('button', { type: 'button', role: 'tab', class: tab === 'desempeno' ? 'is-active' : '', 'aria-selected': String(tab === 'desempeno'), onclick: () => cambiarTab('desempeno') }, [
+        el('span', { text: T('Desempeño', 'Performance') }),
+      ]) : null,
+    ].filter(Boolean));
   }
+}
+
+async function cambiarDisponible(si) {
+  try {
+    await api.patch('/bandeja/equipo/yo', { disponible: si });
+    const me = yoMe();
+    ctx.store.set({ me: { ...me, bandeja_disponible: si } });
+    toast(si ? T('Listo: te llegan chats nuevos.', 'Done: new chats will reach you.') : T('Listo: no te llegarán chats nuevos hasta que vuelvas.', 'Done: no new chats until you are back.'), { type: 'success' });
+    await cargarResumen();
+  } catch (e) { toast(e.message, { type: 'error' }); }
 }
 
 function cambiarTab(t) {
@@ -213,7 +274,7 @@ function cambiarTab(t) {
   pintarCabecera();
   pintarCuerpo();
   cargarLista();
-  try { ctx.router.navigate(VIEW_ID, { cliente: cid(), ...(t === 'comentarios' ? { tab: 'comentarios' } : {}) }); } catch { /* sin router */ }
+  try { ctx.router.navigate(VIEW_ID, { cliente: cid(), ...(t !== 'mensajes' ? { tab: t } : {}) }); } catch { /* sin router */ }
 }
 
 // ── Cuerpo ───────────────────────────────────────────────────────────────────
@@ -233,6 +294,8 @@ function pintarCuerpo() {
       el('section', { class: 'bj-chat' }, [convAbierta ? chat() : vacioChat()]),
     ]);
     cuerpoEl.appendChild(split);
+  } else if (tab === 'desempeno') {
+    cuerpoEl.appendChild(panelDesempeno());
   } else {
     cuerpoEl.append(filtrosComentarios(), listaComentarios());
   }
@@ -263,13 +326,24 @@ function filtrosMensajes() {
   if (resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado) canales.push(['correo', T('Correo', 'Email')]);
   for (const [k, lbl] of canales) fila.appendChild(chipFiltro(lbl, canal === k, () => { canal = k; cargarLista(); pintarCuerpo(); }, null, k || null));
   fila.appendChild(chipFiltro(T('Sin leer', 'Unread'), soloSinLeer, () => { soloSinLeer = !soloSinLeer; cargarLista(); pintarCuerpo(); }, 'bell'));
+  // Equipo: los míos, los que nadie tiene, los que esperan respuesta y los
+  // que hay que seguir (la persona lleva días sin contestar).
+  const r = resumen && !resumen.error ? resumen : null;
+  const hayEquipo = !!(r && r.equipo && r.equipo.length) || esAgente();
+  const fila2 = el('div', { class: 'bj-filtros' });
+  if (hayEquipo) {
+    fila2.appendChild(chipFiltro(T('Míos', 'Mine'), asignado === 'yo', () => { asignado = asignado === 'yo' ? '' : 'yo'; cargarLista(); pintarCuerpo(); }, 'user'));
+    fila2.appendChild(chipFiltro(T('Sin asignar', 'Unassigned') + (r && r.sin_asignar ? ` · ${r.sin_asignar}` : ''), asignado === 'sin', () => { asignado = asignado === 'sin' ? '' : 'sin'; cargarLista(); pintarCuerpo(); }, 'users'));
+  }
+  fila2.appendChild(chipFiltro(T('Sin responder', 'Awaiting reply'), sinResponder, () => { sinResponder = !sinResponder; cargarLista(); pintarCuerpo(); }, 'clock'));
+  fila2.appendChild(chipFiltro(T('Por seguir', 'Follow up') + (r && r.por_seguir ? ` · ${r.por_seguir}` : ''), porSeguir, () => { porSeguir = !porSeguir; cargarLista(); pintarCuerpo(); }, 'refresh'));
   const sel = el('select', { class: 'select bj-select', 'aria-label': T('Etapa', 'Stage'), onchange: (e) => { etapa = e.target.value; cargarLista(); } }, [
     el('option', { value: '', text: T('Todas las etapas', 'All stages') }),
     ...ETAPAS.map((k) => el('option', { value: k, text: ETAPA_TXT[k](), selected: etapa === k })),
   ]);
   const buscar = el('input', { class: 'input bj-buscar', type: 'search', placeholder: T('Buscar persona o texto', 'Search person or text'), value: busqueda,
     oninput: (e) => { busqueda = e.target.value.trim(); clearTimeout(buscar._t); buscar._t = setTimeout(() => cargarLista(), 350); } });
-  return el('div', { class: 'bj-filtros-wrap' }, [fila, el('div', { class: 'bj-filtros2' }, [sel, buscar])]);
+  return el('div', { class: 'bj-filtros-wrap' }, [fila, fila2, el('div', { class: 'bj-filtros2' }, [sel, buscar])]);
 }
 
 function listaConvs() {
@@ -281,7 +355,7 @@ function listaConvs() {
       nada ? T('Conecta una red primero', 'Connect a network first') : T('Sin conversaciones', 'No conversations'),
       nada
         ? T('Conecta Instagram o Facebook en Conexiones y los mensajes de esta marca aparecerán aquí.', 'Connect Instagram or Facebook in Connections and this brand’s messages will show up here.')
-        : (soloSinLeer || canal || etapa || busqueda
+        : (soloSinLeer || canal || etapa || busqueda || asignado || porSeguir || sinResponder
           ? T('Nada con esos filtros.', 'Nothing matches those filters.')
           : T('Cuando alguien escriba a esta marca por Instagram, Messenger o WhatsApp, aparece aquí y te avisamos.', 'When someone messages this brand on Instagram, Messenger or WhatsApp it shows up here and we notify you.')));
   }
@@ -304,13 +378,21 @@ function listaConvs() {
           el('span', { class: 'bj-conv__nombre', text: nombreDe(v) }),
           el('span', { class: 'bj-conv__hora', text: timeAgo(v.ultimo_en) }),
         ]),
+        // Quién lo atiende y si vino de un anuncio (solo si hay equipo o anuncio).
+        (v.asignado_nombre && !esAgente()) || origenAnuncio(v) || (esAgente() && !v.asignado_a)
+          ? el('span', { class: 'bj-conv__tags' }, [
+            origenAnuncio(v) ? el('span', { class: 'bj-tag bj-tag--ad', text: T('Anuncio', 'Ad') }) : null,
+            v.asignado_nombre && !esAgente() ? el('span', { class: 'bj-tag', text: v.asignado_nombre }) : null,
+            !v.asignado_a && (esAgente() || equipoAgentes().length) ? el('span', { class: 'bj-tag bj-tag--libre', text: T('Sin asignar', 'Unassigned') }) : null,
+          ].filter(Boolean))
+          : null,
         el('span', { class: 'bj-conv__fila' }, [
           el('span', { class: 'bj-conv__ultimo', text: v.ultimo_texto || '' }),
           v.no_leidos
             ? el('span', { class: 'bj-conv__n', text: String(v.no_leidos) })
             : el('span', { class: 'bj-conv__etapa', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' }, title: (ETAPA_TXT[v.etapa] || (() => v.etapa))() }),
         ]),
-      ]),
+      ].filter(Boolean)),
     ]));
   }
   return ul;
@@ -333,16 +415,21 @@ function bajarChat(instantaneo) {
 
 function chat() {
   const { conversacion: v, mensajes } = convAbierta;
+  const eventos = convAbierta.eventos || [];
+  const horas = horasDesde(v.ultimo_cliente_en);
   // El correo no tiene ventana de 24 h: se puede contestar cuando sea.
-  const cerrada = v.canal !== 'correo' && horasDesde(v.ultimo_cliente_en) > 24;
+  const cerrada = v.canal !== 'correo' && horas > 24;
+  const esWa = v.canal === 'whatsapp';
+  const r = resumen && !resumen.error ? resumen : null;
+  // WhatsApp: pasadas 24 h el texto sale dentro de la plantilla abierta.
+  const usaPlantilla = esWa && (horas >= 23.9 || plantillaClave === 'confirmacion');
+  const plantillasMarca = (r && r.plantillas) || {};
   const head = el('header', { class: 'bj-chat__head', style: { '--c': colorDe(v.canal) } }, [
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-back', 'aria-label': T('Volver a la lista', 'Back to the list'), onclick: () => { convAbierta = null; pintarCuerpo(); } }, [icon('left', 20)]),
     el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icoCanal(v.canal, 11)])]),
     el('div', { class: 'bj-chat__quien' }, [
       el('div', { class: 'bj-chat__nombre', text: nombreDe(v) }),
-      // Segundo renglón: canal, @usuario y la etapa como chip tocable (abre un
-      // picker). Un <select> en el primer renglón no cabía en el teléfono y
-      // dejaba el nombre en "A..".
+      // Segundo renglón: canal, @usuario, la etapa (tocable) y quién lo atiende.
       el('div', { class: 'bj-chat__meta' }, [
         el('span', { class: 'bj-chat__canal' }, [chipCanal(v.canal)]),
         v.username && v.nombre ? el('span', { class: 'muted bj-chat__user', text: '@' + v.username }) : null,
@@ -350,35 +437,216 @@ function chat() {
           const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
           if (nueva && nueva !== v.etapa) { await cambiarEtapa(v, nueva); pintarCuerpo(); }
         } }, [chipEtapa(v.etapa), icon('down', 13)]),
+        botonAsignado(v),
       ].filter(Boolean)),
     ]),
+    el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Llamada', 'Call'), title: T('Llamar o registrar llamada', 'Call or log a call'), onclick: () => abrirLlamada(v) }, [icon('phone', 18)]),
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Ficha de la persona', 'Person card'), onclick: () => abrirFicha(v) }, [icon('user', 18)]),
   ]);
 
   msgsEl = el('div', { class: 'bj-msgs' });
+  const origen = origenAnuncio(v);
+  if (origen) {
+    msgsEl.appendChild(el('div', { class: 'bj-nota bj-nota--ad' }, [
+      el('span', { text: T('Llegó por el anuncio', 'Came from the ad') + (origen.titulo ? `: “${origen.titulo}”` : '') }),
+    ]));
+  }
   if (!mensajes.length) msgsEl.appendChild(el('p', { class: 'muted bj-msgs__nada', text: T('Todavía no hay mensajes.', 'No messages yet.') }));
+  // Mensajes y eventos del equipo (llamadas, asignaciones) en una sola línea de tiempo.
+  const linea = [
+    ...mensajes.map((m) => ({ t: m.creado, m })),
+    ...eventos.map((e) => ({ t: e.creado, e })),
+  ].sort((a, b) => String(a.t).localeCompare(String(b.t)));
   let diaPrev = '';
-  for (const m of mensajes) {
-    const dia = String(m.creado || '').slice(0, 10);
+  for (const it of linea) {
+    const dia = String(it.t || '').slice(0, 10);
     if (dia !== diaPrev) { msgsEl.appendChild(el('div', { class: 'bj-dia', text: fmtDia(dia) })); diaPrev = dia; }
-    msgsEl.appendChild(burbuja(m));
+    msgsEl.appendChild(it.m ? burbuja(it.m) : notaEvento(it.e));
   }
 
   const draft = borradores.get(v.id) || '';
-  const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, placeholder: T('Escribe tu respuesta…', 'Write your reply…'),
-    oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); },
+  const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, placeholder: usaPlantilla ? T('Escribe lo que quieras decirle (un solo párrafo)…', 'Write what you want to say (one paragraph)…') : T('Escribe tu respuesta…', 'Write your reply…'),
+    oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); if (usaPlantilla) pintarVistaPrevia(v, e.target.value); },
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
   const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', onclick: () => sugerirConv(v, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
   const btnEnviar = el('button', { type: 'button', class: 'bj-enviar', 'aria-label': T('Enviar', 'Send'), title: T('Enviar', 'Send'), onclick: () => enviar(v, ta) }, [icon('send', 19)]);
-  composerEl = el('div', { class: 'bj-composer' }, [
-    cerrada ? el('p', { class: 'bj-aviso', text: v.canal === 'whatsapp'
-      ? T('Han pasado más de 24 h desde su último mensaje: WhatsApp puede rechazar el envío hasta que vuelva a escribir.', 'More than 24 h since their last message: WhatsApp may reject the send until they write again.')
-      : T('Han pasado más de 24 h desde su último mensaje: Meta puede rechazar el envío (se intenta como agente humano).', 'More than 24 h since their last message: Meta may reject the send (we retry as a human agent).') }) : null,
+
+  const avisos = [];
+  if (esWa) {
+    const pl = plantillasMarca[plantillaClave] || {};
+    const aprobada = pl.estado === 'APPROVED';
+    if (usaPlantilla) {
+      avisos.push(el('div', { class: 'bj-plantilla' }, [
+        el('div', { class: 'bj-plantilla__fila' }, [
+          el('strong', { text: horas >= 23.9
+            ? T('Pasaron más de 24 h: sale dentro de la plantilla', 'Over 24 h: it goes inside the template')
+            : T('Sale con botones de confirmación', 'Goes with confirmation buttons') }),
+          el('span', { class: 'bj-plantilla__costo', text: T('≈ 15 centavos', '≈ USD 0.01') }),
+        ]),
+        el('div', { class: 'seg bj-plantilla__seg', role: 'tablist' }, [
+          ['seguimiento', T('Seguimiento', 'Follow-up')], ['confirmacion', T('Con botones', 'With buttons')],
+        ].map(([k, lbl]) => el('button', { type: 'button', role: 'tab', class: plantillaClave === k ? 'is-active' : '', onclick: () => { plantillaClave = k; pintarCuerpo(); } }, [lbl]))),
+        !aprobada ? el('p', { class: 'bj-aviso', text: pl.estado === 'PENDING' || pl.estado === 'IN_APPEAL'
+          ? T('Meta todavía está revisando esta plantilla. En cuanto la apruebe se puede enviar.', 'Meta is still reviewing this template. It can be sent once approved.')
+          : (pl.estado
+            ? T(`La plantilla está en estado ${pl.estado}${pl.motivo ? ' (' + pl.motivo + ')' : ''}.`, `The template status is ${pl.estado}${pl.motivo ? ' (' + pl.motivo + ')' : ''}.`)
+            : T('Esta marca todavía no tiene sus plantillas abiertas. Créalas en Ajustes de la bandeja.', 'This brand has no open templates yet. Create them in Inbox settings.')) }) : null,
+        el('div', { class: 'bj-plantilla__previa', 'aria-live': 'polite' }),
+      ].filter(Boolean)));
+    } else if (horas < 24) {
+      const quedan = Math.max(0, 24 - horas);
+      avisos.push(el('div', { class: 'bj-ventana' }, [
+        el('span', { text: T(`Ventana abierta: quedan ${quedan >= 1 ? Math.floor(quedan) + ' h' : Math.round(quedan * 60) + ' min'} para escribir libre y gratis.`, `Window open: ${quedan >= 1 ? Math.floor(quedan) + ' h' : Math.round(quedan * 60) + ' min'} left to write freely.`) }),
+        el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => { plantillaClave = 'confirmacion'; pintarCuerpo(); } }, [T('Mandar con botones de confirmación', 'Send with confirmation buttons')]),
+      ]));
+    }
+  } else if (cerrada && v.canal !== 'correo') {
+    const dias = horas / 24;
+    avisos.push(el('div', { class: 'bj-aviso bj-aviso--app' }, [
+      el('span', { text: dias > 7
+        ? T('Pasaron más de 7 días: Meta ya no deja contestar desde aquí. Escríbele desde la app y el mensaje se registra igual.', 'More than 7 days: Meta no longer allows replies from here. Write from the app and it is still logged.')
+        : T('Pasaron más de 24 h: se intenta como agente humano (hasta 7 días). Si Meta lo rechaza, escríbele desde la app.', 'Over 24 h: we try as a human agent (up to 7 days). If Meta rejects it, write from the app.') }),
+      botonAbrirApp(v),
+    ].filter(Boolean)));
+  }
+  composerEl = el('div', { class: 'bj-composer' + (usaPlantilla ? ' is-plantilla' : '') }, [
+    ...avisos,
     el('div', { class: 'bj-composer__fila' }, [ta, el('div', { class: 'bj-composer__btns' }, [btnIA, btnEnviar])]),
-  ].filter(Boolean));
+  ]);
+  if (usaPlantilla) requestAnimationFrame(() => pintarVistaPrevia(v, ta.value));
 
   return el('div', { class: 'bj-chat__in', style: { '--c': colorDe(v.canal) } }, [head, msgsEl, composerEl]);
+}
+
+// Quién atiende el chat. Supervisor: elige agente. Agente: "Tomar" si no tiene dueño.
+function botonAsignado(v) {
+  const agentes = equipoAgentes();
+  if (!agentes.length && !v.asignado_a && !esAgente()) return null;
+  if (esAgente()) {
+    if (v.asignado_a) return el('span', { class: 'bj-asignado is-mio' }, [icon('user', 12), el('span', { text: T('Tuyo', 'Yours') })]);
+    return el('button', { type: 'button', class: 'bj-asignado is-libre', onclick: () => tomarConv(v) }, [icon('plus', 12), el('span', { text: T('Tomar', 'Take it') })]);
+  }
+  return el('button', { type: 'button', class: 'bj-asignado' + (v.asignado_a ? '' : ' is-libre'), 'aria-label': T('Asignar a un agente', 'Assign to an agent'), onclick: async (e) => {
+    const opciones = [
+      ...agentes.map((a) => ({ value: a.id, label: a.nombre + (a.disponible ? '' : ' · ' + T('no disponible', 'away')), current: v.asignado_a === a.id })),
+      { value: '__nadie', label: T('Sin asignar', 'Unassigned'), current: !v.asignado_a },
+    ];
+    const elegido = await ctx.sheet.pickFrom({ title: T('Asignar a', 'Assign to'), anchor: e.currentTarget, options: opciones });
+    if (!elegido || elegido === v.asignado_a || (elegido === '__nadie' && !v.asignado_a)) return;
+    try {
+      const x = await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/asignar`, { user_id: elegido === '__nadie' ? null : elegido });
+      toast(x.asignado_nombre ? T(`Asignado a ${x.asignado_nombre}`, `Assigned to ${x.asignado_nombre}`) : T('Quedó sin asignar', 'Now unassigned'), { type: 'success' });
+      await abrirConv(v.id, { silencioso: true });
+      cargarLista({ silencioso: true });
+    } catch (err) { toast(err.message, { type: 'error' }); }
+  } }, [icon('users', 12), el('span', { text: v.asignado_nombre || T('Sin asignar', 'Unassigned') }), icon('down', 12)]);
+}
+
+async function tomarConv(v) {
+  try {
+    await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/asignar`, { user_id: yoMe().id });
+    toast(T('Listo: este chat ya es tuyo.', 'Done: this chat is yours now.'), { type: 'success' });
+    await abrirConv(v.id, { silencioso: true });
+    cargarLista({ silencioso: true });
+    cargarResumen();
+  } catch (e) { toast(e.message, { type: 'error' }); }
+}
+
+// Instagram y Messenger: desde la app de Meta se puede escribir sin límite de
+// días y el mensaje llega a la Bandeja como eco (a nombre de quien tocó aquí).
+function botonAbrirApp(v) {
+  let href = null;
+  if (v.canal === 'instagram' && v.username) href = `https://ig.me/m/${encodeURIComponent(v.username)}`;
+  else if (v.canal === 'instagram') href = 'https://www.instagram.com/direct/inbox/';
+  else if (v.canal === 'messenger') href = 'https://business.facebook.com/latest/inbox/all';
+  if (!href) return null;
+  return el('a', { class: 'btn btn-sm', href, target: '_blank', rel: 'noopener', onclick: () => {
+    api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/abrir-app`, {}).catch(() => {});
+  } }, [icon('link', 14), ' ' + (v.canal === 'instagram' ? T('Abrir en Instagram', 'Open in Instagram') : T('Abrir en Business Suite', 'Open in Business Suite'))]);
+}
+
+// Así le va a llegar: saludo y cierre fijos + el texto del agente en un solo párrafo.
+async function pintarVistaPrevia(v, texto) {
+  const box = composerEl && composerEl.querySelector('.bj-plantilla__previa');
+  if (!box) return;
+  const clave = plantillaClave;
+  const k = `${v.id}:${clave}`;
+  let info = infoPlantilla.get(k);
+  if (!info) {
+    try { info = await api.get(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/plantilla?clave=${clave}`); infoPlantilla.set(k, info); }
+    catch { return; }
+  }
+  if (!composerEl || !composerEl.contains(box)) return;
+  const limpio = String(texto || '').replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  const n = Array.from(limpio).length;
+  clear(box);
+  box.append(
+    el('span', { class: 'bj-plantilla__lbl', text: T('Así le llega:', 'This is what they get:') }),
+    el('span', { class: 'bj-plantilla__txt' }, [
+      el('span', { class: 'bj-plantilla__fijo', text: info.antes }),
+      el('span', { class: 'bj-plantilla__libre', text: limpio || T('[tu mensaje]', '[your message]') }),
+      el('span', { class: 'bj-plantilla__fijo', text: info.despues }),
+    ]),
+    info.botones && info.botones.length ? el('span', { class: 'bj-plantilla__btns' }, info.botones.map((b) => el('span', { class: 'bj-plantilla__btn', text: b }))) : null,
+    el('span', { class: 'bj-plantilla__cuenta' + (n > info.max ? ' is-mal' : ''), text: `${n} / ${info.max}` + (/[\r\n]/.test(texto || '') ? T(' · los saltos de línea se vuelven espacios', ' · line breaks become spaces') : '') }),
+  );
+}
+
+// Llamadas y asignaciones dentro del chat, como notas pequeñas.
+function notaEvento(e) {
+  const d = e.dato || {};
+  let txt = '';
+  if (e.tipo === 'llamada') {
+    txt = T(`${e.user_nombre || 'Alguien'} llamó · ${(RESULTADO_TXT[d.resultado] || (() => d.resultado))()}`, `${e.user_nombre || 'Someone'} called · ${(RESULTADO_TXT[d.resultado] || (() => d.resultado))()}`)
+      + (d.minutos ? ` · ${d.minutos} min` : '') + (d.nota ? ` · “${d.nota}”` : '');
+  } else if (e.tipo === 'tomada') txt = T(`${e.user_nombre || 'Alguien'} tomó el chat`, `${e.user_nombre || 'Someone'} took the chat`);
+  else if (e.tipo === 'reasignacion') txt = T(`Reasignado a ${e.user_nombre || '—'}`, `Reassigned to ${e.user_nombre || '—'}`) + (d.motivo ? ` · ${d.motivo}` : '') + (d.por ? T(` · por ${d.por}`, ` · by ${d.por}`) : '');
+  else txt = T(`Asignado a ${e.user_nombre || '—'}`, `Assigned to ${e.user_nombre || '—'}`) + (d.por ? T(` · por ${d.por}`, ` · by ${d.por}`) : '');
+  return el('div', { class: 'bj-nota' + (e.tipo === 'llamada' ? ' bj-nota--llamada' : '') }, [
+    e.tipo === 'llamada' ? icon('phone', 12) : icon('user', 12),
+    el('span', { text: txt + ' · ' + horaCorta(e.creado) }),
+  ]);
+}
+
+// Llamar (tel:) y registrar cómo salió: el dashboard cuenta llamadas por agente.
+function abrirLlamada(v) {
+  const tel = v.canal === 'whatsapp' ? '+' + v.contacto_id : '';
+  ctx.sheet.openSheet({
+    title: T('Llamada', 'Call'),
+    mode: 'form',
+    build(body, close) {
+      let resultado = '';
+      const chips = el('div', { class: 'bj-res' });
+      const pintarChips = () => {
+        clear(chips);
+        for (const [k, lbl] of RESULTADOS_LLAMADA) {
+          chips.appendChild(el('button', { type: 'button', class: 'bj-filtro' + (resultado === k ? ' is-on' : ''), onclick: () => { resultado = k; pintarChips(); } }, [lbl()]));
+        }
+      };
+      pintarChips();
+      const minutos = el('input', { class: 'input', type: 'number', min: '0', max: '600', inputmode: 'numeric', placeholder: T('Minutos (opcional)', 'Minutes (optional)') });
+      const nota = el('textarea', { class: 'textarea', rows: 2, placeholder: T('Nota: qué se habló, qué sigue (opcional)', 'Note: what was said, next step (optional)') });
+      body.append(
+        tel ? el('a', { class: 'btn btn-primary bj-llamar', href: `tel:${tel}` }, [icon('phone', 16), ' ' + T(`Llamar a ${tel}`, `Call ${tel}`)]) : el('p', { class: 'muted', text: T('Este canal no trae número de teléfono: registra aquí la llamada que hiciste por otro medio.', 'This channel has no phone number: log here the call you made another way.') }),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('¿Cómo salió?', 'How did it go?') }), chips]),
+        el('div', { class: 'field' }, [minutos]),
+        el('div', { class: 'field' }, [nota]),
+        el('div', { class: 'btn-row' }, [
+          el('button', { type: 'button', class: 'btn btn-primary', onclick: async () => {
+            if (!resultado) { toast(T('Elige cómo salió la llamada.', 'Pick how the call went.'), { type: 'error' }); return; }
+            try {
+              await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/llamada`, { resultado, minutos: Number(minutos.value) || 0, nota: nota.value.trim() });
+              toast(T('Llamada registrada', 'Call logged'), { type: 'success' });
+              close({ force: true });
+              await abrirConv(v.id, { silencioso: true });
+              cargarLista({ silencioso: true });
+            } catch (e) { toast(e.message, { type: 'error' }); }
+          } }, [T('Registrar llamada', 'Log call')]),
+        ]),
+      );
+    },
+  });
 }
 
 // 14:05 — la hora sola, como en WhatsApp (la fecha ya la da el separador de día).
@@ -407,12 +675,24 @@ function burbuja(m) {
   } else if (m.adjunto_tipo && !m.texto) {
     hijos.push(el('span', { class: 'muted', text: ({ share: T('Compartió una publicación', 'Shared a post'), story_mention: T('Te mencionó en una historia', 'Mentioned you in a story') }[m.adjunto_tipo] || T('Adjunto', 'Attachment')) }));
   }
+  const conPlantilla = String(m.via || '').startsWith('plantilla:');
+  if (conPlantilla) hijos.unshift(el('span', { class: 'bj-burbuja__via', text: T('Enviado con plantilla', 'Sent with template') }));
+  else if (salida && m.via === 'app') hijos.unshift(el('span', { class: 'bj-burbuja__via', text: T('Desde la app', 'From the app') }));
   if (m.texto) hijos.push(el('span', { class: 'bj-burbuja__txt', text: m.texto }));
   const pie = [el('span', { text: horaCorta(m.creado) })];
   if (salida && m.autor_nombre && m.autor_nombre !== 'Meta') pie.unshift(el('span', { text: m.autor_nombre + ' · ' }));
-  if (m.estado === 'error') pie.push(el('span', { class: 'bj-burbuja__err', text: ' · ' + T('No se envió', 'Not sent') + (m.error ? ': ' + m.error : '') }));
+  // Palomitas como WhatsApp: ✓ enviado, ✓✓ entregado, ✓✓ azul leído.
+  if (salida && (m.estado === 'enviado' || m.estado === 'entregado' || m.estado === 'leido')) {
+    pie.push(el('span', {
+      class: 'bj-tick' + (m.estado === 'leido' ? ' is-leido' : ''),
+      title: m.estado === 'leido' ? T('Leído', 'Read') : (m.estado === 'entregado' ? T('Entregado', 'Delivered') : T('Enviado', 'Sent')),
+      text: m.estado === 'enviado' ? ' ✓' : ' ✓✓',
+    }));
+  }
+  const malo = m.estado === 'error' || m.estado === 'fallido';
+  if (malo) pie.push(el('span', { class: 'bj-burbuja__err', text: ' · ' + (m.estado === 'fallido' ? T('No llegó', 'Not delivered') : T('No se envió', 'Not sent')) + (m.error ? ': ' + m.error : '') }));
   // La hora va DENTRO de la burbuja (como WhatsApp), no debajo.
-  return el('div', { class: 'bj-burbuja' + (salida ? ' is-out' : ' is-in') + (m.estado === 'error' ? ' is-error' : '') }, [
+  return el('div', { class: 'bj-burbuja' + (salida ? ' is-out' : ' is-in') + (malo ? ' is-error' : '') + (conPlantilla ? ' is-plantilla' : '') }, [
     el('div', { class: 'bj-burbuja__cuerpo' }, [...hijos, el('div', { class: 'bj-burbuja__pie' }, pie)]),
   ]);
 }
@@ -428,7 +708,12 @@ async function enviar(v, ta) {
   enviando = true;
   ta.disabled = true;
   try {
-    await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/enviar`, { texto });
+    const cuerpo = { texto };
+    // "Con botones" (confirmación) se pide explícito; el seguimiento lo decide el servidor por la ventana.
+    if (v.canal === 'whatsapp' && plantillaClave === 'confirmacion') cuerpo.plantilla = 'confirmacion';
+    const x = await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/enviar`, cuerpo);
+    if (x && x.plantilla) toast(T('Enviado dentro de la plantilla. Abajo verás si llegó.', 'Sent inside the template. You will see below if it was delivered.'), { type: 'success' });
+    plantillaClave = 'seguimiento';
     borradores.delete(v.id);
     ta.value = '';
     await abrirConv(v.id, { silencioso: true });
@@ -632,6 +917,281 @@ async function ocultarCom(k, btn) {
   finally { delete btn.dataset.loading; }
 }
 
+// ── Desempeño (supervisor y staff) ───────────────────────────────────────────
+// Lo que el dueño pidió ver: cuánto tarda cada quien, quién contesta más,
+// llamadas, seguimientos, citas y de qué anuncio llegan los leads.
+function fmtMin(m) {
+  if (m == null) return '—';
+  if (m < 1) return T('< 1 min', '< 1 min');
+  if (m < 60) return `${Math.round(m)} min`;
+  if (m < 1440) return `${(m / 60).toFixed(1).replace('.0', '')} h`;
+  return T(`${(m / 1440).toFixed(1).replace('.0', '')} días`, `${(m / 1440).toFixed(1).replace('.0', '')} days`);
+}
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+
+function panelDesempeno() {
+  const wrap = el('div', { class: 'bj-dash' });
+  const r = resumen && !resumen.error ? resumen : null;
+  const acciones = el('div', { class: 'bj-dash__acc' }, [
+    el('div', { class: 'bj-filtros' }, [7, 30, 90].map((d) => chipFiltro(T(`${d} días`, `${d} days`), periodo === d, () => { periodo = d; desempeno = null; pintarCuerpo(); cargarLista(); }))),
+    el('div', { class: 'bj-dash__btns' }, [
+      r && r.sin_asignar && equipoAgentes().length ? el('button', { type: 'button', class: 'btn btn-sm', onclick: (e) => repartirSinAsignar(e.currentTarget) }, [icon('users', 14), ' ' + T(`Repartir ${r.sin_asignar} sin asignar`, `Assign ${r.sin_asignar} unassigned`)]) : null,
+      el('button', { type: 'button', class: 'btn btn-sm', onclick: abrirEquipo }, [icon('users', 14), ' ' + T('Equipo', 'Team')]),
+    ].filter(Boolean)),
+  ]);
+  wrap.appendChild(acciones);
+  if (!desempeno) { wrap.appendChild(el('div', { class: 'bj-cargando' }, [el('span', { class: 'spinner' })])); return wrap; }
+  if (desempeno.error) { wrap.appendChild(vacio('warning', T('No se pudo cargar', 'Could not load'), desempeno.error)); return wrap; }
+  const d = desempeno;
+  const t = d.totales;
+  const kpi = (valor, etiqueta, nota = null, tono = '') => el('div', { class: 'bj-kpi' + (tono ? ' is-' + tono : '') }, [
+    el('span', { class: 'bj-kpi__v', text: String(valor) }),
+    el('span', { class: 'bj-kpi__l', text: etiqueta }),
+    nota ? el('span', { class: 'bj-kpi__n', text: nota }) : null,
+  ].filter(Boolean));
+  wrap.appendChild(el('div', { class: 'bj-kpis' }, [
+    kpi(t.leads, T('Leads nuevos', 'New leads'), T(`en ${d.periodo.dias} días`, `in ${d.periodo.dias} days`)),
+    kpi(`${pct(t.respondidos, t.leads)}%`, T('Leads contestados', 'Leads answered'), T(`${t.respondidos} de ${t.leads}`, `${t.respondidos} of ${t.leads}`)),
+    kpi(fmtMin(t.primera_respuesta_min), T('Primera respuesta', 'First reply'), T('tiempo típico', 'typical time')),
+    kpi(fmtMin(t.respuesta_mediana_min), T('Respuesta típica', 'Typical reply'), T('a cualquier mensaje', 'to any message')),
+    kpi(t.sin_respuesta_ahora, T('Esperando respuesta', 'Waiting for reply'), T('ahora mismo', 'right now'), t.sin_respuesta_ahora ? 'alerta' : ''),
+    kpi(t.seguimientos, T('Seguimientos', 'Follow-ups'), T(`${t.plantillas} con plantilla`, `${t.plantillas} with template`)),
+    kpi(t.llamadas, T('Llamadas', 'Calls')),
+    kpi(t.citas, T('Citas agendadas', 'Appointments'), t.leads ? T(`${pct(t.citas, t.leads)}% de los leads`, `${pct(t.citas, t.leads)}% of leads`) : null, 'bien'),
+  ]));
+  if (t.whatsapp && t.whatsapp.enviados) {
+    const w = t.whatsapp;
+    wrap.appendChild(el('p', { class: 'bj-dash__wa' }, [
+      el('strong', { text: 'WhatsApp: ' }),
+      el('span', { text: T(`${w.enviados} enviados · ${pct(w.entregados, w.enviados)}% entregados · ${pct(w.leidos, w.enviados)}% leídos`, `${w.enviados} sent · ${pct(w.entregados, w.enviados)}% delivered · ${pct(w.leidos, w.enviados)}% read`) }),
+      w.no_entregados ? el('span', { class: 'bj-dash__mal', text: T(` · ${w.no_entregados} no llegaron`, ` · ${w.no_entregados} not delivered`) }) : null,
+    ].filter(Boolean)));
+  }
+
+  // Leads por día (barras).
+  if (d.dias && d.dias.length) {
+    const max = Math.max(1, ...d.dias.map((x) => x.leads));
+    wrap.appendChild(el('section', { class: 'bj-dash__sec' }, [
+      el('h3', { class: 'bj-dash__h', text: T('Leads por día', 'Leads per day') }),
+      el('div', { class: 'bj-barras', role: 'img', 'aria-label': T('Leads por día', 'Leads per day') }, d.dias.map((x) => el('span', {
+        class: 'bj-barra', title: `${x.dia}: ${x.leads}`,
+        style: { '--h': `${Math.round((x.leads / max) * 100)}%` },
+      }))),
+      el('div', { class: 'bj-barras__eje' }, [el('span', { text: fmtDiaCorto(d.dias[0].dia) }), el('span', { text: fmtDiaCorto(d.dias[d.dias.length - 1].dia) })]),
+    ]));
+  }
+
+  // Por agente.
+  const filas = d.agentes || [];
+  const secAg = el('section', { class: 'bj-dash__sec' }, [el('h3', { class: 'bj-dash__h', text: T('Por agente', 'By agent') })]);
+  if (!filas.length) secAg.appendChild(el('p', { class: 'muted', text: T('Todavía no hay actividad del equipo en este periodo.', 'No team activity in this period yet.') }));
+  else {
+    const cols = [
+      ['nombre', T('Agente', 'Agent')], ['asignados', T('Asignados', 'Assigned')], ['chats_atendidos', T('Atendidos', 'Handled')],
+      ['primera_respuesta_min', T('1ª respuesta', '1st reply')], ['respuesta_mediana_min', T('Resp. típica', 'Typical reply')],
+      ['mensajes', T('Mensajes', 'Messages')], ['seguimientos', T('Seguimientos', 'Follow-ups')], ['llamadas', T('Llamadas', 'Calls')], ['citas', T('Citas', 'Booked')],
+    ];
+    const tabla = el('table', { class: 'bj-tabla' }, [
+      el('thead', {}, [el('tr', {}, cols.map(([, l]) => el('th', { text: l })))]),
+      el('tbody', {}, filas.map((f) => el('tr', {}, cols.map(([k]) => {
+        if (k === 'nombre') return el('td', { class: 'bj-tabla__nom' }, [el('span', { text: f.nombre }), f.es_agente && f.disponible === false ? el('span', { class: 'bj-tag', text: T('no disponible', 'away') }) : null].filter(Boolean));
+        if (k.endsWith('_min')) return el('td', { text: fmtMin(f[k]) });
+        if (k === 'llamadas') return el('td', { text: f.llamadas ? `${f.llamadas} (${f.llamadas_contestadas} ✓)` : '0' });
+        return el('td', { text: String(f[k] ?? 0) });
+      })))),
+    ]);
+    secAg.appendChild(el('div', { class: 'bj-tabla-wrap' }, [tabla]));
+  }
+  wrap.appendChild(secAg);
+
+  // Por anuncio y por canal.
+  const anuncios = d.anuncios || [];
+  if (anuncios.length) {
+    wrap.appendChild(el('section', { class: 'bj-dash__sec' }, [
+      el('h3', { class: 'bj-dash__h', text: T('De dónde llegan', 'Where they come from') }),
+      el('div', { class: 'bj-ads' }, anuncios.map((a) => el('div', { class: 'bj-ad' + (a.anuncio ? '' : ' is-org') }, [
+        el('span', { class: 'bj-ad__t', text: a.titulo }),
+        el('span', { class: 'bj-ad__n', text: T(`${a.leads} leads · ${a.citas} citas (${pct(a.citas, a.leads)}%)`, `${a.leads} leads · ${a.citas} booked (${pct(a.citas, a.leads)}%)`) }),
+      ]))),
+      d.canales && d.canales.length ? el('div', { class: 'bj-filtros bj-dash__canales' }, d.canales.map((c) => el('span', { class: 'bj-canal is-on', style: { '--c': colorDe(c.canal) } }, [icoCanal(c.canal, 13), el('span', { text: `${CANAL_TXT[c.canal] || c.canal}: ${c.leads}` })]))) : null,
+    ].filter(Boolean)));
+  }
+  wrap.appendChild(el('p', { class: 'muted bj-dash__nota', text: T(
+    'Tiempos en horas corridas (cuentan noches y fines de semana). Una "respuesta" es el primer mensaje de una persona del equipo después de que el paciente escribió. Seguimiento = mensaje enviado cuando el paciente llevaba 24 h o más sin escribir.',
+    'Times are wall-clock hours (nights and weekends count). A "reply" is the first team message after the patient wrote. Follow-up = message sent when the patient had been silent for 24 h or more.') }));
+  return wrap;
+}
+function fmtDiaCorto(ymd) {
+  const dt = new Date(ymd + 'T12:00:00Z');
+  return isNaN(dt) ? ymd : dt.toLocaleDateString(isEN ? 'en-US' : 'es-MX', { day: 'numeric', month: 'short' });
+}
+
+async function repartirSinAsignar(btn) {
+  btn.dataset.loading = 'true';
+  try {
+    const x = await api.post(`/bandeja/repartir?client_id=${encodeURIComponent(cid())}`, {});
+    const det = Object.entries(x.por_agente || {}).map(([n, k]) => `${n}: ${k}`).join(' · ');
+    toast(T(`Repartidos ${x.repartidas} chats${det ? ' (' + det + ')' : ''}.`, `Assigned ${x.repartidas} chats${det ? ' (' + det + ')' : ''}.`), { type: 'success', ms: 7000 });
+    await cargarResumen();
+    desempeno = null; pintarCuerpo(); cargarLista();
+  } catch (e) { toast(e.message, { type: 'error' }); }
+  finally { delete btn.dataset.loading; }
+}
+
+// ── Equipo de la marca ───────────────────────────────────────────────────────
+// Staff: da de alta agentes, cambia roles y configura el reparto.
+// Supervisor: ve al equipo y marca quién está disponible.
+function abrirEquipo() {
+  const cli = clienteActivo();
+  if (!cli) return;
+  ctx.sheet.openSheet({
+    title: T(`Equipo de ${cli.name}`, `${cli.name} team`),
+    mode: 'form',
+    build(body) { seccionEquipo(body, cli); },
+  });
+}
+
+function seccionEquipo(body, cli) {
+  const caja = el('div', { class: 'bj-eq' }, [el('p', { class: 'muted', text: T('Cargando…', 'Loading…') })]);
+  body.appendChild(caja);
+  (async () => {
+    let info;
+    try { info = await api.get(`/bandeja/equipo?client_id=${encodeURIComponent(cli.id)}`); }
+    catch (e) { clear(caja); caja.appendChild(el('p', { class: 'bj-aviso', text: e.message })); return; }
+    clear(caja);
+    const puede = !!info.puede_editar;
+    caja.appendChild(el('p', { class: 'muted bj-aj__p', text: T(
+      'Agente: atiende los chats que le tocan (el reparto es por turnos, parejo). Supervisor: ve todo y el desempeño. Solo reciben chats los agentes disponibles.',
+      'Agent: handles the chats assigned to them (round-robin). Supervisor: sees everything and performance. Only available agents get chats.') }));
+    const lista = el('ul', { class: 'bj-eq__lista' });
+    if (!info.accesos.length) lista.appendChild(el('li', { class: 'muted', text: T('Esta marca todavía no tiene accesos.', 'This brand has no logins yet.') }));
+    for (const u of info.accesos) {
+      const sel = puede ? el('select', { class: 'select bj-eq__rol', 'aria-label': T('Rol en la bandeja', 'Inbox role'), onchange: async (e) => {
+        try { await api.patch(`/bandeja/equipo/${encodeURIComponent(u.id)}`, { rol: e.target.value || null }); toast(T('Rol guardado', 'Role saved'), { type: 'success' }); await cargarResumen(); }
+        catch (err) { toast(err.message, { type: 'error' }); }
+      } }, [
+        el('option', { value: '', text: T('Sin bandeja', 'No inbox'), selected: !u.rol }),
+        el('option', { value: 'agente', text: T('Agente', 'Agent'), selected: u.rol === 'agente' }),
+        el('option', { value: 'supervisor', text: T('Supervisor', 'Supervisor'), selected: u.rol === 'supervisor' }),
+      ]) : el('span', { class: 'bj-tag', text: u.rol === 'agente' ? T('Agente', 'Agent') : (u.rol === 'supervisor' ? T('Supervisor', 'Supervisor') : T('Sin bandeja', 'No inbox')) });
+      const dispo = u.rol === 'agente' ? el('label', { class: 'bj-eq__dispo' }, [
+        el('input', { type: 'checkbox', checked: u.disponible, onchange: async (e) => {
+          try { await api.patch(`/bandeja/equipo/${encodeURIComponent(u.id)}`, { disponible: e.target.checked }); toast(e.target.checked ? T(`${u.nombre} recibe chats`, `${u.nombre} gets chats`) : T(`${u.nombre} ya no recibe chats nuevos`, `${u.nombre} gets no new chats`), { type: 'success' }); await cargarResumen(); }
+          catch (err) { toast(err.message, { type: 'error' }); e.target.checked = !e.target.checked; }
+        } }), el('span', { text: T('Disponible', 'Available') }),
+      ]) : null;
+      lista.appendChild(el('li', { class: 'bj-eq__fila' + (u.activo ? '' : ' is-off') }, [
+        el('div', { class: 'bj-eq__quien' }, [el('strong', { text: u.nombre }), el('span', { class: 'muted', text: u.usuario || '' })]),
+        el('div', { class: 'bj-eq__ctl' }, [sel, dispo].filter(Boolean)),
+      ]));
+    }
+    caja.appendChild(lista);
+    if (!puede) return;
+
+    // Alta de un agente nuevo (acceso de cliente de esta marca con rol de agente).
+    const fNom = el('input', { class: 'input', placeholder: T('Nombre (ej. Laura)', 'Name (e.g. Laura)') });
+    const fUsr = el('input', { class: 'input', placeholder: T('Usuario o correo para entrar (ej. laura.smile)', 'Login (e.g. laura.smile)'), autocomplete: 'off', autocapitalize: 'off' });
+    const fRol = el('select', { class: 'select' }, [el('option', { value: 'agente', text: T('Agente', 'Agent') }), el('option', { value: 'supervisor', text: T('Supervisor', 'Supervisor') })]);
+    const salida = el('div', { class: 'bj-eq__nuevo' });
+    const btnAlta = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: async () => {
+      const nombre = fNom.value.trim(); const usuario = fUsr.value.trim();
+      if (!nombre || !usuario) { toast(T('Escribe el nombre y el usuario.', 'Enter name and login.'), { type: 'error' }); return; }
+      btnAlta.dataset.loading = 'true';
+      try {
+        const u = await api.post('/users', { name: nombre, email: usuario, role: 'client', client_id: cli.id });
+        await api.patch(`/bandeja/equipo/${encodeURIComponent(u.id)}`, { rol: fRol.value });
+        clear(salida);
+        salida.append(
+          el('p', { class: 'bj-aj__p', text: T('Listo. Pásale estos datos (la contraseña solo se ve esta vez):', 'Done. Share these details (the password is shown only once):') }),
+          filaCopiar(T('Entrar en', 'Sign in at'), 'https://ivaestudios.com/marketing/'),
+          filaCopiar(T('Usuario', 'Login'), usuario),
+          u.password ? filaCopiar(T('Contraseña', 'Password'), u.password) : null,
+        );
+        fNom.value = ''; fUsr.value = '';
+        await cargarResumen();
+        seccionRefrescar();
+      } catch (e) { toast(e.message, { type: 'error', ms: 8000 }); }
+      finally { delete btnAlta.dataset.loading; }
+    } }, [icon('plus', 14), ' ' + T('Dar de alta', 'Add')]);
+    caja.append(
+      el('h4', { class: 'bj-aj__h4', text: T('Agregar a alguien del equipo', 'Add a team member') }),
+      el('div', { class: 'field' }, [fNom]), el('div', { class: 'field' }, [fUsr]), el('div', { class: 'field' }, [fRol]), btnAlta, salida,
+    );
+
+    // Reparto.
+    const cfg = info.cfg || {};
+    const chkRep = el('input', { type: 'checkbox', checked: cfg.reparto !== false });
+    const selReas = el('select', { class: 'select' }, [0, 10, 15, 30, 60].map((m) => el('option', { value: String(m), text: m ? T(`Si no contesta en ${m} min, pasa al siguiente`, `If no reply in ${m} min, pass it on`) : T('Nunca reasignar solo', 'Never reassign automatically'), selected: Number(cfg.reasignar_min || 0) === m })));
+    const selDias = el('select', { class: 'select' }, [2, 3, 5, 7].map((dd) => el('option', { value: String(dd), text: T(`"Por seguir" a los ${dd} días sin respuesta`, `"Follow up" after ${dd} days without reply`), selected: Number(cfg.dias_seguimiento || 3) === dd })));
+    const chkAg = el('input', { type: 'checkbox', checked: !!cfg.avisar_agencia });
+    const btnCfg = el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
+      btnCfg.dataset.loading = 'true';
+      try {
+        await api.post(`/bandeja/cfg?client_id=${encodeURIComponent(cli.id)}`, { reparto: chkRep.checked, reasignar_min: Number(selReas.value), dias_seguimiento: Number(selDias.value), avisar_agencia: chkAg.checked });
+        toast(T('Reparto guardado', 'Assignment saved'), { type: 'success' });
+        await cargarResumen();
+      } catch (e) { toast(e.message, { type: 'error' }); }
+      finally { delete btnCfg.dataset.loading; }
+    } }, [T('Guardar reparto', 'Save assignment')]);
+    caja.append(
+      el('h4', { class: 'bj-aj__h4', text: T('Reparto', 'Assignment') }),
+      el('label', { class: 'bj-eq__chk' }, [chkRep, el('span', { text: T('Repartir los chats nuevos por turnos entre los agentes disponibles', 'Assign new chats round-robin among available agents') })]),
+      el('div', { class: 'field' }, [selReas]),
+      el('div', { class: 'field' }, [selDias]),
+      el('label', { class: 'bj-eq__chk' }, [chkAg, el('span', { text: T('Avisar también a la agencia de cada mensaje nuevo', 'Also notify the agency of every new message') })]),
+      btnCfg,
+    );
+    function seccionRefrescar() { const p = caja.parentNode; if (p) { caja.remove(); seccionEquipo(p, cli); } }
+  })();
+}
+
+// Plantillas abiertas de WhatsApp: nombre de la marca en el texto fijo,
+// crearlas en Meta y ver si ya están aprobadas.
+function seccionPlantillas(body, cli) {
+  const r = resumen && !resumen.error ? resumen : null;
+  const caja = el('div', { class: 'bj-pl' });
+  body.appendChild(caja);
+  const pintar = (plantillas) => {
+    clear(caja);
+    caja.appendChild(el('p', { class: 'muted bj-aj__p', text: T(
+      'Pasadas 24 h desde el último mensaje del paciente, WhatsApp solo deja mandar plantillas. Estas son "abiertas": saludo y cierre fijos, y en medio lo que escriba el agente. El paciente recibe un mensaje normal. Cuestan unos 15 centavos cada una.',
+      'After 24 h since the patient\'s last message, WhatsApp only allows templates. These are "open": fixed greeting and closing, and the agent\'s text in the middle. About USD 0.01 each.') }));
+    const nombre = el('input', { class: 'input', value: (r && r.cfg && r.cfg.nombre_comercial) || cli.name, placeholder: T('Nombre de la marca en el mensaje', 'Brand name in the message') });
+    caja.append(el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Así se presenta la marca: "te escribe Laura de …"', 'Brand name: "this is Laura from …"') }), nombre]));
+    const ul = el('ul', { class: 'bj-aj__lista' });
+    for (const [k, p] of Object.entries(plantillas || {})) {
+      const ok = p.estado === 'APPROVED';
+      const txtEstado = ({ APPROVED: T('aprobada', 'approved'), PENDING: T('en revisión de Meta', 'in Meta review'), REJECTED: T('rechazada', 'rejected'), PAUSED: T('pausada', 'paused'), DISABLED: T('desactivada', 'disabled'), EXISTE: T('creada, revisando estado', 'created, checking status'), ERROR: T('error al crear', 'creation error') })[p.estado] || T('sin crear', 'not created');
+      ul.appendChild(el('li', { class: ok ? 'is-ok' : 'is-bad' }, [
+        icon(ok ? 'check' : 'clock', 14),
+        el('span', {}, [el('strong', { text: `${p.titulo || k}: ${txtEstado}` }), el('br'), el('span', { class: 'muted', text: p.cuerpo || '' }), p.motivo ? el('span', { class: 'bj-burbuja__err', text: ' · ' + p.motivo }) : null].filter(Boolean)),
+      ]));
+    }
+    caja.appendChild(ul);
+    const btnCrear = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: async () => {
+      btnCrear.dataset.loading = 'true';
+      try {
+        const nuevo = nombre.value.trim();
+        if (nuevo && (!r || !r.cfg || nuevo !== r.cfg.nombre_comercial)) await api.post(`/bandeja/cfg?client_id=${encodeURIComponent(cli.id)}`, { nombre_comercial: nuevo });
+        const x = await api.post(`/bandeja/plantillas?client_id=${encodeURIComponent(cli.id)}`, {});
+        const malos = Object.entries(x.resultado || {}).filter(([, v]) => String(v).startsWith('ERROR'));
+        toast(malos.length ? malos.map(([kk, v]) => `${kk}: ${v}`).join(' · ') : T('Plantillas enviadas a Meta. Suelen aprobarse en minutos.', 'Templates sent to Meta. Usually approved within minutes.'), { type: malos.length ? 'error' : 'success', ms: 9000 });
+        await cargarResumen();
+        pintar(resumen && resumen.plantillas);
+      } catch (e) { toast(e.message, { type: 'error', ms: 9000 }); }
+      finally { delete btnCrear.dataset.loading; }
+    } }, [T('Crear plantillas en Meta', 'Create templates in Meta')]);
+    const btnRev = el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
+      btnRev.dataset.loading = 'true';
+      try { await api.get(`/bandeja/plantillas?client_id=${encodeURIComponent(cli.id)}`); await cargarResumen(); pintar(resumen && resumen.plantillas); toast(T('Estado actualizado', 'Status updated'), { type: 'success' }); }
+      catch (e) { toast(e.message, { type: 'error' }); }
+      finally { delete btnRev.dataset.loading; }
+    } }, [icon('refresh', 14), ' ' + T('Revisar estado', 'Check status')]);
+    caja.appendChild(el('div', { class: 'btn-row bj-aj__btns' }, [btnCrear, btnRev]));
+  };
+  pintar(r && r.plantillas);
+}
+
 // ── Ajustes (admin) ──────────────────────────────────────────────────────────
 function abrirAjustes() {
   const cli = clienteActivo();
@@ -643,8 +1203,18 @@ function abrirAjustes() {
       body.appendChild(cargando);
       (async () => {
         let info = null;
-        try { info = await api.get('/bandeja/webhook-info'); } catch (e) { info = { error: e.message }; }
+        if (esAdmin()) { try { info = await api.get('/bandeja/webhook-info'); } catch (e) { info = { error: e.message }; } }
         clear(body);
+        // 0) Equipo de ventas de la marca + plantillas abiertas de WhatsApp.
+        if (cli) {
+          body.appendChild(el('h3', { class: 'bj-aj__h', text: T('Equipo y reparto', 'Team and assignment') }));
+          seccionEquipo(body, cli);
+          body.appendChild(el('h3', { class: 'bj-aj__h', text: T('Plantillas de WhatsApp', 'WhatsApp templates') }));
+          const rr = resumen && !resumen.error ? resumen : null;
+          if (rr && rr.canales && rr.canales.whatsapp && rr.canales.whatsapp.conectado) seccionPlantillas(body, cli);
+          else body.appendChild(el('p', { class: 'muted bj-aj__p', text: T('Conecta primero el WhatsApp de la marca (abajo). Las plantillas viven en su cuenta de WhatsApp.', 'Connect the brand WhatsApp first (below). Templates live in its WhatsApp account.') }));
+        }
+        if (!esAdmin()) return;
         // 1) Webhook para pegar en Meta
         body.appendChild(el('h3', { class: 'bj-aj__h', text: T('Webhook de Meta', 'Meta webhook') }));
         body.appendChild(el('p', { class: 'muted bj-aj__p', text: T(
@@ -760,13 +1330,15 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610070330';
+  link.href = '/marketing/css/bandeja.css?v=202610071800';
   document.head.appendChild(link);
 }
 
 function aplicarParams(params) {
   if (params && params.tab === 'comentarios') tab = 'comentarios';
+  else if (params && params.tab === 'desempeno' && esSupervisor()) tab = 'desempeno';
   else if (params && params.tab === 'mensajes') tab = 'mensajes';
+  if (params && params.seguir === '1') { porSeguir = true; tab = 'mensajes'; }
   if (params && params.conv) { convPedida = params.conv; tab = 'mensajes'; }
 }
 
@@ -791,7 +1363,7 @@ export default {
     cuerpoEl = el('div', { class: 'bj-cuerpo' });
     rootEl = el('div', { class: 'bj-root' }, [headEl, segEl, cuerpoEl]);
     host.appendChild(rootEl);
-    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; arrancar(); }));
+    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; desempeno = null; infoPlantilla.clear(); arrancar(); }));
     arrancar();
     programarRefresco();
   },

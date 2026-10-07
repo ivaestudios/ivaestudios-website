@@ -11,11 +11,11 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202610070330';
-import * as store from './store.js?v=202610070330';
-import * as prefs from './prefs.js?v=202610070330';
-import { icon } from './icons.js?v=202610070330';
-import { T } from './i18n.js?v=202610070330';
+import { el, clear } from '../api.js?v=202610071800';
+import * as store from './store.js?v=202610071800';
+import * as prefs from './prefs.js?v=202610071800';
+import { icon } from './icons.js?v=202610071800';
+import { T } from './i18n.js?v=202610071800';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -70,8 +70,19 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     onTap: () => openNotifications(tabAvisos),
   });
 
+  // Bandeja con equipo (migración 040): el agente de la marca solo trabaja en
+  // la Bandeja; el supervisor ve su Contenido y la Bandeja.
+  const tabBandeja = makeTab({
+    id: 'bandeja', label: T('Bandeja', 'Inbox'), ic: 'inbox',
+    onTap: () => goOrTop('bandeja'),
+  });
+  const meBn = store.getState().me || {};
   // El cliente solo ve Contenido (su calendario) + Avisos. Sin Inicio ni Mi trabajo.
-  if ((store.getState().me || {}).role === 'client') {
+  if (meBn.role === 'client' && meBn.bandeja_rol === 'agente') {
+    clear(root).append(tabBandeja, tabAvisos);
+  } else if (meBn.role === 'client' && meBn.bandeja_rol === 'supervisor') {
+    clear(root).append(tabContenido, tabBandeja, tabAvisos);
+  } else if (meBn.role === 'client') {
     clear(root).append(tabContenido, tabAvisos);
   } else {
     clear(root).append(tabInicio, tabContenido, tabTrabajo, tabAvisos);
@@ -83,7 +94,8 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     const activeTab =
       view === 'inicio' ? 'inicio' :
       CONTENT_VIEWS.includes(view) ? 'contenido' :
-      view === 'mi-trabajo' ? 'mi-trabajo' : null;
+      view === 'mi-trabajo' ? 'mi-trabajo' :
+      view === 'bandeja' ? 'bandeja' : null;
     for (const btn of root.querySelectorAll('.bn-tab')) {
       const is = btn.dataset.tab === activeTab;
       btn.classList.toggle('is-active', is);

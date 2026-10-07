@@ -384,3 +384,151 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-filtro--red.is-on .ico--marca { color: #fff; }
 .bj-canal .ico--marca { color: var(--text-mute); }
 .bj-canal.is-on .ico--marca { color: var(--c, #22c55e); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   EQUIPO DE VENTAS (7-oct-2026, SMILE NOW): disponibilidad del agente, quién
+   atiende cada chat, llamadas, plantilla abierta, palomitas de entrega y el
+   dashboard de desempeño. Móvil primero.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Disponible / No disponible (agente) */
+.bj-dispo {
+  appearance: none; flex: none; display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  min-height: 36px; padding: 0 12px; border-radius: var(--r-pill); font: inherit; font-size: 13px; font-weight: 700;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+}
+.bj-dispo__punto { width: 9px; height: 9px; border-radius: 50%; background: var(--text-mute); }
+.bj-dispo.is-on { color: #15803d; border-color: color-mix(in srgb, #22c55e 45%, var(--border)); background: color-mix(in srgb, #22c55e 10%, var(--surface)); }
+.bj-dispo.is-on .bj-dispo__punto { background: #22c55e; box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 25%, transparent); }
+
+/* Etiquetas de la fila: anuncio, agente, sin asignar */
+.bj-conv__tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 1px 0 2px; }
+.bj-tag {
+  display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 700; line-height: 1;
+  padding: 3px 7px; border-radius: 999px; color: var(--text-dim);
+  background: var(--surface-2); border: 1px solid var(--border); white-space: nowrap;
+}
+.bj-tag--ad { color: #9333ea; background: color-mix(in srgb, #a855f7 12%, var(--surface)); border-color: color-mix(in srgb, #a855f7 35%, var(--border)); }
+.bj-tag--libre { color: #b45309; background: color-mix(in srgb, #f59e0b 12%, var(--surface)); border-color: color-mix(in srgb, #f59e0b 35%, var(--border)); }
+
+/* Quién atiende el chat (cabecera) */
+.bj-asignado {
+  appearance: none; display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 9px;
+  border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; max-width: 170px;
+}
+.bj-asignado span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bj-asignado.is-libre { color: #b45309; border-color: color-mix(in srgb, #f59e0b 45%, var(--border)); }
+.bj-asignado.is-mio { cursor: default; color: #15803d; border-color: color-mix(in srgb, #22c55e 40%, var(--border)); }
+
+/* Notas en la línea de tiempo (llamadas, asignaciones, anuncio de origen) */
+.bj-nota {
+  justify-self: center; display: inline-flex; align-items: center; gap: 6px; max-width: 92%;
+  font-size: 11.5px; line-height: 1.35; color: var(--text-dim); text-align: center;
+  background: color-mix(in srgb, var(--bj-in) 88%, transparent); padding: 5px 11px; border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1); margin: 6px 0;
+}
+.bj-nota--llamada { color: #0f766e; }
+.bj-nota--ad { color: #7e22ce; font-weight: 600; }
+
+/* Etiqueta "Enviado con plantilla" / "Desde la app" dentro de la burbuja */
+.bj-burbuja__via {
+  display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--bj-in-txt) 55%, transparent); margin-bottom: 2px;
+}
+.bj-tick { font-weight: 800; letter-spacing: -2px; }
+.bj-tick.is-leido { color: #0ea5e9; }
+
+/* Composer: ventana abierta y plantilla abierta */
+.bj-ventana {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px;
+  font-size: var(--fs-1); color: #15803d; padding: 4px 2px;
+}
+.bj-ventana .btn { min-height: 30px; font-size: 12px; }
+.bj-aviso--app { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: space-between; }
+.bj-plantilla {
+  display: grid; gap: 7px; padding: 9px 11px; border-radius: 12px;
+  background: color-mix(in srgb, #25D366 8%, var(--surface)); border: 1px solid color-mix(in srgb, #25D366 35%, var(--border));
+}
+.bj-plantilla__fila { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 10px; font-size: 13px; }
+.bj-plantilla__costo { font-size: 11.5px; font-weight: 700; color: var(--text-dim); }
+.bj-plantilla__seg { justify-self: start; }
+.bj-plantilla__seg button { min-height: 32px; font-size: 12.5px; }
+.bj-plantilla__previa { display: grid; gap: 5px; font-size: 12.5px; line-height: 1.45; }
+.bj-plantilla__previa:empty { display: none; }
+.bj-plantilla__lbl { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); }
+.bj-plantilla__txt { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 7px 10px; overflow-wrap: anywhere; }
+.bj-plantilla__fijo { color: var(--text-dim); }
+.bj-plantilla__libre { color: var(--text); font-weight: 600; }
+.bj-plantilla__libre::before, .bj-plantilla__libre::after { content: ' '; }
+.bj-plantilla__btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.bj-plantilla__btn {
+  font-size: 12px; font-weight: 700; color: #0ea5e9; padding: 5px 10px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.bj-plantilla__cuenta { justify-self: end; font-size: 11px; font-weight: 700; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.bj-plantilla__cuenta.is-mal { color: var(--danger); }
+.bj-burbuja.is-plantilla .bj-burbuja__cuerpo { border: 1px dashed color-mix(in srgb, var(--c, var(--brand)) 50%, transparent); }
+
+/* Llamada */
+.bj-llamar { width: 100%; justify-content: center; min-height: 48px; text-decoration: none; }
+.bj-res { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Equipo y plantillas (ajustes) */
+.bj-aj__h4 { margin: 14px 0 6px; font-size: var(--fs-2); font-weight: 800; }
+.bj-eq__lista { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 6px; }
+.bj-eq__fila {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 9px 10px;
+  border: 1px solid var(--border); border-radius: var(--r-md, 10px); background: var(--surface);
+}
+.bj-eq__fila.is-off { opacity: .55; }
+.bj-eq__quien { display: grid; gap: 1px; min-width: 0; }
+.bj-eq__quien span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.bj-eq__ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bj-eq__rol { min-height: 38px; width: auto; }
+.bj-eq__dispo, .bj-eq__chk { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.bj-eq__chk { margin: 4px 0 8px; align-items: flex-start; line-height: 1.35; }
+.bj-eq__chk input, .bj-eq__dispo input { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.bj-eq__nuevo:empty { display: none; }
+.bj-eq__nuevo { margin-top: 10px; padding: 10px; border-radius: 10px; background: color-mix(in srgb, #22c55e 8%, var(--surface)); border: 1px solid color-mix(in srgb, #22c55e 30%, var(--border)); }
+@media (min-width: 600px) {
+  .bj-eq__fila { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+}
+
+/* ── Dashboard de desempeño ──────────────────────────────────────────────── */
+.bj-dash { display: grid; gap: 14px; min-width: 0; }
+.bj-dash__acc { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.bj-dash__btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.bj-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 700px) { .bj-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.bj-kpi {
+  display: grid; gap: 2px; align-content: start; padding: 11px 12px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border); min-width: 0;
+}
+.bj-kpi__v { font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.bj-kpi__l { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.bj-kpi__n { font-size: 11.5px; color: var(--text-dim); }
+.bj-kpi.is-alerta .bj-kpi__v { color: #d97706; }
+.bj-kpi.is-bien .bj-kpi__v { color: #0d9488; }
+.bj-dash__wa { margin: 0; font-size: 13px; color: var(--text-dim); }
+.bj-dash__mal { color: var(--danger); font-weight: 700; }
+.bj-dash__sec { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); min-width: 0; }
+.bj-dash__h { margin: 0; font-size: var(--fs-3); font-weight: 800; }
+.bj-dash__nota { font-size: 11.5px; line-height: 1.45; margin: 0; }
+.bj-barras { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
+.bj-barra {
+  flex: 1 1 0; min-width: 2px; height: max(2px, var(--h)); border-radius: 3px 3px 0 0;
+  background: color-mix(in srgb, var(--brand) 70%, transparent);
+}
+.bj-barras__eje { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); }
+.bj-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+.bj-tabla { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; min-width: 640px; }
+.bj-tabla th { text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--text-dim); padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.bj-tabla td { padding: 8px; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); white-space: nowrap; }
+.bj-tabla__nom { display: flex; align-items: center; gap: 6px; font-weight: 700; position: sticky; left: 0; background: var(--surface); }
+.bj-ads { display: grid; gap: 6px; }
+.bj-ad { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); border-left: 3px solid #a855f7; }
+.bj-ad.is-org { border-left-color: var(--text-mute); }
+.bj-ad__t { font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
+.bj-ad__n { font-size: 12px; color: var(--text-dim); }
+.bj-dash__canales { margin-top: 4px; }

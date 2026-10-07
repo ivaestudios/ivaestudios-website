@@ -28,7 +28,9 @@ import { repartirPush } from './_push.js';
 
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
-export const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cliente', 'perdido'];
+// 'cita' (7-oct-2026, SMILE NOW): para una clínica el resultado que importa es
+// la cita agendada; el dashboard del dueño la cuenta por agente y por anuncio.
+export const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cita', 'cliente', 'perdido'];
 const CANALES_MSG = ['instagram', 'messenger', 'whatsapp', 'correo'];
 const LIM_TEXTO = { instagram: 950, messenger: 1900, whatsapp: 4000, correo: 20000 };
 // CORREO (6-oct-2026, Israel: "agrega correos"): el buzón info@ entra a la
@@ -178,7 +180,7 @@ export function partirTexto(texto, lim) {
 // ── Marcas ───────────────────────────────────────────────────────────────────
 const COLS_MARCA = `id, name, brief, notes, instagram_handle, COALESCE(workspace_id, 'ivae') AS workspace_id,
   ig_user_id, ig_igsid, ig_username, ig_access_token, fb_page_id, fb_page_name, fb_access_token,
-  wa_phone_id, wa_waba_id, wa_numero, wa_access_token, bandeja_sondeo_at, bandeja_estado`;
+  wa_phone_id, wa_waba_id, wa_numero, wa_access_token, bandeja_sondeo_at, bandeja_estado, bandeja_cfg`;
 
 // Los ids con los que Meta puede nombrar a la PROPIA cuenta de la marca en un
 // canal. En Instagram son dos (migración 039): ig_user_id (36610…, el de la
@@ -219,20 +221,131 @@ async function staffDeLaMarca(env, c) {
   } catch { return []; }
 }
 
-// Aviso en la campana + push al teléfono. Best-effort: jamás rompe la entrada.
-async function avisarStaff(env, c, { tipo, body, link }) {
+// Aviso en la campana + push al teléfono a una lista de usuarios. Best-effort:
+// jamás rompe la entrada.
+async function avisarUsuarios(env, c, ids, { tipo, body, link }) {
   try {
-    const ids = await staffDeLaMarca(env, c);
-    if (!ids.length) return 0;
-    await env.DB.batch(ids.map((uid) => env.DB.prepare(
+    const unicos = [...new Set((ids || []).filter(Boolean))];
+    if (!unicos.length) return 0;
+    await env.DB.batch(unicos.map((uid) => env.DB.prepare(
       'INSERT INTO mkt_notifications (id, user_id, client_id, type, actor_name, body, link) VALUES (?, ?, ?, ?, ?, ?, ?)'
     ).bind(randomId(), uid, c.id, tipo, c.name, body, link)));
-    await repartirPush(env, ids, { titulo: c.name, cuerpo: body, link: '/marketing/app' + link, tipo, quien: c.name }).catch(() => {});
-    return ids.length;
+    await repartirPush(env, unicos, { titulo: c.name, cuerpo: body, link: '/marketing/app' + link, tipo, quien: c.name }).catch(() => {});
+    return unicos.length;
   } catch (e) {
     console.error('[bandeja aviso]', e && e.message);
     return 0;
   }
+}
+async function avisarStaff(env, c, aviso) {
+  return avisarUsuarios(env, c, await staffDeLaMarca(env, c), aviso);
+}
+
+// ── EQUIPO DE LA MARCA, REPARTO Y EVENTOS (migración 040) ────────────────────
+// Pedido de Israel para SMILE NOW (7-oct-2026): los leads de las campañas se
+// reparten parejo entre los agentes, cada agente recibe el aviso de SUS chats
+// y el dueño ve un dashboard con quién contesta, cuánto tarda y cuántas citas.
+// Un agente o supervisor es un acceso de CLIENTE de la marca con bandeja_rol.
+const CFG_BASE = { reparto: true, reasignar_min: 0, dias_seguimiento: 3, avisar_agencia: false, nombre_comercial: '' };
+function cfgDe(c) {
+  let x = {};
+  try { x = c && c.bandeja_cfg ? JSON.parse(c.bandeja_cfg) : {}; } catch { x = {}; }
+  return { ...CFG_BASE, ...x, plantillas: (x && x.plantillas) || {} };
+}
+async function guardarCfg(env, clientId, cfg) {
+  await env.DB.prepare('UPDATE mkt_clients SET bandeja_cfg = ? WHERE id = ?').bind(JSON.stringify(cfg), clientId).run();
+}
+// Todos los accesos de cliente de la marca (con o sin rol en la bandeja).
+async function accesosDeMarca(env, clientId) {
+  try {
+    const r = await env.DB.prepare(
+      `SELECT id, name, email, username, bandeja_rol, COALESCE(bandeja_disponible, 1) AS disponible, active
+         FROM mkt_users WHERE role = 'client' AND client_id = ? ORDER BY name COLLATE NOCASE`
+    ).bind(clientId).all();
+    return r.results || [];
+  } catch { return []; }
+}
+async function equipoDeMarca(env, clientId) {
+  return (await accesosDeMarca(env, clientId)).filter((u) => u.active && (u.bandeja_rol === 'agente' || u.bandeja_rol === 'supervisor'));
+}
+async function registrarEvento(env, { clientId, convId = null, userId = null, userNombre = null, tipo, dato = null }) {
+  try {
+    await env.DB.prepare(
+      'INSERT INTO mkt_bandeja_eventos (id, client_id, conv_id, user_id, user_nombre, tipo, dato) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).bind(randomId(), clientId, convId, userId, userNombre, tipo, dato ? JSON.stringify(dato) : null).run();
+  } catch (e) { console.error('[bandeja evento]', e && e.message); }
+}
+// REPARTO PAREJO: entre los agentes activos y disponibles gana el que lleva más
+// tiempo sin recibir un chat (por turnos). Con 4 agentes y 40 leads, 10 cada uno.
+async function siguienteAgente(env, clientId, excluir = null) {
+  const r = await env.DB.prepare(
+    `SELECT u.id, u.name,
+            (SELECT MAX(e.creado) FROM mkt_bandeja_eventos e
+              WHERE e.client_id = ? AND e.user_id = u.id AND e.tipo IN ('asignacion', 'reasignacion', 'tomada')) AS ultimo
+       FROM mkt_users u
+      WHERE u.role = 'client' AND u.client_id = ? AND u.bandeja_rol = 'agente' AND u.active = 1 AND COALESCE(u.bandeja_disponible, 1) = 1`
+  ).bind(clientId, clientId).all();
+  const lista = (r.results || []).filter((u) => u.id !== excluir);
+  if (!lista.length) return null;
+  lista.sort((a, b) => String(a.ultimo || '').localeCompare(String(b.ultimo || '')) || String(a.name).localeCompare(String(b.name)));
+  return lista[0];
+}
+async function asignar(env, c, convId, agente, { tipo = 'asignacion', dato = null } = {}) {
+  await env.DB.prepare("UPDATE mkt_conversaciones SET asignado_a = ?, asignado_en = datetime('now') WHERE id = ?").bind(agente.id, convId).run();
+  await registrarEvento(env, { clientId: c.id, convId, userId: agente.id, userNombre: agente.name, tipo, dato });
+}
+// Al entrar un mensaje: si el chat no tiene agente (o el suyo ya no está activo)
+// y la marca tiene equipo, se asigna por turno. El paciente que regresa se
+// queda con SU agente. Devuelve { agente, nuevo }.
+async function asignarSiToca(env, c, convId) {
+  const cfg = cfgDe(c);
+  if (cfg.reparto === false) return { agente: null, nuevo: false };
+  const v = await env.DB.prepare(
+    `SELECT v.asignado_a, u.active, u.name FROM mkt_conversaciones v LEFT JOIN mkt_users u ON u.id = v.asignado_a WHERE v.id = ?`
+  ).bind(convId).first();
+  if (!v) return { agente: null, nuevo: false };
+  if (v.asignado_a && v.active) return { agente: { id: v.asignado_a, name: v.name }, nuevo: false };
+  const ag = await siguienteAgente(env, c.id);
+  if (!ag) return { agente: null, nuevo: false };
+  await asignar(env, c, convId, ag);
+  return { agente: ag, nuevo: true };
+}
+// Aviso de mensaje entrante. Marca SIN equipo: como siempre (staff de la
+// agencia). Marca CON equipo: al agente del chat; si nadie lo tiene, a los
+// supervisores. La agencia solo se entera si la marca lo pide (avisar_agencia).
+async function avisarEntrada(env, c, convId, { body, link, asignacion }) {
+  const equipo = await equipoDeMarca(env, c.id);
+  if (!equipo.length) return avisarStaff(env, c, { tipo: 'mensaje', body, link });
+  const ag = asignacion && asignacion.agente;
+  const dest = ag ? [ag.id] : equipo.filter((u) => u.bandeja_rol === 'supervisor').map((u) => u.id);
+  const n = await avisarUsuarios(env, c, dest, { tipo: 'mensaje', body: asignacion && asignacion.nuevo ? `Nuevo lead para ti · ${body}` : body, link });
+  if (cfgDe(c).avisar_agencia) await avisarStaff(env, c, { tipo: 'mensaje', body, link });
+  return n;
+}
+// De qué anuncio llegó el lead. WhatsApp manda `referral` en el primer mensaje
+// de un anuncio Click to WhatsApp; Messenger e Instagram, `referral` con
+// source ADS. Se guarda el PRIMER origen (primer contacto).
+function origenDe(ref) {
+  if (!ref || typeof ref !== 'object') return null;
+  const ctx = ref.ads_context_data || {};
+  const esAnuncio = ref.source_type === 'ad' || ref.source === 'ADS' || !!ref.ad_id || !!ref.ctwa_clid;
+  return {
+    tipo: esAnuncio ? 'anuncio' : String(ref.source_type || ref.source || 'referido').toLowerCase(),
+    ad_id: String(ref.source_id || ref.ad_id || '') || null,
+    titulo: String(ref.headline || ctx.ad_title || ref.body || '').slice(0, 140) || null,
+    url: ref.source_url || null,
+    ctwa_clid: ref.ctwa_clid || null,
+  };
+}
+async function guardarOrigen(env, convId, origen) {
+  if (!origen) return;
+  try { await env.DB.prepare('UPDATE mkt_conversaciones SET origen = COALESCE(origen, ?) WHERE id = ?').bind(JSON.stringify(origen), convId).run(); }
+  catch { /* el origen es un extra */ }
+}
+function horasDesde(s) {
+  if (!s) return Infinity;
+  const t = Date.parse(String(s).replace(' ', 'T') + (String(s).includes('Z') ? '' : 'Z'));
+  return isNaN(t) ? Infinity : (Date.now() - t) / 36e5;
 }
 
 // ── Conversaciones y mensajes ────────────────────────────────────────────────
@@ -278,13 +391,13 @@ async function perfilContacto(c, canal, contactoId) {
 }
 
 // true si se guardó (false = ya existía ese mid).
-async function insertarMensaje(env, { convId, mid = null, direccion, texto = '', adjunto = null, autorUserId = null, autorNombre = null, estado = null, error = null, creado = null }) {
+async function insertarMensaje(env, { convId, mid = null, direccion, texto = '', adjunto = null, autorUserId = null, autorNombre = null, estado = null, error = null, creado = null, via = null }) {
   const r = await env.DB.prepare(
-    `INSERT OR IGNORE INTO mkt_mensajes (id, conv_id, mid, direccion, texto, adjunto_tipo, adjunto_url, adjunto_id, autor_user_id, autor_nombre, estado, error, creado)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, datetime('now')))`
+    `INSERT OR IGNORE INTO mkt_mensajes (id, conv_id, mid, direccion, texto, adjunto_tipo, adjunto_url, adjunto_id, autor_user_id, autor_nombre, estado, error, creado, via)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, datetime('now')), ?)`
   ).bind(randomId(), convId, mid || null, direccion, String(texto || '').slice(0, 8000),
     adjunto ? adjunto.tipo || null : null, adjunto ? adjunto.url || null : null, adjunto ? adjunto.id || null : null,
-    autorUserId, autorNombre, estado, error, creado).run();
+    autorUserId, autorNombre, estado, error, creado, via).run();
   return !!(r.meta && r.meta.changes);
 }
 
@@ -321,9 +434,30 @@ function textoDeAdjunto(adj) {
 
 // ── ENTRADA: mensajes ────────────────────────────────────────────────────────
 // Un evento de entry[].messaging de Instagram o Messenger. Devuelve 1 si guardó.
+// Quién mandó un mensaje que llega como ECO (escrito en la app de Instagram,
+// Business Suite o la app de WhatsApp): el agente que tocó "Seguir desde la
+// app" en esa conversación en la última hora. Así el seguimiento cuenta a su
+// nombre en el dashboard aunque no haya salido del CRM.
+async function autorDeEco(env, convId) {
+  try {
+    const e = await env.DB.prepare(
+      "SELECT user_id, user_nombre FROM mkt_bandeja_eventos WHERE conv_id = ? AND tipo = 'abrio_app' AND creado >= datetime('now', '-60 minutes') ORDER BY creado DESC LIMIT 1"
+    ).bind(convId).first();
+    return e ? { id: e.user_id, nombre: e.user_nombre } : null;
+  } catch { return null; }
+}
+
 async function ingerirMensajeMeta(env, c, canal, ev) {
   const m = ev && ev.message;
-  if (!m && !(ev && ev.postback)) return 0; // delivery / read / reaction: no interesan
+  if (!m && !(ev && ev.postback)) {
+    // Un evento solo de "referral" (la persona abrió el chat desde un anuncio
+    // y todavía no escribe): se guarda de qué anuncio viene.
+    if (ev && ev.referral && ev.sender && ev.sender.id && !idsPropios(c, canal).has(String(ev.sender.id))) {
+      const conv = await convDe(env, c, canal, String(ev.sender.id), { resolverNombre: true });
+      await guardarOrigen(env, conv.id, origenDe(ev.referral));
+    }
+    return 0; // delivery / read / reaction: no interesan
+  }
   const propios = idsPropios(c, canal);
   const cuando = fechaDeMs(ev.timestamp);
   if (m && m.is_echo) {
@@ -334,7 +468,8 @@ async function ingerirMensajeMeta(env, c, canal, ev) {
     if (!contacto || propios.has(contacto)) return 0;
     const conv = await convDe(env, c, canal, contacto);
     const adj = adjuntoDeMeta(m);
-    const ok = await insertarMensaje(env, { convId: conv.id, mid: m.mid, direccion: 'out', texto: m.text || '', adjunto: adj, autorNombre: 'Meta', estado: 'enviado', creado: cuando });
+    const quien = await autorDeEco(env, conv.id);
+    const ok = await insertarMensaje(env, { convId: conv.id, mid: m.mid, direccion: 'out', texto: m.text || '', adjunto: adj, autorUserId: quien ? quien.id : null, autorNombre: quien ? quien.nombre : 'Meta', estado: 'enviado', creado: cuando, via: 'app' });
     if (ok) await refrescarConv(env, conv.id, 0);
     return ok ? 1 : 0;
   }
@@ -347,13 +482,16 @@ async function ingerirMensajeMeta(env, c, canal, ev) {
   const ok = await insertarMensaje(env, { convId: conv.id, mid, direccion: 'in', texto, adjunto: adj, creado: cuando });
   if (!ok) return 0;
   await refrescarConv(env, conv.id, 1);
-  // Un aviso por ráfaga: si ya había mensajes sin leer, el equipo ya lo sabe.
-  if (!conv.noLeidosAntes) {
+  await guardarOrigen(env, conv.id, origenDe(ev.referral || (m && m.referral) || (ev.postback && ev.postback.referral)));
+  const asignacion = await asignarSiToca(env, c, conv.id);
+  // Un aviso por ráfaga: si ya había mensajes sin leer, el equipo ya lo sabe
+  // (salvo que el chat se acabe de asignar: ese agente tiene que enterarse).
+  if (!conv.noLeidosAntes || asignacion.nuevo) {
     const quien = conv.nombre || (conv.username ? '@' + conv.username : 'Alguien');
-    await avisarStaff(env, c, {
-      tipo: 'mensaje',
+    await avisarEntrada(env, c, conv.id, {
       body: `${quien} te escribió por ${nombreCanal(canal)}: "${(texto || textoDeAdjunto(adj)).slice(0, 90)}"`,
       link: `#/bandeja?cliente=${c.id}&conv=${conv.id}`,
+      asignacion,
     });
   }
   return 1;
@@ -384,14 +522,98 @@ async function ingerirMensajeWa(env, c, m, nombre) {
   const ok = await insertarMensaje(env, { convId: conv.id, mid: m.id, direccion: 'in', texto, adjunto: adj, creado: cuando });
   if (!ok) return 0;
   await refrescarConv(env, conv.id, 1);
-  if (!conv.noLeidosAntes) {
-    await avisarStaff(env, c, {
-      tipo: 'mensaje',
+  await guardarOrigen(env, conv.id, origenDe(m.referral));
+  const asignacion = await asignarSiToca(env, c, conv.id);
+  if (!conv.noLeidosAntes || asignacion.nuevo) {
+    await avisarEntrada(env, c, conv.id, {
       body: `${conv.nombre || '+' + contacto} te escribió por WhatsApp: "${(texto || textoDeAdjunto(adj)).slice(0, 90)}"`,
       link: `#/bandeja?cliente=${c.id}&conv=${conv.id}`,
+      asignacion,
     });
   }
   return 1;
+}
+
+// ECO de WhatsApp (coexistencia: mismo número en la app del celular y en la
+// API). Lo que el equipo manda desde la app llega aquí; Meta no lo cobra y no
+// tiene ventana de 24 h. Campo smb_message_echoes del webhook.
+async function ingerirEcoWa(env, c, e) {
+  const contacto = String((e && e.to) || '');
+  if (!contacto) return 0;
+  let texto = '';
+  let adj = null;
+  switch (e.type) {
+    case 'text': texto = (e.text && e.text.body) || ''; break;
+    case 'image': adj = { tipo: 'image', id: e.image && e.image.id }; texto = (e.image && e.image.caption) || ''; break;
+    case 'video': adj = { tipo: 'video', id: e.video && e.video.id }; texto = (e.video && e.video.caption) || ''; break;
+    case 'audio': adj = { tipo: 'audio', id: e.audio && e.audio.id }; break;
+    case 'document': adj = { tipo: 'file', id: e.document && e.document.id }; texto = (e.document && (e.document.caption || e.document.filename)) || ''; break;
+    default: texto = e.type ? `(${e.type})` : '';
+  }
+  const conv = await convDe(env, c, 'whatsapp', contacto);
+  const quien = await autorDeEco(env, conv.id);
+  const ok = await insertarMensaje(env, {
+    convId: conv.id, mid: e.id, direccion: 'out', texto, adjunto: adj,
+    autorUserId: quien ? quien.id : null, autorNombre: quien ? quien.nombre : 'App de WhatsApp',
+    estado: 'enviado', creado: fechaDeMs(Number(e.timestamp) * 1000), via: 'app',
+  });
+  if (ok) await refrescarConv(env, conv.id, 0);
+  return ok ? 1 : 0;
+}
+
+// ESTADOS de WhatsApp: la API contesta "aceptado" aunque el mensaje nunca
+// llegue (ventana de 24 h cerrada, pago, tope de marketing). El fallo real
+// llega minutos después por aquí; sin esto la Bandeja decía "enviado" de algo
+// que el paciente jamás recibió.
+const FALLOS_WA = {
+  131047: 'No llegó: pasaron más de 24 h desde el último mensaje de la persona. Vuelve a enviarlo y saldrá dentro de la plantilla.',
+  131049: 'No llegó: Meta lo frenó para no saturar a la persona con mensajes de marketing. Intenta mañana o llama.',
+  131042: 'No llegó: hay un problema de pago en la cuenta de WhatsApp. Revisa la tarjeta en Facturación de Meta.',
+  131026: 'No llegó: ese número no tiene WhatsApp o no puede recibir mensajes.',
+  131050: 'No llegó: la persona pidió no recibir mensajes de marketing de esta marca.',
+  131051: 'No llegó: WhatsApp no admite ese tipo de mensaje.',
+  132000: 'No llegó: el texto no cabe en la plantilla aprobada (revisa saltos de línea y largo).',
+  132001: 'No llegó: la plantilla no existe o Meta todavía no la aprueba.',
+  132015: 'No llegó: Meta pausó la plantilla por quejas o baja lectura.',
+  132016: 'No llegó: Meta desactivó la plantilla.',
+  130472: 'No llegó: la persona está en un experimento de Meta que limita mensajes de marketing.',
+};
+function explicarFalloWa(err) {
+  const code = Number(err && err.code);
+  if (FALLOS_WA[code]) return FALLOS_WA[code];
+  const det = (err && ((err.error_data && err.error_data.details) || err.message || err.title)) || '';
+  return `No llegó (${code || 'error'}): ${String(det).slice(0, 150)}`;
+}
+async function aplicarEstadoWa(env, c, st) {
+  const mid = String((st && st.id) || '');
+  if (!mid) return 0;
+  const cuando = fechaDeMs(Number(st.timestamp) * 1000);
+  const m = await env.DB.prepare('SELECT id, estado, conv_id, autor_user_id, texto FROM mkt_mensajes WHERE mid = ?').bind(mid).first();
+  if (!m) return 0; // mensajes del bot u otros sistemas que no pasan por la Bandeja
+  if (st.status === 'failed') {
+    const err = (st.errors || [])[0] || {};
+    const motivo = explicarFalloWa(err);
+    await env.DB.prepare("UPDATE mkt_mensajes SET estado = 'fallido', error = ? WHERE id = ?").bind(motivo.slice(0, 300), m.id).run();
+    // Quien lo mandó se entera al instante (si no, cree que dio seguimiento).
+    if (m.autor_user_id && m.estado !== 'fallido') {
+      const v = await env.DB.prepare('SELECT nombre, contacto_id FROM mkt_conversaciones WHERE id = ?').bind(m.conv_id).first();
+      await avisarUsuarios(env, c, [m.autor_user_id], {
+        tipo: 'mensaje',
+        body: `Tu mensaje a ${(v && (v.nombre || '+' + v.contacto_id)) || 'un contacto'} no llegó. ${motivo}`,
+        link: `#/bandeja?cliente=${c.id}&conv=${m.conv_id}`,
+      });
+    }
+    return 1;
+  }
+  if (st.status === 'delivered') {
+    await env.DB.prepare("UPDATE mkt_mensajes SET entregado_en = COALESCE(entregado_en, ?), estado = CASE WHEN estado IS NULL OR estado = 'enviado' THEN 'entregado' ELSE estado END WHERE id = ?").bind(cuando, m.id).run();
+    return 1;
+  }
+  if (st.status === 'read') {
+    await env.DB.prepare("UPDATE mkt_mensajes SET leido_en = COALESCE(leido_en, ?), entregado_en = COALESCE(entregado_en, ?), estado = CASE WHEN estado IS NULL OR estado IN ('enviado', 'entregado') THEN 'leido' ELSE estado END WHERE id = ?").bind(cuando, cuando, m.id).run();
+    return 1;
+  }
+  return 0;
 }
 
 // ── ENTRADA: comentarios ─────────────────────────────────────────────────────
@@ -538,9 +760,14 @@ export async function procesarWebhook(env, body) {
         const phoneId = v.metadata && v.metadata.phone_number_id;
         const c = await marcaPorWa(env, phoneId ? String(phoneId) : '');
         if (!c) { resumen.sin_marca.push(`whatsapp:${phoneId || entryId}`); continue; }
+        if (ch.field === 'smb_message_echoes') {
+          for (const e of v.message_echoes || []) resumen.mensajes += await ingerirEcoWa(env, c, e);
+          continue;
+        }
         const nombres = {};
         for (const ct of v.contacts || []) nombres[String(ct.wa_id)] = ct.profile && ct.profile.name;
         for (const m of v.messages || []) resumen.mensajes += await ingerirMensajeWa(env, c, m, nombres[String(m.from)]);
+        for (const st of v.statuses || []) resumen.estados = (resumen.estados || 0) + await aplicarEstadoWa(env, c, st);
       }
     }
   }
@@ -623,11 +850,12 @@ async function sondearConversaciones(env, c, canal, desde, primera) {
       if (ok) { n++; if (!mio && !viejo) { entrantes++; ultimoTexto = m.message || textoDeAdjunto(adj); } }
     }
     if (n) await refrescarConv(env, cv.id, entrantes);
-    if (entrantes && !cv.noLeidosAntes) {
-      await avisarStaff(env, c, {
-        tipo: 'mensaje',
+    const asignacion = entrantes ? await asignarSiToca(env, c, cv.id) : { agente: null, nuevo: false };
+    if (entrantes && (!cv.noLeidosAntes || asignacion.nuevo)) {
+      await avisarEntrada(env, c, cv.id, {
         body: `${cv.nombre || (cv.username ? '@' + cv.username : 'Alguien')} te escribió por ${nombreCanal(canal)}: "${String(ultimoTexto).slice(0, 90)}"`,
         link: `#/bandeja?cliente=${c.id}&conv=${cv.id}`,
+        asignacion,
       });
     }
   }
@@ -714,6 +942,151 @@ export async function suscribirWebhooks(env, c) {
 export async function suscribirTrasConectar(env, clientId) {
   try { const c = await marca(env, clientId); if (c) return await suscribirWebhooks(env, c); } catch { /* best-effort */ }
   return null;
+}
+
+// ── PLANTILLA ABIERTA (WhatsApp fuera de la ventana de 24 h) ─────────────────
+// Israel (7-oct-2026): "no nos sirve enviar plantillas porque perdemos
+// clientes". Meta no deja mandar texto libre por API pasadas 24 h del último
+// mensaje del paciente, pero SÍ deja una plantilla aprobada cuyo cuerpo es
+// casi todo un espacio libre: saludo y cierre fijos, y en medio lo que el
+// agente escriba. El paciente recibe un mensaje normal. Reglas de Meta: la
+// plantilla no empieza ni termina en variable, la variable va en un solo
+// párrafo (sin saltos de línea ni 4+ espacios) y el cuerpo mide hasta 1024.
+// Categoría UTILITY: seguimiento de algo que la persona ya pidió (cita,
+// cotización, valoración). Cuesta ~USD 0.0085 en México y Meta no la limita
+// por persona como a las de marketing.
+const PLANTILLAS = {
+  seguimiento: {
+    base: 'seguimiento_abierto',
+    titulo: 'Seguimiento',
+    cuerpo: (marcaTxt) => `Hola {{1}}, te escribe {{2}} de ${marcaTxt}. {{3}} Si tienes alguna duda, responde a este mensaje y con gusto te ayudamos.`,
+    ejemplo: ['Ana', 'Laura', 'Te confirmo que tu valoración quedó el jueves 9 a las 5 de la tarde en la clínica.'],
+    botones: [],
+  },
+  confirmacion: {
+    base: 'confirmacion_abierta',
+    titulo: 'Confirmación con botones',
+    cuerpo: (marcaTxt) => `Hola {{1}}, te escribe {{2}} de ${marcaTxt}. {{3}} ¿Nos confirmas, por favor?`,
+    ejemplo: ['Ana', 'Laura', 'Tu cita de valoración quedó el jueves 9 a las 5 de la tarde.'],
+    botones: ['Sí, confirmo', 'Cambiar fecha'],
+  },
+};
+const IDIOMA_PLANTILLA = 'es_MX';
+const MAX_CUERPO = 1024;
+function slugPlantilla(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'marca';
+}
+function nombreComercial(c) {
+  return String(cfgDe(c).nombre_comercial || c.name || '').trim();
+}
+// El nombre de la plantilla lleva la marca: varias marcas pueden compartir una
+// cuenta de WhatsApp (WABA) y cada una necesita su propio texto fijo.
+function defPlantilla(c, clave) {
+  const p = PLANTILLAS[clave];
+  if (!p) return null;
+  const marcaTxt = nombreComercial(c);
+  return { clave, nombre: `${p.base}_${slugPlantilla(marcaTxt)}`, cuerpo: p.cuerpo(marcaTxt), botones: p.botones, ejemplo: p.ejemplo, titulo: p.titulo };
+}
+const errSinCanal = (msg) => Object.assign(new Error(msg), { code: 'SIN_CANAL' });
+
+// Lee de Meta el estado real de las plantillas de la marca y lo guarda.
+async function refrescarPlantillas(env, c) {
+  const cfg = cfgDe(c);
+  if (!c.wa_waba_id || !c.wa_access_token) return cfg.plantillas;
+  let lista;
+  try {
+    const r = await graph(`${GRAPH_FB}/${c.wa_waba_id}/message_templates?fields=name,status,category,language,rejected_reason,quality_score,components&limit=200`, { token: c.wa_access_token });
+    lista = r.data || [];
+  } catch { return cfg.plantillas; }
+  for (const clave of Object.keys(PLANTILLAS)) {
+    const d = defPlantilla(c, clave);
+    const t = lista.find((x) => x.name === d.nombre && x.language === IDIOMA_PLANTILLA);
+    if (t) {
+      const body = (t.components || []).find((k) => k.type === 'BODY');
+      cfg.plantillas[clave] = {
+        ...(cfg.plantillas[clave] || {}), nombre: d.nombre, id: t.id, estado: t.status, categoria: t.category,
+        motivo: t.rejected_reason && t.rejected_reason !== 'NONE' ? t.rejected_reason : null,
+        calidad: (t.quality_score && t.quality_score.score) || null,
+        cuerpo: body ? body.text : d.cuerpo, botones: d.botones,
+      };
+    } else if (cfg.plantillas[clave] && cfg.plantillas[clave].nombre !== d.nombre) {
+      delete cfg.plantillas[clave]; // la marca cambió de nombre: esa plantilla ya no le corresponde
+    }
+  }
+  await guardarCfg(env, c.id, cfg);
+  return cfg.plantillas;
+}
+
+// Da de alta en Meta las plantillas abiertas de la marca (las que falten).
+async function crearPlantillas(env, c) {
+  if (!c.wa_waba_id || !c.wa_access_token) throw errSinCanal('Conecta el WhatsApp de la marca con el ID de su cuenta (WABA) para crear las plantillas.');
+  const cfg = cfgDe(c);
+  const resultado = {};
+  for (const clave of Object.keys(PLANTILLAS)) {
+    const d = defPlantilla(c, clave);
+    const ya = cfg.plantillas[clave];
+    if (ya && ya.nombre === d.nombre && ['APPROVED', 'PENDING', 'IN_APPEAL'].includes(ya.estado)) { resultado[clave] = ya.estado; continue; }
+    const components = [{ type: 'BODY', text: d.cuerpo, example: { body_text: [d.ejemplo] } }];
+    if (d.botones.length) components.push({ type: 'BUTTONS', buttons: d.botones.map((t) => ({ type: 'QUICK_REPLY', text: t })) });
+    try {
+      const r = await graph(`${GRAPH_FB}/${c.wa_waba_id}/message_templates`, {
+        method: 'POST', token: c.wa_access_token,
+        body: { name: d.nombre, language: IDIOMA_PLANTILLA, category: 'UTILITY', components },
+      });
+      cfg.plantillas[clave] = { nombre: d.nombre, id: r.id || null, estado: r.status || 'PENDING', categoria: r.category || 'UTILITY', cuerpo: d.cuerpo, botones: d.botones };
+      resultado[clave] = cfg.plantillas[clave].estado;
+    } catch (e) {
+      // Ya existía con ese nombre (se creó antes): el refresco trae su estado.
+      const existe = /already exists|exists in|duplicate|ya existe/i.test(String(e.message)) || String(e.subcode) === '2388024';
+      cfg.plantillas[clave] = { nombre: d.nombre, estado: existe ? 'EXISTE' : 'ERROR', error: existe ? null : String(e.message).slice(0, 200), cuerpo: d.cuerpo, botones: d.botones };
+      resultado[clave] = existe ? 'EXISTE' : 'ERROR: ' + String(e.message).slice(0, 160);
+    }
+  }
+  await guardarCfg(env, c.id, cfg);
+  const plantillas = await refrescarPlantillas(env, { ...c, bandeja_cfg: JSON.stringify(cfg) });
+  return { resultado, plantillas };
+}
+
+function primerNombre(s) {
+  const t = String(s || '').replace(/[^\p{L}\p{M}' -]/gu, ' ').trim().split(/\s+/)[0] || '';
+  return t.length >= 2 ? t.slice(0, 30) : '';
+}
+function limpiarParaPlantilla(t) {
+  return String(t || '').replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+}
+function renderPlantilla(cuerpo, params) {
+  return String(cuerpo).replace(/\{\{(\d+)\}\}/g, (_, i) => (params[Number(i) - 1] != null ? params[Number(i) - 1] : ''));
+}
+// Cuánto texto libre cabe en la plantilla para este paciente y este agente.
+function espacioPlantilla(c, conv, autorNombre, clave) {
+  const d = defPlantilla(c, clave);
+  const p = cfgDe(c).plantillas[clave];
+  const cuerpo = (p && p.nombre === d.nombre && p.cuerpo) || d.cuerpo;
+  const p1 = primerNombre(conv.nombre) || 'de nuevo';
+  const p2 = primerNombre(autorNombre) || nombreComercial(c);
+  return { cuerpo, p1, p2, max: MAX_CUERPO - renderPlantilla(cuerpo, [p1, p2, '']).length - 2 };
+}
+
+async function enviarPlantillaAbierta(c, conv, texto, { clave = 'seguimiento', autorNombre = '' } = {}) {
+  if (!c.wa_phone_id || !c.wa_access_token) throw errSinCanal('Esta marca no tiene WhatsApp conectado.');
+  const d = defPlantilla(c, clave);
+  if (!d) throw errSinCanal('Esa plantilla no existe.');
+  const p = cfgDe(c).plantillas[clave];
+  if (!p || p.nombre !== d.nombre) throw errSinCanal('Pasaron más de 24 h desde el último mensaje de la persona y esta marca todavía no tiene su plantilla abierta. Créala en Ajustes de la bandeja (WhatsApp → Plantillas).');
+  const estado = String(p.estado || '');
+  if (estado === 'PENDING' || estado === 'IN_APPEAL') throw errSinCanal('Meta todavía está revisando la plantilla abierta (suele tardar de minutos a unas horas). Intenta en un rato.');
+  if (['REJECTED', 'DISABLED', 'PAUSED', 'ERROR'].includes(estado)) throw errSinCanal(`La plantilla abierta está ${({ REJECTED: 'rechazada', DISABLED: 'desactivada', PAUSED: 'pausada', ERROR: 'con error' })[estado]} en Meta${p.motivo ? ' (' + p.motivo + ')' : ''}. Revísala en Ajustes de la bandeja.`);
+  const esp = espacioPlantilla(c, conv, autorNombre, clave);
+  const p3 = limpiarParaPlantilla(texto);
+  if (!p3) throw errSinCanal('Escribe el mensaje.');
+  if (Array.from(p3).length > esp.max) throw errSinCanal(`Dentro de la plantilla caben ${esp.max} caracteres y tu mensaje tiene ${Array.from(p3).length}. Acórtalo un poco.`);
+  const r = await graph(`${GRAPH_FB}/${c.wa_phone_id}/messages`, { method: 'POST', token: c.wa_access_token, body: {
+    messaging_product: 'whatsapp', recipient_type: 'individual', to: conv.contacto_id, type: 'template',
+    template: { name: p.nombre, language: { code: IDIOMA_PLANTILLA }, components: [{ type: 'body', parameters: [esp.p1, esp.p2, p3].map((t) => ({ type: 'text', text: t })) }] },
+  } });
+  const visto = renderPlantilla(esp.cuerpo, [esp.p1, esp.p2, p3]) + (d.botones.length ? '\n' + d.botones.map((b) => `[ ${b} ]`).join('  ') : '');
+  return { mid: (r.messages && r.messages[0] && r.messages[0].id) || null, texto: visto, via: 'plantilla:' + clave };
 }
 
 // ── SALIDA: mensajes ─────────────────────────────────────────────────────────
@@ -873,21 +1246,55 @@ async function leerJson(request) {
 }
 function fechaHoy() { return new Date().toISOString().slice(0, 10); }
 
+// "Por seguir": el seguimiento agendado ya llegó, o la persona lleva N días
+// sin contestar el último mensaje de la marca (y no es cliente ni perdido).
+function sqlPorSeguir(p = '') {
+  return `((${p}seguimiento IS NOT NULL AND ${p}seguimiento <= ?) OR (${p}etapa NOT IN ('cliente', 'perdido') AND ${p}ultimo_en IS NOT NULL AND ${p}ultimo_en <= datetime('now', ?) AND (${p}ultimo_cliente_en IS NULL OR ${p}ultimo_cliente_en < ${p}ultimo_en)))`;
+}
+const RESULTADOS_LLAMADA = ['contesto', 'no_contesto', 'buzon', 'cita', 'numero_mal'];
+const RESULTADO_TXT = { contesto: 'contestó', no_contesto: 'no contestó', buzon: 'buzón de voz', cita: 'agendó cita', numero_mal: 'número equivocado' };
+
 export async function handleBandeja(request, env, session, url, parts) {
   const method = request.method;
   const ws = (session && session.workspace_id) || 'ivae';
   const esAdmin = session.role === 'admin';
+  // Equipo de la marca (migración 040): un acceso de CLIENTE con bandeja_rol.
+  // El agente solo ve sus chats y los que nadie tiene; el supervisor (y el
+  // staff de la agencia) ve todo y el desempeño del equipo.
+  const esCliente = session.role === 'client';
+  const esAgente = esCliente && session.bandeja_rol === 'agente';
+  const esSupervisor = !esCliente || session.bandeja_rol === 'supervisor';
+  const yo = session.user_id;
   const sub = parts.slice(1); // parts[0] === 'bandeja'
   const qp = (k) => url.searchParams.get(k) || '';
+  const marcaOk = async (clientId) => {
+    if (!clientId || (esCliente && clientId !== session.client_id)) return null;
+    return marcaDeMiWs(env, ws, clientId);
+  };
+  const convOk = async (convId) => {
+    const v = await convDeMiWs(env, ws, convId);
+    if (!v) return null;
+    if (esCliente && v.client_id !== session.client_id) return null;
+    if (esAgente && v.asignado_a && v.asignado_a !== yo) return null;
+    return v;
+  };
+  const prohibido = () => json({ error: 'No tienes permiso para esto.' }, 403);
 
-  // ── Resumen por marca: contadores, canales y salud del sondeo ──
+  // ── Resumen por marca: contadores, canales, equipo y plantillas ──
   if (sub[0] === 'resumen' && method === 'GET') {
-    const c = await marcaDeMiWs(env, ws, qp('client_id'));
+    const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
-    const [convs, coms, seg] = await Promise.all([
-      env.DB.prepare('SELECT COUNT(*) AS n, COALESCE(SUM(no_leidos), 0) AS no_leidos FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0').bind(c.id).first(),
+    const cfg = cfgDe(c);
+    const diasSeg = Math.max(1, Number(cfg.dias_seguimiento) || 3);
+    const filtroAg = esAgente ? ' AND (asignado_a = ? OR asignado_a IS NULL)' : '';
+    const bAg = esAgente ? [yo] : [];
+    const [convs, coms, seg, sinAsignar, porSeguir, equipo] = await Promise.all([
+      env.DB.prepare(`SELECT COUNT(*) AS n, COALESCE(SUM(no_leidos), 0) AS no_leidos FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0${filtroAg}`).bind(c.id, ...bAg).first(),
       env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_comentarios WHERE client_id = ? AND atendido = 0').bind(c.id).first(),
-      env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND seguimiento IS NOT NULL AND seguimiento <= ?').bind(c.id, fechaHoy()).first(),
+      env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND seguimiento IS NOT NULL AND seguimiento <= ?${filtroAg}`).bind(c.id, fechaHoy(), ...bAg).first(),
+      env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND asignado_a IS NULL AND ultimo_cliente_en IS NOT NULL').bind(c.id).first(),
+      env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND ${sqlPorSeguir()}${esAgente ? ' AND asignado_a = ?' : ''}`).bind(c.id, fechaHoy(), `-${diasSeg} days`, ...(esAgente ? [yo] : [])).first(),
+      equipoDeMarca(env, c.id),
     ]);
     let estado = null;
     try { estado = c.bandeja_estado ? JSON.parse(c.bandeja_estado) : null; } catch { estado = null; }
@@ -895,12 +1302,21 @@ export async function handleBandeja(request, env, session, url, parts) {
     if (esAdmin) {
       try { const r = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(KV_ULTIMO_WEBHOOK).first(); ultimoWebhook = r ? JSON.parse(r.value) : null; } catch { ultimoWebhook = null; }
     }
+    const plantillas = {};
+    for (const k of Object.keys(PLANTILLAS)) {
+      const d = defPlantilla(c, k);
+      const p = cfg.plantillas[k];
+      const vigente = p && p.nombre === d.nombre;
+      plantillas[k] = { titulo: d.titulo, estado: vigente ? p.estado || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
+    }
     return json({
       marca: { id: c.id, name: c.name },
       conversaciones: Number(convs.n) || 0,
       no_leidos: Number(convs.no_leidos) || 0,
       comentarios_pendientes: Number(coms.n) || 0,
       seguimientos_hoy: Number(seg.n) || 0,
+      sin_asignar: Number(sinAsignar.n) || 0,
+      por_seguir: Number(porSeguir.n) || 0,
       canales: {
         instagram: { conectado: !!(c.ig_user_id && c.ig_access_token), cuenta: c.ig_username ? '@' + c.ig_username : null },
         messenger: { conectado: !!(c.fb_page_id && c.fb_access_token), cuenta: c.fb_page_name || null },
@@ -908,52 +1324,81 @@ export async function handleBandeja(request, env, session, url, parts) {
         correo: { conectado: await correoDeLaMarca(env, c.id), cuenta: CORREO_BUZON },
       },
       sondeo_at: c.bandeja_sondeo_at || null,
-      estado,
+      estado: esCliente ? null : estado,
       ultimo_webhook: ultimoWebhook,
       etapas: ETAPAS,
+      yo: { id: yo, nombre: session.name, rol: esCliente ? session.bandeja_rol : (esAdmin ? 'admin' : 'equipo'), disponible: session.bandeja_disponible !== 0, supervisor: esSupervisor },
+      equipo: equipo.filter((u) => u.bandeja_rol === 'agente').map((u) => ({ id: u.id, nombre: u.name, disponible: !!u.disponible })),
+      cfg: { reparto: cfg.reparto !== false, reasignar_min: Number(cfg.reasignar_min) || 0, dias_seguimiento: diasSeg, nombre_comercial: nombreComercial(c), avisar_agencia: !!cfg.avisar_agencia },
+      plantillas,
     });
   }
 
   // ── Conversaciones ──
   if (sub[0] === 'conversaciones' && sub.length === 1 && method === 'GET') {
-    const c = await marcaDeMiWs(env, ws, qp('client_id'));
+    const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
-    const where = ['client_id = ?'];
+    const cfg = cfgDe(c);
+    const where = ['v.client_id = ?'];
     const binds = [c.id];
     const canal = qp('canal');
-    if (CANALES_MSG.includes(canal)) { where.push('canal = ?'); binds.push(canal); }
+    if (CANALES_MSG.includes(canal)) { where.push('v.canal = ?'); binds.push(canal); }
     const etapa = qp('etapa');
-    if (ETAPAS.includes(etapa)) { where.push('etapa = ?'); binds.push(etapa); }
-    if (qp('archivadas') === '1') where.push('archivado = 1'); else where.push('archivado = 0');
-    if (qp('sin_leer') === '1') where.push('no_leidos > 0');
+    if (ETAPAS.includes(etapa)) { where.push('v.etapa = ?'); binds.push(etapa); }
+    if (qp('archivadas') === '1') where.push('v.archivado = 1'); else where.push('v.archivado = 0');
+    if (qp('sin_leer') === '1') where.push('v.no_leidos > 0');
+    if (esAgente) { where.push('(v.asignado_a = ? OR v.asignado_a IS NULL)'); binds.push(yo); }
+    const asig = qp('asignado');
+    if (asig === 'yo') { where.push('v.asignado_a = ?'); binds.push(yo); }
+    else if (asig === 'sin') where.push('v.asignado_a IS NULL');
+    else if (asig && esSupervisor) { where.push('v.asignado_a = ?'); binds.push(asig); }
+    if (qp('por_seguir') === '1') { where.push(sqlPorSeguir('v.')); binds.push(fechaHoy(), `-${Math.max(1, Number(cfg.dias_seguimiento) || 3)} days`); }
+    if (qp('sin_responder') === '1') where.push('v.ultimo_cliente_en IS NOT NULL AND v.ultimo_cliente_en = v.ultimo_en');
     const q = qp('q').trim();
-    if (q) { where.push('(nombre LIKE ? OR username LIKE ? OR contacto_id LIKE ? OR ultimo_texto LIKE ?)'); const like = `%${q}%`; binds.push(like, like, like, like); }
+    if (q) { where.push('(v.nombre LIKE ? OR v.username LIKE ? OR v.contacto_id LIKE ? OR v.ultimo_texto LIKE ?)'); const like = `%${q}%`; binds.push(like, like, like, like); }
     const r = await env.DB.prepare(
-      `SELECT id, canal, contacto_id, nombre, username, ultimo_texto, ultimo_en, ultimo_cliente_en, no_leidos, etapa, notas, seguimiento, archivado
-         FROM mkt_conversaciones WHERE ${where.join(' AND ')} ORDER BY (no_leidos > 0) DESC, ultimo_en DESC LIMIT 200`
+      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.ultimo_texto, v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.etapa, v.notas, v.seguimiento, v.archivado,
+              v.asignado_a, v.asignado_en, u.name AS asignado_nombre, v.origen
+         FROM mkt_conversaciones v LEFT JOIN mkt_users u ON u.id = v.asignado_a
+        WHERE ${where.join(' AND ')} ORDER BY (v.no_leidos > 0) DESC, v.ultimo_en DESC LIMIT 200`
     ).bind(...binds).all();
     return json({ conversaciones: r.results || [] });
   }
 
   if (sub[0] === 'conversaciones' && sub.length >= 2) {
-    const conv = await convDeMiWs(env, ws, sub[1]);
+    const conv = await convOk(sub[1]);
     if (!conv) return json({ error: 'Conversación no encontrada' }, 404);
     const accion = sub[2] || '';
 
     if (!accion && method === 'GET') {
-      const msgs = await env.DB.prepare(
-        'SELECT id, mid, direccion, texto, adjunto_tipo, adjunto_url, adjunto_id, autor_nombre, estado, error, creado FROM mkt_mensajes WHERE conv_id = ? ORDER BY creado ASC, rowid ASC LIMIT 400'
-      ).bind(conv.id).all();
+      const [msgs, evs, asig] = await Promise.all([
+        env.DB.prepare(
+          'SELECT id, mid, direccion, texto, adjunto_tipo, adjunto_url, adjunto_id, autor_nombre, estado, error, creado, via, entregado_en, leido_en FROM mkt_mensajes WHERE conv_id = ? ORDER BY creado ASC, rowid ASC LIMIT 400'
+        ).bind(conv.id).all(),
+        env.DB.prepare(
+          "SELECT tipo, user_nombre, dato, creado FROM mkt_bandeja_eventos WHERE conv_id = ? AND tipo IN ('llamada', 'asignacion', 'reasignacion', 'tomada') ORDER BY creado ASC LIMIT 200"
+        ).bind(conv.id).all(),
+        conv.asignado_a ? env.DB.prepare('SELECT name FROM mkt_users WHERE id = ?').bind(conv.asignado_a).first() : null,
+      ]);
       if (conv.no_leidos) await env.DB.prepare('UPDATE mkt_conversaciones SET no_leidos = 0 WHERE id = ?').bind(conv.id).run();
       const { client_id, ...resto } = conv;
-      return json({ conversacion: { ...resto, client_id, no_leidos: 0 }, mensajes: (msgs.results || []).map((m) => ({ ...m, adjunto_url: m.adjunto_url || m.adjunto_id ? `/api/marketing/bandeja/adjunto/${m.id}` : null })) });
+      return json({
+        conversacion: { ...resto, client_id, no_leidos: 0, asignado_nombre: asig ? asig.name : null },
+        mensajes: (msgs.results || []).map((m) => ({ ...m, adjunto_url: m.adjunto_url || m.adjunto_id ? `/api/marketing/bandeja/adjunto/${m.id}` : null })),
+        eventos: (evs.results || []).map((e) => { let dato = null; try { dato = e.dato ? JSON.parse(e.dato) : null; } catch { dato = null; } return { ...e, dato }; }),
+      });
     }
 
     if (!accion && method === 'PATCH') {
       const b = await leerJson(request);
       const sets = [];
       const binds = [];
-      if (b.etapa !== undefined) { if (!ETAPAS.includes(b.etapa)) return json({ error: 'Etapa inválida' }, 400); sets.push('etapa = ?'); binds.push(b.etapa); }
+      let etapaNueva = null;
+      if (b.etapa !== undefined) {
+        if (!ETAPAS.includes(b.etapa)) return json({ error: 'Etapa inválida' }, 400);
+        sets.push('etapa = ?'); binds.push(b.etapa);
+        if (b.etapa !== conv.etapa) etapaNueva = b.etapa;
+      }
       if (b.notas !== undefined) { sets.push('notas = ?'); binds.push(String(b.notas || '').slice(0, 4000) || null); }
       if (b.seguimiento !== undefined) {
         if (b.seguimiento && !/^\d{4}-\d{2}-\d{2}$/.test(b.seguimiento)) return json({ error: 'La fecha de seguimiento debe ser AAAA-MM-DD' }, 400);
@@ -966,6 +1411,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       sets.push("updated_at = datetime('now')");
       binds.push(conv.id);
       await env.DB.prepare(`UPDATE mkt_conversaciones SET ${sets.join(', ')} WHERE id = ?`).bind(...binds).run();
+      if (etapaNueva) await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'etapa', dato: { de: conv.etapa, a: etapaNueva } });
       return json({ ok: true });
     }
 
@@ -975,29 +1421,103 @@ export async function handleBandeja(request, env, session, url, parts) {
       if (!texto) return json({ error: 'Escribe el mensaje.' }, 400);
       if (texto.length > 4000) return json({ error: 'El mensaje es demasiado largo (máximo 4000 caracteres).' }, 400);
       const c = await marca(env, conv.client_id);
-      let mids;
+      // WhatsApp fuera de la ventana de 24 h (o si el agente lo pide): sale
+      // dentro de la plantilla abierta. Margen de 6 min contra la carrera con Meta.
+      const ventanaWa = conv.canal === 'whatsapp' && horasDesde(conv.ultimo_cliente_en) < 23.9;
+      const clave = PLANTILLAS[b.plantilla] ? b.plantilla : null;
+      const conPlantilla = conv.canal === 'whatsapp' && (!ventanaWa || !!clave);
+      let filas;
       try {
-        mids = await enviarTexto(c, conv, texto, env, { asunto: b.asunto });
+        if (conPlantilla) {
+          const r = await enviarPlantillaAbierta(c, conv, texto, { clave: clave || 'seguimiento', autorNombre: session.name });
+          filas = [{ mid: r.mid, texto: r.texto, via: r.via }];
+        } else {
+          const mids = await enviarTexto(c, conv, texto, env, { asunto: b.asunto });
+          filas = partirTexto(texto, LIM_TEXTO[conv.canal] || 1900).map((p, i) => ({ mid: mids[i] || null, texto: p, via: null }));
+        }
       } catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, conv.canal);
-        await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: session.user_id, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300) });
+        await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: yo, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300), via: conPlantilla ? 'plantilla:' + (clave || 'seguimiento') : null });
         return json({ error: ex.msg, ventana: !!ex.ventana, permiso: !!ex.permiso }, 422);
       }
       // Un renglón por pieza enviada, con su mid (así el eco de Meta no duplica).
-      const piezas = partirTexto(texto, LIM_TEXTO[conv.canal] || 1900);
-      for (let i = 0; i < piezas.length; i++) {
-        await insertarMensaje(env, { convId: conv.id, mid: mids[i] || null, direccion: 'out', texto: piezas[i], autorUserId: session.user_id, autorNombre: session.name, estado: 'enviado' });
+      for (const f of filas) {
+        await insertarMensaje(env, { convId: conv.id, mid: f.mid, direccion: 'out', texto: f.texto, autorUserId: yo, autorNombre: session.name, estado: 'enviado', via: f.via });
       }
       await refrescarConv(env, conv.id, 0);
       await env.DB.prepare("UPDATE mkt_conversaciones SET no_leidos = 0, etapa = CASE WHEN etapa = 'nuevo' THEN 'platica' ELSE etapa END WHERE id = ?").bind(conv.id).run();
-      return json({ ok: true, mids });
+      // El agente que contesta un chat sin dueño se lo queda.
+      if (esAgente && !conv.asignado_a) await asignar(env, c, conv.id, { id: yo, name: session.name }, { tipo: 'tomada' });
+      return json({ ok: true, mids: filas.map((f) => f.mid), plantilla: conPlantilla });
+    }
+
+    // Asignar a un agente (supervisor/staff) o tomar un chat sin dueño (agente).
+    if (accion === 'asignar' && method === 'POST') {
+      const b = await leerJson(request);
+      const c = await marca(env, conv.client_id);
+      const destino = b.user_id ? String(b.user_id) : null;
+      if (esAgente) {
+        if (destino !== yo || (conv.asignado_a && conv.asignado_a !== yo)) return prohibido();
+        if (!conv.asignado_a) await asignar(env, c, conv.id, { id: yo, name: session.name }, { tipo: 'tomada' });
+        return json({ ok: true, asignado_a: yo, asignado_nombre: session.name });
+      }
+      if (!esSupervisor) return prohibido();
+      if (!destino) {
+        await env.DB.prepare('UPDATE mkt_conversaciones SET asignado_a = NULL, asignado_en = NULL WHERE id = ?').bind(conv.id).run();
+        return json({ ok: true, asignado_a: null });
+      }
+      const ag = (await equipoDeMarca(env, conv.client_id)).find((u) => u.id === destino && u.bandeja_rol === 'agente');
+      if (!ag) return json({ error: 'Ese agente no pertenece al equipo de esta marca.' }, 400);
+      await asignar(env, c, conv.id, ag, { tipo: conv.asignado_a ? 'reasignacion' : 'asignacion', dato: { por: session.name, de: conv.asignado_a || null } });
+      if (ag.id !== yo) {
+        await avisarUsuarios(env, c, [ag.id], {
+          tipo: 'mensaje',
+          body: `${session.name} te asignó el chat de ${conv.nombre || (conv.username ? '@' + conv.username : (conv.canal === 'whatsapp' ? '+' + conv.contacto_id : 'un contacto'))}.`,
+          link: `#/bandeja?cliente=${c.id}&conv=${conv.id}`,
+        });
+      }
+      return json({ ok: true, asignado_a: ag.id, asignado_nombre: ag.name });
+    }
+
+    // Registro de una llamada (el dashboard las cuenta por agente).
+    if (accion === 'llamada' && method === 'POST') {
+      const b = await leerJson(request);
+      const resultado = String(b.resultado || '');
+      if (!RESULTADOS_LLAMADA.includes(resultado)) return json({ error: 'Elige cómo salió la llamada.' }, 400);
+      const minutos = Math.max(0, Math.min(600, Math.round(Number(b.minutos) || 0)));
+      const nota = String(b.nota || '').trim().slice(0, 500) || null;
+      await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'llamada', dato: { resultado, minutos, nota } });
+      if (resultado === 'cita' && conv.etapa !== 'cita' && conv.etapa !== 'cliente') {
+        await env.DB.prepare("UPDATE mkt_conversaciones SET etapa = 'cita', updated_at = datetime('now') WHERE id = ?").bind(conv.id).run();
+        await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'etapa', dato: { de: conv.etapa, a: 'cita' } });
+      }
+      if (esAgente && !conv.asignado_a) await asignar(env, await marca(env, conv.client_id), conv.id, { id: yo, name: session.name }, { tipo: 'tomada' });
+      return json({ ok: true });
+    }
+
+    // El agente va a escribir desde la app (Instagram, Business Suite o la app
+    // de WhatsApp): se anota para que el eco cuente a su nombre.
+    if (accion === 'abrir-app' && method === 'POST') {
+      await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'abrio_app', dato: { canal: conv.canal } });
+      return json({ ok: true });
+    }
+
+    // Cuánto texto cabe en la plantilla abierta para este chat (el composer lo muestra).
+    if (accion === 'plantilla' && method === 'GET') {
+      const c = await marca(env, conv.client_id);
+      const clave = PLANTILLAS[qp('clave')] ? qp('clave') : 'seguimiento';
+      const esp = espacioPlantilla(c, conv, session.name, clave);
+      return json({ clave, max: esp.max, antes: renderPlantilla(esp.cuerpo, [esp.p1, esp.p2, '\u0000']).split('\u0000')[0], despues: renderPlantilla(esp.cuerpo, [esp.p1, esp.p2, '\u0000']).split('\u0000')[1] || '', botones: PLANTILLAS[clave].botones });
     }
 
     if (accion === 'sugerir' && method === 'POST') {
       const c = await marca(env, conv.client_id);
       const msgs = await env.DB.prepare('SELECT direccion, texto, adjunto_tipo FROM mkt_mensajes WHERE conv_id = ? ORDER BY creado DESC, rowid DESC LIMIT 12').bind(conv.id).all();
-      const historial = (msgs.results || []).reverse().map((m) => `${m.direccion === 'in' ? 'Persona' : 'Marca'}: ${m.texto || textoDeAdjunto({ tipo: m.adjunto_tipo })}`).join('\n');
-      if (!historial) return json({ error: 'Todavía no hay mensajes que contestar.' }, 400);
+      const lista = (msgs.results || []).reverse();
+      // Sin un mensaje de la persona no hay nada que contestar: antes la IA
+      // inventaba una respuesta a nuestro propio mensaje (pasó el 7-oct).
+      if (!lista.some((m) => m.direccion === 'in')) return json({ error: 'La persona todavía no ha escrito: no hay nada que contestar.' }, 400);
+      const historial = lista.map((m) => `${m.direccion === 'in' ? 'Persona' : 'Marca'}: ${m.texto || textoDeAdjunto({ tipo: m.adjunto_tipo })}`).join('\n');
       try {
         const sugerencia = await sugerirRespuesta(env, c, { tipo: 'mensaje', canal: conv.canal, historial });
         return json({ sugerencia });
@@ -1008,7 +1528,7 @@ export async function handleBandeja(request, env, session, url, parts) {
 
   // ── Comentarios ──
   if (sub[0] === 'comentarios' && sub.length === 1 && method === 'GET') {
-    const c = await marcaDeMiWs(env, ws, qp('client_id'));
+    const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
     const where = ['client_id = ?'];
     const binds = [c.id];
@@ -1024,7 +1544,7 @@ export async function handleBandeja(request, env, session, url, parts) {
 
   if (sub[0] === 'comentarios' && sub.length >= 3) {
     const cm = await comentarioDeMiWs(env, ws, sub[1]);
-    if (!cm) return json({ error: 'Comentario no encontrado' }, 404);
+    if (!cm || (esCliente && cm.client_id !== session.client_id)) return json({ error: 'Comentario no encontrado' }, 404);
     const accion = sub[2];
     const c = await marca(env, cm.client_id);
 
@@ -1049,8 +1569,12 @@ export async function handleBandeja(request, env, session, url, parts) {
         try {
           const canalMsg = cm.canal === 'instagram' ? 'instagram' : 'messenger';
           const cv = await convDe(env, c, canalMsg, String(r.dm.recipient_id || cm.autor_id), { nombre: cm.canal === 'facebook' ? cm.autor : null, username: cm.canal === 'instagram' ? cm.autor : null });
-          await insertarMensaje(env, { convId: cv.id, mid: r.dm.message_id || null, direccion: 'out', texto, autorUserId: session.user_id, autorNombre: session.name, estado: 'enviado' });
+          await insertarMensaje(env, { convId: cv.id, mid: r.dm.message_id || null, direccion: 'out', texto, autorUserId: yo, autorNombre: session.name, estado: 'enviado' });
           await refrescarConv(env, cv.id, 0);
+          if (esAgente) {
+            const ya = await env.DB.prepare('SELECT asignado_a FROM mkt_conversaciones WHERE id = ?').bind(cv.id).first();
+            if (ya && !ya.asignado_a) await asignar(env, c, cv.id, { id: yo, name: session.name }, { tipo: 'tomada' });
+          }
         } catch { /* el comentario ya quedó contestado; la conversación es extra */ }
       }
       return json({ ok: true, publico: !!r.publico, dm: !!r.dm });
@@ -1083,11 +1607,11 @@ export async function handleBandeja(request, env, session, url, parts) {
   // ── Adjuntos: proxy con sesión (WhatsApp exige el token para bajar media) ──
   if (sub[0] === 'adjunto' && sub[1] && method === 'GET') {
     const m = await env.DB.prepare(
-      `SELECT m.adjunto_url, m.adjunto_id, m.adjunto_tipo, v.client_id, v.canal FROM mkt_mensajes m
+      `SELECT m.adjunto_url, m.adjunto_id, m.adjunto_tipo, v.client_id, v.canal, v.asignado_a FROM mkt_mensajes m
          JOIN mkt_conversaciones v ON v.id = m.conv_id JOIN mkt_clients c ON c.id = v.client_id
         WHERE m.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
     ).bind(sub[1], ws).first();
-    if (!m) return json({ error: 'Adjunto no encontrado' }, 404);
+    if (!m || (esCliente && m.client_id !== session.client_id) || (esAgente && m.asignado_a && m.asignado_a !== yo)) return json({ error: 'Adjunto no encontrado' }, 404);
     try {
       let res;
       if (m.canal === 'whatsapp' && m.adjunto_id) {
@@ -1110,9 +1634,103 @@ export async function handleBandeja(request, env, session, url, parts) {
     }
   }
 
+  // ── Equipo de la marca: quién atiende y cómo se reparte ──
+  if (sub[0] === 'equipo' && sub.length === 1 && method === 'GET') {
+    if (!esSupervisor) return prohibido();
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    const accesos = await accesosDeMarca(env, c.id);
+    return json({
+      accesos: accesos.map((u) => ({ id: u.id, nombre: u.name, usuario: u.username || u.email, rol: u.bandeja_rol || null, disponible: !!u.disponible, activo: !!u.active })),
+      cfg: (() => { const x = cfgDe(c); return { reparto: x.reparto !== false, reasignar_min: Number(x.reasignar_min) || 0, dias_seguimiento: Number(x.dias_seguimiento) || 3, avisar_agencia: !!x.avisar_agencia, nombre_comercial: nombreComercial(c) }; })(),
+      puede_editar: !esCliente,
+    });
+  }
+  // Rol en la bandeja (solo staff) y disponibilidad (staff, supervisor o uno mismo).
+  if (sub[0] === 'equipo' && sub[1] && method === 'PATCH') {
+    const b = await leerJson(request);
+    const objetivoId = sub[1] === 'yo' ? yo : sub[1];
+    const u = await env.DB.prepare("SELECT id, role, client_id, name FROM mkt_users WHERE id = ?").bind(objetivoId).first();
+    if (!u || u.role !== 'client') return json({ error: 'Ese acceso no existe.' }, 404);
+    if (!(await marcaOk(u.client_id))) return json({ error: 'Ese acceso no existe.' }, 404);
+    const sets = [];
+    const binds = [];
+    if (b.rol !== undefined) {
+      if (esCliente) return prohibido();
+      const rol = b.rol === 'agente' || b.rol === 'supervisor' ? b.rol : null;
+      sets.push('bandeja_rol = ?'); binds.push(rol);
+    }
+    if (b.disponible !== undefined) {
+      if (esAgente && objetivoId !== yo) return prohibido();
+      sets.push('bandeja_disponible = ?'); binds.push(b.disponible ? 1 : 0);
+    }
+    if (!sets.length) return json({ error: 'Nada que actualizar' }, 400);
+    binds.push(u.id);
+    await env.DB.prepare(`UPDATE mkt_users SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`).bind(...binds).run();
+    return json({ ok: true });
+  }
+
+  // ── Configuración del reparto (solo staff) ──
+  if (sub[0] === 'cfg' && method === 'POST') {
+    if (esCliente) return prohibido();
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    const b = await leerJson(request);
+    const cfg = cfgDe(c);
+    if (b.reparto !== undefined) cfg.reparto = !!b.reparto;
+    if (b.reasignar_min !== undefined) cfg.reasignar_min = Math.max(0, Math.min(1440, Math.round(Number(b.reasignar_min) || 0)));
+    if (b.dias_seguimiento !== undefined) cfg.dias_seguimiento = Math.max(1, Math.min(60, Math.round(Number(b.dias_seguimiento) || 3)));
+    if (b.avisar_agencia !== undefined) cfg.avisar_agencia = !!b.avisar_agencia;
+    if (b.nombre_comercial !== undefined) cfg.nombre_comercial = String(b.nombre_comercial || '').trim().slice(0, 60);
+    await guardarCfg(env, c.id, cfg);
+    return json({ ok: true });
+  }
+
+  // ── Repartir los chats sin dueño de los últimos 14 días ──
+  if (sub[0] === 'repartir' && method === 'POST') {
+    if (!esSupervisor) return prohibido();
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    const r = await env.DB.prepare(
+      "SELECT id FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND asignado_a IS NULL AND ultimo_cliente_en >= datetime('now', '-14 days') ORDER BY ultimo_cliente_en ASC LIMIT 200"
+    ).bind(c.id).all();
+    const porAgente = {};
+    for (const v of r.results || []) {
+      const ag = await siguienteAgente(env, c.id);
+      if (!ag) return json({ error: 'No hay agentes disponibles en el equipo de esta marca.' }, 400);
+      await asignar(env, c, v.id, ag, { dato: { por: session.name, repartir: true } });
+      porAgente[ag.name] = (porAgente[ag.name] || 0) + 1;
+    }
+    return json({ ok: true, repartidas: (r.results || []).length, por_agente: porAgente });
+  }
+
+  // ── Plantillas abiertas de WhatsApp ──
+  if (sub[0] === 'plantillas') {
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    if (method === 'GET') {
+      if (!esSupervisor) return prohibido();
+      return json({ plantillas: await refrescarPlantillas(env, c) });
+    }
+    if (method === 'POST') {
+      if (esCliente) return prohibido();
+      try { return json({ ok: true, ...(await crearPlantillas(env, c)) }); }
+      catch (e) { return json({ error: e.code === 'SIN_CANAL' ? e.message : explicarError(e, 'whatsapp').msg }, 422); }
+    }
+  }
+
+  // ── Dashboard de desempeño (supervisor y staff) ──
+  if (sub[0] === 'desempeno' && method === 'GET') {
+    if (!esSupervisor) return prohibido();
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    return json(await calcularDesempeno(env, c, Number(qp('dias')) || 30));
+  }
+
   // ── Sondear ahora (una marca) ──
   if (sub[0] === 'sondear' && method === 'POST') {
-    const c = await marcaDeMiWs(env, ws, qp('client_id'));
+    if (esCliente) return prohibido();
+    const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
     try {
       const r = await sondearBandeja(env, { clientId: c.id });
@@ -1122,7 +1740,8 @@ export async function handleBandeja(request, env, session, url, parts) {
 
   // ── Suscribir webhooks de una marca ──
   if (sub[0] === 'suscribir' && method === 'POST') {
-    const c = await marcaDeMiWs(env, ws, qp('client_id'));
+    if (esCliente) return prohibido();
+    const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
     return json({ ok: true, resultado: await suscribirWebhooks(env, c) });
   }
@@ -1170,28 +1789,260 @@ export async function handleBandeja(request, env, session, url, parts) {
     return json({ ok: true });
   }
 
-  // ── Seguimientos vencidos de hoy (para el aviso del cron) ──
   return json({ error: 'Not found' }, 404);
 }
 
+// ── DESEMPEÑO DEL EQUIPO ─────────────────────────────────────────────────────
+// Lo que el dueño de SMILE pidió ver: cuánto tarda cada quien en contestar,
+// quién contesta más, llamadas, seguimientos y citas, por agente y por anuncio.
+// Tiempo de respuesta = desde el mensaje del paciente que quedó esperando hasta
+// la siguiente respuesta de una PERSONA (no cuenta el bot). Horas corridas.
+function mediana(xs) {
+  if (!xs.length) return null;
+  const s = xs.slice().sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+function promedio(xs) { return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; }
+function msDe(s) { return Date.parse(String(s).replace(' ', 'T') + 'Z'); }
+function diaCancun(s) {
+  const t = msDe(s);
+  return isNaN(t) ? '' : new Date(t - 5 * 3600e3).toISOString().slice(0, 10);
+}
+const AUTORES_NO_HUMANOS = new Set(['Juan', 'Bot', 'IA']);
+
+async function calcularDesempeno(env, c, diasPedidos) {
+  const dias = Math.min(180, Math.max(1, Math.round(diasPedidos) || 30));
+  const desde = fechaDeMs(Date.now() - dias * 864e5);
+  const [msgsR, convsR, evR, backlog, accesos] = await Promise.all([
+    env.DB.prepare(
+      `SELECT m.conv_id, m.direccion, m.autor_user_id, m.autor_nombre, m.creado, m.via, m.estado, v.canal
+         FROM mkt_mensajes m JOIN mkt_conversaciones v ON v.id = m.conv_id
+        WHERE v.client_id = ? AND m.creado >= ? ORDER BY m.conv_id, m.creado, m.rowid LIMIT 40000`
+    ).bind(c.id, fechaDeMs(Date.now() - (dias + 3) * 864e5)).all(),
+    env.DB.prepare(
+      `SELECT v.id, v.canal, v.asignado_a, v.origen, v.etapa, MIN(m.creado) AS primer_in
+         FROM mkt_conversaciones v JOIN mkt_mensajes m ON m.conv_id = v.id AND m.direccion = 'in'
+        WHERE v.client_id = ? GROUP BY v.id`
+    ).bind(c.id).all(),
+    env.DB.prepare('SELECT conv_id, user_id, user_nombre, tipo, dato, creado FROM mkt_bandeja_eventos WHERE client_id = ? AND creado >= ?').bind(c.id, desde).all(),
+    env.DB.prepare("SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND ultimo_cliente_en IS NOT NULL AND ultimo_cliente_en = ultimo_en AND ultimo_en <= datetime('now', '-15 minutes')").bind(c.id).first(),
+    accesosDeMarca(env, c.id),
+  ]);
+
+  const nombres = new Map(accesos.map((u) => [u.id, u.name]));
+  const agentes = new Map();
+  const fila = (id, nombre) => {
+    const k = id || ('fuera:' + (nombre || ''));
+    if (!agentes.has(k)) {
+      agentes.set(k, {
+        id: id || null, nombre: (id && nombres.get(id)) || nombre || 'Sin nombre', es_agente: false,
+        asignados: 0, chats_atendidos: 0, primeras: [], respuestas: [], mensajes: 0, seguimientos: 0, plantillas: 0,
+        llamadas: 0, llamadas_contestadas: 0, minutos_llamada: 0, citas: 0, _convs: new Set(),
+      });
+    }
+    return agentes.get(k);
+  };
+  for (const u of accesos) if (u.bandeja_rol === 'agente' && u.active) { const f = fila(u.id, u.name); f.es_agente = true; f.disponible = !!u.disponible; }
+
+  // Leads nuevos del periodo: conversaciones cuyo PRIMER mensaje del paciente cae en el periodo.
+  const convs = convsR.results || [];
+  const primerIn = new Map(convs.map((v) => [v.id, v.primer_in]));
+  const leads = convs.filter((v) => v.primer_in && v.primer_in >= desde);
+  const porCanal = {};
+  const porAnuncio = new Map();
+  const porDia = {};
+  for (let i = Math.min(dias, 60) - 1; i >= 0; i--) porDia[new Date(Date.now() - 5 * 3600e3 - i * 864e5).toISOString().slice(0, 10)] = 0;
+  for (const v of leads) {
+    porCanal[v.canal] = (porCanal[v.canal] || 0) + 1;
+    let o = null;
+    try { o = v.origen ? JSON.parse(v.origen) : null; } catch { o = null; }
+    const esAnuncio = !!(o && o.tipo === 'anuncio');
+    const clave = esAnuncio ? (o.ad_id || o.titulo || 'anuncio') : 'organico';
+    const f = porAnuncio.get(clave) || { clave, titulo: esAnuncio ? (o.titulo || `Anuncio ${o.ad_id || ''}`.trim()) : 'Sin anuncio (orgánico)', ad_id: esAnuncio ? o.ad_id || null : null, anuncio: esAnuncio, leads: 0, citas: 0 };
+    f.leads++;
+    if (v.etapa === 'cita' || v.etapa === 'cliente') f.citas++;
+    porAnuncio.set(clave, f);
+    const d = diaCancun(v.primer_in);
+    if (d in porDia) porDia[d]++;
+  }
+
+  // Tiempos de respuesta, mensajes, seguimientos y entregas.
+  const respondidos = new Set();
+  let enviadosWa = 0, entregados = 0, leidos = 0, fallidos = 0;
+  let convActual = null, esperando = null, ultimoIn = null, primeraHecha = false;
+  for (const m of msgsR.results || []) {
+    if (m.conv_id !== convActual) {
+      convActual = m.conv_id; esperando = null; ultimoIn = null;
+      const pi = primerIn.get(m.conv_id);
+      primeraHecha = !(pi && pi >= desde); // solo los leads del periodo miden "primera respuesta"
+    }
+    if (m.direccion === 'in') {
+      if (!esperando) esperando = m.creado;
+      ultimoIn = m.creado;
+      continue;
+    }
+    const humano = !!m.autor_user_id || (m.autor_nombre && !AUTORES_NO_HUMANOS.has(m.autor_nombre));
+    if (!humano || m.estado === 'error' || m.creado < desde) {
+      if (humano && esperando && m.estado !== 'error') esperando = null;
+      continue;
+    }
+    const f = fila(m.autor_user_id, m.autor_user_id ? null : (m.autor_nombre === 'Meta' || m.autor_nombre === 'App de WhatsApp' ? 'Desde la app de Meta o WhatsApp' : m.autor_nombre));
+    f.mensajes++;
+    if (String(m.via || '').startsWith('plantilla:')) f.plantillas++;
+    if (!ultimoIn || (msDe(m.creado) - msDe(ultimoIn)) >= 24 * 3600e3) f.seguimientos++;
+    if (m.canal === 'whatsapp') {
+      enviadosWa++;
+      if (m.estado === 'entregado' || m.estado === 'leido') entregados++;
+      if (m.estado === 'leido') leidos++;
+      if (m.estado === 'fallido') fallidos++;
+    }
+    if (esperando) {
+      const min = Math.max(0, (msDe(m.creado) - msDe(esperando)) / 60000);
+      f.respuestas.push(min);
+      f._convs.add(m.conv_id);
+      if (!primeraHecha) { f.primeras.push(min); primeraHecha = true; respondidos.add(m.conv_id); }
+      esperando = null;
+    }
+  }
+
+  // Eventos: asignaciones, llamadas y citas.
+  let citasTotal = 0, llamadasTotal = 0;
+  for (const e of evR.results || []) {
+    let dato = null;
+    try { dato = e.dato ? JSON.parse(e.dato) : null; } catch { dato = null; }
+    if (['asignacion', 'reasignacion', 'tomada'].includes(e.tipo)) { if (e.user_id) fila(e.user_id, e.user_nombre).asignados++; }
+    else if (e.tipo === 'llamada') {
+      const f = fila(e.user_id, e.user_nombre);
+      f.llamadas++; llamadasTotal++;
+      if (dato && (dato.resultado === 'contesto' || dato.resultado === 'cita')) f.llamadas_contestadas++;
+      f.minutos_llamada += (dato && Number(dato.minutos)) || 0;
+    } else if (e.tipo === 'etapa' && dato && dato.a === 'cita') {
+      fila(e.user_id, e.user_nombre).citas++; citasTotal++;
+    }
+  }
+
+  const r1 = (x) => (x == null ? null : Math.round(x * 10) / 10);
+  const lista = [...agentes.values()]
+    .filter((f) => f.es_agente || f.mensajes || f.llamadas || f.asignados || f.citas)
+    .map((f) => ({
+      id: f.id, nombre: f.nombre, es_agente: f.es_agente, disponible: f.disponible,
+      asignados: f.asignados, chats_atendidos: f._convs.size, mensajes: f.mensajes, seguimientos: f.seguimientos, plantillas: f.plantillas,
+      llamadas: f.llamadas, llamadas_contestadas: f.llamadas_contestadas, minutos_llamada: f.minutos_llamada, citas: f.citas,
+      primera_respuesta_min: r1(mediana(f.primeras)), respuesta_mediana_min: r1(mediana(f.respuestas)), respuesta_promedio_min: r1(promedio(f.respuestas)),
+    }))
+    .sort((a, b) => (b.mensajes - a.mensajes) || (b.asignados - a.asignados));
+  const todasPrimeras = [...agentes.values()].flatMap((f) => f.primeras);
+  const todasResp = [...agentes.values()].flatMap((f) => f.respuestas);
+  return {
+    periodo: { dias, desde },
+    totales: {
+      leads: leads.length,
+      respondidos: leads.filter((v) => respondidos.has(v.id)).length,
+      sin_respuesta_ahora: Number(backlog && backlog.n) || 0,
+      primera_respuesta_min: r1(mediana(todasPrimeras)),
+      respuesta_mediana_min: r1(mediana(todasResp)),
+      mensajes: lista.reduce((a, f) => a + f.mensajes, 0),
+      seguimientos: lista.reduce((a, f) => a + f.seguimientos, 0),
+      plantillas: lista.reduce((a, f) => a + f.plantillas, 0),
+      llamadas: llamadasTotal,
+      citas: citasTotal,
+      whatsapp: { enviados: enviadosWa, entregados, leidos, no_entregados: fallidos },
+    },
+    agentes: lista,
+    canales: Object.entries(porCanal).map(([canal, n]) => ({ canal, leads: n })).sort((a, b) => b.leads - a.leads),
+    anuncios: [...porAnuncio.values()].sort((a, b) => b.leads - a.leads).slice(0, 25),
+    dias: Object.entries(porDia).map(([dia, n]) => ({ dia, leads: n })),
+  };
+}
+
+// ── REASIGNACIÓN AUTOMÁTICA (cron cada 15 min) ───────────────────────────────
+// Si el agente no contesta un chat nuevo en N minutos, pasa al siguiente
+// disponible. Solo marcas con reasignar_min configurado (5 minutos o más).
+export async function reasignarVencidas(env) {
+  let marcas;
+  try {
+    marcas = (await env.DB.prepare("SELECT id FROM mkt_clients WHERE archived = 0 AND bandeja_cfg LIKE '%reasignar_min%'").all()).results || [];
+  } catch { return 0; }
+  let n = 0;
+  for (const row of marcas) {
+    const c = await marca(env, row.id);
+    if (!c) continue;
+    const cfg = cfgDe(c);
+    const min = Number(cfg.reasignar_min) || 0;
+    if (min < 5 || cfg.reparto === false) continue;
+    const vencidas = (await env.DB.prepare(
+      `SELECT v.id, v.asignado_a, v.nombre, v.username, v.contacto_id, v.canal FROM mkt_conversaciones v
+        WHERE v.client_id = ? AND v.archivado = 0 AND v.asignado_a IS NOT NULL
+          AND v.ultimo_cliente_en IS NOT NULL AND v.ultimo_cliente_en = v.ultimo_en
+          AND v.asignado_en <= datetime('now', ?) AND v.ultimo_cliente_en <= datetime('now', ?)
+          AND v.ultimo_cliente_en >= datetime('now', '-2 days')
+          AND NOT EXISTS (SELECT 1 FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'out' AND m.creado >= v.asignado_en)
+        LIMIT 25`
+    ).bind(c.id, `-${min} minutes`, `-${min} minutes`).all()).results || [];
+    for (const v of vencidas) {
+      const ag = await siguienteAgente(env, c.id, v.asignado_a);
+      if (!ag) break;
+      await asignar(env, c, v.id, ag, { tipo: 'reasignacion', dato: { de: v.asignado_a, motivo: `sin respuesta en ${min} min` } });
+      await avisarUsuarios(env, c, [ag.id], {
+        tipo: 'mensaje',
+        body: `Te pasamos el chat de ${v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : 'un contacto'))}: lleva ${min} min sin respuesta.`,
+        link: `#/bandeja?cliente=${c.id}&conv=${v.id}`,
+      });
+      n++;
+    }
+  }
+  return n;
+}
+
 // Cada mañana (cron diario): un aviso por conversación con seguimiento para hoy
-// o vencido, y se limpia la fecha para que no repita.
+// o vencido, y se limpia la fecha para que no repita. En marcas con equipo el
+// aviso va al agente del chat, y cada agente recibe además cuántos chats tiene
+// por seguir (la persona lleva días sin contestar).
 export async function avisarSeguimientos(env) {
   const hoy = fechaHoy();
   const r = await env.DB.prepare(
-    `SELECT v.id, v.client_id, v.nombre, v.username, v.canal, v.seguimiento FROM mkt_conversaciones v WHERE v.seguimiento IS NOT NULL AND v.seguimiento <= ? LIMIT 100`
+    `SELECT v.id, v.client_id, v.nombre, v.username, v.canal, v.seguimiento, v.asignado_a FROM mkt_conversaciones v WHERE v.seguimiento IS NOT NULL AND v.seguimiento <= ? LIMIT 100`
   ).bind(hoy).all();
   let n = 0;
   for (const v of r.results || []) {
     const c = await marca(env, v.client_id);
     if (!c) continue;
-    await avisarStaff(env, c, {
+    const aviso = {
       tipo: 'seguimiento',
       body: `Hoy toca dar seguimiento a ${v.nombre || (v.username ? '@' + v.username : v.canal)} (${nombreCanal(v.canal)}).`,
       link: `#/bandeja?cliente=${c.id}&conv=${v.id}`,
-    });
+    };
+    if (v.asignado_a) await avisarUsuarios(env, c, [v.asignado_a], aviso);
+    else await avisarStaff(env, c, aviso);
     await env.DB.prepare('UPDATE mkt_conversaciones SET seguimiento = NULL WHERE id = ?').bind(v.id).run();
     n++;
   }
+  // Resumen por agente de los chats "por seguir".
+  try {
+    const marcas = (await env.DB.prepare(
+      "SELECT DISTINCT client_id FROM mkt_users WHERE role = 'client' AND bandeja_rol = 'agente' AND active = 1"
+    ).all()).results || [];
+    for (const { client_id: cid } of marcas) {
+      const c = await marca(env, cid);
+      if (!c) continue;
+      const dias = Math.max(1, Number(cfgDe(c).dias_seguimiento) || 3);
+      const filas = (await env.DB.prepare(
+        `SELECT asignado_a, COUNT(*) AS n FROM mkt_conversaciones
+          WHERE client_id = ? AND archivado = 0 AND asignado_a IS NOT NULL AND etapa NOT IN ('cliente', 'perdido')
+            AND ultimo_en <= datetime('now', ?) AND ultimo_en >= datetime('now', '-30 days')
+            AND (ultimo_cliente_en IS NULL OR ultimo_cliente_en < ultimo_en)
+          GROUP BY asignado_a`
+      ).bind(cid, `-${dias} days`).all()).results || [];
+      for (const f of filas) {
+        await avisarUsuarios(env, c, [f.asignado_a], {
+          tipo: 'seguimiento',
+          body: `Tienes ${f.n} ${f.n === 1 ? 'chat' : 'chats'} por seguir: la persona lleva ${dias} días o más sin contestar.`,
+          link: `#/bandeja?cliente=${cid}&seguir=1`,
+        });
+        n++;
+      }
+    }
+  } catch (e) { console.error('[bandeja por seguir]', e && e.message); }
   return n;
 }

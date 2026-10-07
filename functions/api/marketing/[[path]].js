@@ -59,7 +59,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
-import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos } from './_bandeja.js';
+import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas } from './_bandeja.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
@@ -309,7 +309,8 @@ async function getSession(request, env, authCtx) {
     `SELECT s.id AS session_id, s.user_id, s.expires_at AS session_expires_at,
             s.created_at AS session_created_at,
             u.email, u.name, u.role, u.client_id,
-            COALESCE(u.workspace_id, 'ivae') AS workspace_id
+            COALESCE(u.workspace_id, 'ivae') AS workspace_id,
+            u.bandeja_rol, COALESCE(u.bandeja_disponible, 1) AS bandeja_disponible
        FROM mkt_sessions s
        JOIN mkt_users u ON s.user_id = u.id
       WHERE s.id = ?
@@ -770,6 +771,10 @@ async function handleMe(session, env) {
     name: session.name,
     role: session.role,
     client_id: session.client_id,
+    // Bandeja con equipo (migración 040): un acceso de cliente puede ser
+    // 'agente' (atiende sus chats) o 'supervisor' (ve todo + desempeño).
+    bandeja_rol: session.role === 'client' ? (session.bandeja_rol || null) : null,
+    bandeja_disponible: session.bandeja_disponible !== 0,
     email_verified: emailVerified,
     // Apple 1.2: el shell exige aceptar el EULA antes de dejar entrar.
     eula_accepted: await eulaAceptado(env, session.user_id),
@@ -5605,9 +5610,13 @@ async function route(request, env, authCtx) {
     }
   }
 
-  // ── BANDEJA (staff): comentarios, mensajes y CRM por marca ──
+  // ── BANDEJA: comentarios, mensajes y CRM por marca ──
+  // Staff ve todas las marcas de su workspace. Un acceso de cliente entra solo
+  // si es agente o supervisor de la bandeja, y solo a SU marca (lo hace cumplir
+  // handleBandeja con session.client_id).
   if (parts[0] === 'bandeja') {
-    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    const equipoCliente = session.role === 'client' && (session.bandeja_rol === 'agente' || session.bandeja_rol === 'supervisor');
+    if (!isStaff && !equipoCliente) return json({ error: 'Forbidden' }, 403);
     return guardTables(() => handleBandeja(request, env, session, url, parts));
   }
 
@@ -6702,7 +6711,11 @@ async function handleCronPublicar(request, env) {
     // Best-effort y acotado: unas marcas por corrida, las más olvidadas primero.
     let bandeja = null;
     try { bandeja = await sondearBandeja(env); } catch (e) { bandeja = { error: (e && e.message) || 'fallo' }; }
-    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja });
+    // Reparto: un chat asignado que nadie contestó a tiempo pasa al siguiente
+    // agente disponible (solo marcas que lo tengan encendido).
+    let reasignadas = 0;
+    try { reasignadas = await reasignarVencidas(env); } catch (e) { reasignadas = { error: (e && e.message) || 'fallo' }; }
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }
