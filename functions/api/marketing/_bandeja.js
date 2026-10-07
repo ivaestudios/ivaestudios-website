@@ -141,17 +141,18 @@ export function explicarError(e, canal) {
         : 'La ventana de 24 h de este chat está cerrada (la persona lleva más de un día sin escribir). Meta solo deja contestar después con el permiso Human Agent, que todavía no está aprobado.',
     };
   }
-  if (code === '190') return { permiso: true, msg: `La conexión de ${nombreCanal(canal)} caducó. Reconecta la cuenta desde Conexiones.` };
+  const red = canal ? nombreCanal(canal) : 'la red';
+  if (code === '190') return { permiso: true, msg: `La conexión de ${red} caducó. Reconecta la cuenta desde Conexiones.` };
   if (code === '10' || code === '200' || code === '3' || /permission|not authorized|does not have the capability|\(#100\) Tried accessing nonexisting/i.test(msg)) {
-    return { permiso: true, msg: `Falta un permiso en la conexión de ${nombreCanal(canal)}: reconecta la cuenta desde Conexiones marcando todo, o falta la aprobación de Meta para hablar con el público. (${msg.slice(0, 120)})` };
+    return { permiso: true, msg: `Falta un permiso en la conexión de ${red}: reconecta la cuenta desde Conexiones aceptando todos los permisos (incluido el de mensajes). (${msg.slice(0, 120)})` };
   }
   if (sub === '2534014' || sub === '2534015' || /already (sent|replied)/i.test(msg)) {
     return { msg: 'Ese comentario ya recibió su respuesta privada (Meta permite una sola por comentario).' };
   }
   return { msg: `No se pudo (${code || 'error'}): ${msg.slice(0, 160)}` };
 }
-function resumirError(e) {
-  return explicarError(e).msg.slice(0, 200);
+function resumirError(e, canal) {
+  return explicarError(e, canal).msg.slice(0, 200);
 }
 
 // Parte un texto largo en piezas <= lim sin cortar palabras ni emojis.
@@ -912,12 +913,12 @@ export async function sondearBandeja(env, { clientId = null, max = 4 } = {}) {
           }
         } catch { /* se reintenta en el siguiente sondeo */ }
       }
-      try { n.comentarios += await sondearComentariosIG(env, c, frescoDesde); estado.ig_comentarios = 'ok'; } catch (e) { estado.ig_comentarios = resumirError(e); }
-      try { const [d, p] = rango('ig_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'instagram', d, p); estado.ig_mensajes = 'ok'; } catch (e) { estado.ig_mensajes = resumirError(e); }
+      try { n.comentarios += await sondearComentariosIG(env, c, frescoDesde); estado.ig_comentarios = 'ok'; } catch (e) { estado.ig_comentarios = resumirError(e, 'instagram'); }
+      try { const [d, p] = rango('ig_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'instagram', d, p); estado.ig_mensajes = 'ok'; } catch (e) { estado.ig_mensajes = resumirError(e, 'instagram'); }
     }
     if (c.fb_page_id && c.fb_access_token) {
-      try { n.comentarios += await sondearComentariosFB(env, c, frescoDesde); estado.fb_comentarios = 'ok'; } catch (e) { estado.fb_comentarios = resumirError(e); }
-      try { const [d, p] = rango('fb_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'messenger', d, p); estado.fb_mensajes = 'ok'; } catch (e) { estado.fb_mensajes = resumirError(e); }
+      try { n.comentarios += await sondearComentariosFB(env, c, frescoDesde); estado.fb_comentarios = 'ok'; } catch (e) { estado.fb_comentarios = resumirError(e, 'facebook'); }
+      try { const [d, p] = rango('fb_mensajes'); n.mensajes += await sondearConversaciones(env, c, 'messenger', d, p); estado.fb_mensajes = 'ok'; } catch (e) { estado.fb_mensajes = resumirError(e, 'messenger'); }
     }
     await env.DB.prepare("UPDATE mkt_clients SET bandeja_sondeo_at = datetime('now'), bandeja_estado = ? WHERE id = ?")
       .bind(JSON.stringify({ ...estado, en: new Date().toISOString() }), c.id).run();
