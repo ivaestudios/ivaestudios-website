@@ -270,24 +270,33 @@ async function equipoDeMarca(env, clientId) {
 }
 async function registrarEvento(env, { clientId, convId = null, userId = null, userNombre = null, tipo, dato = null }) {
   try {
+    // Con milésimas: dos asignaciones en el mismo segundo no deben empatar.
     await env.DB.prepare(
-      'INSERT INTO mkt_bandeja_eventos (id, client_id, conv_id, user_id, user_nombre, tipo, dato) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      "INSERT INTO mkt_bandeja_eventos (id, client_id, conv_id, user_id, user_nombre, tipo, dato, creado) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%d %H:%M:%f', 'now'))"
     ).bind(randomId(), clientId, convId, userId, userNombre, tipo, dato ? JSON.stringify(dato) : null).run();
   } catch (e) { console.error('[bandeja evento]', e && e.message); }
 }
-// REPARTO PAREJO: entre los agentes activos y disponibles gana el que lleva más
-// tiempo sin recibir un chat (por turnos). Con 4 agentes y 40 leads, 10 cada uno.
+// REPARTO PAREJO: entre los agentes activos y disponibles gana el que lleva
+// MENOS chats hoy (día de Cancún); si empatan, el que lleva más tiempo sin
+// recibir uno. Con 3 agentes y 9 leads: 3, 3 y 3. (La primera versión solo
+// miraba "el más antiguo" con precisión de segundos: asignaciones en el mismo
+// segundo empataban y una sola agente se llevaba 5 de 9.)
 async function siguienteAgente(env, clientId, excluir = null) {
+  const inicioHoy = new Date(Date.now() - 5 * 3600e3).toISOString().slice(0, 10) + ' 05:00:00';
   const r = await env.DB.prepare(
     `SELECT u.id, u.name,
+            (SELECT COUNT(*) FROM mkt_bandeja_eventos e
+              WHERE e.client_id = ? AND e.user_id = u.id AND e.tipo IN ('asignacion', 'reasignacion', 'tomada') AND e.creado >= ?) AS hoy,
             (SELECT MAX(e.creado) FROM mkt_bandeja_eventos e
               WHERE e.client_id = ? AND e.user_id = u.id AND e.tipo IN ('asignacion', 'reasignacion', 'tomada')) AS ultimo
        FROM mkt_users u
       WHERE u.role = 'client' AND u.client_id = ? AND u.bandeja_rol = 'agente' AND u.active = 1 AND COALESCE(u.bandeja_disponible, 1) = 1`
-  ).bind(clientId, clientId).all();
+  ).bind(clientId, inicioHoy, clientId, clientId).all();
   const lista = (r.results || []).filter((u) => u.id !== excluir);
   if (!lista.length) return null;
-  lista.sort((a, b) => String(a.ultimo || '').localeCompare(String(b.ultimo || '')) || String(a.name).localeCompare(String(b.name)));
+  lista.sort((a, b) => (Number(a.hoy) - Number(b.hoy))
+    || String(a.ultimo || '').localeCompare(String(b.ultimo || ''))
+    || String(a.name).localeCompare(String(b.name)));
   return lista[0];
 }
 async function asignar(env, c, convId, agente, { tipo = 'asignacion', dato = null } = {}) {
