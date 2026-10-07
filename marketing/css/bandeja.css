@@ -532,3 +532,7 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-ad__t { font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
 .bj-ad__n { font-size: 12px; color: var(--text-dim); }
 .bj-dash__canales { margin-top: 4px; }
+/* Con la pestaña Desempeño, en el teléfono las tres no caben: la fila desliza. */
+.bj-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.bj-seg::-webkit-scrollbar { display: none; }
+.bj-seg button { flex: none; white-space: nowrap; }
