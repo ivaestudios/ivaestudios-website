@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070130';
-import { toast } from '../shell/toast.js?v=202610070130';
-import { icon, iconMarca } from '../shell/icons.js?v=202610070130';
-import { T, isEN } from '../shell/i18n.js?v=202610070130';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070230';
+import { toast } from '../shell/toast.js?v=202610070230';
+import { icon, iconMarca } from '../shell/icons.js?v=202610070230';
+import { T, isEN } from '../shell/i18n.js?v=202610070230';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -55,14 +55,14 @@ const ETAPA_TXT = {
   perdido: () => T('Perdido', 'Lost'),
 };
 const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cliente: '#22c55e', perdido: '#6b7280' };
-const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook', tiktok: 'TikTok' };
+const CANAL_TXT = { instagram: 'Instagram', messenger: 'Messenger', whatsapp: 'WhatsApp', facebook: 'Facebook', tiktok: 'TikTok', correo: T('Correo', 'Email') };
 const CANAL_ICO = { instagram: 'instagram', messenger: 'messenger', facebook: 'facebook', whatsapp: 'whatsapp', tiktok: 'tiktok' };
 // El logo de la red va RELLENO (iconMarca); si algún día llega un canal sin
 // logo, cae al ícono de enlace para no dejar el hueco.
-const icoCanal = (c, n) => iconMarca(CANAL_ICO[c] || '', n) || icon('link', n);
+const icoCanal = (c, n) => (c === 'correo' ? icon('mail', n) : (iconMarca(CANAL_ICO[c] || '', n) || icon('link', n)));
 // Un color por app (Vianey, 25-sep-2026): Messenger celeste, Instagram rosado,
 // WhatsApp verde, TikTok plomo oscuro. Mismos valores que --net-* en bandeja.css.
-const CANAL_COLOR = { instagram: '#E1306C', messenger: '#0084FF', facebook: '#0084FF', whatsapp: '#25D366', tiktok: '#545463' };
+const CANAL_COLOR = { instagram: '#E1306C', messenger: '#0084FF', facebook: '#0084FF', whatsapp: '#25D366', tiktok: '#545463', correo: '#B45309' };
 // El token de la hoja manda (cambia con el tema); el hex queda de respaldo.
 const colorDe = (canal) => (CANAL_COLOR[canal] ? `var(--net-${canal}, ${CANAL_COLOR[canal]})` : 'var(--brand)');
 
@@ -84,7 +84,7 @@ function chipEtapa(e) {
   ]);
 }
 function nombreDe(v) {
-  return v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : T('Sin nombre', 'No name')));
+  return v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : T('Sin nombre', 'No name'))));
 }
 function horasDesde(iso) {
   if (!iso) return Infinity;
@@ -176,7 +176,7 @@ function pintarCabecera() {
         onclick: abrirAjustes,
       }, [icon('settings', 18)]) : null,
     ].filter(Boolean)),
-    r ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp'].map((k) => {
+    r ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
       const c = r.canales[k];
       return el('span', { class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) } }, [
         icoCanal(k, 14), el('span', { text: CANAL_TXT[k] + (c.conectado && c.cuenta ? ' · ' + c.cuenta : '') }),
@@ -253,6 +253,7 @@ function chipFiltro(label, activo, onclick, ico = null, red = null) {
 function filtrosMensajes() {
   const fila = el('div', { class: 'bj-filtros' });
   const canales = [['', T('Todos', 'All')], ['instagram', 'Instagram'], ['messenger', 'Messenger'], ['whatsapp', 'WhatsApp']];
+  if (resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado) canales.push(['correo', T('Correo', 'Email')]);
   for (const [k, lbl] of canales) fila.appendChild(chipFiltro(lbl, canal === k, () => { canal = k; cargarLista(); pintarCuerpo(); }, null, k || null));
   fila.appendChild(chipFiltro(T('Sin leer', 'Unread'), soloSinLeer, () => { soloSinLeer = !soloSinLeer; cargarLista(); pintarCuerpo(); }, 'bell'));
   const sel = el('select', { class: 'select bj-select', 'aria-label': T('Etapa', 'Stage'), onchange: (e) => { etapa = e.target.value; cargarLista(); } }, [
@@ -325,7 +326,8 @@ function bajarChat(instantaneo) {
 
 function chat() {
   const { conversacion: v, mensajes } = convAbierta;
-  const cerrada = horasDesde(v.ultimo_cliente_en) > 24;
+  // El correo no tiene ventana de 24 h: se puede contestar cuando sea.
+  const cerrada = v.canal !== 'correo' && horasDesde(v.ultimo_cliente_en) > 24;
   const head = el('header', { class: 'bj-chat__head', style: { '--c': colorDe(v.canal) } }, [
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-back', 'aria-label': T('Volver a la lista', 'Back to the list'), onclick: () => { convAbierta = null; pintarCuerpo(); } }, [icon('left', 20)]),
     el('span', { class: 'bj-avatar' }, [el('span', { text: initials(nombreDe(v)) }), el('span', { class: 'bj-avatar__ico' }, [icoCanal(v.canal, 11)])]),
@@ -475,7 +477,7 @@ function abrirFicha(v) {
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Dar seguimiento el', 'Follow up on') }), seg,
           el('p', { class: 'field__hint muted', text: T('Ese día te llega un aviso al teléfono.', 'You get an alert on your phone that day.') })]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Notas', 'Notes') }), notas]),
-        el('p', { class: 'muted bj-ficha__id', text: `${CANAL_TXT[v.canal]} · ${v.canal === 'whatsapp' ? '+' + v.contacto_id : 'ID ' + v.contacto_id}` }),
+        el('p', { class: 'muted bj-ficha__id', text: `${CANAL_TXT[v.canal]} · ${v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : 'ID ' + v.contacto_id)}` }),
         el('div', { class: 'btn-row bj-ficha__btns' }, [
           el('button', { type: 'button', class: 'btn btn-primary', onclick: async () => {
             try {
@@ -751,7 +753,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610070130';
+  link.href = '/marketing/css/bandeja.css?v=202610070230';
   document.head.appendChild(link);
 }
 

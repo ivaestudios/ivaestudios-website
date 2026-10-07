@@ -49,6 +49,7 @@ const PATHS = {
   download:  'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
   book:      'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
   inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5 5h14l3 7v7H2v-7z',
+  mail:      'M3 5h18v14H3zM3 6l9 7 9-7',
   gantt:     'M3 5h8M7 12h10M11 19h8',
   gauge:     'M12 15l3.5-3.5M5 19a9 9 0 1 1 14 0',
   refresh:   'M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6',

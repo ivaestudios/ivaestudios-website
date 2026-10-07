@@ -29,8 +29,20 @@ import { repartirPush } from './_push.js';
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
 export const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cliente', 'perdido'];
-const CANALES_MSG = ['instagram', 'messenger', 'whatsapp'];
-const LIM_TEXTO = { instagram: 950, messenger: 1900, whatsapp: 4000 };
+const CANALES_MSG = ['instagram', 'messenger', 'whatsapp', 'correo'];
+const LIM_TEXTO = { instagram: 950, messenger: 1900, whatsapp: 4000, correo: 20000 };
+// CORREO (6-oct-2026, Israel: "agrega correos"): el buzón info@ entra a la
+// Bandeja de UNA marca (la que diga mkt_kv 'bandeja_correo_marca'). Los correos
+// NUEVOS los deja aquí el bot (ivae-juan), que ya los recibe del robot de
+// Google; las respuestas salen por Resend desde info@ con copia oculta a info@
+// para que también queden en el Gmail.
+const KV_CORREO_MARCA = 'bandeja_correo_marca';
+const CORREO_BUZON = 'info@ivaestudios.com';
+async function correoDeLaMarca(env, clientId) {
+  try { const r = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(KV_CORREO_MARCA).first(); return !!(r && r.value === clientId); }
+  catch { return false; }
+}
+const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const MODELO_SUGERENCIA = 'claude-haiku-4-5-20251001';
 const KV_VERIFY = 'bandeja_verify_token';
 const KV_ULTIMO_WEBHOOK = 'bandeja_webhook_ultimo';
@@ -55,7 +67,7 @@ function fechaDeIso(s) {
   return isNaN(d) ? fechaDeMs(Date.now()) : fechaDeMs(d.getTime());
 }
 export function nombreCanal(c) {
-  return { instagram: 'Instagram', messenger: 'Messenger', facebook: 'Facebook', whatsapp: 'WhatsApp' }[c] || c;
+  return { instagram: 'Instagram', messenger: 'Messenger', facebook: 'Facebook', whatsapp: 'WhatsApp', correo: 'correo' }[c] || c;
 }
 
 // ── Cliente de la Graph API ──────────────────────────────────────────────────
@@ -695,10 +707,31 @@ async function enviarMetaConVentana(url, token, to, texto) {
 }
 
 // Manda un texto por el canal de la conversación. Devuelve los mids.
-async function enviarTexto(c, conv, texto) {
+async function enviarTexto(c, conv, texto, env) {
   const lim = LIM_TEXTO[conv.canal] || 1900;
   const mids = [];
   for (const pieza of partirTexto(texto, lim)) {
+    if (conv.canal === 'correo') {
+      if (!env || !env.RESEND_API_KEY) throw Object.assign(new Error('El envío de correos no está configurado (falta RESEND_API_KEY).'), { code: 'SIN_CANAL' });
+      // El asunto sale del último correo de la persona ("Asunto: …" en la 1a línea).
+      const ult = await env.DB.prepare("SELECT texto FROM mkt_mensajes WHERE conv_id = ? AND direccion = 'in' ORDER BY creado DESC, rowid DESC LIMIT 1").bind(conv.id).first();
+      const m = String((ult && ult.texto) || '').match(/^Asunto:\s*(.+)$/m);
+      const asuntoBase = m ? m[1].trim() : 'IVAE Studios';
+      const asunto = /^re:/i.test(asuntoBase) ? asuntoBase : 'Re: ' + asuntoBase;
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: `IVAE Studios <${CORREO_BUZON}>`, to: [conv.contacto_id], bcc: [CORREO_BUZON], reply_to: CORREO_BUZON,
+          subject: asunto.slice(0, 200), text: pieza,
+          html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1d1d1f">${escHtml(pieza).replace(/\n/g, '<br>')}</div>`,
+        }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error('No se pudo enviar el correo: ' + String((j && (j.message || j.error)) || res.status).slice(0, 200)), { code: 'SIN_CANAL' });
+      mids.push(j.id ? 'resend:' + j.id : null);
+      continue;
+    }
     if (conv.canal === 'whatsapp') {
       if (!c.wa_phone_id || !c.wa_access_token) throw Object.assign(new Error('Esta marca no tiene WhatsApp conectado.'), { code: 'SIN_CANAL' });
       const r = await graph(`${GRAPH_FB}/${c.wa_phone_id}/messages`, { method: 'POST', token: c.wa_access_token, body: {
@@ -844,6 +877,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         instagram: { conectado: !!(c.ig_user_id && c.ig_access_token), cuenta: c.ig_username ? '@' + c.ig_username : null },
         messenger: { conectado: !!(c.fb_page_id && c.fb_access_token), cuenta: c.fb_page_name || null },
         whatsapp: { conectado: !!(c.wa_phone_id && c.wa_access_token), cuenta: c.wa_numero || null },
+        correo: { conectado: await correoDeLaMarca(env, c.id), cuenta: CORREO_BUZON },
       },
       sondeo_at: c.bandeja_sondeo_at || null,
       estado,
@@ -915,7 +949,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       const c = await marca(env, conv.client_id);
       let mids;
       try {
-        mids = await enviarTexto(c, conv, texto);
+        mids = await enviarTexto(c, conv, texto, env);
       } catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, conv.canal);
         await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: session.user_id, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300) });
