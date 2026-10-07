@@ -15,10 +15,10 @@
 // Móvil primero: la lista ocupa la pantalla y el chat la reemplaza con botón
 // de regresar; en escritorio van lado a lado. Se refresca solo cada 25 s.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070245';
-import { toast } from '../shell/toast.js?v=202610070245';
-import { icon, iconMarca } from '../shell/icons.js?v=202610070245';
-import { T, isEN } from '../shell/i18n.js?v=202610070245';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610070301';
+import { toast } from '../shell/toast.js?v=202610070301';
+import { icon, iconMarca } from '../shell/icons.js?v=202610070301';
+import { T, isEN } from '../shell/i18n.js?v=202610070301';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -221,6 +221,8 @@ function pintarCuerpo() {
   if (!cuerpoEl) return;
   clear(cuerpoEl);
   rootEl.classList.toggle('is-chat', tab === 'mensajes' && !!convAbierta);
+  // En escritorio, Mensajes ocupa justo la pantalla (bandeja.css, .is-msgs).
+  rootEl.classList.toggle('is-msgs', tab === 'mensajes' && !!cid());
   if (!cid()) {
     cuerpoEl.appendChild(vacio('inbox', T('Elige una marca', 'Pick a brand'), T('La bandeja es por marca: elige una arriba.', 'The inbox is per brand: pick one above.')));
     return;
@@ -758,7 +760,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610070245';
+  link.href = '/marketing/css/bandeja.css?v=202610070301';
   document.head.appendChild(link);
 }
 

@@ -304,12 +304,39 @@ video.bj-adj { max-height: 320px; width: 100%; }
 
 /* ── Escritorio: lista y chat lado a lado ────────────────────────────────── */
 @media (min-width: 900px) {
-  .bj-split { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); align-items: start; }
-  .bj-chat, .bj-root.is-chat .bj-lista { display: block; }
-  .bj-chat__vacio { display: flex; }
-  .bj-chat__in { height: calc(100dvh - var(--topbar-h2) - 190px); min-height: 460px; position: sticky; top: 0; }
+  /* TODA LA PANTALLA (Israel, 7-oct: "que se vea en toda la pantalla"). Antes
+     la Bandeja topaba a 1180px centrada y en 1710px dejaba ~265px vacíos por
+     lado. Ahora llena el ancho con los mismos márgenes que la barra superior
+     (#view de theme-sistemaiva). */
+  .bj-root { max-width: none; }
+  /* MENSAJES = app de chat, como WhatsApp Web: la vista mide justo lo que queda
+     bajo la barra superior y cada columna desliza sola; la página ya no se
+     mueve (antes #viewScroll corría 146px y la lista se salía por abajo).
+     Medido en Chrome 1710x951: la vista arranca en 72 (barra 56 + padding 16
+     de #view) y abajo #view (16) + #viewScroll (32) suman 48 que el margen
+     negativo se come. */
+  .bj-root.is-msgs {
+    height: calc(100dvh - var(--topbar-h2) - 16px);
+    min-height: 560px;
+    margin-bottom: -48px;
+    padding-bottom: 14px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .bj-root.is-msgs .bj-cuerpo { min-height: 0; }
+  .bj-split {
+    grid-template-columns: minmax(340px, 26%) minmax(0, 1fr);
+    align-items: stretch; height: 100%; min-height: 0;
+  }
+  .bj-root .bj-lista, .bj-root.is-chat .bj-lista { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .bj-chat { display: block; min-height: 0; }
+  .bj-chat__vacio { display: flex; height: 100%; box-sizing: border-box; }
+  .bj-chat__in { height: 100%; min-height: 0; }
   .bj-back { display: none; }
-  .bj-convs { max-height: calc(100dvh - var(--topbar-h2) - 250px); overflow-y: auto; padding-right: 2px; }
+  /* La hoja de conversaciones mide lo que su contenido y, si no cabe, desliza. */
+  .bj-convs { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+  /* Con ratón no hay cómo deslizar una fila sin barra: en escritorio los
+     filtros bajan de renglón y se ven todos (antes "WhatsApp" quedaba cortado). */
+  .bj-filtros { flex-wrap: wrap; overflow: visible; }
   .bj-filtros2 { grid-template-columns: minmax(0, 1fr); }
   /* Columnas de al menos 460px: caben 2 en escritorio normal y la fila de
      botones respira; en pantallas muy anchas entran 3. */
