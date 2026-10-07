@@ -312,13 +312,15 @@ video.bj-adj { max-height: 320px; width: 100%; }
   /* MENSAJES = app de chat, como WhatsApp Web: la vista mide justo lo que queda
      bajo la barra superior y cada columna desliza sola; la página ya no se
      mueve (antes #viewScroll corría 146px y la lista se salía por abajo).
-     Medido en Chrome 1710x951: la vista arranca en 72 (barra 56 + padding 16
-     de #view) y abajo #view (16) + #viewScroll (32) suman 48 que el margen
-     negativo se come. */
+     De 900 a 1023 el shell todavía enseña el sub-header (48) y la barra de
+     abajo (fija, 56 + 88 de aire en #viewScroll): la vista arranca en 120 y
+     termina justo sobre la barra; el margen negativo se come el padding 16 de
+     #view y los 88 de aire. --bars-h = franjas de aviso (versión nueva, etc.). */
   .bj-root.is-msgs {
-    height: calc(100dvh - var(--topbar-h2) - 16px);
-    min-height: 560px;
-    margin-bottom: -48px;
+    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h) - var(--bars-h, 0px) - 16px
+                 - var(--nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: 520px;
+    margin-bottom: -104px;
     padding-bottom: 14px;
     grid-template-rows: auto auto minmax(0, 1fr);
   }
@@ -341,6 +343,17 @@ video.bj-adj { max-height: 320px; width: 100%; }
   /* Columnas de al menos 460px: caben 2 en escritorio normal y la fila de
      botones respira; en pantallas muy anchas entran 3. */
   .bj-coms { grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); align-items: start; }
+}
+/* Desde 1024 ya no hay barra de abajo ni sub-header (shell.css): la vista
+   arranca en 72 (barra 56 + padding 16 de #view) y abajo #view (16) +
+   #viewScroll (32) suman 48 que el margen negativo se come. Medido en Chrome
+   a 1710x951, 1440x900, 1280x720 y 1024x700: la página no se mueve. */
+@media (min-width: 1024px) {
+  .bj-root.is-msgs {
+    height: calc(100dvh - var(--topbar-h2) - var(--bars-h, 0px) - 16px - env(safe-area-inset-top, 0px));
+    min-height: 560px;
+    margin-bottom: -48px;
+  }
 }
 
 /* ── El teléfono: abrir un chat lo pone a PANTALLA COMPLETA (como WhatsApp) ──
