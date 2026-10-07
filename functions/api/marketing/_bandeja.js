@@ -318,6 +318,9 @@ async function avisarEntrada(env, c, convId, { body, link, asignacion }) {
   if (!equipo.length) return avisarStaff(env, c, { tipo: 'mensaje', body, link });
   const ag = asignacion && asignacion.agente;
   const dest = ag ? [ag.id] : equipo.filter((u) => u.bandeja_rol === 'supervisor').map((u) => u.id);
+  // Nadie del equipo puede recibirlo (sin agente disponible ni supervisor):
+  // el aviso va a la agencia para que el lead no se quede sin dueño.
+  if (!dest.length) return avisarStaff(env, c, { tipo: 'mensaje', body: `Sin agente disponible · ${body}`, link });
   const n = await avisarUsuarios(env, c, dest, { tipo: 'mensaje', body: asignacion && asignacion.nuevo ? `Nuevo lead para ti · ${body}` : body, link });
   if (cfgDe(c).avisar_agencia) await avisarStaff(env, c, { tipo: 'mensaje', body, link });
   return n;
@@ -1050,7 +1053,8 @@ async function crearPlantillas(env, c) {
 
 function primerNombre(s) {
   const t = String(s || '').replace(/[^\p{L}\p{M}' -]/gu, ' ').trim().split(/\s+/)[0] || '';
-  return t.length >= 2 ? t.slice(0, 30) : '';
+  if (t.length < 2) return '';
+  return (t.charAt(0).toLocaleUpperCase('es-MX') + t.slice(1)).slice(0, 30);
 }
 function limpiarParaPlantilla(t) {
   return String(t || '').replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
