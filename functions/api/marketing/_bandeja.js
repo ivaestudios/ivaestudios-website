@@ -364,9 +364,14 @@ async function ingerirMensajeWa(env, c, m, nombre) {
 // y sin aviso (si no, el primer día llegarían 200 avisos de comentarios viejos).
 async function guardarComentario(env, c, cm, { frescoDesde = null, avisar = true } = {}) {
   if (!cm.commentId) return 0;
-  const propio = cm.autorId && (idsPropios(c, 'instagram').has(String(cm.autorId)) || cm.autorId === String(c.fb_page_id || ''));
+  const propio = (cm.autorId && (idsPropios(c, 'instagram').has(String(cm.autorId)) || cm.autorId === String(c.fb_page_id || '')))
+    || (cm.canal === 'instagram' && cm.autor && c.ig_username && String(cm.autor).toLowerCase() === String(c.ig_username).toLowerCase());
   if (propio) return 0; // lo escribió la marca (o nosotros): no es algo que atender
-  const viejo = !!(frescoDesde && cm.cuando && cm.cuando < frescoDesde);
+  // Lo de hace más de 7 días entra ya atendido y sin aviso, sea el sondeo que
+  // sea: una publicación vieja que se lee por primera vez no es trabajo nuevo
+  // (pasó con @ivae.studios: comentarios de marzo a junio salían "pendientes").
+  const limite = fechaDeMs(Date.now() - 7 * 24 * 3600e3);
+  const viejo = !!(cm.cuando && ((frescoDesde && cm.cuando < frescoDesde) || cm.cuando < limite));
   const r = await env.DB.prepare(
     `INSERT OR IGNORE INTO mkt_comentarios (id, client_id, canal, comment_id, media_id, media_permalink, media_caption, parent_id, autor, autor_id, texto, comentado_en, atendido)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`

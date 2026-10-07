@@ -256,11 +256,15 @@ video.bj-adj { max-height: 320px; width: 100%; }
 }
 
 /* ── Comentarios ─────────────────────────────────────────────────────────── */
-.bj-coms { display: grid; gap: 10px; }
+.bj-coms { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+/* La tarjeta NUNCA se ensancha por su contenido: columna 0-1fr y lo que sobre
+   se envuelve. Antes la columna tomaba el ancho del pie de foto en una línea y
+   los botones (Visto, Ocultar) se salían encima de la tarjeta vecina. */
 .bj-com {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-  padding: 12px; display: grid; gap: 8px; min-width: 0;
+  padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; overflow: hidden;
 }
+.bj-com > * { min-width: 0; }
 .bj-com.is-done { opacity: .82; }
 .bj-com__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .bj-com__autor { font-weight: 700; font-size: var(--fs-3); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -273,8 +277,9 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-com__resp svg { color: #22c55e; flex: none; }
 .bj-com__resp span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .bj-com__acciones { display: grid; gap: 8px; border-top: 1px dashed var(--border); padding-top: 8px; }
-.bj-com__ta { width: 100%; }
-.bj-com__btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.bj-com__ta { width: 100%; max-width: 100%; box-sizing: border-box; }
+.bj-com__btns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.bj-com__btns .btn { flex: 0 0 auto; }
 .bj-ocultar { margin-left: auto; }
 
 /* ── Estados ─────────────────────────────────────────────────────────────── */
@@ -306,10 +311,9 @@ video.bj-adj { max-height: 320px; width: 100%; }
   .bj-back { display: none; }
   .bj-convs { max-height: calc(100dvh - var(--topbar-h2) - 250px); overflow-y: auto; padding-right: 2px; }
   .bj-filtros2 { grid-template-columns: minmax(0, 1fr); }
-  .bj-coms { grid-template-columns: 1fr 1fr; align-items: start; }
-}
-@media (min-width: 1280px) {
-  .bj-coms { grid-template-columns: 1fr 1fr 1fr; }
+  /* Columnas de al menos 460px: caben 2 en escritorio normal y la fila de
+     botones respira; en pantallas muy anchas entran 3. */
+  .bj-coms { grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); align-items: start; }
 }
 
 /* ── El teléfono: abrir un chat lo pone a PANTALLA COMPLETA (como WhatsApp) ──

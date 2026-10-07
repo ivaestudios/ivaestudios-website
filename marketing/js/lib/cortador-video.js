@@ -276,7 +276,7 @@ async function encodeSilentAudio(dur, muxer, sr, ch) {
 export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => true, onProgress = null }) {
   const reales = slidesRealesDe(paginas).slice(0, MAX_SLIDES);
   if (!reales.length) return [];
-  const { Muxer, ArrayBufferTarget } = await import('../../vendor/mp4-muxer.mjs?v=202610070010');
+  const { Muxer, ArrayBufferTarget } = await import('../../vendor/mp4-muxer.mjs?v=202610070130');
 
   // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño (Main → Baseline;
   // High solo de último recurso: daba error al compartir en algunos teléfonos).
