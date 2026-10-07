@@ -731,7 +731,7 @@ async function enviarMetaConVentana(url, token, to, texto) {
 }
 
 // Manda un texto por el canal de la conversación. Devuelve los mids.
-async function enviarTexto(c, conv, texto, env) {
+async function enviarTexto(c, conv, texto, env, opts = {}) {
   const lim = LIM_TEXTO[conv.canal] || 1900;
   const mids = [];
   for (const pieza of partirTexto(texto, lim)) {
@@ -741,8 +741,10 @@ async function enviarTexto(c, conv, texto, env) {
       const ult = await env.DB.prepare("SELECT texto, creado FROM mkt_mensajes WHERE conv_id = ? AND direccion = 'in' ORDER BY creado DESC, rowid DESC LIMIT 1").bind(conv.id).first();
       const cita = citaCorreo(ult, conv);
       const m = String((ult && ult.texto) || '').match(/^Asunto:[ \t]*([^\n]+)/m);
-      const asuntoBase = m ? m[1].trim() : 'IVAE Studios';
-      const asunto = /^re:/i.test(asuntoBase) ? asuntoBase : 'Re: ' + asuntoBase;
+      // Sin correo previo de la persona es un correo NUEVO: su asunto propio, sin "Re:".
+      const asunto = m
+        ? (/^re:/i.test(m[1].trim()) ? m[1].trim() : 'Re: ' + m[1].trim())
+        : (String(opts.asunto || '').trim() || 'IVAE Studios');
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
@@ -975,7 +977,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       const c = await marca(env, conv.client_id);
       let mids;
       try {
-        mids = await enviarTexto(c, conv, texto, env);
+        mids = await enviarTexto(c, conv, texto, env, { asunto: b.asunto });
       } catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, conv.canal);
         await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: session.user_id, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300) });
