@@ -43,6 +43,25 @@ async function correoDeLaMarca(env, clientId) {
   catch { return false; }
 }
 const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// FIRMA de info@ (Israel, 6-oct: "se tiene que enviar con la firma"): la misma
+// imagen de la firma de Gmail (Vianey Díaz · Directora · IVAE Studios), copiada
+// a nuestro dominio para que no se rompa si cambian la firma en Gmail.
+const FIRMA_IMG = 'https://ivaestudios.com/marketing/img/firma-vianey-ivae.jpg';
+const FIRMA_TXT = 'Vianey Díaz\nDirectora · IVAE Studios\n+52 228 857 0584 · info@ivaestudios.com\n@ivae.studios · www.ivaestudios.com';
+const FIRMA_HTML = `<img src="${FIRMA_IMG}" width="420" height="210" alt="Vianey Díaz · Directora · IVAE Studios · +52 228 857 0584 · info@ivaestudios.com · @ivae.studios · www.ivaestudios.com" style="display:block;width:420px;max-width:100%;height:auto;border:0">`;
+// "El <fecha>, <quien> escribió:" + el correo original citado, como Gmail: la
+// respuesta llega como correo aparte y así no pierde el contexto.
+function citaCorreo(ult, conv) {
+  if (!ult || !ult.texto) return { html: '', txt: '' };
+  const quien = conv.nombre ? `${conv.nombre} <${conv.contacto_id}>` : conv.contacto_id;
+  const fecha = String(ult.creado || '').slice(0, 16);
+  const cuerpo = String(ult.texto).replace(/^Asunto:.*\n+/, '').slice(0, 6000);
+  return {
+    html: `<div style="margin-top:18px;color:#5f6368;font-size:13px">El ${escHtml(fecha)}, ${escHtml(quien)} escribió:</div>`
+      + `<blockquote style="margin:6px 0 0 0;padding-left:12px;border-left:2px solid #ccc;color:#5f6368;font-size:13px">${escHtml(cuerpo).replace(/\n/g, '<br>')}</blockquote>`,
+    txt: `\n\nEl ${fecha}, ${quien} escribió:\n` + cuerpo.split('\n').map((l) => '> ' + l).join('\n'),
+  };
+}
 const MODELO_SUGERENCIA = 'claude-haiku-4-5-20251001';
 const KV_VERIFY = 'bandeja_verify_token';
 const KV_ULTIMO_WEBHOOK = 'bandeja_webhook_ultimo';
@@ -714,8 +733,9 @@ async function enviarTexto(c, conv, texto, env) {
     if (conv.canal === 'correo') {
       if (!env || !env.RESEND_API_KEY) throw Object.assign(new Error('El envío de correos no está configurado (falta RESEND_API_KEY).'), { code: 'SIN_CANAL' });
       // El asunto sale del último correo de la persona ("Asunto: …" en la 1a línea).
-      const ult = await env.DB.prepare("SELECT texto FROM mkt_mensajes WHERE conv_id = ? AND direccion = 'in' ORDER BY creado DESC, rowid DESC LIMIT 1").bind(conv.id).first();
-      const m = String((ult && ult.texto) || '').match(/^Asunto:\s*(.+)$/m);
+      const ult = await env.DB.prepare("SELECT texto, creado FROM mkt_mensajes WHERE conv_id = ? AND direccion = 'in' ORDER BY creado DESC, rowid DESC LIMIT 1").bind(conv.id).first();
+      const cita = citaCorreo(ult, conv);
+      const m = String((ult && ult.texto) || '').match(/^Asunto:[ \t]*([^\n]+)/m);
       const asuntoBase = m ? m[1].trim() : 'IVAE Studios';
       const asunto = /^re:/i.test(asuntoBase) ? asuntoBase : 'Re: ' + asuntoBase;
       const res = await fetch('https://api.resend.com/emails', {
@@ -723,8 +743,9 @@ async function enviarTexto(c, conv, texto, env) {
         headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: `IVAE Studios <${CORREO_BUZON}>`, to: [conv.contacto_id], bcc: [CORREO_BUZON], reply_to: CORREO_BUZON,
-          subject: asunto.slice(0, 200), text: pieza,
-          html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1d1d1f">${escHtml(pieza).replace(/\n/g, '<br>')}</div>`,
+          subject: asunto.slice(0, 200), text: `${pieza}\n\n--\n${FIRMA_TXT}${cita.txt}`,
+          html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1d1d1f">${escHtml(pieza).replace(/\n/g, '<br>')}</div>`
+            + `<div style="margin-top:22px">${FIRMA_HTML}</div>${cita.html}`,
         }),
       });
       const j = await res.json().catch(() => ({}));
