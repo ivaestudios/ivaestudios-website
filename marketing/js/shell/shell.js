@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610080130';
-import { setRoleDefault } from './theme.js?v=202610080130';
-import { vigilarSegmentados } from './segfade.js?v=202610080130';
-import * as store from './store.js?v=202610080130';
-import * as prefs from './prefs.js?v=202610080130';
-import * as router from './router.js?v=202610080130';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610080130';
-import { toast } from './toast.js?v=202610080130';
-import { icon } from './icons.js?v=202610080130';
-import * as iconsMod from './icons.js?v=202610080130';
-import { createTopbar } from './topbar.js?v=202610080130';
-import { createBottomNav } from './bottomnav.js?v=202610080130';
-import { createSearch } from './search.js?v=202610080130';
-import { createNotifications } from './notifications.js?v=202610080130';
-import { T } from './i18n.js?v=202610080130';
-import { startTour, tourPendiente } from './tour.js?v=202610080130';
-import * as version from './version.js?v=202610080130';
-import * as tienda from './tienda.js?v=202610080130';
-import * as pickers from '../ui/pickers.js?v=202610080130';
-import * as dnd from '../ui/dnd.js?v=202610080130';
+import { api, el, clear } from '../api.js?v=202610080200';
+import { setRoleDefault } from './theme.js?v=202610080200';
+import { vigilarSegmentados } from './segfade.js?v=202610080200';
+import * as store from './store.js?v=202610080200';
+import * as prefs from './prefs.js?v=202610080200';
+import * as router from './router.js?v=202610080200';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610080200';
+import { toast } from './toast.js?v=202610080200';
+import { icon } from './icons.js?v=202610080200';
+import * as iconsMod from './icons.js?v=202610080200';
+import { createTopbar } from './topbar.js?v=202610080200';
+import { createBottomNav } from './bottomnav.js?v=202610080200';
+import { createSearch } from './search.js?v=202610080200';
+import { createNotifications } from './notifications.js?v=202610080200';
+import { T } from './i18n.js?v=202610080200';
+import { startTour, tourPendiente } from './tour.js?v=202610080200';
+import * as version from './version.js?v=202610080200';
+import * as tienda from './tienda.js?v=202610080200';
+import * as pickers from '../ui/pickers.js?v=202610080200';
+import * as dnd from '../ui/dnd.js?v=202610080200';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -189,11 +189,6 @@ function updateSubhead() {
   const isContent = CONTENT_VIEWS.includes(view)
     || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
     || (view === 'bandeja' && (!isClientRole() || !!rolBandeja()));
-  subheadSeg.hidden = !isContent;
-  const hasSlot = subheadSlot.children.length > 0;
-  const show = isContent || hasSlot;
-  subheadEl.hidden = !show;
-  document.body.classList.toggle('has-subhead', show);
   if (isContent) {
     const client = isClientRole();
     for (const b of subheadSeg.querySelectorAll('button')) {
@@ -205,6 +200,15 @@ function updateSubhead() {
       if (b.dataset.view === 'video-ia') b.hidden = client;  // herramienta de staff (cuesta dinero); el router ya lo rebota, pero la pestana se veia
     }
   }
+  // Un seg con UNA sola pestaña no navega a nada: al agente de la Bandeja le
+  // ocupaba 48px en cada pantalla del teléfono (auditoría 8-oct-2026).
+  const visibles = [...subheadSeg.querySelectorAll('button')].filter((b) => !b.hidden).length;
+  const segUtil = isContent && visibles > 1;
+  subheadSeg.hidden = !segUtil;
+  const hasSlot = subheadSlot.children.length > 0;
+  const show = segUtil || hasSlot;
+  subheadEl.hidden = !show;
+  document.body.classList.toggle('has-subhead', show);
 }
 
 function buildSubhead(root) {
