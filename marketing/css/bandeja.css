@@ -377,6 +377,19 @@ video.bj-adj { max-height: 320px; width: 100%; }
   /* El chip del canal ya se ve en el avatar: en el móvil manda la etapa. */
   .bj-chat__canal { display: none; }
   .bj-chat__head { padding: 7px 8px; }
+  /* Etapa + agente: en el teléfono se acomodan en dos renglones en vez de
+     cortarse por la derecha ("Laura Pru…" sin aviso de que había más). */
+  .bj-chat__meta { flex-wrap: wrap; overflow: visible; row-gap: 4px; }
+  /* Con un chat abierto, la barra de secciones (Calendario, Cuadrícula…) se
+     esconde: ese espacio es para la conversación. Medido 8-oct-2026 a 390x844:
+     con la plantilla abierta solo se veía un mensaje. */
+  @supports selector(body:has(a)) {
+    body.has-subhead:has(.bj-root.is-chat) #subhead { display: none; }
+    body.has-subhead:has(.bj-root.is-chat) #viewScroll { padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px)); }
+    body:has(.bj-root.is-chat) .bj-root.is-chat .bj-chat__in {
+      height: calc(100dvh - var(--topbar-h2) - var(--nav-h) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--bars-h, 0px));
+    }
+  }
 }
 /* Filtro por red: cuando está activo lleva el color de SU app, no el magenta. */
 .bj-filtro--red.is-on { background: var(--c, var(--brand)); border-color: transparent; color: #fff; }

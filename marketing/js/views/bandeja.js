@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610080010';
-import { toast } from '../shell/toast.js?v=202610080010';
-import { icon, iconMarca } from '../shell/icons.js?v=202610080010';
-import { T, isEN } from '../shell/i18n.js?v=202610080010';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610080100';
+import { toast } from '../shell/toast.js?v=202610080100';
+import { icon, iconMarca } from '../shell/icons.js?v=202610080100';
+import { T, isEN } from '../shell/i18n.js?v=202610080100';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -582,7 +582,9 @@ async function pintarVistaPrevia(v, texto) {
   const limpio = String(texto || '').replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
   const n = Array.from(limpio).length;
   clear(box);
-  box.append(
+  // OJO: DOMElement.append(null) pinta la palabra "null" (auditoría 8-oct-2026,
+  // se veía bajo la vista previa cuando la plantilla no lleva botones).
+  box.append(...[
     el('span', { class: 'bj-plantilla__lbl', text: T('Así le llega:', 'This is what they get:') }),
     el('span', { class: 'bj-plantilla__txt' }, [
       el('span', { class: 'bj-plantilla__fijo', text: info.antes }),
@@ -591,7 +593,7 @@ async function pintarVistaPrevia(v, texto) {
     ]),
     info.botones && info.botones.length ? el('span', { class: 'bj-plantilla__btns' }, info.botones.map((b) => el('span', { class: 'bj-plantilla__btn', text: b }))) : null,
     el('span', { class: 'bj-plantilla__cuenta' + (n > info.max ? ' is-mal' : ''), text: `${n} / ${info.max}` + (/[\r\n]/.test(texto || '') ? T(' · los saltos de línea se vuelven espacios', ' · line breaks become spaces') : '') }),
-  );
+  ].filter(Boolean));
 }
 
 // Llamadas y asignaciones dentro del chat, como notas pequeñas.
@@ -1332,7 +1334,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610080010';
+  link.href = '/marketing/css/bandeja.css?v=202610080100';
   document.head.appendChild(link);
 }
 
