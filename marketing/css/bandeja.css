@@ -386,6 +386,10 @@ video.bj-adj { max-height: 320px; width: 100%; }
   @supports selector(body:has(a)) {
     body.has-subhead:has(.bj-root.is-chat) #subhead { display: none; }
     body.has-subhead:has(.bj-root.is-chat) #viewScroll { padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px)); }
+    /* Sin el colchón de 88px del botón flotante: con él la pantalla del chat
+       sobraba ~100px y se podía desplazar hasta esconder el encabezado del
+       chat (nombre, etapa, llamar). El chat es fijo, como en WhatsApp. */
+    body:has(.bj-root.is-chat) #viewScroll { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px)); }
     body:has(.bj-root.is-chat) .bj-root.is-chat .bj-chat__in {
       height: calc(100dvh - var(--topbar-h2) - var(--nav-h) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--bars-h, 0px));
     }
