@@ -52,6 +52,7 @@ export async function handleIgLogin(request, env, session, url) {
   const CLIENT_CAN_CONNECT = [
     '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS (marca propia)
     'demo-regeneris',                    // REGENERIS THERAPY
+    '8de22da29a5def29149a8e86ae5c4096', // SMILE NOW (CRM, pedido 2026-10-07)
   ];
   if (session.role === 'client' && !CLIENT_CAN_CONNECT.includes(session.client_id)) {
     return json({ error: 'Forbidden' }, 403);

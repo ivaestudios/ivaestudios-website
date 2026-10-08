@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610072000';
-import { icon } from '../shell/icons.js?v=202610072000';
-import { T, isEN } from '../shell/i18n.js?v=202610072000';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610080000';
+import { icon } from '../shell/icons.js?v=202610080000';
+import { T, isEN } from '../shell/i18n.js?v=202610080000';
 
 const VIEW_ID = 'conexiones';
 
@@ -31,7 +31,7 @@ function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); 
 
 // Clientes que SÍ ven esta sección en su portal (pedido 2026-08-27: solo
 // Regeneris). MISMA lista en shell.js y topbar.js — cámbialas juntas.
-const CLIENT_CONEXIONES_IDS = ['demo-regeneris'];
+const CLIENT_CONEXIONES_IDS = ['demo-regeneris', '8de22da29a5def29149a8e86ae5c4096'];
 function clientAllowed() {
   return CLIENT_CONEXIONES_IDS.includes((ctx.store.getState().me || {}).client_id);
 }
@@ -339,7 +339,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202610072000';
+  link.href = '/marketing/css/conexiones.css?v=202610080000';
   document.head.appendChild(link);
 }
 

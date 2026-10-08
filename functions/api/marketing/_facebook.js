@@ -58,6 +58,7 @@ function faltaConfig(env) {
 // propia marca: se ignora el client_id de la URL.
 const CLIENT_FB_CONNECT = [
   'demo-regeneris', // REGENERIS THERAPY
+  '8de22da29a5def29149a8e86ae5c4096', // SMILE NOW (CRM, pedido 2026-10-07)
 ];
 export async function handleFbLogin(request, env, session, url) {
   if (session.role === 'client' && !CLIENT_FB_CONNECT.includes(session.client_id)) {

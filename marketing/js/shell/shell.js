@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610072000';
-import { setRoleDefault } from './theme.js?v=202610072000';
-import { vigilarSegmentados } from './segfade.js?v=202610072000';
-import * as store from './store.js?v=202610072000';
-import * as prefs from './prefs.js?v=202610072000';
-import * as router from './router.js?v=202610072000';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610072000';
-import { toast } from './toast.js?v=202610072000';
-import { icon } from './icons.js?v=202610072000';
-import * as iconsMod from './icons.js?v=202610072000';
-import { createTopbar } from './topbar.js?v=202610072000';
-import { createBottomNav } from './bottomnav.js?v=202610072000';
-import { createSearch } from './search.js?v=202610072000';
-import { createNotifications } from './notifications.js?v=202610072000';
-import { T } from './i18n.js?v=202610072000';
-import { startTour, tourPendiente } from './tour.js?v=202610072000';
-import * as version from './version.js?v=202610072000';
-import * as tienda from './tienda.js?v=202610072000';
-import * as pickers from '../ui/pickers.js?v=202610072000';
-import * as dnd from '../ui/dnd.js?v=202610072000';
+import { api, el, clear } from '../api.js?v=202610080000';
+import { setRoleDefault } from './theme.js?v=202610080000';
+import { vigilarSegmentados } from './segfade.js?v=202610080000';
+import * as store from './store.js?v=202610080000';
+import * as prefs from './prefs.js?v=202610080000';
+import * as router from './router.js?v=202610080000';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610080000';
+import { toast } from './toast.js?v=202610080000';
+import { icon } from './icons.js?v=202610080000';
+import * as iconsMod from './icons.js?v=202610080000';
+import { createTopbar } from './topbar.js?v=202610080000';
+import { createBottomNav } from './bottomnav.js?v=202610080000';
+import { createSearch } from './search.js?v=202610080000';
+import { createNotifications } from './notifications.js?v=202610080000';
+import { T } from './i18n.js?v=202610080000';
+import { startTour, tourPendiente } from './tour.js?v=202610080000';
+import * as version from './version.js?v=202610080000';
+import * as tienda from './tienda.js?v=202610080000';
+import * as pickers from '../ui/pickers.js?v=202610080000';
+import * as dnd from '../ui/dnd.js?v=202610080000';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -66,6 +66,7 @@ const isClientRole = () => ((store.getState().me || {}).role === 'client');
 // topbar.js y conexiones.js — cámbialas juntas.
 const CLIENT_CONEXIONES_IDS = [
   'demo-regeneris', // REGENERIS THERAPY
+  '8de22da29a5def29149a8e86ae5c4096', // SMILE NOW (CRM, pedido 2026-10-07)
 ];
 // Bandeja con equipo (migración 040): el AGENTE de una marca solo entra a la
 // Bandeja; el SUPERVISOR ve sus vistas de cliente y además la Bandeja.
