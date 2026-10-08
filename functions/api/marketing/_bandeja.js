@@ -1847,6 +1847,9 @@ async function calcularDesempeno(env, c, diasPedidos) {
   const nombres = new Map(accesos.map((u) => [u.id, u.name]));
   const agentes = new Map();
   const fila = (id, nombre) => {
+    // Sin id pero con el nombre de un acceso (eco o registro viejo): misma fila,
+    // no una "Laura" aparte (auditoría 8-oct-2026).
+    if (!id && nombre) { for (const [uid, n] of nombres) if (String(n).trim().toLowerCase() === String(nombre).trim().toLowerCase()) { id = uid; break; } }
     const k = id || ('fuera:' + (nombre || ''));
     if (!agentes.has(k)) {
       agentes.set(k, {

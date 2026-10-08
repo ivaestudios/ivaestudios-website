@@ -22,10 +22,10 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202610080200';
-import { icon } from '../shell/icons.js?v=202610080200';
-import { T } from '../shell/i18n.js?v=202610080200';
-import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202610080200';
+import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202610080230';
+import { icon } from '../shell/icons.js?v=202610080230';
+import { T } from '../shell/i18n.js?v=202610080230';
+import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202610080230';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
 // guard: si app.html ya lo linkea (o la otra vista ya lo inyecto), no duplica.
@@ -269,7 +269,7 @@ function openCardMenu(post, anchor) {
         onclick: () => { close({ source: 'pick' }); fn(); },
       }, [icon(ic, 20), el('span', { class: 'mw-act__label', text: label })]);
 
-      body.append(
+      body.append(...[
         row('edit', T('Abrir', 'Open'), () => c.openEditor(post.id)),
         row('board', T('Cambiar estado', 'Change status'), async () => {
           const v = await c.pickers.pickStatus({ current: post.status });
@@ -297,7 +297,7 @@ function openCardMenu(post, anchor) {
               mutatePost(post, { status: 'publicado' }, T('Marcado como Publicado.', 'Marked as Published.'), { status: post.status });
             })
           : null,
-      );
+      ].filter(Boolean));
     },
   });
 }

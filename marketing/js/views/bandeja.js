@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610080200';
-import { toast } from '../shell/toast.js?v=202610080200';
-import { icon, iconMarca } from '../shell/icons.js?v=202610080200';
-import { T, isEN } from '../shell/i18n.js?v=202610080200';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610080230';
+import { toast } from '../shell/toast.js?v=202610080230';
+import { icon, iconMarca } from '../shell/icons.js?v=202610080230';
+import { T, isEN } from '../shell/i18n.js?v=202610080230';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -211,7 +211,7 @@ function pintarCabecera() {
   clear(headEl);
   const cli = clienteActivo();
   const r = resumen && !resumen.error ? resumen : null;
-  headEl.append(
+  headEl.append(...[
     el('div', { class: 'bj-head__fila' }, [
       el('div', { class: 'bj-head__txt' }, [
         el('h1', { class: 'bj-title', text: T('Bandeja', 'Inbox') }),
@@ -229,14 +229,15 @@ function pintarCabecera() {
         onclick: abrirAjustes,
       }, [icon('settings', 18)]) : null,
     ].filter(Boolean)),
-    r ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
+    // Al agente no le sirve el semáforo de conexiones (lo administra la agencia).
+    r && !esAgente() ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
       const c = r.canales[k];
       return el('span', { class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) } }, [
         icoCanal(k, 14), el('span', { text: CANAL_TXT[k] + (c.conectado && c.cuenta ? ' · ' + c.cuenta : '') }),
         c.conectado ? null : el('span', { class: 'bj-canal__off', text: T('sin conectar', 'not connected') }),
       ].filter(Boolean));
     })) : null,
-  );
+  ].filter(Boolean));
   // Segmento de pestañas con contadores vivos.
   if (segEl) {
     clear(segEl);
@@ -465,12 +466,17 @@ function chat() {
   }
 
   const draft = borradores.get(v.id) || '';
-  const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, placeholder: usaPlantilla ? T('Escribe lo que quieras decirle (un solo párrafo)…', 'Write what you want to say (one paragraph)…') : T('Escribe tu respuesta…', 'Write your reply…'),
+  // Instagram y Messenger: pasados 7 días Meta ya no acepta nada por la API
+  // (ni como agente humano). El campo se apaga y manda el botón de la app.
+  const sinApi = !esWa && v.canal !== 'correo' && horas > 24 * 7;
+  const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, disabled: sinApi, placeholder: sinApi
+    ? (v.canal === 'instagram' ? T('Escríbele desde Instagram con el botón de arriba', 'Write from Instagram using the button above') : T('Escríbele desde Business Suite con el botón de arriba', 'Write from Business Suite using the button above'))
+    : usaPlantilla ? T('Escribe lo que quieras decirle (un solo párrafo)…', 'Write what you want to say (one paragraph)…') : T('Escribe tu respuesta…', 'Write your reply…'),
     oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); if (usaPlantilla) pintarVistaPrevia(v, e.target.value); },
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
-  const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', onclick: () => sugerirConv(v, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
-  const btnEnviar = el('button', { type: 'button', class: 'bj-enviar', 'aria-label': T('Enviar', 'Send'), title: T('Enviar', 'Send'), onclick: () => enviar(v, ta) }, [icon('send', 19)]);
+  const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', disabled: sinApi, onclick: () => sugerirConv(v, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
+  const btnEnviar = el('button', { type: 'button', class: 'bj-enviar', disabled: sinApi, 'aria-label': T('Enviar', 'Send'), title: T('Enviar', 'Send'), onclick: () => enviar(v, ta) }, [icon('send', 19)]);
 
   const avisos = [];
   if (esWa) {
@@ -483,7 +489,9 @@ function chat() {
             ? T('Pasaron más de 24 h: sale dentro de la plantilla', 'Over 24 h: it goes inside the template')
             : T('Sale con botones de confirmación', 'Goes with confirmation buttons') }),
           // Meta decide la categoría: utilidad ≈ USD 0.0085, marketing ≈ USD 0.0397 (México, oct-2026).
-          el('span', { class: 'bj-plantilla__costo', text: pl.categoria === 'MARKETING' ? T('≈ 75 centavos (Meta la cobra como marketing)', '≈ USD 0.04 (billed as marketing)') : T('≈ 15 centavos', '≈ USD 0.01') }),
+          el('span', { class: 'bj-plantilla__costo', text: pl.categoria === 'MARKETING'
+            ? T('≈ 75 centavos (Meta la cobra como marketing)', '≈ USD 0.04 (billed as marketing)')
+            : pl.categoria ? T('≈ 15 centavos', '≈ USD 0.01') : T('≈ 15 a 75 centavos, según la categoría que le dé Meta', '≈ USD 0.01 to 0.04, depending on the category Meta assigns') }),
         ]),
         el('div', { class: 'seg bj-plantilla__seg', role: 'tablist' }, [
           ['seguimiento', T('Seguimiento', 'Follow-up')], ['confirmacion', T('Con botones', 'With buttons')],
@@ -834,7 +842,7 @@ function listaComentarios() {
 
 function tarjetaComentario(k) {
   const card = el('article', { class: 'bj-com' + (k.atendido ? ' is-done' : '') + (k.oculto ? ' is-hidden' : '') });
-  card.append(
+  card.append(...[
     el('header', { class: 'bj-com__head' }, [
       chipCanal(k.canal),
       el('span', { class: 'bj-com__autor', text: k.autor ? (k.canal === 'instagram' ? '@' + k.autor : k.autor) : T('Alguien', 'Someone') }),
@@ -847,7 +855,7 @@ function tarjetaComentario(k) {
       k.media_permalink ? el('a', { href: k.media_permalink, target: '_blank', rel: 'noopener', class: 'bj-com__link' }, [T('Ver publicación', 'View post'), ' ', icon('right', 12)]) : null,
     ].filter(Boolean)) : null,
     el('p', { class: 'bj-com__texto', text: k.texto || '' }),
-  );
+  ].filter(Boolean));
   if (k.atendido) {
     card.appendChild(el('div', { class: 'bj-com__resp' }, [
       icon('check', 14),
@@ -1104,12 +1112,12 @@ function seccionEquipo(body, cli) {
         const u = await api.post('/users', { name: nombre, email: usuario, role: 'client', client_id: cli.id });
         await api.patch(`/bandeja/equipo/${encodeURIComponent(u.id)}`, { rol: fRol.value });
         clear(salida);
-        salida.append(
+        salida.append(...[
           el('p', { class: 'bj-aj__p', text: T('Listo. Pásale estos datos (la contraseña solo se ve esta vez):', 'Done. Share these details (the password is shown only once):') }),
           filaCopiar(T('Entrar en', 'Sign in at'), 'https://ivaestudios.com/marketing/'),
           filaCopiar(T('Usuario', 'Login'), usuario),
           u.password ? filaCopiar(T('Contraseña', 'Password'), u.password) : null,
-        );
+        ].filter(Boolean));
         fNom.value = ''; fUsr.value = '';
         await cargarResumen();
         seccionRefrescar();
@@ -1334,7 +1342,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610080200';
+  link.href = '/marketing/css/bandeja.css?v=202610080230';
   document.head.appendChild(link);
 }
 

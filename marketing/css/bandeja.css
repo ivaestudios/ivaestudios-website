@@ -553,3 +553,8 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .bj-seg::-webkit-scrollbar { display: none; }
 .bj-seg button { flex: none; white-space: nowrap; }
+/* Teléfono: Mensajes · Comentarios · Desempeño caben en 360px sin cortarse
+   (medido 8-oct-2026: a 14px de padding "Desempeño" quedaba en "Desempe"). */
+@media (max-width: 480px) {
+  .bj-seg button { padding: 7px 9px; gap: 5px; font-size: 12.5px; }
+}
