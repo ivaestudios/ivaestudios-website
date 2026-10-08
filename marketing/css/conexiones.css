@@ -88,6 +88,9 @@
 }
 .cx-red__estado--ok { color: #22c55e; font-weight: 600; }
 .cx-red__btn { margin-left: auto; flex: none; min-height: 32px; padding: 4px 14px; }
+.cx-red__derecha { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.cx-red__derecha .cx-red__estado { margin-left: 0; }
+.cx-red__re { min-height: 28px; padding: 0 8px; font-size: 12px; flex: none; }
 
 .cx-invitar {
   display: inline-flex;

@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610080000';
-import { icon } from '../shell/icons.js?v=202610080000';
-import { T, isEN } from '../shell/i18n.js?v=202610080000';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610080010';
+import { icon } from '../shell/icons.js?v=202610080010';
+import { T, isEN } from '../shell/i18n.js?v=202610080010';
 
 const VIEW_ID = 'conexiones';
 
@@ -62,7 +62,16 @@ async function copiarInvitacion() {
 function filaRed({ nombre, icono, conectado, detalle, onConnect }) {
   let derecha;
   if (conectado) {
-    derecha = el('span', { class: 'cx-red__estado cx-red__estado--ok', text: detalle });
+    // Reconectar (7-oct-2026): un permiso nuevo (los mensajes de la Bandeja)
+    // solo entra volviendo a dar acceso. La fila conectada no tenía botón y el
+    // cliente no podía hacerlo solo.
+    derecha = el('span', { class: 'cx-red__derecha' }, [
+      el('span', { class: 'cx-red__estado cx-red__estado--ok', text: detalle }),
+      onConnect ? el('button', {
+        class: 'btn btn-ghost btn-sm cx-red__re', type: 'button', onclick: onConnect,
+        title: T('Vuelve a dar permisos (por ejemplo, mensajes)', 'Grant permissions again (for example, messages)'),
+      }, [el('span', { text: T('Reconectar', 'Reconnect') })]) : null,
+    ].filter(Boolean));
   } else if (onConnect) {
     derecha = el('button', {
       class: 'btn cx-red__btn', type: 'button', onclick: onConnect,
@@ -339,7 +348,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202610080000';
+  link.href = '/marketing/css/conexiones.css?v=202610080010';
   document.head.appendChild(link);
 }
 

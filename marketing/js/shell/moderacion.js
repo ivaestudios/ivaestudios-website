@@ -13,9 +13,9 @@
 // política publicada promete resolver en menos de 24 horas.
 // ============================================================================
 
-import { api, toast } from '../api.js?v=202610080000';
-import { T } from './i18n.js?v=202610080000';
-import { pickFrom, confirmar } from './sheet.js?v=202610080000';
+import { api, toast } from '../api.js?v=202610080010';
+import { T } from './i18n.js?v=202610080010';
+import { pickFrom, confirmar } from './sheet.js?v=202610080010';
 
 const MOTIVOS = [
   { id: 'ofensivo', label: T('Lenguaje ofensivo o insultos', 'Offensive language or insults') },
