@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610080230';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610080230';
-import * as store from './store.js?v=202610080230';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610080230';
-import { toast } from './toast.js?v=202610080230';
-import { icon } from './icons.js?v=202610080230';
-import { openClientSwitcher } from './clientswitcher.js?v=202610080230';
-import { T, isEN, setLang } from './i18n.js?v=202610080230';
+import { startTour } from './tour.js?v=202610080300';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610080300';
+import * as store from './store.js?v=202610080300';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610080300';
+import { toast } from './toast.js?v=202610080300';
+import { icon } from './icons.js?v=202610080300';
+import { openClientSwitcher } from './clientswitcher.js?v=202610080300';
+import { T, isEN, setLang } from './i18n.js?v=202610080300';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610080230';
-import { getTheme, setTheme } from './theme.js?v=202610080230';
-import * as version from './version.js?v=202610080230';
-import * as tienda from './tienda.js?v=202610080230';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610080230';
-import * as prefs from './prefs.js?v=202610080230';
+import { abrirBloqueados } from './moderacion.js?v=202610080300';
+import { getTheme, setTheme } from './theme.js?v=202610080300';
+import * as version from './version.js?v=202610080300';
+import * as tienda from './tienda.js?v=202610080300';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610080300';
+import * as prefs from './prefs.js?v=202610080300';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -470,8 +470,11 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true }), 380); }),
           accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
+          // Sugerencias y problemas (8-oct-2026): formulario dentro de la app
+          // que llega por correo y como aviso al equipo de IVAE.
+          accountRow('mail', T('Sugerencias o problemas', 'Suggestions or issues'), () => { close(); openSoporte(); }),
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
-          accountRow('send', T('Ayuda', 'Help'), () => {
+          accountRow('send', T('Ayuda por WhatsApp', 'Help on WhatsApp'), () => {
             close();
             window.open('https://wa.me/5219902046514', '_blank', 'noopener');
           }),
@@ -930,6 +933,49 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   }
 
   // ── Cambiar contraseña ─────────────────────────────────────────────────────
+  function openSoporte() {
+    openSheet({
+      title: T('Sugerencias o problemas', 'Suggestions or issues'),
+      mode: 'form',
+      build(body, close) {
+        let tipo = 'sugerencia';
+        const seg = el('div', { class: 'seg', role: 'tablist' });
+        const pintarSeg = () => {
+          clear(seg);
+          for (const [k, lbl] of [['sugerencia', T('Sugerencia', 'Suggestion')], ['problema', T('Problema', 'Problem')]]) {
+            seg.appendChild(el('button', { type: 'button', role: 'tab', class: tipo === k ? 'is-active' : '', 'aria-selected': String(tipo === k), onclick: () => { tipo = k; pintarSeg(); } }, [lbl]));
+          }
+        };
+        pintarSeg();
+        const ta = el('textarea', { class: 'textarea', rows: 5, placeholder: T('Cuéntanos qué te gustaría o qué no funcionó. Si es un problema, dinos qué estabas haciendo.', 'Tell us what you would like or what went wrong. If it is a problem, say what you were doing.') });
+        const btn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Enviar', 'Send') });
+        btn.addEventListener('click', async () => {
+          if (ta.value.trim().length < 5) { toast(T('Cuéntanos un poco más.', 'Tell us a bit more.'), { type: 'error' }); return; }
+          btn.disabled = true;
+          try {
+            const sello = ((document.querySelector('script[src*="main.js"]') || {}).src || '').split('v=')[1] || '';
+            await api.post('/soporte', { tipo, mensaje: ta.value.trim(), pantalla: location.hash || '', dispositivo: `${navigator.userAgent.slice(0, 160)} · ${window.innerWidth}x${window.innerHeight} · v${sello}` });
+            toast(T('Gracias, ya lo recibimos. Te respondemos pronto.', 'Thanks, we got it. We will get back to you soon.'), { type: 'success' });
+            close({ source: 'saved' });
+          } catch (e) {
+            toast(e.message || T('No se pudo enviar. Inténtalo de nuevo.', 'Could not send. Try again.'), { type: 'error' });
+            btn.disabled = false;
+          }
+        });
+        body.append(
+          el('div', { class: 'field' }, [seg]),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Tu mensaje', 'Your message') }), ta]),
+          el('p', { class: 'muted', text: T('Llega directo al equipo de IVAE. Te respondemos por correo o WhatsApp.', 'It goes straight to the IVAE team. We reply by email or WhatsApp.') }),
+          el('div', { class: 'sheet__footer' }, [
+            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+            btn,
+          ]),
+        );
+        setTimeout(() => ta.focus(), 50);
+      },
+    });
+  }
+
   function openChangePassword() {
     openSheet({
       title: T('Cambiar contraseña', 'Change password'),

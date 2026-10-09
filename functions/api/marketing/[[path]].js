@@ -1338,7 +1338,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // Envío de correo vía Resend (mismo patrón que marketing-intake.js). Best-effort:
 // devuelve true/false y JAMÁS tira — sin RESEND_API_KEY el flujo sigue (el
 // banner de "verifica tu correo" simplemente persiste hasta que se configure.)
-async function sendAuthEmail(env, { to, subject, html, text }) {
+async function sendAuthEmail(env, { to, subject, html, text, reply_to }) {
   if (!env.RESEND_API_KEY) return false;
   const from = env.INTAKE_FROM_EMAIL || 'IVAE Marketing <info@ivaestudios.com>';
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -1346,7 +1346,7 @@ async function sendAuthEmail(env, { to, subject, html, text }) {
       const r = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to: [to], subject, html, text }),
+        body: JSON.stringify({ from, to: [to], subject, html, text, ...(reply_to ? { reply_to } : {}) }),
       });
       if (r.ok) return true;
       if (r.status < 500) return false; // 4xx: no reintentar
@@ -2580,6 +2580,56 @@ async function adminsDeLaMarca(env, clientId) {
 }
 
 // Los admins de la casa (avisos de infraestructura, no de una marca).
+// ── SUGERENCIAS Y PROBLEMAS (8-oct-2026) ──────────────────────────────────
+// Cualquier persona con sesión (cliente, equipo o agencia externa) le escribe
+// al equipo de IVAE desde el menú de su cuenta. Llega por correo a info@ (con
+// reply-to a quien escribe), como aviso con push a los admins de la casa y
+// queda en la actividad. Tope: 5 mensajes por persona cada 10 minutos.
+async function handleSoporte(request, env, session) {
+  if (!session) return json({ error: 'Unauthorized' }, 401);
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const mensaje = String(b.mensaje || '').trim().slice(0, 2000);
+  if (mensaje.length < 5) return json({ error: 'Cuéntanos un poco más: el mensaje está muy corto.' }, 400);
+  const tipo = b.tipo === 'problema' ? 'problema' : 'sugerencia';
+  const etiqueta = tipo === 'problema' ? 'Problema' : 'Sugerencia';
+  const pantalla = String(b.pantalla || '').slice(0, 200);
+  const dispositivo = String(b.dispositivo || '').slice(0, 300);
+  try {
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM mkt_activity WHERE user_id = ? AND action = 'soporte.mensaje' AND created_at >= datetime('now', '-10 minutes')").bind(session.user_id).first();
+    if (n && Number(n.n) >= 5) return json({ error: 'Ya recibimos varios mensajes tuyos. Danos unos minutos y te respondemos.' }, 429);
+  } catch { /* sin tope si la consulta falla */ }
+  let marca = null; let correo = null;
+  try {
+    const u = await env.DB.prepare('SELECT email FROM mkt_users WHERE id = ?').bind(session.user_id).first();
+    correo = u && EMAIL_RE.test(String(u.email || '')) ? String(u.email) : null;
+    if (session.client_id) {
+      const c = await env.DB.prepare('SELECT name FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
+      marca = c ? c.name : null;
+    }
+  } catch { /* noop */ }
+  const externa = wsDeSesion(session) !== 'ivae';
+  const quien = `${session.name || 'Alguien'}${marca ? ' · ' + marca : ''}${externa ? ' · agencia externa' : ''}`;
+  await logActivity(env, { client_id: session.client_id || null, session, action: 'soporte.mensaje', detail: { tipo, mensaje, pantalla, dispositivo } });
+  try {
+    await notify(env, {
+      user_ids: await adminsDeLaCasa(env), type: 'soporte', actor_name: session.name || null,
+      body: `${etiqueta} de ${quien}: ${mensaje.slice(0, 140)}`, link: null,
+    });
+  } catch { /* un aviso jamás tumba el envío */ }
+  const esc = (x) => String(x || '').replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+  const html = `<!doctype html><body style="font-family:Arial,Helvetica,sans-serif;color:#222;padding:16px">`
+    + `<p><b>${esc(etiqueta)}</b> de <b>${esc(session.name)}</b> (${esc(session.role)}${marca ? ', ' + esc(marca) : ''}${externa ? ', agencia externa' : ''})</p>`
+    + `<p style="white-space:pre-wrap;background:#f6f6f8;border-radius:10px;padding:12px">${esc(mensaje)}</p>`
+    + `<p style="color:#666;font-size:13px">Correo: ${esc(correo || 'sin correo')}<br>Pantalla: ${esc(pantalla || '-')}<br>Dispositivo: ${esc(dispositivo || '-')}</p></body>`;
+  const enviado = await sendAuthEmail(env, {
+    to: env.SOPORTE_EMAIL || 'info@ivaestudios.com',
+    subject: `${etiqueta} en IVAE Marketing: ${session.name || ''}`,
+    html, text: `${etiqueta} de ${session.name}: ${mensaje}\n\nCorreo: ${correo || '-'}\nPantalla: ${pantalla}\nDispositivo: ${dispositivo}`,
+    reply_to: correo || undefined,
+  });
+  return json({ ok: true, correo: !!enviado });
+}
+
 async function adminsDeLaCasa(env) {
   try {
     const r = await env.DB.prepare(
@@ -5876,6 +5926,9 @@ async function route(request, env, authCtx) {
   }
 
   // ── NOTIFICATIONS (any role; always scoped to the session user) ──
+  // ── SUGERENCIAS Y PROBLEMAS: cualquier sesión (cliente, equipo, agencia). ──
+  if (parts[0] === 'soporte' && parts.length === 1 && method === 'POST') return handleSoporte(request, env, session);
+
   if (parts[0] === 'notifications') {
     return guardTables(async () => {
       if (parts.length === 1 && method === 'GET') return handleListNotifications(request, env, session, url);
