@@ -20,12 +20,7 @@
 @media (max-width: 900px) {
   picture:has(img[loading="lazy"]):not(:has(img.is-loaded)),
   figure.inline-photo:has(img[loading="lazy"]):not(:has(img.is-loaded)) {
-    background: linear-gradient(
-      90deg,
-      rgba(201, 165, 78, 0.04) 0%,
-      rgba(201, 165, 78, 0.10) 50%,
-      rgba(201, 165, 78, 0.04) 100%
-    );
+    background: none;
     background-size: 200% 100%;
     animation: lwMobShimmer 1.6s ease-in-out infinite;
   }
@@ -121,7 +116,7 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    color: #c9a54e;
+    color: #1f3a5a;
     font-size: 22px;
     line-height: 1;
     opacity: 0.4;

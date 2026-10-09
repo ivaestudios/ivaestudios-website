@@ -28,9 +28,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/styles/tokens.css?v=20260914c"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20261009a"/>
 <link rel="stylesheet" href="/dark-mode.css?v=20260914b"/>
-<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css?v=20261009a"/>
 <style>
 /* ═══════════════════════════════════════════════════════════════
    IVAE STUDIOS / ABOUT PREVIEW / ENTERPRISE-CINEMATIC EDITION
@@ -45,17 +45,17 @@
 html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
 html.smooth-scroll-active{scroll-behavior:auto}
 html:not(.smooth-scroll-active){scroll-behavior:smooth}
-::selection{background:rgba(201,165,78,0.28);color:var(--cream)}
-::-moz-selection{background:rgba(201,165,78,0.28);color:var(--cream)}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+::selection{background:rgba(31,58,90,0.12);color:#1a1a1a}
+::-moz-selection{background:rgba(31,58,90,0.12);color:#1a1a1a}
+:focus-visible{outline:2px solid rgba(31,58,90,.32);outline-offset:3px}
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
 a{color:inherit;text-decoration:none}
 
 body{
   font-family:var(--font-sans);
-  background:var(--ink-3,#0c1219);
-  color:var(--text-on-dark,#faf8f5);
+  background:#ffffff;
+  color:#1a1a1a;
   overflow-x:hidden;
   line-height:1.6;
   font-size:15px;
@@ -72,19 +72,19 @@ body::after{
 }
 
 /* Skip link */
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink-1,#1a2230);padding:12px 24px;z-index:10001;font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;transition:top 0.3s var(--ease,cubic-bezier(0.16,1,0.3,1));text-decoration:none}
+.skip-link{position:absolute;top:-100%;left:16px;background:#ffffff;color:var(--ink-1,#1a2230);padding:12px 24px;z-index:10001;font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;transition:top 0.3s var(--ease,cubic-bezier(0.16,1,0.3,1));text-decoration:none}
 .skip-link:focus{top:0}
 
 /* Preview banner */
-.preview-banner{position:fixed;top:0;left:0;right:0;background:#7a1f1f;color:#faf8f5;padding:8px 16px;text-align:center;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;z-index:10002}
-.preview-banner span{color:var(--gold)}
+.preview-banner{position:fixed;top:0;left:0;right:0;background:#7a1f1f;color:#1a1a1a;padding:8px 16px;text-align:center;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;z-index:10002}
+.preview-banner span{color:#1f3a5a}
 
 /* ───────────────────────────────────────────────────────────────
    FILM LEADER LOADER (animation #2)
    ─────────────────────────────────────────────────────────────── */
 .film-leader{
   position:fixed;inset:0;z-index:10000;
-  background:#0a0f17;
+  background:#ffffff;
   display:flex;align-items:center;justify-content:center;
   transition:clip-path 1.4s cubic-bezier(0.77,0,0.175,1),opacity .6s ease .9s;
   clip-path:inset(0 0 0 0);
@@ -93,11 +93,11 @@ body::after{
 .film-leader.done{clip-path:inset(0 0 100% 0);opacity:0;pointer-events:none}
 .film-leader-frame{
   position:relative;width:min(420px,72vw);aspect-ratio:1.85/1;
-  border:1px solid rgba(201,165,78,0.28);
+  border:1px solid rgba(31,58,90,0.168);
   display:flex;align-items:center;justify-content:center;
 }
 .film-leader-frame::before,.film-leader-frame::after{
-  content:'';position:absolute;background:var(--gold,#c9a54e);
+  content:'';position:absolute;background:#1f3a5a;
   height:1px;left:-1px;right:-1px;
 }
 .film-leader-frame::before{top:-1px;transform:scaleX(0);transform-origin:left;animation:flScale 1.6s cubic-bezier(0.22,1,0.36,1) forwards}
@@ -108,17 +108,17 @@ body::after{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;
   font-size:clamp(56px,10vw,108px);
-  line-height:1;color:#faf8f5;letter-spacing:-.02em;
+  line-height:1;color:#1a1a1a;letter-spacing:-.02em;
   opacity:0;transform:translateY(8px);
   animation:flMarkIn 1s cubic-bezier(0.22,1,0.36,1) .4s forwards;
 }
-.film-leader-mark span{color:var(--gold,#c9a54e);display:inline-block;animation:flDot 1.6s cubic-bezier(0.77,0,0.175,1) 1s infinite}
+.film-leader-mark span{color:#1f3a5a;display:inline-block;animation:flDot 1.6s cubic-bezier(0.77,0,0.175,1) 1s infinite}
 @keyframes flMarkIn{to{opacity:1;transform:translateY(0)}}
 @keyframes flDot{0%,100%{opacity:1}50%{opacity:.35}}
 .film-leader-meta{
   margin-top:18px;font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.42em;text-transform:uppercase;
-  color:rgba(250,248,245,0.62);opacity:0;
+  color:#4d4d4d;opacity:0;
   animation:flMetaIn 1s cubic-bezier(0.22,1,0.36,1) .8s forwards;
 }
 @keyframes flMetaIn{to{opacity:1}}
@@ -126,14 +126,14 @@ body::after{
   position:absolute;top:14px;font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.36em;font-variant-numeric:tabular-nums;
 }
-.film-leader-counter{left:18px;color:var(--gold,#c9a54e)}
-.film-leader-take{right:18px;color:rgba(250,248,245,0.34)}
-.film-leader-bar{position:absolute;bottom:14px;left:18px;right:18px;height:1px;background:rgba(201,165,78,.14)}
+.film-leader-counter{left:18px;color:#1f3a5a}
+.film-leader-take{right:18px;color:#6e6e6e}
+.film-leader-bar{position:absolute;bottom:14px;left:18px;right:18px;height:1px;background:rgba(31,58,90,0.07)}
 .film-leader-fill{
   position:absolute;left:0;top:0;height:100%;width:0;
-  background:linear-gradient(90deg,#a8894a,var(--gold,#c9a54e));
+  background:none;
   transition:width .25s cubic-bezier(0.22,1,0.36,1);
-  box-shadow:0 0 8px rgba(201,165,78,.35);
+  box-shadow:0 0 8px rgba(31,58,90,0.175);
 }
 
 /* Scroll progress edge (animation #3) */
@@ -143,9 +143,9 @@ body::after{
 }
 .page-prog-edge::before{
   content:'';position:absolute;left:0;right:0;top:0;
-  background:linear-gradient(180deg,#a8894a,var(--gold,#c9a54e));
+  background:none;
   height:0%;
-  box-shadow:-2px 0 6px rgba(201,165,78,.28);
+  box-shadow:-2px 0 6px rgba(31,58,90,0.14);
   transition:height .15s linear;
 }
 
@@ -153,9 +153,9 @@ body::after{
 .gold-motes{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
 .gold-mote{
   position:absolute;width:3px;height:3px;
-  background:var(--gold,#c9a54e);border-radius:50%;
+  background:#ffffff;border-radius:50%;
   opacity:0;filter:blur(.5px);
-  box-shadow:0 0 4px rgba(201,165,78,.5);
+  box-shadow:0 0 4px rgba(31,58,90,0.2);
   animation:moteDrift 22s linear infinite;
   will-change:transform,opacity;
 }
@@ -178,20 +178,20 @@ body::after{
 }
 .site-header.scrolled{
   top:32px;
-  background:rgba(10,15,23,.86);
+  background:#ffffff;
   backdrop-filter:saturate(140%) blur(18px);
   -webkit-backdrop-filter:saturate(140%) blur(18px);
   height:60px;
-  border-bottom-color:rgba(201,165,78,0.28);
+  border-bottom-color:rgba(31,58,90,0.168);
 }
 .h-logo{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-weight:700;letter-spacing:.32em;font-size:13px;
-  text-transform:uppercase;color:#faf8f5;
+  text-transform:uppercase;color:#1a1a1a;
   display:inline-flex;align-items:baseline;gap:6px;
 }
 .h-logo em{
-  font-style:normal;color:var(--gold,#c9a54e);
+  font-style:normal;color:#1f3a5a;
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:15px;letter-spacing:0;
   font-variant:small-caps;display:inline-block;
@@ -202,39 +202,39 @@ body::after{
 .h-nav a{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:0.22em;
-  text-transform:uppercase;color:rgba(250,248,245,0.78);
+  text-transform:uppercase;color:#4d4d4d;
   position:relative;padding:6px 2px;
   min-height:44px;display:inline-flex;align-items:center;
   transition:color .35s,transform .45s;
 }
 .h-nav a::after{
   content:'';position:absolute;left:0;bottom:8px;
-  width:100%;height:1px;background:var(--gold,#c9a54e);
+  width:100%;height:1px;background:#1f3a5a;
   transform:scaleX(0);transform-origin:right;
   transition:transform .45s cubic-bezier(0.16,1,0.3,1);
 }
-.h-nav a.active{color:#faf8f5}
+.h-nav a.active{color:#1a1a1a}
 .h-nav a.active::after{transform:scaleX(1);transform-origin:left}
-.h-nav a:hover,.h-nav a:focus-visible{color:#faf8f5;transform:translateY(-1px)}
+.h-nav a:hover,.h-nav a:focus-visible{color:#1a1a1a;transform:translateY(-1px)}
 .h-nav a:hover::after,.h-nav a:focus-visible::after{transform:scaleX(1);transform-origin:left}
 .h-cta{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:600;letter-spacing:0.22em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
-  border:1px solid rgba(201,165,78,0.4);padding:12px 22px;
+  text-transform:uppercase;color:#1f3a5a;
+  border:1px solid rgba(31,58,90,0.24);padding:12px 22px;
   min-height:44px;display:inline-flex;align-items:center;gap:10px;
   transition:background .35s,border-color .35s,color .35s,transform .35s;
   position:relative;overflow:hidden;
 }
 .h-cta::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(120deg,transparent 30%,rgba(201,165,78,.18) 50%,transparent 70%);
+  background:none;
   transform:translateX(-100%);
   transition:transform .8s cubic-bezier(0.22,1,0.36,1);
   pointer-events:none;
 }
 .h-cta:hover::before,.h-cta:focus-visible::before{transform:translateX(100%)}
-.h-cta:hover,.h-cta:focus-visible{background:rgba(201,165,78,0.12);border-color:var(--gold,#c9a54e);color:#faf8f5}
+.h-cta:hover,.h-cta:focus-visible{background:rgba(31,58,90,0.06);border-color:rgba(31,58,90,.32);color:#1a1a1a}
 .h-cta svg{width:13px;height:13px;transition:transform .4s}
 .h-cta:hover svg{transform:translateX(4px)}
 .h-burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px}
@@ -245,23 +245,23 @@ body::after{
 
 .m-nav{
   position:fixed;inset:60px 0 auto 0;
-  background:rgba(10,15,23,.97);
+  background:#ffffff;
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   display:none;flex-direction:column;
   padding:24px clamp(20px,5vw,48px) 36px;
-  border-bottom:1px solid rgba(201,165,78,0.28);
+  border-bottom:1px solid rgba(31,58,90,0.168);
   z-index:999;
 }
 .m-nav.open{display:flex}
 .m-nav a{
   font-family:var(--font-sans,'Syne',sans-serif);font-weight:500;
   font-size:13px;letter-spacing:.22em;text-transform:uppercase;
-  color:rgba(250,248,245,0.78);padding:18px 0;
-  border-bottom:1px solid rgba(250,248,245,0.10);
+  color:#4d4d4d;padding:18px 0;
+  border-bottom:1px solid rgba(26,26,26,0.1);
   min-height:44px;display:flex;align-items:center;
   transition:color .3s,padding-left .3s;
 }
-.m-nav a:hover,.m-nav a:focus-visible{color:var(--gold,#c9a54e);padding-left:8px}
+.m-nav a:hover,.m-nav a:focus-visible{color:#1f3a5a;padding-left:8px}
 @media(max-width:768px){
   .h-nav,.h-cta{display:none}.h-burger{display:flex}
 }
@@ -291,11 +291,11 @@ body::after{
   display:inline-flex;align-items:center;gap:14px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
   margin-bottom:24px;
 }
 .eyebrow::before{
-  content:'';width:32px;height:1px;background:var(--gold,#c9a54e);opacity:.7;
+  content:'';width:32px;height:1px;background:#1f3a5a;opacity:.7;
   transform:scaleX(0);transform-origin:left;
   transition:transform 1.2s cubic-bezier(0.22,1,0.36,1) .2s;
 }
@@ -307,7 +307,7 @@ body::after{
 .about-hero{
   position:relative;min-height:100vh;
   display:grid;grid-template-rows:1fr auto;
-  background:#0a0f17;overflow:hidden;
+  background:#ffffff;overflow:hidden;
   perspective:1400px;
 }
 .ah-stage{position:absolute;inset:0;will-change:transform}
@@ -323,8 +323,7 @@ body::after{
 .ah-photo::after{
   content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 30% 50%,transparent 0%,rgba(10,15,23,.55) 75%),
-    linear-gradient(180deg,rgba(10,15,23,.45) 0%,transparent 30%,rgba(10,15,23,.88) 100%);
+    none;
 }
 .ah-grain{
   position:absolute;inset:0;
@@ -337,16 +336,16 @@ body::after{
   animation:floatEy 6.5s ease-in-out infinite;
 }
 @keyframes floatEy{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.ah-chapter-rule{width:32px;height:1px;background:var(--gold,#c9a54e);opacity:.7;animation:flScale 1.6s cubic-bezier(0.22,1,0.36,1) 1s both}
+.ah-chapter-rule{width:32px;height:1px;background:#ffffff;opacity:.7;animation:flScale 1.6s cubic-bezier(0.22,1,0.36,1) 1s both}
 .ah-chapter-label{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.34em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
 }
 .ah-chapter-title{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;font-size:15px;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
 }
 
 .ah-content{
@@ -359,7 +358,7 @@ body::after{
   font-weight:300;
   font-size:clamp(40px,6.5vw,96px);
   line-height:.94;letter-spacing:-0.025em;
-  color:#faf8f5;max-width:1100px;margin:0;
+  color:#1a1a1a;max-width:1100px;margin:0;
 }
 .ah-h1 .line{display:block;overflow:hidden;padding-bottom:.06em}
 .ah-h1 .line>span{
@@ -367,7 +366,7 @@ body::after{
   transition:transform 1.4s cubic-bezier(0.22,1,0.36,1);
   will-change:transform;
 }
-.ah-h1 em{font-style:italic;color:var(--gold,#c9a54e)}
+.ah-h1 em{font-style:italic;color:#1f3a5a}
 .ah-h1.vis .line>span{transform:translateY(0)}
 .ah-h1.vis .line:nth-child(2)>span{transition-delay:.18s}
 .ah-h1.vis .line:nth-child(3)>span{transition-delay:.36s}
@@ -379,29 +378,29 @@ body::after{
 }
 .ah-sub::before{
   content:'';width:1px;height:62px;
-  background:linear-gradient(to bottom,var(--gold,#c9a54e),transparent);
+  background:none;
   opacity:.7;margin-top:6px;
 }
 .ah-sub p{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:15px;line-height:1.8;
-  color:rgba(250,248,245,0.86);
+  color:#1a1a1a;
 }
 
 .ah-byline{
   margin-top:56px;
   display:flex;align-items:center;gap:18px;flex-wrap:wrap;
 }
-.ah-byline-rule{width:48px;height:1px;background:var(--gold,#c9a54e);opacity:.6}
+.ah-byline-rule{width:48px;height:1px;background:#ffffff;opacity:.6}
 .ah-byline-name{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:400;font-size:18px;
-  color:#faf8f5;
+  color:#1a1a1a;
 }
 .ah-byline-role{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.24em;
-  text-transform:uppercase;color:rgba(250,248,245,0.62);
+  text-transform:uppercase;color:#4d4d4d;
 }
 
 /* Hero meta strip / runtime */
@@ -409,17 +408,17 @@ body::after{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:space-between;
   padding:22px clamp(20px,5vw,48px);
-  background:linear-gradient(180deg,transparent,rgba(10,15,23,.85));
-  border-top:1px solid rgba(201,165,78,0.28);
+  background:none;
+  border-top:1px solid rgba(31,58,90,0.168);
   flex-wrap:wrap;gap:18px;
 }
 .ah-runtime{display:flex;gap:0;align-items:center;flex-wrap:wrap}
-.ah-rt-cell{padding:0 28px;border-right:1px solid rgba(201,165,78,0.28)}
+.ah-rt-cell{padding:0 28px;border-right:1px solid rgba(31,58,90,0.168)}
 .ah-rt-cell:first-child{padding-left:0}
 .ah-rt-cell:last-child{border-right:none;padding-right:0}
 .ah-rt-n{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
-  font-weight:300;font-size:24px;color:#faf8f5;
+  font-weight:300;font-size:24px;color:#1a1a1a;
   display:block;font-variant-numeric:tabular-nums;
   font-feature-settings:'tnum' 1;line-height:1.1;
   letter-spacing:-.01em;
@@ -427,16 +426,16 @@ body::after{
 .ah-rt-l{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:9px;font-weight:500;letter-spacing:.32em;
-  text-transform:uppercase;color:rgba(250,248,245,0.42);
+  text-transform:uppercase;color:#6e6e6e;
   margin-top:6px;
 }
 .ah-scroll-cue{
   display:flex;align-items:center;gap:14px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
 }
-.ah-scroll-line{width:48px;height:1px;background:var(--gold,#c9a54e);opacity:.5;position:relative;overflow:hidden}
+.ah-scroll-line{width:48px;height:1px;background:#ffffff;opacity:.5;position:relative;overflow:hidden}
 .ah-scroll-line::after{
   content:'';position:absolute;top:0;left:-100%;
   width:50%;height:100%;background:#faf8f5;
@@ -444,7 +443,7 @@ body::after{
 }
 @keyframes scrollLine{0%{left:-50%}100%{left:100%}}
 .ah-scroll-dot{
-  width:5px;height:5px;border-radius:50%;background:var(--gold,#c9a54e);
+  width:5px;height:5px;border-radius:50%;background:#ffffff;
   animation:scrollDot 1.6s cubic-bezier(0.77,0,0.175,1) infinite;
 }
 @keyframes scrollDot{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(4px);opacity:.5}}
@@ -461,7 +460,7 @@ body::after{
    CHAPTER 02 / EDITORIAL STORY (Vianey's bio, drop caps)
    ─────────────────────────────────────────────────────────────── */
 .story-editorial{
-  position:relative;background:var(--ink-3,#0c1219);
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,160px) 0;
 }
 .story-inner{
@@ -474,7 +473,7 @@ body::after{
 .story-aside{position:sticky;top:120px;display:flex;flex-direction:column;gap:32px}
 .story-portrait{
   position:relative;aspect-ratio:3/4;overflow:hidden;
-  background:#0a0f17;
+  background:#ffffff;
 }
 .story-portrait img{
   width:100%;height:100%;object-fit:cover;
@@ -485,38 +484,38 @@ body::after{
 .story-caption{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;font-size:14px;
-  line-height:1.62;color:rgba(250,248,245,0.62);
-  padding-left:18px;border-left:1px solid rgba(201,165,78,0.28);
+  line-height:1.62;color:#4d4d4d;
+  padding-left:18px;border-left:1px solid rgba(31,58,90,0.168);
 }
 .story-caption strong{
   display:block;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-style:normal;font-size:9px;font-weight:500;
   letter-spacing:.32em;text-transform:uppercase;
-  color:var(--gold,#c9a54e);margin-bottom:8px;
+  color:#1f3a5a;margin-bottom:8px;
 }
 
 .story-body{position:relative}
 .story-body h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(38px,4.6vw,68px);
-  line-height:1.06;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.06;letter-spacing:-.018em;color:#1a1a1a;
   margin-top:18px;
 }
-.story-body h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.story-body h2 em{font-style:italic;color:#1f3a5a}
 
 /* Drop cap on opening paragraph (animation #5) */
 .story-lede{
   margin-top:36px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:18px;line-height:1.78;
-  color:rgba(250,248,245,0.86);
+  color:#1a1a1a;
 }
 .story-lede::first-letter{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;
   font-size:5.6em;line-height:.85;float:left;
-  padding:.05em .14em 0 0;color:var(--gold,#c9a54e);
+  padding:.05em .14em 0 0;color:#1f3a5a;
   display:inline-block;
   transform:scale(.7);opacity:0;
   transition:transform 1s cubic-bezier(0.22,1,0.36,1) .25s,opacity 1s ease .25s;
@@ -527,11 +526,11 @@ body::after{
   margin-top:24px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:15px;line-height:1.85;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
 }
 .story-body p em{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
-  font-style:italic;color:var(--gold,#c9a54e);
+  font-style:italic;color:#1f3a5a;
 }
 
 .story-pullquote{
@@ -539,12 +538,12 @@ body::after{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;
   font-size:clamp(22px,2.6vw,32px);line-height:1.4;
-  color:#faf8f5;border-left:1px solid var(--gold,#c9a54e);
+  color:#1a1a1a;border-left:1px solid rgba(31,58,90,.32);
   position:relative;
 }
 .story-pullquote::before{
   content:'"';position:absolute;left:18px;top:24px;
-  font-size:64px;color:var(--gold,#c9a54e);
+  font-size:64px;color:#1f3a5a;
   opacity:.4;line-height:0;
 }
 
@@ -558,8 +557,8 @@ body::after{
    CHAPTER 03 / BRAND PHILOSOPHY MANIFESTO (sticky stage)
    ─────────────────────────────────────────────────────────────── */
 .manifesto-about{
-  position:relative;background:#0a0f17;
-  border-top:1px solid rgba(201,165,78,0.18);
+  position:relative;background:#ffffff;
+  border-top:1px solid rgba(31,58,90,0.14);
 }
 .manifesto-inner{
   display:grid;grid-template-columns:1fr 1fr;gap:0;
@@ -567,7 +566,7 @@ body::after{
 }
 .manifesto-stage{
   position:sticky;top:0;height:100vh;
-  overflow:hidden;background:#0a0f17;
+  overflow:hidden;background:#ffffff;
 }
 .manifesto-stage img{
   width:100%;height:100%;object-fit:cover;
@@ -578,7 +577,7 @@ body::after{
 }
 .manifesto-stage::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(10,15,23,.18) 0%,transparent 50%,rgba(10,15,23,.55) 100%);
+  background:none;
   pointer-events:none;
 }
 .manifesto-stage-overlay{
@@ -589,11 +588,11 @@ body::after{
 .manifesto-stage-frame{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:9px;font-weight:500;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
   display:flex;align-items:center;gap:12px;
   font-variant-numeric:tabular-nums;
 }
-.manifesto-stage-frame::before{content:'';width:32px;height:1px;background:var(--gold,#c9a54e)}
+.manifesto-stage-frame::before{content:'';width:32px;height:1px;background:#1f3a5a}
 
 .manifesto-text{
   display:flex;flex-direction:column;
@@ -604,9 +603,9 @@ body::after{
 .manifesto-block h3{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(32px,3.8vw,52px);
-  line-height:1.08;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.08;letter-spacing:-.018em;color:#1a1a1a;
 }
-.manifesto-block h3 em{font-style:italic;color:var(--gold,#c9a54e)}
+.manifesto-block h3 em{font-style:italic;color:#1f3a5a}
 
 /* Word-by-word reveal (animation #6) */
 .manifesto-block h3 .w{
@@ -628,20 +627,20 @@ body::after{
   margin-top:24px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:15px;line-height:1.82;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
 }
 .manifesto-block p em{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
-  font-style:italic;color:var(--gold,#c9a54e);
+  font-style:italic;color:#1f3a5a;
 }
 .manifesto-tag{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.34em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
   display:flex;align-items:center;gap:14px;margin-bottom:24px;
 }
 .manifesto-tag::before{
-  content:'';width:32px;height:1px;background:var(--gold,#c9a54e);opacity:.7;
+  content:'';width:32px;height:1px;background:#1f3a5a;opacity:.7;
   transform:scaleX(0);transform-origin:left;
   transition:transform 1s cubic-bezier(0.22,1,0.36,1) .2s;
 }
@@ -657,13 +656,13 @@ body::after{
    CHAPTER 04 / CREDENTIALS TIMELINE (10+ years)
    ─────────────────────────────────────────────────────────────── */
 .timeline{
-  position:relative;background:var(--ink-3,#0c1219);
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,160px) clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
 }
 .timeline::before{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 30%,rgba(201,165,78,.05) 0%,transparent 60%);
+  background:none;
   pointer-events:none;
 }
 .timeline-head{
@@ -673,14 +672,14 @@ body::after{
 .timeline-head h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(38px,5vw,72px);
-  line-height:1.05;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.05;letter-spacing:-.018em;color:#1a1a1a;
 }
-.timeline-head h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.timeline-head h2 em{font-style:italic;color:#1f3a5a}
 .timeline-head p{
   margin-top:28px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:16px;line-height:1.78;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
   max-width:600px;margin-left:auto;margin-right:auto;
 }
 
@@ -691,15 +690,15 @@ body::after{
 /* Vertical gold line (animation #7) */
 .timeline-track::before{
   content:'';position:absolute;left:50%;top:0;bottom:0;
-  width:1px;background:rgba(201,165,78,0.18);transform:translateX(-50%);
+  width:1px;background:rgba(31,58,90,0.09);transform:translateX(-50%);
 }
 .timeline-track::after{
   content:'';position:absolute;left:50%;top:0;
   width:1px;height:0;
-  background:linear-gradient(180deg,var(--gold,#c9a54e),rgba(201,165,78,0));
+  background:none;
   transform:translateX(-50%);
   transition:height 2s cubic-bezier(0.22,1,0.36,1) .2s;
-  box-shadow:0 0 8px rgba(201,165,78,.4);
+  box-shadow:0 0 8px rgba(31,58,90,0.2);
 }
 .timeline-track.vis::after{height:100%}
 
@@ -713,7 +712,7 @@ body::after{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;
   font-size:clamp(28px,3.2vw,40px);
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
   font-variant-numeric:tabular-nums;
   letter-spacing:-.02em;line-height:1;
 }
@@ -723,36 +722,36 @@ body::after{
 }
 .tl-dot::before{
   content:'';width:11px;height:11px;border-radius:50%;
-  background:var(--gold,#c9a54e);
-  box-shadow:0 0 0 4px #0c1219,0 0 0 5px var(--gold,#c9a54e),0 0 12px rgba(201,165,78,.5);
+  background:#1f3a5a;
+  box-shadow:0 0 0 4px #0c1219,0 0 0 5px rgba(31,58,90,.18),0 0 12px rgba(31,58,90,0.2);
   transform:scale(0);
   transition:transform .8s cubic-bezier(0.22,1,0.36,1);
 }
 .tl-entry.vis .tl-dot::before{transform:scale(1)}
 .tl-card{
-  background:rgba(201,165,78,.025);
-  border:1px solid rgba(201,165,78,0.18);
+  background:rgba(31,58,90,0.013);
+  border:1px solid rgba(31,58,90,0.14);
   padding:28px 32px;
   transition:border-color .35s,background .35s,transform .35s;
 }
-.tl-card:hover{border-color:var(--gold,#c9a54e);background:rgba(201,165,78,.06);transform:translateY(-2px)}
+.tl-card:hover{border-color:rgba(31,58,90,.32);background:rgba(31,58,90,0.03);transform:translateY(-2px)}
 .tl-card h4{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
-  font-weight:400;font-size:22px;line-height:1.2;color:#faf8f5;
+  font-weight:400;font-size:22px;line-height:1.2;color:#1a1a1a;
   margin-bottom:10px;
 }
-.tl-card h4 em{font-style:italic;color:var(--gold,#c9a54e)}
+.tl-card h4 em{font-style:italic;color:#1f3a5a}
 .tl-card p{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:14px;line-height:1.72;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
 }
 .tl-card-tag{
   display:inline-block;margin-top:14px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:9px;font-weight:600;letter-spacing:.3em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
-  border:1px solid rgba(201,165,78,0.28);
+  text-transform:uppercase;color:#1f3a5a;
+  border:1px solid rgba(31,58,90,0.168);
   padding:5px 12px;
 }
 
@@ -768,11 +767,11 @@ body::after{
   .timeline-track::before,.timeline-track::after{left:0}
   .tl-entry{grid-template-columns:32px 1fr;padding:24px 0}
   .tl-entry .tl-year{
-    grid-column:2!important;text-align:left!important;
-    padding:0 0 12px 0!important;font-size:24px;
+    grid-column:2 !important;text-align:left !important;
+    padding:0 0 12px 0 !important;font-size:24px;
   }
-  .tl-entry .tl-card{grid-column:2!important;text-align:left!important}
-  .tl-entry .tl-card-tag{margin-left:0!important}
+  .tl-entry .tl-card{grid-column:2 !important;text-align:left !important}
+  .tl-entry .tl-card-tag{margin-left:0 !important}
   .tl-entry .tl-dot{grid-column:1;grid-row:1/3}
 }
 
@@ -780,42 +779,42 @@ body::after{
    CHAPTER 05 / RECOGNITION & PRESS
    ─────────────────────────────────────────────────────────────── */
 .recognition{
-  position:relative;background:#0a0f17;
+  position:relative;background:#ffffff;
   padding:clamp(80px,10vw,128px) clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
 }
 .recognition-head{text-align:center;max-width:740px;margin:0 auto 64px}
 .recognition-head h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(34px,4.4vw,60px);
-  line-height:1.06;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.06;letter-spacing:-.018em;color:#1a1a1a;
 }
-.recognition-head h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.recognition-head h2 em{font-style:italic;color:#1f3a5a}
 .recognition-grid{
   display:grid;grid-template-columns:repeat(4,1fr);
   gap:1px;max-width:1180px;margin:0 auto;
-  background:rgba(201,165,78,0.18);
-  border:1px solid rgba(201,165,78,0.18);
+  background:rgba(31,58,90,0.09);
+  border:1px solid rgba(31,58,90,0.14);
 }
 .rec-cell{
-  background:#0a0f17;padding:40px 32px;
+  background:#ffffff;padding:40px 32px;
   text-align:center;display:flex;flex-direction:column;
   justify-content:center;align-items:center;gap:14px;
   min-height:160px;transition:background .35s;
 }
-.rec-cell:hover{background:rgba(201,165,78,.04)}
+.rec-cell:hover{background:rgba(31,58,90,0.02)}
 .rec-num{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-style:italic;
   font-size:clamp(36px,4vw,52px);
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
   font-variant-numeric:tabular-nums;line-height:1;
   letter-spacing:-.02em;
 }
 .rec-label{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.28em;
-  text-transform:uppercase;color:rgba(250,248,245,0.62);
+  text-transform:uppercase;color:#4d4d4d;
   line-height:1.4;
 }
 @media(max-width:900px){
@@ -826,24 +825,24 @@ body::after{
    CHAPTER 06 / BEHIND THE WORK (process)
    ─────────────────────────────────────────────────────────────── */
 .behind{
-  position:relative;background:var(--ink-3,#0c1219);
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,160px) clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
 }
 .behind-head{text-align:center;max-width:780px;margin:0 auto 80px}
 .behind-head h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(38px,5vw,68px);
-  line-height:1.05;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.05;letter-spacing:-.018em;color:#1a1a1a;
 }
-.behind-head h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.behind-head h2 em{font-style:italic;color:#1f3a5a}
 .behind-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
   gap:32px;max-width:1180px;margin:0 auto;
 }
 .behind-card{
-  background:rgba(201,165,78,.025);
-  border:1px solid rgba(201,165,78,0.18);
+  background:rgba(31,58,90,0.013);
+  border:1px solid rgba(31,58,90,0.14);
   padding:40px 32px;
   position:relative;
   transition:border-color .35s,background .35s,transform .45s;
@@ -851,29 +850,29 @@ body::after{
 }
 .behind-card::before{
   content:'';position:absolute;left:0;top:0;
-  width:100%;height:1px;background:var(--gold,#c9a54e);
+  width:100%;height:1px;background:#1f3a5a;
   transform:scaleX(0);transform-origin:left;
   transition:transform .8s cubic-bezier(0.22,1,0.36,1);
 }
-.behind-card:hover{border-color:var(--gold,#c9a54e);background:rgba(201,165,78,.05);transform:translateY(-3px)}
+.behind-card:hover{border-color:rgba(31,58,90,.32);background:rgba(31,58,90,0.025);transform:translateY(-3px)}
 .behind-card:hover::before{transform:scaleX(1)}
 .behind-num{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-style:italic;font-size:48px;
-  color:rgba(201,165,78,.32);line-height:1;
+  color:#1f3a5a;line-height:1;
   margin-bottom:24px;
   font-variant-numeric:tabular-nums;
 }
 .behind-card h3{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:400;font-size:22px;line-height:1.22;
-  color:#faf8f5;margin-bottom:14px;
+  color:#1a1a1a;margin-bottom:14px;
 }
-.behind-card h3 em{font-style:italic;color:var(--gold,#c9a54e)}
+.behind-card h3 em{font-style:italic;color:#1f3a5a}
 .behind-card p{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:14px;line-height:1.78;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
 }
 @media(max-width:900px){.behind-grid{grid-template-columns:1fr}}
 
@@ -881,14 +880,14 @@ body::after{
    CHAPTER 07 / PULL QUOTE / TESTIMONIAL
    ─────────────────────────────────────────────────────────────── */
 .about-quote{
-  position:relative;background:#0a0f17;
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,160px) clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
   overflow:hidden;
 }
 .about-quote::before{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(201,165,78,.06) 0%,transparent 60%);
+  background:none;
   pointer-events:none;
 }
 .aq-inner{position:relative;z-index:2;max-width:920px;margin:0 auto;text-align:center}
@@ -896,11 +895,11 @@ body::after{
   display:inline-flex;align-items:center;gap:14px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.34em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
   margin-bottom:32px;
 }
 .aq-eyebrow::before,.aq-eyebrow::after{
-  content:'';width:32px;height:1px;background:var(--gold,#c9a54e);opacity:.7;
+  content:'';width:32px;height:1px;background:#1f3a5a;opacity:.7;
   transform:scaleX(0);transform-origin:center;
   transition:transform 1.2s cubic-bezier(0.22,1,0.36,1) .2s;
 }
@@ -909,9 +908,9 @@ body::after{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-style:italic;
   font-size:clamp(24px,3vw,40px);line-height:1.32;
-  letter-spacing:-.01em;color:#faf8f5;
+  letter-spacing:-.01em;color:#1a1a1a;
 }
-.aq-text em{color:var(--gold,#c9a54e)}
+.aq-text em{color:#1f3a5a}
 .aq-text .w{
   display:inline-block;opacity:.22;
   transition:opacity .8s cubic-bezier(0.22,1,0.36,1);
@@ -922,24 +921,24 @@ body::after{
 .aq-author{
   margin-top:42px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
 }
-.aq-rule{width:48px;height:1px;background:var(--gold,#c9a54e);opacity:.5}
+.aq-rule{width:48px;height:1px;background:#ffffff;opacity:.5}
 .aq-author-name{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
-  font-style:italic;font-weight:400;font-size:18px;color:#faf8f5;
+  font-style:italic;font-weight:400;font-size:18px;color:#1a1a1a;
 }
 .aq-author-role{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.28em;
-  text-transform:uppercase;color:rgba(250,248,245,0.62);
+  text-transform:uppercase;color:#4d4d4d;
 }
 
 /* ───────────────────────────────────────────────────────────────
    CHAPTER 08 / FEATURED WORK SELECTION
    ─────────────────────────────────────────────────────────────── */
 .featured{
-  position:relative;background:var(--ink-3,#0c1219);
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,140px) 0;
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
 }
 .featured-head{
   display:flex;align-items:flex-end;justify-content:space-between;
@@ -950,25 +949,25 @@ body::after{
 .featured-head h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(36px,4.6vw,64px);
-  line-height:1.06;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.06;letter-spacing:-.018em;color:#1a1a1a;
   margin-top:18px;
 }
-.featured-head h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.featured-head h2 em{font-style:italic;color:#1f3a5a}
 .featured-head p{
   margin-top:18px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:15px;line-height:1.76;
-  color:rgba(250,248,245,0.72);max-width:520px;
+  color:#4d4d4d;max-width:520px;
 }
 
 .featured-grid{
   display:grid;grid-template-columns:repeat(6,1fr);
   gap:1px;padding:0 clamp(20px,5vw,48px);
-  background:rgba(201,165,78,0.12);
+  background:rgba(31,58,90,0.06);
   max-width:1380px;margin:0 auto;
 }
 .feat-cell{
-  position:relative;background:#0a0f17;
+  position:relative;background:#ffffff;
   overflow:hidden;
   opacity:0;transform:scale(.97);
   transition:opacity .9s cubic-bezier(0.22,1,0.36,1),transform 1s cubic-bezier(0.22,1,0.36,1);
@@ -988,7 +987,7 @@ body::after{
 .feat-cell:hover img{transform:scale(1.045);filter:saturate(1.05) brightness(1) contrast(1.06)}
 .feat-cell::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 0%,transparent 60%,rgba(10,15,23,.65) 100%);
+  background:none;
   pointer-events:none;
 }
 .feat-cap{
@@ -1000,12 +999,12 @@ body::after{
 .feat-cap-no{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:9px;font-weight:500;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
 }
 .feat-cap-title{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-style:italic;font-weight:300;font-size:18px;
-  color:#faf8f5;
+  color:#1a1a1a;
 }
 @media(max-width:900px){
   .featured-grid{grid-template-columns:repeat(2,1fr)}
@@ -1017,9 +1016,9 @@ body::after{
    CHAPTER 09 / CONNECT / INQUIRY
    ─────────────────────────────────────────────────────────────── */
 .connect{
-  position:relative;background:#0a0f17;
+  position:relative;background:#ffffff;
   padding:clamp(96px,12vw,160px) clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
   overflow:hidden;
 }
 .connect::before{
@@ -1031,7 +1030,7 @@ body::after{
 }
 .connect::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(10,15,23,.85),rgba(10,15,23,.7));
+  background:none;
   z-index:1;
 }
 .connect-inner{
@@ -1041,14 +1040,14 @@ body::after{
 .connect-inner h2{
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-weight:300;font-size:clamp(36px,5vw,64px);
-  line-height:1.05;letter-spacing:-.018em;color:#faf8f5;
+  line-height:1.05;letter-spacing:-.018em;color:#1a1a1a;
 }
-.connect-inner h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.connect-inner h2 em{font-style:italic;color:#1f3a5a}
 .connect-inner p{
   margin-top:24px;
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:16px;line-height:1.78;
-  color:rgba(250,248,245,0.86);max-width:580px;
+  color:#1a1a1a;max-width:580px;
   margin-left:auto;margin-right:auto;
 }
 .connect-actions{
@@ -1074,22 +1073,22 @@ body::after{
 .btn-magnetic:hover::after,.btn-magnetic:focus-visible::after{transform:translateX(100%)}
 .btn-magnetic > *{position:relative;z-index:1}
 .btn-magnetic.gold{
-  background:var(--gold,#c9a54e);color:#1a2230;
-  border:1px solid var(--gold,#c9a54e);
-  box-shadow:0 4px 16px rgba(201,165,78,.28);
+  background:#1f3a5a;color:#ffffff;
+  border:1px solid rgba(31,58,90,.32);
+  box-shadow:0 4px 16px rgba(31,58,90,0.14);
 }
 .btn-magnetic.gold:hover,.btn-magnetic.gold:focus-visible{
   background:#ceae64;
-  box-shadow:0 6px 24px rgba(201,165,78,.42);
+  box-shadow:0 6px 24px rgba(31,58,90,0.2);
 }
 .btn-magnetic.outline{
-  color:var(--gold,#c9a54e);
-  border:1px solid rgba(201,165,78,0.4);
+  color:#1f3a5a;
+  border:1px solid rgba(31,58,90,0.24);
   background:transparent;
 }
 .btn-magnetic.outline:hover,.btn-magnetic.outline:focus-visible{
-  background:rgba(201,165,78,.12);
-  border-color:var(--gold,#c9a54e);color:#faf8f5;
+  background:#1f3a5a;
+  border-color:rgba(31,58,90,.32);color:#ffffff;
 }
 .btn-magnetic svg{width:14px;height:14px;transition:transform .4s}
 .btn-magnetic:hover svg{transform:translateX(4px)}
@@ -1098,29 +1097,29 @@ body::after{
    FOOTER
    ─────────────────────────────────────────────────────────────── */
 .site-footer{
-  background:#0a0f17;
+  background:#ffffff;
   padding:60px clamp(20px,5vw,48px);
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
   display:flex;justify-content:space-between;align-items:center;
   flex-wrap:wrap;gap:28px;
 }
 .footer-brand{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:13px;font-weight:700;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--gold,#c9a54e);
+  text-transform:uppercase;color:#1f3a5a;
 }
-.footer-brand em{font-style:normal;color:rgba(250,248,245,0.42)}
+.footer-brand em{font-style:normal;color:#6e6e6e}
 .site-footer nav{display:flex;gap:28px;flex-wrap:wrap}
 .site-footer nav a{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:10px;font-weight:500;letter-spacing:.28em;
-  text-transform:uppercase;color:rgba(250,248,245,0.42);
+  text-transform:uppercase;color:#6e6e6e;
   transition:color .25s;
 }
-.site-footer nav a:hover,.site-footer nav a:focus-visible{color:var(--gold,#c9a54e)}
+.site-footer nav a:hover,.site-footer nav a:focus-visible{color:#1f3a5a}
 .footer-copy{
   font-family:var(--font-sans,'Syne',sans-serif);
-  font-size:10px;color:rgba(250,248,245,0.32);
+  font-size:10px;color:#6e6e6e;
   letter-spacing:.16em;
 }
 
@@ -1139,12 +1138,12 @@ body::after{
    REDUCED MOTION
    ─────────────────────────────────────────────────────────────── */
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;transition-duration:.001s!important}
+  *,*::before,*::after{animation-duration:.001s !important;animation-delay:0s !important;transition-duration:.001s !important}
   .rv,.feat-cell,.ah-h1 .line>span,.story-body.vis .story-lede::first-letter{
-    opacity:1!important;transform:none!important;clip-path:none!important;
+    opacity:1 !important;transform:none !important;clip-path:none !important;
   }
-  .gold-mote,.ah-photo,.manifesto-stage img{animation:none!important}
-  .timeline-track::after{height:100%!important}
+  .gold-mote,.ah-photo,.manifesto-stage img{animation:none !important}
+  .timeline-track::after{height:100% !important}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
@@ -1174,7 +1173,7 @@ body::after{
 <link rel="me" href="https://instagram.com/ivae.studios"/>
 <link rel="alternate" type="application/json" title="IVAE Studios machine-readable facts" href="/api/facts.json"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://ivaestudios.com/images/logo-ivae-h-navy.png","image":"https://ivaestudios.com/images/og/ivae-studios-1200x630.jpg","telephone":"+522288570584","email":"info@ivaestudios.com","priceRange":"$$$","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@id":"https://ivaestudios.com/#vianey-diaz"},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"sameAs":["https://www.instagram.com/ivae.studios/","https://instagram.com/ivae.studios","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"64","bestRating":"5","worstRating":"1"},"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@id":"https://ivaestudios.com/#brand"},"hasMap":"https://maps.app.goo.gl/aX7jiVbLzwurMmX19","contactPoint":[{"@type":"ContactPoint","contactType":"customer service","telephone":"+529902046514","url":"https://wa.me/529902046514","availableLanguage":["en","es"]}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios — luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","@id":"https://ivaestudios.com/about#webpage","url":"https://ivaestudios.com/about","name":"About Vianey Díaz | Founder of IVAE Studios Cancún","isPartOf":{"@id":"https://ivaestudios.com/#website"},"about":{"@id":"https://ivaestudios.com/#organization"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"},{"@type":"AboutPage","@id":"https://ivaestudios.com/about#aboutpage","name":"About IVAE Studios","url":"https://ivaestudios.com/about","description":"IVAE Studios is a luxury resort photography studio led by Creative Director Vianey Díaz, serving Cancún, Riviera Maya and Los Cabos, Mexico.","mainEntity":{"@id":"https://ivaestudios.com/#organization"},"isPartOf":{"@id":"https://ivaestudios.com/#website"}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/about#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"About","item":"https://ivaestudios.com/about"}]},{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","givenName":"Vianey","familyName":"Díaz","alternateName":["Vianey Diaz","Vianey Díaz Cancún","Vianey IVAE"],"jobTitle":"Founder & Creative Director, Lead Photographer","description":"Vianey Díaz is the Creative Director and Lead Photographer of IVAE Studios, a luxury resort photography studio in Cancún, Mexico. Known for a refined editorial style rooted in golden-hour light, natural posing, and cinematic color, Vianey has personally led over 500 sessions for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Fully bilingual in English and Spanish, she guides each client through a seamless, high-end experience from wardrobe planning to final gallery delivery.","url":"https://ivaestudios.com/about","mainEntityOfPage":"https://ivaestudios.com/about","gender":"Female","knowsLanguage":[{"@type":"Language","name":"English","alternateName":"en"},{"@type":"Language","name":"Spanish","alternateName":"es"}],"nationality":{"@type":"Country","name":"Mexico"},"homeLocation":{"@type":"Place","name":"Cancún, Quintana Roo, Mexico"},"workLocation":{"@type":"Place","name":"Cancún, Riviera Maya & Los Cabos, Mexico"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","addressCountry":"MX"},"worksFor":{"@id":"https://ivaestudios.com/#organization"},"affiliation":{"@id":"https://ivaestudios.com/#organization"},"memberOf":{"@id":"https://ivaestudios.com/#organization"},"alumniOf":{"@type":"EducationalOrganization","name":"Universidad del Caribe","address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","addressCountry":"MX"}},"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Editorial Family Portrait Photography","Couples & Engagement Photography","Proposal Photography","Maternity & Babymoon Photography","Bachelorette & Quinceañera Photography","Cenote Underwater Photography","Luxury Yacht Photography","Golden Hour Editorial Photography"],"hasOccupation":{"@type":"Occupation","name":"Photographer","occupationalCategory":"27-4021.00","skills":"Editorial photography, luxury resort photography, destination wedding photography, bilingual client direction, golden hour lighting, natural posing, cinematic color grading","responsibilities":"Leads creative direction, photographs editorial sessions, manages client experience, and oversees post-production at IVAE Studios."},"sameAs":["https://www.instagram.com/ivae.studios/","https://ivaestudios.com/about","https://ivaestudios.com/es/acerca-de","https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey","https://ivaestudios.com/es/blog/vianey-diaz-fotografa-lujo-trayectoria"]},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE","ivaestudios","ivaestudios.com","IVAE Studios Cancun","IVAE Studios Mexico"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","slogan":"Luxury Resort Photography. Editorial. Bilingual.","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"},{"@type":"PropertyValue","name":"official_domain","value":"ivaestudios.com"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","alternateName":"ivaestudios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com (singular, unrelated European agency).","inDefinedTermSet":"https://ivaestudios.com/brand"},{"@type":"FAQPage","@id":"https://ivaestudios.com/about#faq","inLanguage":"en","mainEntity":[{"@type":"Question","name":"Is ivaestudio.com the same as IVAE Studios?","acceptedAnswer":{"@type":"Answer","text":"No. IVAE Studios (with S, plural) is the official luxury resort photography studio at ivaestudios.com, owned and operated by Vianey Díaz in Cancún, Mexico. The unrelated domain ivaestudio.com (singular, no S) is a European agency with no affiliation to IVAE Studios."}},{"@type":"Question","name":"How do you spell IVAE Studios?","acceptedAnswer":{"@type":"Answer","text":"IVAE Studios uses the plural form with an S. Accepted variants: IVAE Studios, ivaestudios, ivaestudios.com, IVAE. The studio's official domain is ivaestudios.com (with S)."}},{"@type":"Question","name":"Where is IVAE Studios based?","acceptedAnswer":{"@type":"Answer","text":"IVAE Studios is based in Cancún, Quintana Roo, Mexico. Service areas include Cancún Hotel Zone, Playa Mujeres, Costa Mujeres, Isla Mujeres, Riviera Maya (Tulum, Playa del Carmen, Akumal, Mayakoba, Maroma), and Los Cabos."}}]}]}</script>
-<script src="/dark-mode.js?v=20260531a"></script>
+<script src="/dark-mode.js?v=20261009a"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>

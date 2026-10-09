@@ -1,30 +1,56 @@
-/* ═══ Base blanca (2026-10): lo que el convertidor de colores no puede deducir ═══ */
-/* Al bajar, la barra es blanca: el logo pasa al azul (el crema solo sobre fotos) */
+/* ═══ Base blanca con acentos azul marino (2026-10): lo que el convertidor de colores no puede deducir ═══
+   Se añade al final de styles/site-header.css (lo cargan todas las páginas de fotografía). */
+:root{--acc:#1f3a5a;--acc-rgb:31,58,90;--acc-bg:#f5f8fb;--acc-dark:#142a43}
+
+/* Barra superior al bajar: blanca, logo azul (el crema solo sobre fotos), idioma activo subrayado en azul */
 .site-header.scrolled .lg-navy{opacity:1 !important}
 .site-header.scrolled .lg-cream{opacity:0 !important}
 html body .site-header.scrolled{background:rgba(255,255,255,.97) !important;box-shadow:0 1px 0 rgba(26,26,26,.10) !important;border-bottom-color:transparent !important}
 html body .site-header.scrolled .h-burger span{background:#1a1a1a !important}
 body .site-header.scrolled .lang-switch a,body .site-header.scrolled .h-lang a{color:#6e6e6e !important}
 body .site-header.scrolled .lang-switch a.is-active,body .site-header.scrolled .h-lang a.is-active{color:#1a1a1a !important}
-/* Velos de foto: sombra neutra, sin tinte azul */
-/* Botones oscuros dentro de la capa móvil: la regla general ".ivm a" les ganaba el color de letra */
+body .site-header .lang-switch a.is-active,body .site-header .h-lang a.is-active{box-shadow:inset 0 -1px 0 var(--acc) !important}
+
+/* Línea de avance de lectura (borde derecho) */
+.page-prog-edge::before{background:var(--acc) !important;box-shadow:none !important}
+
+/* Botones de la capa móvil: la regla general ".ivm a" les ganaba el color de letra */
 .ivm a.ivm-act-cta__btn,.ivm a.ivm-act-cta__btn span,.ivm a.ivm-st-cta__btn,.ivm a.ivm-st-cta__btn span,.ivm a.ivm-jl-sub__btn,.ivm a.ivm-jl-sub__btn span,.lw-loc-sticky a.primary,.lw-loc-sticky a.primary span{color:#ffffff !important}
+
 /* Texto que vive sobre la foto de "la hora" */
 .ivm-act-hour .handoff,.ivm-act-hour .handoff a{color:rgba(255,255,255,.9) !important}
-/* Migas de pan sobre blanco: gris legible */
-main > nav.breadcrumbs,main > nav.breadcrumbs a{color:#6e6e6e}
-/* "Acerca de" ya no abre con una foto: arriba la barra va blanca con el logo azul */
+
+/* Migas de pan sobre blanco (fuera de las portadas con foto) */
+nav.breadcrumbs:not(.post-hero *),nav.breadcrumbs:not(.post-hero *) a{color:#6e6e6e !important}
+
+/* Enlaces sin estilo propio: tinta (antes los pintaba dorados el modo oscuro). Especificidad cero. */
+:where(a:not(.skip-link, .skip-to-content, .le-skip-link)){color:#1a1a1a}
+
 @media (max-width:899px){
+  /* "Acerca de" ya no abre con foto: barra blanca con logo azul */
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled){background:rgba(255,255,255,.97) !important;box-shadow:0 1px 0 rgba(26,26,26,.10) !important}
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled)::after{display:none !important}
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lg-navy{opacity:1 !important}
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lg-cream{opacity:0 !important}
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .h-burger span{background:#1a1a1a !important}
-  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lang-switch a,
-  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .h-lang a{color:#6e6e6e !important}
+  body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lang-switch a{color:#6e6e6e !important}
   body:has(.ivm-st-hero):not(:has(.ivm-act-hero)):not(:has(.ivm-wd-hero)) .site-header:not(.scrolled) .lang-switch a.is-active{color:#1a1a1a !important}
+
+  /* Acentos de la home, para todas las páginas que comparten estas piezas */
+  html body .ivm-svc,html body .ivm-st-card{box-shadow:0 22px 44px -22px rgba(var(--acc-rgb),.34),0 2px 10px rgba(var(--acc-rgb),.07),inset 0 0 0 1px rgba(var(--acc-rgb),.10) !important}
+  html body .ivm-svc::before,html body .ivm-svc::after,html body .ivm-st-card::before,html body .ivm-st-card::after{border-color:rgba(var(--acc-rgb),.45) !important}
+  html body .ivm-act-counter,html body .ivm-st-numbers{background:var(--acc-bg) !important}
+  html body .ivm-stat,html body .ivm-st-num{background:#ffffff !important}
+  html body .ivm-act-counter__grid,html body .ivm-st-numbers__grid{background:rgba(var(--acc-rgb),.16) !important;border-color:rgba(var(--acc-rgb),.16) !important;box-shadow:0 18px 40px -24px rgba(var(--acc-rgb),.30) !important}
+  html body .ivm a.ivm-act-cta__btn,html body .ivm a.ivm-st-cta__btn,html body .ivm a.ivm-jl-sub__btn{background:var(--acc) !important;box-shadow:0 16px 36px -12px rgba(var(--acc-rgb),.55) !important}
+  html body .ivm-act-cta__btn::before{background:var(--acc-dark) !important}
+  html body .ivm-act-faq__item,html body .ivm-act-faq__item:last-of-type{border-color:rgba(var(--acc-rgb),.16) !important}
 }
-/* Migas de pan sobre blanco (fuera de las portadas con foto): gris legible */
-nav.breadcrumbs:not(.post-hero *),nav.breadcrumbs:not(.post-hero *) a{color:#6e6e6e !important}
-/* Enlaces sin estilo propio: tinta, no el azul del navegador (antes los pintaba dorados el modo oscuro). Especificidad cero: cualquier regla del sitio manda. */
-:where(a:not(.skip-link, .skip-to-content, .le-skip-link)){color:#1a1a1a}
+
+/* ═══ Mejoras del teléfono (2026-10-09), solo diseño ═══ */
+@media (max-width:899px){
+  /* EN / ES: 44 px de ancho, cómodo para el dedo (medían 34) */
+  body .site-header .lang-switch a{display:inline-flex !important;align-items:center !important;justify-content:center !important;min-width:44px !important}
+  /* Las fotos de "la hora" y del cierre se agrandan por el movimiento y se salían por la derecha: la página se movía de lado */
+  .ivm-act-hour,.ivm-act-cta{overflow-x:clip !important}
+}

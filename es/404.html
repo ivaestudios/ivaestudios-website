@@ -27,23 +27,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700&display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700&display=swap"/></noscript>
 <style>
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link{position:absolute;top:-100%;left:16px;background:#ffffff;color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
 :root {
   --navy: #1a2433;
   --ink: #1a2433;
-  --cream: #f9f8f7;
+  --cream: #ffffff;
   --gold: #c4a35a;
   --border: rgba(196,163,90,0.12);
 }
-a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
-.error-btn:focus-visible,.header-cta:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+a:focus-visible,button:focus-visible{outline:2px solid rgba(31,58,90,.32);outline-offset:3px;border-radius:2px}
+.error-btn:focus-visible,.header-cta:focus-visible{outline:2px solid rgba(31,58,90,.32);outline-offset:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Syne', system-ui, -apple-system, sans-serif;
-  background: var(--navy);
-  color: var(--cream);
+  background: #ffffff;
+  color: #1a1a1a;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -54,7 +54,7 @@ body {
 .header-logo {
   font-family: 'Cormorant Garamond', serif;
   font-size: 22px; font-weight: 500;
-  color: var(--cream); text-decoration: none;
+  color: #1a1a1a; text-decoration: none;
   letter-spacing: 0.04em;
 }
 .header-logo span { font-weight: 400; opacity: 0.7; }
@@ -64,21 +64,21 @@ body {
 .header-nav a {
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(249,248,247,0.82); text-decoration: none;
+  color: #4d4d4d; text-decoration: none;
   transition: color 0.25s;
 }
-.header-nav a:hover { color: var(--cream); }
+.header-nav a:hover { color: #1a1a1a; }
 .header-cta {
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--gold);
-  border: 1px solid rgba(196,163,90,0.4);
+  color: #1f3a5a;
+  border: 1px solid rgba(31,58,90,0.24);
   padding: 10px 22px; text-decoration: none;
   transition: background 0.3s, border-color 0.3s;
 }
 .header-cta:hover {
-  background: rgba(196,163,90,0.1);
-  border-color: var(--gold);
+  background: rgba(31,58,90,0.05);
+  border-color: rgba(31,58,90,.32);
 }
 .header-toggle {
   display: none; flex-direction: column; gap: 5px;
@@ -86,12 +86,12 @@ body {
 }
 .header-toggle span {
   display: block; width: 22px; height: 1.5px;
-  background: var(--cream); transition: all 0.3s;
+  background: #ffffff; transition: all 0.3s;
 }
 .mobile-nav {
   display: none; position: fixed;
   top: 72px; left: 0; right: 0;
-  background: rgba(26,36,51,0.98);
+  background: #ffffff;
   padding: 28px 32px; flex-direction: column; gap: 0;
   border-bottom: 1px solid var(--border); z-index: 999;
 }
@@ -99,7 +99,7 @@ body {
 .mobile-nav a {
   font-size: 11px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(249,248,247,0.7); text-decoration: none;
+  color: #4d4d4d; text-decoration: none;
   padding: 14px 0; border-bottom: 1px solid var(--border);
 }
 /* 404 Content */
@@ -111,7 +111,7 @@ body {
 .error-code {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(72px, 12vw, 120px); font-weight: 400;
-  color: var(--gold); opacity: 0.3;
+  color: #1f3a5a; opacity: 0.3;
   line-height: 1; margin-bottom: 16px;
 }
 .error-title {
@@ -123,21 +123,21 @@ body {
 .error-text {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 17px; font-weight: 300;
-  color: rgba(249,248,247,0.72);
+  color: #4d4d4d;
   line-height: 1.7; margin-bottom: 40px;
 }
 .error-btn {
   display: inline-block;
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--gold);
-  border: 1px solid rgba(196,163,90,0.4);
+  color: #1f3a5a;
+  border: 1px solid rgba(31,58,90,0.24);
   padding: 14px 32px; text-decoration: none;
   transition: background 0.3s, border-color 0.3s;
 }
 .error-btn:hover {
-  background: rgba(196,163,90,0.1);
-  border-color: var(--gold);
+  background: #1f3a5a;
+  border-color: rgba(31,58,90,.32);
 }
 .error-links {
   margin-top: 32px;
@@ -146,10 +146,10 @@ body {
 .error-links a {
   font-size: 11px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(249,248,247,0.45); text-decoration: none;
+  color: #6e6e6e; text-decoration: none;
   transition: color 0.25s;
 }
-.error-links a:hover { color: var(--cream); }
+.error-links a:hover { color: #1a1a1a; }
 .popular-pages {
   margin-top: 56px; padding-top: 32px;
   border-top: 1px solid var(--border);
@@ -158,7 +158,7 @@ body {
 .popular-pages h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 20px; font-weight: 400;
-  color: var(--cream); margin-bottom: 20px;
+  color: #1a1a1a; margin-bottom: 20px;
   letter-spacing: 0.04em;
 }
 .popular-pages ul {
@@ -169,10 +169,10 @@ body {
 .popular-pages a {
   font-size: 11px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(249,248,247,0.55); text-decoration: none;
+  color: #6e6e6e; text-decoration: none;
   transition: color 0.25s;
 }
-.popular-pages a:hover { color: var(--gold); }
+.popular-pages a:hover { color: #1f3a5a; }
 /* Footer */
 
 
@@ -217,15 +217,15 @@ body {
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios, luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","@id":"https://ivaestudios.com/404#webpage","url":"https://ivaestudios.com/404","name":"Page Not Found","description":"The page you're looking for isn't here. Explore IVAE Studios' luxury resort photography in Cancún, Riviera Maya and Los Cabos.","inLanguage":"en","isPartOf":{"@id":"https://ivaestudios.com/#website"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Page Not Found","item":"https://ivaestudios.com/404"}]},"mainEntity":{"@type":"SiteNavigationElement","name":"Top Destinations","hasPart":[{"@type":"SiteNavigationElement","name":"Home","url":"https://ivaestudios.com/"},{"@type":"SiteNavigationElement","name":"Blog","url":"https://ivaestudios.com/blog"},{"@type":"SiteNavigationElement","name":"Cancun Photographer","url":"https://ivaestudios.com/cancun-photographer"},{"@type":"SiteNavigationElement","name":"Riviera Maya Photographer","url":"https://ivaestudios.com/riviera-maya-photographer"},{"@type":"SiteNavigationElement","name":"Cabo Photographer","url":"https://ivaestudios.com/cabo-photographer"},{"@type":"SiteNavigationElement","name":"Contact","url":"https://ivaestudios.com/contact"}]}}</script>
-<link rel="stylesheet" href="/styles/tokens.css?v=20260914c"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260908c"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20261009a"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20261009a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260913a"/>
 <script src="/js/site-header.js?v=20260923a" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260604b" defer></script>
 <link rel="stylesheet" href="/dark-mode.css?v=20260914b"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260908e"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20261009a"/>
 <script src="/js/components.js?v=20260531a" defer></script>
-<script src="/dark-mode.js?v=20260531a"></script>
+<script src="/dark-mode.js?v=20261009a"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
@@ -260,7 +260,7 @@ body {
 <main id="main-content" class="error-page" role="main">
   <div class="error-inner">
     <div class="error-code" aria-hidden="true">404</div>
-    <h1 class="error-title">Esta página no está aquí. <em style="font-style:italic;color:var(--gold);opacity:0.9">Nuestro trabajo sí.</em></h1>
+    <h1 class="error-title">Esta página no está aquí. <em style="font-style:italic;color:#1f3a5a;opacity:0.9">Nuestro trabajo sí.</em></h1>
     <p class="error-text">El enlace que seguiste puede estar vencido, mal escrito o apuntar a algo que ya cambió de nombre. Abajo puedes retomar por donde ibas.</p>
     <a class="error-btn" href="/es/" aria-label="Volver al inicio de IVAE Studios">Volver al inicio</a>
     <div class="error-links" aria-label="Enlaces rápidos">

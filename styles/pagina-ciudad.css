@@ -30,12 +30,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg,
-    rgba(10,15,23,.42) 0%,
-    rgba(10,15,23,.20) 26%,
-    rgba(10,15,23,.46) 54%,
-    rgba(10,15,23,.86) 82%,
-    rgba(10,15,23,.96) 100%);
+  background: none;
 }
 /* Todo el contenido del hero por encima de la foto */
 .hero > *:not(.hero-foto) { position: relative; z-index: 1; }
@@ -45,17 +40,17 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  text-shadow: 0 1px 12px rgba(10,15,23,.7);
+  text-shadow: none;
 }
 .hero .hero-eyebrow::before {
   content: '';
   width: 30px;
   height: 1px;
-  background: var(--gold, #c9a54e);
+  background: #1f3a5a;
   flex: 0 0 30px;
 }
-.hero h1 { text-shadow: 0 2px 34px rgba(10,15,23,.6); }
-.hero .hero-sub { text-shadow: 0 1px 20px rgba(10,15,23,.7); }
+.hero h1 { text-shadow: none; }
+.hero .hero-sub { text-shadow: none; }
 
 /* En teléfono el hero necesita altura para que la foto se lea como foto */
 @media (max-width: 899px) {

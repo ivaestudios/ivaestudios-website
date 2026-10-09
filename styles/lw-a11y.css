@@ -24,10 +24,10 @@ textarea:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible,
 summary:focus-visible {
-  outline: 2px solid #c9a54e;
+  outline: 2px solid rgba(31,58,90,.32);
   outline-offset: 3px;
   border-radius: 2px;
-  box-shadow: 0 0 0 4px rgba(201, 165, 78, 0.18);
+  box-shadow: 0 0 0 4px rgba(31,58,90,0.09);
   transition: outline-offset 120ms ease;
 }
 
@@ -51,7 +51,7 @@ small,
 figcaption,
 .footer-meta,
 .eyebrow {
-  color: rgba(250, 248, 245, 0.7);
+  color: #4d4d4d;
 }
 
 /* Force the same minimum on any inline grey we may have inherited */
@@ -61,7 +61,7 @@ figcaption,
 [style*="color: #999"],
 [style*="color: #888"],
 [style*="color: #777"] {
-  color: rgba(250, 248, 245, 0.7) !important;
+  color: #4d4d4d !important;
 }
 
 /* On light surfaces, fall back to a dark muted token */
@@ -153,12 +153,12 @@ a[href="#main"].skip {
   /* !important en la PAREJA: el fondo lo ponía esta hoja y el color lo
      ponía el <style> de la página, y al mezclarse salía tinta sobre tinta
      (contraste 1.17, ilegible). Los dos van juntos o no van. */
-  background: #141210 !important;
-  color: #c9a54e !important;
+  background: #ffffff !important;
+  color: #1f3a5a !important;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;
-  border: 2px solid #c9a54e;
+  border: 2px solid rgba(31,58,90,.32);
   border-radius: 4px;
   transform: translateY(-150%);
   transition: transform 160ms ease;
@@ -170,7 +170,7 @@ a.skip-to-content:focus,
 a.skip-to-content:focus-visible {
   transform: translateY(0);
   outline: none;
-  box-shadow: 0 0 0 4px rgba(201, 165, 78, 0.3);
+  box-shadow: 0 0 0 4px rgba(31,58,90,0.15);
 }
 
 /* Respect users who prefer no motion */

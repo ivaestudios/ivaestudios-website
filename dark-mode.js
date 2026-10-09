@@ -1,15 +1,11 @@
-/* ═══════════════════════════════════════════════════════════════
-   IVAE Studios — Dark mode (forced, no toggle)
-   ───────────────────────────────────────────────────────────────
-   Light mode was removed by request. This script now only ensures
-   <html class="dark"> is set before paint and clears any stale
-   'ivae-theme=light' from localStorage so returning visitors flip
-   back to dark automatically.
-   ═══════════════════════════════════════════════════════════════ */
+/* IVAE Studios: base blanca (2026-10). El modo oscuro se retiró por petición.
+   Los artículos de IVAE Marketing que viven en /blog/ conservan su tema oscuro (otra marca). */
 (function () {
   'use strict';
-  document.documentElement.classList.add('dark');
-  try {
-    localStorage.setItem('ivae-theme', 'dark');
-  } catch (e) {}
+  if (document.querySelector('link[href*="imkt-toque"],link[href*="marketing-blog"]')) {
+    document.documentElement.classList.add('dark');
+    return;
+  }
+  document.documentElement.classList.remove('dark');
+  try { localStorage.setItem('ivae-theme', 'light'); } catch (e) {}
 })();

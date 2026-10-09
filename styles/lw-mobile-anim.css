@@ -8,7 +8,7 @@
   :root {
     --ivae-gold: #c9a54e;
     --ivae-ink: #0b0b0c;
-    --ivae-paper: #f5f1ea;
+    --ivae-paper: #f7f7f5;
     --ivae-ease: cubic-bezier(.22,.61,.36,1);
   }
 
@@ -46,7 +46,7 @@
     bottom: 0;
     width: 64%;
     height: 1px;
-    background: linear-gradient(90deg, transparent 0%, var(--ivae-gold) 18%, var(--ivae-gold) 82%, transparent 100%);
+    background: none;
     transform: scaleX(0);
     transform-origin: left center;
     transition: transform 1.4s var(--ivae-ease);
@@ -57,7 +57,7 @@
   }
   /* SVG stroke variant */
   .gold-thread-svg path {
-    stroke: var(--ivae-gold);
+    stroke: #1f3a5a;
     stroke-width: 1;
     fill: none;
     stroke-dasharray: 320;
@@ -76,7 +76,7 @@
     font-weight: 500;
     font-size: 11px;
     letter-spacing: .22em;
-    color: var(--ivae-paper);
+    color: #1a1a1a;
     mix-blend-mode: difference;
     opacity: 0;
     transform: translateY(-6px);
@@ -87,7 +87,7 @@
     opacity: .86;
     transform: translateY(0);
   }
-  .ivae-chapter-counter .sep { color: var(--ivae-gold); margin: 0 4px; }
+  .ivae-chapter-counter .sep { color: #1f3a5a; margin: 0 4px; }
   .ivae-chapter-counter .current { transition: opacity .25s ease; }
   .ivae-chapter-counter.is-swap .current { opacity: 0; }
 
@@ -99,7 +99,7 @@
     font-weight: 300;
     font-size: clamp(1.4rem, 5.2vw, 2.1rem);
     line-height: 1.25;
-    color: var(--ivae-paper);
+    color: #1a1a1a;
     clip-path: inset(0 100% 0 0);
     -webkit-clip-path: inset(0 100% 0 0);
     transition: clip-path 1.4s var(--ivae-ease), -webkit-clip-path 1.4s var(--ivae-ease);
@@ -116,7 +116,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 70;
-    background: linear-gradient(180deg, transparent 0%, rgba(201,165,78,.18) 50%, transparent 100%);
+    background: none;
     opacity: 0;
     transition: opacity .6s ease;
   }
@@ -149,7 +149,7 @@
     font-family: "Syne", sans-serif;
     font-size: 10px;
     letter-spacing: .32em;
-    color: var(--ivae-paper);
+    color: #1a1a1a;
     opacity: 0;
     transition: opacity .45s ease, transform .45s var(--ivae-ease);
     pointer-events: none;

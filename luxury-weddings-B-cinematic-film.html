@@ -29,15 +29,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap"/></noscript>
-<link rel="stylesheet" href="/styles/tokens.css?v=20260914c"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20261009a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260913a"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260908c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20261009a"/>
 <script src="/js/site-header.js?v=20260923a" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260604b" defer></script>
 <link rel="stylesheet" href="/dark-mode.css?v=20260914b"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260908e"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20261009a"/>
 <script src="/js/components.js?v=20260531a" defer></script>
-<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css?v=20261009a"/>
 <style>
 /* ═══════════════════════════════════════════════════════════════
    IVAE Luxury Weddings — Direction B: Cinematic Film
@@ -49,8 +49,8 @@
 html { scroll-behavior:smooth; }
 body {
   font-family: var(--font-sans);
-  background: var(--ink-3);
-  color: var(--text-on-dark-readable);
+  background: #ffffff;
+  color: #1a1a1a;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -62,7 +62,7 @@ a { color: inherit; }
 .skip-link {
   position:absolute; top:0; left:0;
   padding: var(--s-3) var(--s-4);
-  background: var(--gold); color: var(--ink-1);
+  background: #ffffff; color: var(--ink-1);
   font-family: var(--font-sans); font-size: var(--fs-13); font-weight:600;
   text-decoration:none; letter-spacing: var(--tracking-eyebrow-base);
   text-transform:uppercase; z-index: var(--z-skiplink);
@@ -70,7 +70,7 @@ a { color: inherit; }
 }
 .skip-link:focus, .skip-link:focus-visible {
   transform: translateY(0);
-  outline: var(--focus-ring-on-gold); outline-offset: 2px;
+  outline: rgba(31,58,90,.32); outline-offset: 2px;
 }
 
 /* ── Static film grain (decorative, aria-hidden) ─────────── */
@@ -84,7 +84,7 @@ a { color: inherit; }
 .scroll-progress {
   position: fixed; top: 0; left: 0;
   width: 100%; height: var(--velocity-bar-h);
-  background: var(--gold); transform-origin: left;
+  background: #ffffff; transform-origin: left;
   transform: scaleX(0); transition: transform var(--t-micro) linear;
   z-index: var(--z-progress); box-shadow: var(--velocity-bar-glow);
 }
@@ -95,19 +95,19 @@ a { color: inherit; }
 .header-logo {
   font-family: var(--font-sans); font-size: var(--fs-15); font-weight: 700;
   letter-spacing: var(--tracking-eyebrow-base); text-transform: uppercase;
-  color: var(--cream-1); text-decoration:none;
+  color: #1a1a1a; text-decoration:none;
 }
-.header-logo span { color: var(--gold); }
+.header-logo span { color: #1f3a5a; }
 .header-nav { display:flex; align-items:center; gap: var(--s-10); list-style:none; }
 .header-nav a {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight:600;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform:uppercase;
-  color: var(--text-on-dark-2); text-decoration:none;
+  color: #4d4d4d; text-decoration:none;
   transition: color var(--t-quick) var(--ease);
 }
-.header-nav a:hover, .header-nav a.active { color: var(--cream-1); }
+.header-nav a:hover, .header-nav a.active { color: #1a1a1a; }
 .header-nav a:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
+  outline: rgba(26,26,26,.2); outline-offset: var(--focus-ring-offset);
 }
 
 /* Language switcher (a11y rule 11) */
@@ -115,27 +115,27 @@ a { color: inherit; }
 .lang-link {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight:600;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform:uppercase;
-  color: var(--text-on-dark-2); text-decoration:none;
+  color: #4d4d4d; text-decoration:none;
   transition: color var(--t-quick) var(--ease);
 }
-.lang-link.is-active { color: var(--gold); }
-.lang-link:hover { color: var(--cream-1); }
+.lang-link.is-active { color: #1f3a5a; }
+.lang-link:hover { color: #1a1a1a; }
 .lang-link:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
+  outline: rgba(26,26,26,.2); outline-offset: var(--focus-ring-offset);
 }
-.lang-sep { color: var(--text-on-dark-3); font-size: var(--fs-10); }
+.lang-sep { color: #6e6e6e; font-size: var(--fs-10); }
 
 .header-cta {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight:600;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform:uppercase;
-  color: var(--gold); border: 1px solid var(--gold-line);
+  color: #1f3a5a; border: 1px solid rgba(31,58,90,.32);
   padding: 10px 22px; text-decoration:none;
   min-height: var(--touch-target-min); display:inline-flex; align-items:center;
   transition: background var(--t-quick) var(--ease), border-color var(--t-quick) var(--ease);
 }
-.header-cta:hover { background: var(--gold-soft); border-color: var(--gold); }
+.header-cta:hover { background: #1f3a5a; border-color: rgba(31,58,90,.32); }
 .header-cta:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
+  outline: rgba(26,26,26,.2); outline-offset: var(--focus-ring-offset);
 }
 
 .header-toggle {
@@ -145,20 +145,20 @@ a { color: inherit; }
   align-items:center; justify-content:center;
 }
 .header-toggle span {
-  display:block; width: 22px; height: 1.5px; background: var(--cream-1);
+  display:block; width: 22px; height: 1.5px; background: #ffffff;
   transition: all var(--t-quick) var(--ease);
 }
 .mobile-nav {
   display:none; position: fixed; top: 72px; left:0; right:0;
-  background: rgba(10,15,23,0.98); padding: 28px 32px;
-  flex-direction: column; border-bottom: 1px solid var(--gold-line);
+  background: #ffffff; padding: 28px 32px;
+  flex-direction: column; border-bottom: 1px solid rgba(31,58,90,.32);
   z-index: 999;
 }
 .mobile-nav a {
   font-family: var(--font-sans); font-size: var(--fs-13); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform: uppercase;
-  color: var(--text-on-dark-2); text-decoration: none;
-  padding: 16px 0; border-bottom: 1px solid var(--line-on-dark);
+  color: #4d4d4d; text-decoration: none;
+  padding: 16px 0; border-bottom: 1px solid rgba(26,26,26,.2);
   display: block; min-height: var(--touch-target-min);
 }
 .mobile-nav a:last-child { border-bottom: none; }
@@ -199,11 +199,11 @@ a { color: inherit; }
   display:inline-flex; align-items:center; gap: var(--s-3);
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-wide); text-transform: uppercase;
-  color: var(--gold);
+  color: #1f3a5a;
 }
 .eyebrow::after {
   content: ''; display: block; width: 80px; height: 1px;
-  background: var(--gold); opacity: 0.6;
+  background: #1f3a5a; opacity: 0.6;
   animation: ornament-pulse var(--t-loop-s) var(--ease-soft) infinite;
 }
 .chapter-card {
@@ -221,7 +221,7 @@ a { color: inherit; }
 .hero {
   position: relative; min-height: 100vh;
   display: flex; align-items: flex-end;
-  background: var(--ink-3); overflow: hidden;
+  background: #ffffff; overflow: hidden;
   isolation: isolate;
 }
 .hero-bg { position: absolute; inset: 0; z-index: 0; }
@@ -237,13 +237,7 @@ a { color: inherit; }
 }
 .hero-overlay {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(10,15,23,0.55) 0%,
-    rgba(10,15,23,0.20) 35%,
-    rgba(10,15,23,0.65) 80%,
-    rgba(10,15,23,0.92) 100%
-  );
+  background: none;
 }
 .hero-content {
   position: relative; z-index: 2;
@@ -255,11 +249,11 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(40px, 6.5vw, 96px);
   font-weight: 300; line-height: 1.04;
-  color: var(--cream-1);
+  color: #1a1a1a;
   text-wrap: balance;
 }
 .hero h1 em {
-  font-style: italic; color: var(--gold);
+  font-style: italic; color: #1f3a5a;
 }
 .hero-sub {
   margin-top: var(--s-8); max-width: 560px;
@@ -267,11 +261,11 @@ a { color: inherit; }
 }
 .hero-sub::before {
   content: ''; flex-shrink: 0; width: 1px; height: 56px;
-  background: var(--gold); opacity: 0.5; margin-top: 6px;
+  background: #1f3a5a; opacity: 0.5; margin-top: 6px;
 }
 .hero-sub p {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
 }
 .hero-ctas {
   display: flex; gap: var(--s-4); flex-wrap: wrap;
@@ -281,11 +275,11 @@ a { color: inherit; }
   position: absolute; bottom: var(--s-6); left: var(--s-gutter);
   z-index: 3; font-family: var(--font-sans); font-size: var(--fs-10);
   font-weight: 600; letter-spacing: var(--tracking-eyebrow-wide);
-  text-transform: uppercase; color: var(--text-on-dark-2);
+  text-transform: uppercase; color: #4d4d4d;
   display: inline-flex; align-items: center; gap: var(--s-3);
 }
 .scroll-cue::before {
-  content: ''; width: 32px; height: 1px; background: var(--gold); opacity: 0.7;
+  content: ''; width: 32px; height: 1px; background: #1f3a5a; opacity: 0.7;
   animation: ornament-pulse var(--t-loop-s) var(--ease-soft) infinite;
 }
 
@@ -307,12 +301,12 @@ a { color: inherit; }
   cursor: pointer;
 }
 .btn-primary {
-  background: var(--gold); color: var(--ink-1);
-  border-color: var(--gold);
+  background: #1f3a5a; color: #ffffff;
+  border-color: rgba(31,58,90,.32);
 }
-.btn-primary:hover { background: var(--gold-hover); border-color: var(--gold-hover); }
+.btn-primary:hover { background: #1f3a5a; border-color: rgba(31,58,90,.32); }
 .btn-primary:focus-visible {
-  outline: var(--focus-ring-on-gold); outline-offset: var(--focus-ring-offset);
+  outline: rgba(31,58,90,.32); outline-offset: var(--focus-ring-offset);
 }
 /* CTA shine sweep (animation 10) */
 .btn-primary::before {
@@ -324,17 +318,17 @@ a { color: inherit; }
 .btn-primary:hover::before { left: 100%; }
 
 .btn-ghost {
-  background: transparent; color: var(--gold);
-  border-color: var(--gold-line);
+  background: transparent; color: #1f3a5a;
+  border-color: rgba(31,58,90,.32);
 }
-.btn-ghost:hover { background: var(--gold-soft); border-color: var(--gold); }
+.btn-ghost:hover { background: #1f3a5a; border-color: rgba(31,58,90,.32); }
 .btn-ghost:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
+  outline: rgba(26,26,26,.2); outline-offset: var(--focus-ring-offset);
 }
 
 /* ── Trust strip ────────────────────────────────────────── */
 .trust {
-  background: var(--ink-2); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .trust-inner {
   max-width: 1200px; margin: 0 auto;
@@ -345,19 +339,19 @@ a { color: inherit; }
 .stat .n {
   font-family: var(--font-serif);
   font-size: clamp(40px, 5.5vw, 64px);
-  font-weight: 300; color: var(--gold); line-height: 1;
+  font-weight: 300; color: #1f3a5a; line-height: 1;
   display: block;
 }
 .stat .l {
   display: block; margin-top: var(--s-3);
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 500;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform: uppercase;
-  color: var(--text-on-dark-2); line-height: 1.5;
+  color: #4d4d4d; line-height: 1.5;
 }
 
 /* ── The Studio (manifesto) ─────────────────────────────── */
 .studio {
-  background: var(--ink-3); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .studio-inner {
   max-width: 1320px; margin: 0 auto;
@@ -373,8 +367,8 @@ a { color: inherit; }
 .studio-corner {
   position: absolute; top: var(--s-6); right: var(--s-6);
   width: 64px; height: 64px;
-  border-top: 2px solid var(--gold);
-  border-right: 2px solid var(--gold);
+  border-top: 2px solid rgba(31,58,90,.32);
+  border-right: 2px solid rgba(31,58,90,.32);
   opacity: 0; transition: opacity var(--t-medium) var(--ease-cinema);
 }
 .studio-stage.vis .studio-corner { opacity: 1; }
@@ -384,34 +378,34 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-bottom: var(--s-8);
+  color: #1a1a1a; margin-bottom: var(--s-8);
 }
-.studio-h2 em { font-style: italic; color: var(--gold); }
+.studio-h2 em { font-style: italic; color: #1f3a5a; }
 .studio-lede {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
   max-width: var(--photo-essay-margin);
 }
 .studio-lede p { margin-bottom: var(--s-4); }
-.studio-lede em { font-style: italic; color: var(--gold); }
+.studio-lede em { font-style: italic; color: #1f3a5a; }
 
 /* Drop cap on first paragraph */
 .studio-lede .lede-first::first-letter {
   font-family: var(--font-serif);
   font-size: clamp(48px, 6vw, 72px);
-  font-style: italic; color: var(--gold);
+  font-style: italic; color: #1f3a5a;
   float: left; padding: 8px 16px 0 0; line-height: 0.9;
 }
 .studio-attribution {
   display: block; margin-top: var(--s-8);
   font-family: var(--font-sans); font-size: var(--fs-13); font-style: italic;
   letter-spacing: var(--couple-name-tracking);
-  color: var(--text-on-dark-2);
+  color: #4d4d4d;
 }
 
 /* ── Three Commitments ──────────────────────────────────── */
 .commit {
-  background: var(--ink-2); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .commit-inner { max-width: 1320px; margin: 0 auto; }
 .commit-head {
@@ -421,38 +415,38 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.commit-h2 em { font-style: italic; color: var(--gold); }
+.commit-h2 em { font-style: italic; color: #1f3a5a; }
 
 .commit-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: var(--s-6);
 }
 .commit-card {
-  background: var(--ink-3); border: 1px solid var(--gold-line);
+  background: #ffffff; border: 1px solid rgba(31,58,90,.32);
   padding: var(--vow-card-padding);
   transition: border-color var(--t-quick) var(--ease);
 }
-.commit-card:hover { border-color: var(--gold); }
+.commit-card:hover { border-color: rgba(31,58,90,.32); }
 .commit-roman {
   font-family: var(--font-sans); font-size: var(--fs-32); font-weight: 300;
-  color: var(--gold); line-height: 1; margin-bottom: var(--s-4);
+  color: #1f3a5a; line-height: 1; margin-bottom: var(--s-4);
 }
 .commit-card h3 {
   font-family: var(--font-serif);
   font-size: clamp(24px, 2.6vw, 36px);
-  font-weight: 300; color: var(--cream-1); line-height: 1.2;
+  font-weight: 300; color: #1a1a1a; line-height: 1.2;
   margin-bottom: var(--s-6);
 }
 .commit-card p {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
 }
 
 /* ── A Wedding (case study) ─────────────────────────────── */
 .case {
-  background: var(--ink-3); padding: var(--s-section-y) 0;
+  background: #ffffff; padding: var(--s-section-y) 0;
 }
 .case-head {
   max-width: 1320px; margin: 0 auto var(--s-12);
@@ -462,9 +456,9 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.case-h2 em { font-style: italic; color: var(--gold); }
+.case-h2 em { font-style: italic; color: #1f3a5a; }
 
 .case-hero {
   position: relative; width: 100%;
@@ -479,12 +473,12 @@ a { color: inherit; }
   position: absolute; bottom: var(--s-6); left: var(--s-gutter);
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-tight); text-transform: uppercase;
-  color: var(--gold); opacity: 0.55;
+  color: #1f3a5a; opacity: 0.55;
   display: inline-flex; align-items: center; gap: var(--s-3);
 }
 .case-frame-meta::before {
   content: ''; display: block; width: 28px; height: 1px;
-  background: var(--gold); opacity: 0.8;
+  background: #1f3a5a; opacity: 0.8;
 }
 
 .case-deck {
@@ -506,13 +500,13 @@ a { color: inherit; }
 }
 .case-caption p {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.95; color: var(--text-on-dark-readable);
+  line-height: 1.95; color: #1a1a1a;
   margin-bottom: var(--s-4);
 }
 
 /* ── Voices (pull-quote) ────────────────────────────────── */
 .voices {
-  background: var(--ink-4); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
   position: relative; overflow: hidden;
 }
 .voices-h2 { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; }
@@ -525,7 +519,7 @@ a { color: inherit; }
   transform: translate(-50%, -50%);
   width: var(--ornament-pull-quote);
   height: var(--ornament-pull-quote);
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(31,58,90,.32);
   opacity: 0.07;
   pointer-events: none;
   will-change: transform;
@@ -537,19 +531,19 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(28px, 3.5vw, 44px);
   font-weight: 300; font-style: italic; line-height: 1.32;
-  color: var(--text-on-dark-readable);
+  color: #1a1a1a;
 }
 .voices-inner cite {
   display: block; margin-top: var(--s-8);
   font-family: var(--font-sans); font-size: var(--fs-13); font-style: normal;
   letter-spacing: var(--couple-name-tracking);
-  color: var(--gold);
+  color: #1f3a5a;
   position: relative; z-index: 1;
 }
 
 /* ── The Investment ─────────────────────────────────────── */
 .invest {
-  background: var(--ink-3); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .invest-inner { max-width: 1320px; margin: 0 auto; }
 .invest-head { max-width: 720px; margin-bottom: var(--s-12); }
@@ -557,13 +551,13 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.invest-h2 em { font-style: italic; color: var(--gold); }
+.invest-h2 em { font-style: italic; color: #1f3a5a; }
 .invest-intro {
   margin-top: var(--s-6);
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
   max-width: var(--manifesto-copy-max-width);
 }
 
@@ -572,20 +566,20 @@ a { color: inherit; }
   gap: var(--inv-tier-gap);
 }
 .tier-card {
-  background: var(--ink-4);
+  background: #ffffff;
   padding: var(--vow-card-padding);
   position: relative;
   border-top: var(--inv-tier-rule);
   display: flex; flex-direction: column;
   transition: transform var(--t-quick) var(--ease-back),
               border-color var(--t-quick) var(--ease);
-  border-left: 1px solid var(--gold-line);
-  border-right: 1px solid var(--gold-line);
-  border-bottom: 1px solid var(--gold-line);
+  border-left: 1px solid rgba(31,58,90,.32);
+  border-right: 1px solid rgba(31,58,90,.32);
+  border-bottom: 1px solid rgba(31,58,90,.32);
 }
 .tier-card:hover {
   transform: translateY(-3px);
-  border-color: var(--gold);
+  border-color: rgba(31,58,90,.32);
 }
 .tier-card.is-featured {
   border-top: var(--inv-tier-rule-featured);
@@ -594,21 +588,21 @@ a { color: inherit; }
   position: absolute; top: var(--s-4); right: var(--s-6);
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--couple-name-tracking); text-transform: uppercase;
-  color: var(--gold);
+  color: #1f3a5a;
 }
 .tier-roman {
   font-family: var(--font-sans); font-size: var(--fs-32); font-weight: 300;
-  color: var(--gold); line-height: 1;
+  color: #1f3a5a; line-height: 1;
 }
 .tier-name {
   font-family: var(--font-serif);
   font-size: clamp(24px, 2.6vw, 36px);
-  font-weight: 300; font-style: italic; color: var(--cream-1);
+  font-weight: 300; font-style: italic; color: #1a1a1a;
   margin-top: var(--s-3);
 }
 .tier-lede {
   font-family: var(--font-serif); font-size: var(--fs-15); font-style: italic;
-  color: var(--text-on-dark-2); margin-top: var(--s-2);
+  color: #4d4d4d; margin-top: var(--s-2);
 }
 .tier-bullets {
   list-style: none; margin-top: var(--s-8);
@@ -616,23 +610,23 @@ a { color: inherit; }
 .tier-bullets li {
   position: relative; padding-left: var(--s-6);
   font-family: var(--font-sans); font-size: var(--fs-13);
-  line-height: 1.75; color: var(--text-on-dark-readable);
+  line-height: 1.75; color: #1a1a1a;
   margin-bottom: var(--s-3);
 }
 .tier-bullets li::before {
   content: ''; position: absolute; left: 0; top: 11px;
-  width: 12px; height: 1px; background: var(--gold); opacity: 0.7;
+  width: 12px; height: 1px; background: #1f3a5a; opacity: 0.7;
 }
 .tier-price-block { margin-top: var(--s-8); }
 .tier-price-eyebrow {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-wide); text-transform: uppercase;
-  color: var(--gold); display: block;
+  color: #1f3a5a; display: block;
 }
 .tier-price {
   display: block; margin-top: var(--s-2);
   font-family: var(--font-serif); font-size: var(--fs-24); font-weight: 300;
-  color: var(--cream-1);
+  color: #1a1a1a;
 }
 .tier-cta-wrap { margin-top: var(--s-8); }
 .btn-tier-cta {
@@ -641,12 +635,12 @@ a { color: inherit; }
 .invest-note {
   text-align: center; max-width: 720px; margin: var(--s-12) auto 0;
   font-family: var(--font-serif); font-style: italic; font-size: var(--fs-13);
-  color: var(--text-on-dark-2); line-height: 1.7;
+  color: #4d4d4d; line-height: 1.7;
 }
 
 /* ── The Method (process timeline) ─────────────────────── */
 .method {
-  background: var(--ink-2); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .method-inner { max-width: 1100px; margin: 0 auto; }
 .method-head { margin-bottom: var(--s-12); }
@@ -654,13 +648,13 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.method-h2 em { font-style: italic; color: var(--gold); }
+.method-h2 em { font-style: italic; color: #1f3a5a; }
 .method-intro {
   margin-top: var(--s-6);
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
   max-width: var(--method-rail-max-width);
 }
 
@@ -670,11 +664,11 @@ a { color: inherit; }
 }
 .method-rail::before {
   content: ''; position: absolute; left: 18px; top: 14px; bottom: 14px;
-  width: 1px; background: var(--gold-line);
+  width: 1px; background: #1f3a5a;
 }
 .method-step {
   position: relative; padding: var(--s-6) 0;
-  border-bottom: 1px solid var(--line-on-dark);
+  border-bottom: 1px solid rgba(26,26,26,.2);
 }
 .method-step:last-child { border-bottom: none; }
 .method-step::before {
@@ -682,34 +676,34 @@ a { color: inherit; }
   left: -39px; top: var(--s-8);
   width: var(--timeline-node); height: var(--timeline-node);
   border-radius: 50%;
-  background: var(--ink-2); border: 1px solid var(--gold);
+  background: #ffffff; border: 1px solid rgba(31,58,90,.32);
   transition: width var(--t-quick) var(--ease), height var(--t-quick) var(--ease);
 }
 .method-step.is-active::before {
   width: var(--timeline-node-active); height: var(--timeline-node-active);
-  background: var(--gold);
+  background: #1f3a5a;
   left: -41px; top: 30px;
 }
 .method-tag {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-wide); text-transform: uppercase;
-  color: var(--gold); display: block;
+  color: #1f3a5a; display: block;
 }
 .method-step h3 {
   font-family: var(--font-serif);
   font-size: clamp(22px, 2.4vw, 32px);
-  font-weight: 300; color: var(--cream-1);
+  font-weight: 300; color: #1a1a1a;
   margin-top: var(--s-2); margin-bottom: var(--s-3);
 }
 .method-step p {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
   max-width: 720px;
 }
 
 /* ── The Reel ───────────────────────────────────────────── */
 .reel {
-  background: var(--ink-3); padding: var(--s-section-y) 0;
+  background: #ffffff; padding: var(--s-section-y) 0;
 }
 .reel-head {
   max-width: 1320px; margin: 0 auto var(--s-10);
@@ -720,9 +714,9 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.reel-h2-visible em { font-style: italic; color: var(--gold); }
+.reel-h2-visible em { font-style: italic; color: #1f3a5a; }
 .reel-track-wrap { position: relative; }
 .reel-track {
   display: grid; grid-auto-flow: column;
@@ -736,7 +730,7 @@ a { color: inherit; }
 }
 .reel-track::-webkit-scrollbar { display: none; }
 .reel-track:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: 4px;
+  outline: rgba(26,26,26,.2); outline-offset: 4px;
 }
 .reel-frame {
   scroll-snap-align: start;
@@ -752,13 +746,13 @@ a { color: inherit; }
 
 .reel-progress {
   height: var(--velocity-bar-h); margin: var(--s-6) var(--s-gutter) 0;
-  background: var(--line-on-dark); position: relative; overflow: hidden;
+  background: #ffffff; position: relative; overflow: hidden;
   max-width: 1320px;
 }
 .reel-progress::before {
   content: ''; position: absolute; left: 0; top: 0; height: 100%;
   width: var(--reel-pct, 0%);
-  background: var(--gold); box-shadow: var(--velocity-bar-glow);
+  background: #1f3a5a; box-shadow: var(--velocity-bar-glow);
   transition: width var(--t-micro) linear;
 }
 .reel-controls {
@@ -769,19 +763,19 @@ a { color: inherit; }
 .reel-btn {
   min-width: var(--touch-target-min); min-height: var(--touch-target-min);
   padding: var(--s-3); background: transparent;
-  border: 1px solid var(--gold-line); color: var(--gold);
+  border: 1px solid rgba(31,58,90,.32); color: #1f3a5a;
   cursor: pointer; font-family: var(--font-sans); font-size: var(--fs-15);
   display: inline-flex; align-items: center; justify-content: center;
   transition: background var(--t-quick) var(--ease), border-color var(--t-quick) var(--ease);
 }
-.reel-btn:hover { background: var(--gold-soft); border-color: var(--gold); }
+.reel-btn:hover { background: #1f3a5a; border-color: rgba(31,58,90,.32); }
 .reel-btn:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
+  outline: rgba(26,26,26,.2); outline-offset: var(--focus-ring-offset);
 }
 
 /* ── Three Coastlines ───────────────────────────────────── */
 .coast {
-  background: var(--ink-3); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .coast-inner { max-width: 1320px; margin: 0 auto; }
 .coast-head { margin-bottom: var(--s-12); }
@@ -789,9 +783,9 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.coast-h2 em { font-style: italic; color: var(--gold); }
+.coast-h2 em { font-style: italic; color: #1f3a5a; }
 .coast-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: var(--locations-gap);
@@ -802,7 +796,7 @@ a { color: inherit; }
   border: 1px solid transparent;
   transition: border-color var(--t-quick) var(--ease);
 }
-.coast-card:hover { border-color: var(--gold); }
+.coast-card:hover { border-color: rgba(31,58,90,.32); }
 .coast-card img {
   width: 100%; height: 100%; object-fit: cover;
   filter: brightness(0.62) saturate(0.78);
@@ -812,29 +806,29 @@ a { color: inherit; }
 .coast-info {
   position: absolute; left: 0; right: 0; bottom: 0;
   padding: var(--s-8) var(--s-6);
-  background: linear-gradient(0deg, rgba(10,15,23,0.92), transparent 90%);
+  background: none;
   z-index: 2;
 }
 .coast-tag {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-wide); text-transform: uppercase;
-  color: var(--gold); display: block;
+  color: #1f3a5a; display: block;
 }
 .coast-card h3 {
   font-family: var(--font-serif);
   font-size: clamp(24px, 2.6vw, 32px);
-  font-weight: 300; color: var(--cream-1);
+  font-weight: 300; color: #1a1a1a;
   margin-top: var(--s-2);
 }
 .coast-card p {
   font-family: var(--font-sans); font-size: var(--fs-13);
-  line-height: 1.7; color: var(--text-on-dark-readable);
+  line-height: 1.7; color: #1a1a1a;
   margin-top: var(--s-2); max-width: 320px;
 }
 
 /* ── FAQ ────────────────────────────────────────────────── */
 .faq {
-  background: var(--ink-3); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
 }
 .faq-inner { max-width: var(--faq-max-width); margin: 0 auto; }
 .faq-head { margin-bottom: var(--s-10); }
@@ -842,40 +836,40 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.faq-h2 em { font-style: italic; color: var(--gold); }
+.faq-h2 em { font-style: italic; color: #1f3a5a; }
 
 .faq-list { list-style: none; }
 .faq-item {
-  border-bottom: 1px solid var(--line-on-dark);
+  border-bottom: 1px solid rgba(26,26,26,.2);
 }
-.faq-item:first-child { border-top: 1px solid var(--line-on-dark); }
+.faq-item:first-child { border-top: 1px solid rgba(26,26,26,.2); }
 .faq-question-wrap { margin: 0; }
 .faq-toggle {
   width: 100%; text-align: left;
   display: flex; justify-content: space-between; align-items: center;
   gap: var(--s-6); padding: var(--s-6) 0;
   background: transparent; border: none; cursor: pointer;
-  color: var(--cream-1);
+  color: #1a1a1a;
   font-family: var(--font-serif); font-size: clamp(18px, 2vw, 22px);
   font-weight: 400; line-height: 1.32;
   min-height: var(--touch-target-min);
 }
-.faq-toggle:hover { color: var(--gold); }
+.faq-toggle:hover { color: #1f3a5a; }
 .faq-toggle:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: 4px;
+  outline: rgba(26,26,26,.2); outline-offset: 4px;
 }
 .faq-icon {
   flex-shrink: 0; width: 28px; height: 28px;
-  border: 1px solid var(--gold-line); border-radius: 50%;
+  border: 1px solid rgba(31,58,90,.32); border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
   position: relative;
   transition: transform var(--t-quick) var(--ease), background var(--t-quick) var(--ease);
 }
 .faq-icon::before, .faq-icon::after {
   content: ''; position: absolute;
-  background: var(--gold);
+  background: #1f3a5a;
 }
 .faq-icon::before {
   width: 10px; height: 1px;
@@ -885,7 +879,7 @@ a { color: inherit; }
   transition: transform var(--t-quick) var(--ease);
 }
 .faq-toggle[aria-expanded="true"] .faq-icon {
-  transform: rotate(45deg); background: var(--gold-soft);
+  transform: rotate(45deg); background: #1f3a5a;
 }
 .faq-panel {
   overflow: hidden;
@@ -901,7 +895,7 @@ a { color: inherit; }
 }
 .faq-panel p {
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.85; color: var(--text-on-dark-readable);
+  line-height: 1.85; color: #1a1a1a;
   padding-top: var(--s-2);
 }
 .faq-panel[hidden] { display: block; }
@@ -909,7 +903,7 @@ a { color: inherit; }
 /* ── Begin (Inquiry) ────────────────────────────────────── */
 .inquiry {
   position: relative; min-height: 80vh;
-  background: var(--ink-4); padding: var(--s-section-y) var(--s-gutter);
+  background: #ffffff; padding: var(--s-section-y) var(--s-gutter);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
@@ -922,7 +916,7 @@ a { color: inherit; }
 }
 .inquiry-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(10,15,23,0.45), rgba(10,15,23,0.85));
+  background: none;
 }
 .inquiry-inner {
   position: relative; z-index: 1;
@@ -933,13 +927,13 @@ a { color: inherit; }
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.5vw, 64px);
   font-weight: 300; line-height: 1.10;
-  color: var(--cream-1); margin-top: var(--s-3);
+  color: #1a1a1a; margin-top: var(--s-3);
 }
-.inquiry-h2 em { font-style: italic; color: var(--gold); }
+.inquiry-h2 em { font-style: italic; color: #1f3a5a; }
 .inquiry-pitch {
   margin-top: var(--s-6);
   font-family: var(--font-sans); font-size: var(--fs-15);
-  line-height: 1.95; color: var(--text-on-dark-readable);
+  line-height: 1.95; color: #1a1a1a;
 }
 .inquiry-ctas {
   display: flex; gap: var(--s-4); justify-content: center;
@@ -948,24 +942,24 @@ a { color: inherit; }
 .inquiry-meta {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: 0; margin-top: var(--s-12);
-  border-top: 1px solid var(--gold-line);
+  border-top: 1px solid rgba(31,58,90,.32);
   padding-top: var(--s-8);
 }
 .inquiry-meta-cell {
   min-width: var(--inquiry-meta-min);
   padding: 0 var(--s-6);
-  border-right: 1px solid var(--gold-line);
+  border-right: 1px solid rgba(31,58,90,.32);
 }
 .inquiry-meta-cell:last-child { border-right: none; }
 .inquiry-meta-label {
   font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
   letter-spacing: var(--tracking-eyebrow-wide); text-transform: uppercase;
-  color: var(--gold); display: block;
+  color: #1f3a5a; display: block;
 }
 .inquiry-meta-value {
   margin-top: var(--s-2);
   font-family: var(--font-serif); font-size: var(--fs-18); font-weight: 300;
-  color: var(--cream-1); display: block;
+  color: #1a1a1a; display: block;
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
@@ -1095,7 +1089,7 @@ a { color: inherit; }
 <meta property="og:locale:alternate" content="es_MX"/>
 <link rel="me" href="https://instagram.com/ivae.studios"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE Estudios Cancún","IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://ivaestudios.com/images/logo-ivae-h-navy.png","image":"https://ivaestudios.com/images/og/ivae-studios-1200x630.jpg","telephone":"+522288570584","email":"info@ivaestudios.com","priceRange":"$650-$8,000 USD","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Founder & Creative Director, Lead Photographer","worksFor":{"@id":"https://ivaestudios.com/#organization"},"url":"https://ivaestudios.com/about","sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"],"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@id":"https://ivaestudios.com/#brand"},"hasMap":"https://maps.google.com/maps?cid=17378665430927342473","aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"64","bestRating":"5","worstRating":"1"},"contactPoint":[{"@type":"ContactPoint","contactType":"customer service","telephone":"+529902046514","url":"https://wa.me/529902046514","availableLanguage":["en","es"]},{"@type":"ContactPoint","contactType":"reservations","telephone":"+522288570584","availableLanguage":["en","es"]}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios, luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","datePublished":"2025-01-15","dateModified":"2026-04-21","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"},{"@type":"Service","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service","name":"Destination Wedding Photography Mexico","serviceType":"Destination Wedding Photography","description":"Luxury editorial destination wedding photography across Mexico's premier resort destinations, full-day coverage, cinematic films, and bilingual service for international couples.","provider":{"@id":"https://ivaestudios.com/#organization"},"brand":{"@id":"https://ivaestudios.com/#brand"},"areaServed":[{"@type":"City","name":"Cancún"},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Playa del Carmen"},{"@type":"Place","name":"Mayakoba"}],"offers":{"@type":"Offer","priceCurrency":"USD","priceRange":"$$$$","availability":"https://schema.org/InStock","url":"https://ivaestudios.com/destination-wedding-photographer-mexico"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Destination Wedding Collections","itemListElement":[{"@type":"Offer","name":"Intimate Ceremony","price":"1800","priceCurrency":"USD","itemOffered":{"@type":"Service","name":"Intimate Ceremony Collection","description":"Up to 4 hours editorial coverage, ideal for elopements and intimate ceremonies. 300+ edited images."}},{"@type":"Offer","name":"Classic Wedding","price":"2800","priceCurrency":"USD","itemOffered":{"@type":"Service","name":"Classic Wedding Collection","description":"8 hours coverage from bridal prep through reception. 600+ edited images plus social teaser gallery."}},{"@type":"Offer","name":"Full Celebration","price":"3500","priceCurrency":"USD","itemOffered":{"@type":"Service","name":"Full Celebration Collection","description":"12 hours coverage with second photographer. 800+ edited images, full reception, golden-hour portraits."}},{"@type":"Offer","name":"Full Day Cinematic","price":"3500","priceCurrency":"USD","itemOffered":{"@type":"Service","name":"Full Day Cinematic Collection","description":"Full-day photo and video team, cinematic highlight film plus 800+ edited images."}}]}},{"@type":"Service","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service-collections","name":"Luxury Destination Wedding Photography","serviceType":"Destination Wedding Photography","description":"Editorial luxury wedding photography and cinematic coverage for destination weddings in Cancún, Riviera Maya, Tulum, Playa Mujeres, and Los Cabos. Bilingual team, golden-hour focused, editorial delivery.","areaServed":[{"@type":"City","name":"Cancún"},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"City","name":"Los Cabos"}],"provider":{"@id":"https://ivaestudios.com/#organization"},"brand":{"@id":"https://ivaestudios.com/#brand"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"IVAE Studios Wedding Collections","itemListElement":[{"@type":"Offer","name":"Essentials","price":"1800","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","price":"1800","priceCurrency":"USD"},"itemOffered":{"@type":"Service","name":"Essentials Wedding Collection","description":"Up to 4 hours of editorial wedding photography coverage, ideal for intimate ceremonies, elopements, and vow renewals. Includes ceremony, couple portraits, and golden-hour session. Delivery of 300+ fully edited high-resolution images via private online gallery within 3–4 weeks."}},{"@type":"Offer","name":"Signature","price":"2800","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","price":"2800","priceCurrency":"USD"},"itemOffered":{"@type":"Service","name":"Signature Wedding Collection","description":"Up to 8 hours of editorial wedding photography coverage from bridal prep through reception. Includes ceremony, couple portraits, family formals, golden-hour session, and reception highlights. Delivery of 600+ fully edited high-resolution images plus a curated social media teaser gallery within 3–4 weeks."}},{"@type":"Offer","name":"Full Day Cinematic","price":"3500","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","price":"3500","priceCurrency":"USD","minPrice":"3500"},"itemOffered":{"@type":"Service","name":"Full Day Cinematic Wedding Collection","description":"Full-day photography and cinematic video coverage (10+ hours) with dual photo and video team. Includes bridal prep, first look, ceremony, couple portraits, family formals, golden-hour session, reception, and party. Delivery of 800+ fully edited images, a 3–5 minute cinematic highlight film, and social teaser reels."}}]}},{"@type":"Service","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service-summary","serviceType":"Wedding Photography","name":"Destination Wedding Photography Mexico, Summary","description":"Full-day luxury wedding photography coverage at Mexico's finest resorts including engagement sessions, second shooter, venue scouting, and detailed timeline planning.","provider":{"@id":"https://ivaestudios.com/#organization"},"brand":{"@id":"https://ivaestudios.com/#brand"},"areaServed":[{"@type":"City","name":"Cancún"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"}],"offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"3500","highPrice":"12000","offerCount":"4"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Wedding Photography Packages","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Essential Wedding Collection","description":"8 hours coverage, one photographer, 400+ edited images, online gallery"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Signature Wedding Collection","description":"Full-day coverage, second shooter, engagement session, 600+ edited images, wedding timeline planning"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Grand Wedding Collection","description":"Full-day photo and video, second shooter, engagement or bridal session, venue scouting, 800+ edited images, cinematic highlight film"}}]}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Destination Weddings","item":"https://ivaestudios.com/destination-wedding-photographer-mexico"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much is a destination wedding photographer in Mexico?","acceptedAnswer":{"@type":"Answer","text":"At IVAE Studios, destination wedding photography packages in Mexico start at $1,800 USD for an intimate 4-hour ceremony or elopement and go up to $3,500+ USD for full-day photo and video coverage with a second photographer and cinematic highlight film. Most couples choose our Classic Wedding Collection at $2,800 USD, which delivers 8 hours of coverage from bridal prep through reception with 600+ editorial images. Pricing varies based on hours, destination (Cancún, Riviera Maya, Los Cabos), whether video is added, and multi-day or weekend coverage requirements. All packages include 4K private gallery delivery, unlimited downloads, print rights, and bilingual service."}},{"@type":"Question","name":"How many hours do you cover for a Mexican wedding?","acceptedAnswer":{"@type":"Answer","text":"Coverage typically ranges from 4 to 12 hours depending on your collection. Our Intimate Ceremony covers up to 4 hours, ideal for elopements, vow renewals, and micro-weddings. The Classic Wedding Collection is our most popular, offering 8 hours from bridal prep through reception. The Full Celebration package runs 12 hours and includes a second photographer for larger weddings, parallel getting-ready coverage, reception candids, and extended golden-hour portraits. Multi-day weekend coverage including welcome parties, rehearsal dinners, and post-wedding brunches is available as a custom quote. We recommend ending the ceremony 90 minutes before sunset for the best natural light."}},{"@type":"Question","name":"Do you offer video and photo together?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our Full Day Cinematic Collection combines photography and cinematic videography with a dual team, so there is no competing for angles and the visual style stays cohesive across all your wedding media. The package delivers 800+ fully edited editorial images plus a 3 to 5 minute cinematic highlight film and short social teaser reels. We capture ceremony audio, vows, and toasts in broadcast quality. Video-only add-ons are available for couples who already have a photographer booked. Having the same team for photo and video means one creative director, one style, one timeline, which matters on a tight destination wedding day."}},{"@type":"Question","name":"Can you photograph at Mayakoba / Rosewood / Four Seasons resorts?","acceptedAnswer":{"@type":"Answer","text":"Absolutely. IVAE Studios has covered weddings at Rosewood Mayakoba, Fairmont Mayakoba, Banyan Tree Mayakoba, Four Seasons Costa Palmas, Four Seasons Los Cabos, One&Only Palmilla, Waldorf Astoria Pedregal, Ritz-Carlton Cancun, Nizuc, Maroma Belmond, Grand Velas, UNICO 20°87°, Montage Los Cabos, and Las Ventanas al Paraíso. We are familiar with each resort's external vendor policies, wedding planner contacts, and preferred ceremony locations. We coordinate directly with the resort wedding department to secure access, scout ceremony sites, and build a timeline around the property's golden-hour light. No additional access fees are charged to you for our preferred venues."}},{"@type":"Question","name":"Will you travel to Tulum / Los Cabos for a wedding?","acceptedAnswer":{"@type":"Answer","text":"Yes. We travel throughout Mexico's luxury wedding corridors as part of our standard service. The Riviera Maya stretch, Playa del Carmen, Puerto Aventuras, Akumal, and Tulum, is included with no travel fee. Los Cabos (Cabo San Lucas, San José del Cabo, Palmilla, Pedregal, Costa Palmas) is served with flights and one-night accommodation billed at cost. We are also available for weddings in Isla Mujeres, Playa Mujeres, Costa Mujeres, Sayulita, Puerto Vallarta, San Miguel de Allende, and Oaxaca for custom travel quotes. International destination weddings for returning clients are considered on a case-by-case basis."}},{"@type":"Question","name":"When should I book a Mexico wedding photographer?","acceptedAnswer":{"@type":"Answer","text":"We recommend booking 8 to 14 months before your wedding date, especially for peak season dates between November and April. Popular Saturdays at luxury resorts like Rosewood Mayakoba, One&Only Palmilla, Four Seasons Costa Palmas, and Las Ventanas book up 12 to 18 months in advance. Early booking gives you access to preferred dates, time for a pre-wedding engagement or bridal session, a planning call with Creative Director Vianey Díaz, and thorough venue scouting. For shorter timelines, we always check availability, last-minute weddings are occasionally possible, particularly during shoulder season months of May, September, and October."}}]},{"@type":"FAQPage","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#faq-extra","mainEntity":[{"@type":"Question","name":"How much does a destination wedding photographer in Mexico cost?","acceptedAnswer":{"@type":"Answer","text":"Destination wedding photography packages in Mexico typically range from $3,500 to $12,000 USD depending on coverage hours, number of photographers, and whether video is included. At IVAE Studios, our wedding collections start at $3,500 for essential coverage and go up to $12,000 for our Grand Collection, which includes full-day photo and video with a cinematic highlight film."}},{"@type":"Question","name":"How far in advance should I book a destination wedding photographer in Mexico?","acceptedAnswer":{"@type":"Answer","text":"We recommend booking 8 to 12 months before your wedding date, especially for peak season dates between November and April. Popular dates at luxury resorts like Rosewood Mayakoba and One&Only Palmilla book up quickly. Early booking also allows time for an engagement session and thorough venue scouting before your wedding day."}},{"@type":"Question","name":"Do you travel to all resort areas in Mexico?","acceptedAnswer":{"@type":"Answer","text":"Our team covers three primary destinations: Cancún and the Hotel Zone, the full Riviera Maya corridor from Puerto Morelos to Tulum, and Los Cabos including Cabo San Lucas and San José del Cabo. Travel within these regions is included in all wedding packages. We are also available for weddings at venues outside these areas for an additional travel fee."}},{"@type":"Question","name":"What is the best time of year for a destination wedding in Mexico?","acceptedAnswer":{"@type":"Answer","text":"The dry season from November through April offers the most reliable weather for outdoor ceremonies, with average temperatures around 80°F (27°C) and lower humidity. December through March is peak wedding season. For the Riviera Maya, June and July also offer excellent conditions with slightly fewer tourists. Hurricane season runs from June through November, with September and October carrying the highest risk."}},{"@type":"Question","name":"What time should we schedule our ceremony for the best wedding photos?","acceptedAnswer":{"@type":"Answer","text":"For the most flattering natural light, we recommend scheduling your ceremony to end approximately 90 minutes before sunset. In Cancún and the Riviera Maya, golden hour occurs around 5:30 PM in winter and 7:00 PM in summer. A 4:00 PM winter ceremony or 5:30 PM summer ceremony gives time for the ceremony, couple portraits during golden hour, and stunning sunset reception photos."}},{"@type":"Question","name":"How many photos will we receive from our wedding?","acceptedAnswer":{"@type":"Answer","text":"Depending on your collection, you will receive between 400 and 800+ professionally edited images. Our Signature Collection delivers approximately 600 edited images, while the Grand Collection includes 800 or more. Every image receives our signature editorial color grade. Your complete gallery is delivered within 6 to 8 weeks via a private online gallery with full download and sharing capabilities."}},{"@type":"Question","name":"Can we do an engagement session before the wedding in Mexico?","acceptedAnswer":{"@type":"Answer","text":"Absolutely. We offer engagement or bridal sessions at iconic locations including cenotes, beachfront ruins at Tulum, downtown Cancún, or the resort grounds where your wedding will take place. Many couples schedule this session for the day before the wedding, combining rehearsal day with a relaxed portrait session that also helps you feel comfortable in front of the camera."}},{"@type":"Question","name":"Do you work with a second photographer for weddings?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our Signature and Grand Collections include a second photographer as standard. A second shooter is essential for destination weddings because they capture parallel moments, the groom's reaction as the bride walks down the aisle, guest candids during the ceremony, and simultaneous getting-ready coverage. For intimate elopements or micro-weddings under 30 guests, a single photographer may be sufficient."}},{"@type":"Question","name":"Do you also offer wedding videography?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our Grand Wedding Collection includes cinematic wedding videography alongside full-day photography. This includes a 3 to 5 minute highlight film and full ceremony edit. Having both photo and video from the same team ensures seamless coordination, no competing for angles, and a cohesive visual style across all your wedding media."}},{"@type":"Question","name":"What happens if it rains on our wedding day?","acceptedAnswer":{"@type":"Answer","text":"Rain is part of the beauty of tropical destinations, and our team is experienced in adapting quickly. Most luxury resorts have stunning indoor backup locations. We scout these options during our pre-wedding venue visit. Afternoon rain showers in Mexico are typically brief (20 to 40 minutes), and often the most dramatic, romantic photos happen immediately after the rain clears, when the sky fills with color."}}]},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#breadcrumbs-summary","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Destination Wedding Photographer Mexico","item":"https://ivaestudios.com/destination-wedding-photographer-mexico"}]},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE","ivaestudios","ivaestudios.com"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com.","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
-<script src="/dark-mode.js?v=20260531a"></script>
+<script src="/dark-mode.js?v=20261009a"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>

@@ -30,26 +30,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/></noscript>
 <style>
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link{position:absolute;top:-100%;left:16px;background:#ffffff;color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.52);--muted-l2:rgba(26,36,51,0.32);--muted:rgba(249,248,247,0.50);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.22);--border-d:rgba(196,163,90,0.18);--border-l:rgba(26,36,51,0.12)}
+:root{--ink:#1a2433;--ink2:#0e1620;--cream: #ffffff;--sand: #f7f7f5;--sand2: #f7f7f5;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.52);--muted-l2:rgba(26,36,51,0.32);--muted:rgba(249,248,247,0.50);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.22);--border-d:rgba(196,163,90,0.18);--border-l:rgba(26,36,51,0.12)}
 html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;padding-top:72px}
+body{font-family:'Syne',sans-serif;background:#ffffff;color:var(--ink);overflow-x:hidden;padding-top:72px}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.02;pointer-events:none;z-index:9999}
 
 
-.header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--cream);text-decoration:none}
-.header-logo span{color:var(--gold)}
+.header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#1a1a1a;text-decoration:none}
+.header-logo span{color:#1f3a5a}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}
-.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.25s}
-.header-nav a:hover{color:var(--cream)}
-.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:10px 22px;text-decoration:none;transition:background 0.3s}
-.header-cta:hover{background:rgba(196,163,90,0.1)}
+.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e6e6e;text-decoration:none;transition:color 0.25s}
+.header-nav a:hover{color:#1a1a1a}
+.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#1f3a5a;border:1px solid var(--border);padding:10px 22px;text-decoration:none;transition:background 0.3s}
+.header-cta:hover{background:rgba(31,58,90,0.05)}
 .header-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
-.header-toggle span{display:block;width:22px;height:1.5px;background:var(--cream)}
-.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(26,36,51,0.98);padding:28px 32px;flex-direction:column;z-index:999;border-bottom:1px solid var(--border)}
-.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border-d);display:block}
+.header-toggle span{display:block;width:22px;height:1.5px;background:#ffffff}
+.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:#ffffff;padding:28px 32px;flex-direction:column;z-index:999;border-bottom:1px solid var(--border)}
+.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#6e6e6e;text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border-d);display:block}
 .mobile-nav a:last-child{border-bottom:none}
 .mobile-nav.open{display:flex}
 .rv{opacity:0;transform:translateY(32px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1)}
@@ -61,36 +61,36 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .hero{position:relative;height:80vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:0 64px}
 .hero-bg{position:absolute;inset:0;z-index:0;will-change:transform}
 .hero-bg img{width:100%;height:120%;object-fit:cover;filter:brightness(0.38) saturate(0.85)}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,22,32,0.25) 0%,rgba(14,22,32,0.55) 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:none}
 .hero-content{position:relative;z-index:2;max-width:820px}
-.hero-tag{font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:block}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5.5vw,72px);font-weight:300;line-height:1.08;color:var(--cream);margin-bottom:20px}
-.hero h1 em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:15.5px;line-height:1.8;color:var(--muted);max-width:560px;margin:0 auto 36px}
+.hero-tag{font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#1f3a5a;margin-bottom:20px;display:block}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5.5vw,72px);font-weight:300;line-height:1.08;color:#1a1a1a;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:#1f3a5a}
+.hero-sub{font-size:15.5px;line-height:1.8;color:#6e6e6e;max-width:560px;margin:0 auto 36px}
 .btn{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;padding:15px 34px;text-decoration:none;transition:all 0.3s}
-.btn--gold{color:var(--ink2);background:var(--gold);border:1px solid var(--gold)}.btn--gold:hover{background:var(--gold2)}
-.btn--outline{color:var(--gold);border:1px solid var(--border);background:transparent}.btn--outline:hover{background:rgba(196,163,90,0.1);border-color:var(--gold)}
+.btn--gold{color:#ffffff;background:#1f3a5a;border:1px solid rgba(31,58,90,.32)}.btn--gold:hover{background:#1f3a5a}
+.btn--outline{color:#1f3a5a;border:1px solid var(--border);background:transparent}.btn--outline:hover{background:#1f3a5a;border-color:rgba(31,58,90,.32)}
 .btn svg{width:15px;height:15px}
 .breadcrumbs{max-width:1200px;margin:0 auto;padding:20px 64px 0;font-size:11px;letter-spacing:0.08em;color:var(--muted-l2)}
-.breadcrumbs a{color:var(--muted-l2);text-decoration:none;transition:color 0.2s}.breadcrumbs a:hover{color:var(--gold2)}
+.breadcrumbs a{color:var(--muted-l2);text-decoration:none;transition:color 0.2s}.breadcrumbs a:hover{color:#1f3a5a}
 .stats{display:flex;justify-content:center;gap:56px;flex-wrap:wrap;padding:48px 64px;border-bottom:1px solid var(--border-l)}
-.stat{text-align:center}.stat strong{display:block;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--gold)}
+.stat{text-align:center}.stat strong{display:block;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#1f3a5a}
 .stat span{font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-l2);margin-top:4px;display:block}
-.sc{padding:100px 64px}.sc--cream{background:var(--cream)}.sc--sand{background:var(--sand)}.sc--ink{background:var(--ink2)}
-.sc-tag{font-size:9.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px;display:block}.sc-tag--l{color:var(--gold)}
-.sc h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.8vw,48px);font-weight:300;line-height:1.15;margin-bottom:20px}.sc h2 em{font-style:italic;color:var(--gold2)}
-.sc h2.l{color:var(--cream)}.sc h2.l em{color:var(--gold)}
-.sc-intro{font-size:15px;line-height:1.85;color:var(--muted-l);max-width:680px;margin-bottom:44px}.sc-intro.l{color:var(--muted)}
+.sc{padding:100px 64px}.sc--cream{background:#ffffff}.sc--sand{background:var(--sand)}.sc--ink{background:#ffffff}
+.sc-tag{font-size:9.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#1f3a5a;margin-bottom:14px;display:block}.sc-tag--l{color:#1f3a5a}
+.sc h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.8vw,48px);font-weight:300;line-height:1.15;margin-bottom:20px}.sc h2 em{font-style:italic;color:#1f3a5a}
+.sc h2.l{color:#1a1a1a}.sc h2.l em{color:#1f3a5a}
+.sc-intro{font-size:15px;line-height:1.85;color:var(--muted-l);max-width:680px;margin-bottom:44px}.sc-intro.l{color:#6e6e6e}
 .sc-c{text-align:center;max-width:780px;margin:0 auto}.sc-c .sc-intro{margin-left:auto;margin-right:auto}
 .wrap{max-width:1100px;margin:0 auto}
 .why-g{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;max-width:1100px;margin:0 auto}
 .why-img{position:relative;height:500px;overflow:hidden}.why-img img{width:100%;height:100%;object-fit:cover;display:block}
 .why-txt h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;margin-bottom:10px;color:var(--ink)}.why-txt p{font-size:14.5px;line-height:1.85;color:var(--muted-l);margin-bottom:24px}
 .srv-g{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1100px;margin:0 auto}
-.srv{padding:0;background:rgba(26,36,51,0.03);border:1px solid var(--border-l);transition:border-color 0.3s,background 0.3s;overflow:hidden}.srv:hover{border-color:var(--gold);background:rgba(196,163,90,0.04)}
+.srv{padding:0;background:transparent;border:1px solid var(--border-l);transition:border-color 0.3s,background 0.3s;overflow:hidden}.srv:hover{border-color:rgba(31,58,90,.32);background:rgba(31,58,90,0.02)}
 .srv-img{width:100%;height:200px;overflow:hidden}.srv-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}.srv:hover .srv-img img{transform:scale(1.04)}
 .srv-body{padding:28px 24px}
-.srv .srv-n{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold);display:block;margin-bottom:12px}
+.srv .srv-n{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#1f3a5a;display:block;margin-bottom:12px}
 .srv h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;margin-bottom:8px;color:var(--ink)}.srv p{font-size:13px;line-height:1.8;color:var(--muted-l)}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:260px;gap:6px}
 .pg-i{overflow:hidden;position:relative}
@@ -99,31 +99,31 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .pg-i.feat{grid-column:span 2;grid-row:span 2}
 .loc-g{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1100px;margin:0 auto}
 .loc{position:relative;height:260px;overflow:hidden;cursor:default}.loc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s}.loc:hover img{transform:scale(1.04)}
-.loc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(14,22,32,0.82) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:22px}
-.loc h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:var(--cream)}.loc p{font-size:12.5px;line-height:1.7;color:var(--muted);margin-top:4px}
-.loc-tag{font-size:9.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-top:6px;display:block}
+.loc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:22px}
+.loc h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:#1a1a1a}.loc p{font-size:12.5px;line-height:1.7;color:#6e6e6e;margin-top:4px}
+.loc-tag{font-size:9.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#1f3a5a;margin-top:6px;display:block}
 .tl{position:relative;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-.tl-step{text-align:center;padding:28px 16px}.tl-n{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:var(--gold);margin-bottom:10px;display:block}
+.tl-step{text-align:center;padding:28px 16px}.tl-n{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:#1f3a5a;margin-bottom:10px;display:block}
 .tl-step h3{font-size:14px;font-weight:600;letter-spacing:0.06em;margin-bottom:8px;color:var(--ink)}.tl-step p{font-size:13px;line-height:1.75;color:var(--muted-l)}
 .chips{display:flex;flex-wrap:wrap;gap:12px;max-width:1100px;margin:0 auto;justify-content:center}
-.chip{display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(26,36,51,0.03);border:1px solid var(--border-l);transition:border-color 0.3s}.chip:hover{border-color:var(--gold)}
-.chip::before{content:'';width:7px;height:7px;background:var(--gold);flex-shrink:0}.chip span{font-size:13px;font-weight:500;color:var(--ink);line-height:1.3}
+.chip{display:flex;align-items:center;gap:10px;padding:14px 20px;background:transparent;border:1px solid var(--border-l);transition:border-color 0.3s}.chip:hover{border-color:rgba(31,58,90,.32)}
+.chip::before{content:'';width:7px;height:7px;background:#1f3a5a;flex-shrink:0}.chip span{font-size:13px;font-weight:500;color:var(--ink);line-height:1.3}
 .tst-g{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto}
-.tst{padding:32px 26px;border:1px solid var(--border-l);background:rgba(26,36,51,0.02)}.tst-stars{color:var(--gold);font-size:13px;letter-spacing:3px;margin-bottom:12px;display:block}
+.tst{padding:32px 26px;border:1px solid var(--border-l);background:transparent}.tst-stars{color:#1f3a5a;font-size:13px;letter-spacing:3px;margin-bottom:12px;display:block}
 .tst p{font-family:'Cormorant Garamond',serif;font-size:17.5px;font-weight:300;font-style:italic;line-height:1.7;color:var(--ink);margin-bottom:18px}
-.tst-a{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold2)}.tst-a span{display:block;font-weight:400;letter-spacing:0.08em;color:var(--muted-l2);margin-top:3px;text-transform:none}
+.tst-a{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#1f3a5a}.tst-a span{display:block;font-weight:400;letter-spacing:0.08em;color:var(--muted-l2);margin-top:3px;text-transform:none}
 .faq-w{max-width:800px;margin:0 auto}.faq-item{border-bottom:1px solid var(--border)}.faq-item.open .faq-ans{max-height:400px;padding:0 0 22px}
-.faq-q{font-size:14.5px;font-weight:600;color:var(--cream);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:none;width:100%;text-align:left;font-family:'Syne',sans-serif;padding:20px 0}
-.faq-q::after{content:'+';font-size:20px;font-weight:300;color:var(--gold);transition:transform 0.3s}.faq-item.open .faq-q::after{transform:rotate(45deg)}
-.faq-ans{font-size:14px;line-height:1.85;color:var(--muted);max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s}
+.faq-q{font-size:14.5px;font-weight:600;color:#1a1a1a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:none;width:100%;text-align:left;font-family:'Syne',sans-serif;padding:20px 0}
+.faq-q::after{content:'+';font-size:20px;font-weight:300;color:#1f3a5a;transition:transform 0.3s}.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-ans{font-size:14px;line-height:1.85;color:#6e6e6e;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s}
 .il-g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1100px;margin:0 auto}
-.il-a{display:block;padding:20px 24px;background:rgba(26,36,51,0.03);border:1px solid var(--border-l);text-decoration:none;transition:border-color 0.2s,background 0.2s}.il-a:hover{border-color:var(--gold);background:rgba(196,163,90,0.04)}
-.il-a .il-tag{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}.il-a .il-t{font-size:14px;color:var(--ink);font-weight:500;line-height:1.4}
+.il-a{display:block;padding:20px 24px;background:transparent;border:1px solid var(--border-l);text-decoration:none;transition:border-color 0.2s,background 0.2s}.il-a:hover{border-color:rgba(31,58,90,.32);background:rgba(31,58,90,0.02)}
+.il-a .il-tag{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#1f3a5a;margin-bottom:6px}.il-a .il-t{font-size:14px;color:var(--ink);font-weight:500;line-height:1.4}
 .cta-s{position:relative;text-align:center;padding:100px 64px;overflow:hidden}.cta-s .cta-bg{position:absolute;inset:0;z-index:0}
-.cta-s .cta-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.3) saturate(0.8)}.cta-s .cta-bg::after{content:'';position:absolute;inset:0;background:rgba(14,22,32,0.45)}
+.cta-s .cta-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.3) saturate(0.8)}.cta-s .cta-bg::after{content:'';position:absolute;inset:0;background:transparent}
 .cta-s .cta-inner{position:relative;z-index:2}
-.cta-s h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,50px);font-weight:300;color:var(--cream);margin:12px 0 16px}.cta-s h2 em{font-style:italic;color:var(--gold)}
-.cta-s p{font-size:15px;color:var(--muted);margin-bottom:32px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.8}
+.cta-s h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,50px);font-weight:300;color:#1a1a1a;margin:12px 0 16px}.cta-s h2 em{font-style:italic;color:#1f3a5a}
+.cta-s p{font-size:15px;color:#6e6e6e;margin-bottom:32px;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.8}
 
 
 
@@ -139,9 +139,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .pg{grid-template-columns:1fr 1fr;grid-auto-rows:180px;gap:4px}.pg-i.feat{grid-column:span 2;grid-row:span 1}
 .loc-g{grid-template-columns:1fr}.loc{height:200px}
 .tl{grid-template-columns:1fr;gap:0;padding-left:52px;position:relative}
-.tl::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--gold)}
+.tl::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:#1f3a5a}
 .tl-step{text-align:left;padding:20px 0;position:relative}
-.tl-step::before{content:'';position:absolute;left:-40px;top:28px;width:9px;height:9px;background:var(--gold);border-radius:50%}
+.tl-step::before{content:'';position:absolute;left:-40px;top:28px;width:9px;height:9px;background:#1f3a5a;border-radius:50%}
 .chips{gap:8px}.chip{padding:12px 16px}
 .tst-g{grid-template-columns:1fr}
 .il-g{grid-template-columns:1fr}
@@ -222,12 +222,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 #lc-resorts .lc-mono-head p.intro{font-size:14px;line-height:1.85;color:var(--muted-l);max-width:min(580px,100%);margin-bottom:0}
 #lc-resorts .lc-mono-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
 #lc-resorts .lc-mono-plate{position:relative;aspect-ratio:5/3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px;text-align:center;transition:background 0.5s ease}
-#lc-resorts .lc-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
-#lc-resorts .lc-mono-plate:hover{background:rgba(196,163,90,0.04)}
+#lc-resorts .lc-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid rgba(31,58,90,.32);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
+#lc-resorts .lc-mono-plate:hover{background:rgba(31,58,90,0.02)}
 #lc-resorts .lc-mono-plate:hover::before{opacity:0}
 #lc-resorts .lc-mono-wm{width:100%;max-width:240px;height:auto;display:block;overflow:visible}
 #lc-resorts .lc-mono-wm text{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;fill:var(--ink);letter-spacing:0.005em}
-#lc-resorts .lc-mono-rule{width:18px;height:1px;background:var(--gold);margin:14px 0 12px;opacity:0.7}
+#lc-resorts .lc-mono-rule{width:18px;height:1px;background:#1f3a5a;margin:14px 0 12px;opacity:0.7}
 #lc-resorts .lc-mono-sub{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-l);font-variant:small-caps}
 @media(min-width:768px) and (max-width:1023px){
   #lc-resorts .lc-mono-head{margin-bottom:44px}
@@ -259,10 +259,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .hero-content{padding:0}
   .hero-tag{font-size:9.5px;letter-spacing:0.22em;margin-bottom:14px}
   .hero h1{font-size:clamp(34px,10vw,52px);line-height:1.04;letter-spacing:-0.005em;margin-bottom:18px}
-  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;color:rgba(249,248,247,0.62);margin-bottom:26px}
+  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;color:#4d4d4d;margin-bottom:26px}
   /* Hilo dorado sobre el CTA */
   .hero-content > div.rv:last-child{display:flex;flex-direction:column;align-items:center;position:relative}
-  .hero-content > div.rv:last-child::before{content:'';display:block;width:1px;height:28px;background:var(--gold);opacity:0.55;margin-bottom:18px}
+  .hero-content > div.rv:last-child::before{content:'';display:block;width:1px;height:28px;background:#1f3a5a;opacity:0.55;margin-bottom:18px}
   .hero .btn{min-height:46px;padding:15px 28px;letter-spacing:0.2em;font-size:9.5px}
 
   /* Migas de pan */
@@ -285,7 +285,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .srv{flex:0 0 82%;scroll-snap-align:start;min-height:360px;display:flex;flex-direction:column}
   .srv-img{height:200px;flex-shrink:0}
   .srv-body{padding:22px 20px 28px;position:relative;flex:1}
-  .srv-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);opacity:0.85}
+  .srv-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:#1f3a5a;opacity:0.85}
   .srv .srv-n{font-size:34px;margin-bottom:8px}
   .srv h3{font-size:20px}
   .srv p{font-size:12.5px;padding-right:32px}
@@ -295,7 +295,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .pg{display:flex;flex-direction:column;grid-template-columns:none;grid-auto-rows:auto;gap:24px;counter-reset:pgnum;margin-top:32px}
   .pg-i,.pg-i.feat{grid-column:auto;grid-row:auto;aspect-ratio:4/5;height:auto;width:100%;position:relative;counter-increment:pgnum}
   .pg-i img{width:100%;height:100%;object-fit:cover}
-  .pg-i::after{content:counter(pgnum) " / 6";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:var(--cream);background:rgba(14,22,32,0.55);padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .pg-i::after{content:counter(pgnum) " / 6";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:#1a1a1a;background:#ffffff;padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 
   /* Locaciones — 1-col, más compacto */
   .loc-g{display:flex;flex-direction:column;gap:6px;margin-top:32px}
@@ -309,7 +309,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .tl{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:14px;margin:32px 0 0;padding:8px 22px 32px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;grid-template-columns:none;position:relative;max-width:100%}
   .tl::-webkit-scrollbar{display:none}
   .tl::before{display:none}
-  .tl-step{flex:0 0 80%;scroll-snap-align:start;background:var(--cream);padding:28px 22px;text-align:left;position:relative;min-height:200px}
+  .tl-step{flex:0 0 80%;scroll-snap-align:start;background:#ffffff;padding:28px 22px;text-align:left;position:relative;min-height:200px}
   .tl-step::before{display:none}
   .tl-n{font-size:36px;margin-bottom:10px}
   .tl-step h3{font-size:18px;margin-bottom:8px}
@@ -319,9 +319,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .sc--cream[id="testimonials"]{padding:0 0 56px;border-top:1px solid var(--border-l)}
   .sc--cream[id="testimonials"] > .sc-c{padding:56px 22px 0}
   .tst-g{display:flex;flex-direction:column;gap:0;margin-top:32px}
-  .tst{padding:48px 28px 44px;background:var(--cream);border:none;border-bottom:1px solid var(--border-l);position:relative;min-height:240px}
+  .tst{padding:48px 28px 44px;background:#ffffff;border:none;border-bottom:1px solid var(--border-l);position:relative;min-height:240px}
   .tst:last-child{border-bottom:none}
-  .tst::after{content:'\201C';font-family:'Cormorant Garamond',serif;position:absolute;top:18px;right:24px;font-size:88px;line-height:1;color:var(--gold);opacity:0.18;font-weight:300}
+  .tst::after{content:'\201C';font-family:'Cormorant Garamond',serif;position:absolute;top:18px;right:24px;font-size:88px;line-height:1;color:#1f3a5a;opacity:0.18;font-weight:300}
   .tst-stars{font-size:13px;letter-spacing:3px;margin-bottom:14px}
   .tst p{font-size:17px;line-height:1.55;margin-bottom:22px;padding-right:44px}
   .tst-a{font-size:10.5px;letter-spacing:0.16em}
@@ -346,7 +346,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .cta-s p{font-size:13.5px;margin-bottom:28px}
   .cta-s > .cta-inner > div.rv:last-child{display:flex;flex-direction:column;align-items:stretch;gap:14px;max-width:320px;margin:0 auto;position:relative}
   .cta-s > .cta-inner > div.rv:last-child::before,
-  .cta-s > .cta-inner > div.rv:last-child::after{content:'';display:block;width:1px;height:22px;background:var(--gold);opacity:0.55;margin:0 auto}
+  .cta-s > .cta-inner > div.rv:last-child::after{content:'';display:block;width:1px;height:22px;background:#1f3a5a;opacity:0.55;margin:0 auto}
   .cta-s .btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0.2em;padding:16px 22px}
 
   /* Why (ya 1-col) — más compacto */
@@ -366,9 +366,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 }
 
 @media(prefers-reduced-motion:reduce){
-  .rv{opacity:1!important;transform:none!important;transition:none!important}
-  .curtain::after{transition:none!important}
-  .hero-bg{transform:none!important}
+  .rv{opacity:1 !important;transform:none !important;transition:none !important}
+  .curtain::after{transition:none !important}
+  .hero-bg{transform:none !important}
   html{scroll-behavior:auto}
 }
 /* ============================================================
@@ -381,7 +381,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     flex-direction:column !important;
     min-height:auto !important;
     height:auto !important;
-    background:var(--cream,#f9f8f7) !important;
+    background:#ffffff !important;
     overflow:visible !important;
     text-align:left !important;
     align-items:stretch !important;
@@ -401,7 +401,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     filter:brightness(0.97) saturate(1.02) contrast(1.02) !important;
   }
   .hero::after{
-    background:linear-gradient(180deg,rgba(10,15,23,.30) 0%,rgba(10,15,23,0) 30%,rgba(10,15,23,0) 75%,rgba(10,15,23,.16) 100%) !important;
+    background:none !important;
     height:60svh !important;
     inset:0 0 auto 0 !important;
     pointer-events:none !important;
@@ -409,7 +409,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .hero-content{
     position:relative !important;
     z-index:5 !important;
-    background:var(--cream,#f9f8f7) !important;
+    background:#ffffff !important;
     color:var(--ink,#1a2433) !important;
     padding:48px 24px 60px !important;
     max-width:100% !important;
@@ -423,7 +423,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     letter-spacing:-0.005em !important;
   }
   .hero h1 em{
-    color:var(--gold2,#a8894a) !important;
+    color:#1f3a5a !important;
     font-style:italic !important;
   }
   .hero-sub{
@@ -434,27 +434,27 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   }
   /* Eyebrow se mantiene en oro como ancla de contexto */
   .hero-tag{
-    color:var(--gold2,#a8894a) !important;
+    color:#1f3a5a !important;
     margin-bottom:18px !important;
   }
   /* CTA principal — oro sólido sobre crema */
   .hero-content .btn,
   .hero-content .btn--gold{
-    background:var(--gold,#c4a35a) !important;
-    color:var(--ink,#1a2433) !important;
-    border:1px solid var(--gold,#c4a35a) !important;
-    box-shadow:0 12px 28px -10px rgba(196,163,90,.42) !important;
+    background:#1f3a5a !important;
+    color:#ffffff !important;
+    border:1px solid rgba(31,58,90,.32) !important;
+    box-shadow:0 12px 28px -10px rgba(31,58,90,0.2) !important;
   }
   .hero-content .btn:hover,
   .hero-content .btn--gold:hover{
-    background:var(--gold2,#a8894a) !important;
-    border-color:var(--gold2,#a8894a) !important;
-    color:var(--ink,#1a2433) !important;
+    background:#1f3a5a !important;
+    border-color:rgba(31,58,90,.32) !important;
+    color:#ffffff !important;
   }
   /* Barra CTA fija — mantener oro en contexto crema */
   .lw-loc-sticky a.primary{
-    background:var(--gold,#c4a35a) !important;
-    color:var(--ink,#1a2433) !important;
+    background:#1f3a5a !important;
+    color:#ffffff !important;
   }
 }
 </style>
@@ -483,20 +483,20 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <meta property="business:contact_data:country_name" content="México"/>
 <meta property="og:locale:alternate" content="en_US"/>
 <link rel="me" href="https://instagram.com/ivae.studios"/>
-<link rel="stylesheet" href="/styles/tokens.css?v=20260914c"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260908c"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20261009a"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20261009a"/>
 <script src="/js/site-header.js?v=20260923a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css?v=20260914b"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260908e"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20261009a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260913a"/>
-<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20260531a"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260531a"/>
+<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20261009a"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20261009a"/>
 <script src="/js/lw-mob-haptics.js?v=20260531a" defer></script>
 <script src="/js/lw-mob-install.js?v=20260531a" defer></script>
 <script src="/js/components.js?v=20260531a" defer></script>
-<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css?v=20261009a"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE Estudios Cancún","IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, con S) es el estudio oficial de fotografía de lujo para resorts en ivaestudios.com, dirigido por Vianey Díaz en Cancún, México. No debe confundirse con el dominio no relacionado ivaestudio.com (singular, sin S).","description":"IVAE Studios es un estudio de fotografía de lujo para resorts en Cancún, México, especializado en fotografía y videografía de calidad editorial para familias internacionales, parejas y bodas destino en Cancún, Riviera Maya, Tulum y Los Cabos. Más de 500 sesiones entregadas. Equipo completamente bilingüe.","url":"https://ivaestudios.com","hasMap":"https://maps.google.com/maps?cid=17378665430927342473","logo":"https://ivaestudios.com/images/logo-ivae-h-navy.png","image":"https://ivaestudios.com/images/og/ivae-studios-1200x630.jpg","telephone":"+522288570584","email":"info@ivaestudios.com","priceRange":"$650-$8,000 USD","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Efectivo, Tarjeta de Crédito, Transferencia Bancaria","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Fundadora, Directora Creativa y Fotógrafa Principal","worksFor":{"@id":"https://ivaestudios.com/#organization"},"url":"https://ivaestudios.com/es/acerca-de","sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Fotografía de Lujo para Resorts","Fotografía de Bodas Destino","Fotografía Familiar","Fotografía de Parejas","Fotografía de Compromiso","Fotografía de Propuestas","Fotografía de Maternidad","Fotografía de Babymoon","Fotografía de Despedida de Soltera","Fotografía de Quinceañera","Fotografía de Cumpleaños","Fotografía de Revelación de Género","Trash the Dress","Fotografía de Renovación de Votos","Fotografía Subacuática en Cenotes","Fotografía de Yates de Lujo","Fotografía de Aniversario","Fotografía en Hora Dorada","Fotografía Editorial","Gestión de Redes Sociales"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"],"slogan":"Fotografía de Lujo para Resorts. Editorial. Bilingüe. Solo Hora Dorada.","brand":{"@id":"https://ivaestudios.com/#brand"},"subOrganization":[],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"64","bestRating":"5","worstRating":"1"},"contactPoint":[{"@type":"ContactPoint","contactType":"customer service","telephone":"+529902046514","url":"https://wa.me/529902046514","availableLanguage":["en","es"]},{"@type":"ContactPoint","contactType":"reservations","telephone":"+522288570584","availableLanguage":["en","es"]}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Sitio oficial de IVAE Studios, fotografía de lujo para resorts en Cancún, Riviera Maya y Los Cabos, México.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"es","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/es/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","@id":"https://ivaestudios.com/es/fotografo-los-cabos#webpage","datePublished":"2025-01-15","dateModified":"2026-04-21","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"es"},{"@type":"LocalBusiness","@id":"https://ivaestudios.com/es/fotografo-los-cabos#localbusiness","name":"IVAE Studios, Los Cabos","description":"Fotógrafo de lujo en Los Cabos, México. Sesiones editoriales en Palmilla, Pedregal, El Arco, Playa El Médano y el Corredor para bodas destino, parejas, despedidas de soltera y familias.","url":"https://ivaestudios.com/es/fotografo-los-cabos","image":"https://ivaestudios.com/images/og/cabo-photographer-og-1200x630.jpg","brand":{"@id":"https://ivaestudios.com/#brand"},"telephone":"+522288570584","email":"info@ivaestudios.com","priceRange":"$650-$8,000 USD","currenciesAccepted":["USD","MXN"],"address":{"@type":"PostalAddress","addressLocality":"Cabo San Lucas","addressRegion":"Baja California Sur","postalCode":"23410","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":22.8905,"longitude":-109.9167},"areaServed":[{"@type":"Place","name":"Cabo San Lucas"},{"@type":"Place","name":"San José del Cabo"},{"@type":"Place","name":"Palmilla"},{"@type":"Place","name":"El Corredor"},{"@type":"Place","name":"Pedregal"},{"@type":"Place","name":"El Tule"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Servicios de Fotografía en Los Cabos","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Bodas Destino en Los Cabos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Parejas en Los Cabos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Despedida de Soltera en Los Cabos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía Familiar en Los Cabos"}}]},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"]},{"@type":"Service","@id":"https://ivaestudios.com/es/fotografo-los-cabos#service","serviceType":"Fotografía de Lujo para Resorts","name":"Fotógrafo en Los Cabos, IVAE Studios","description":"Sesiones profesionales de fotografía de lujo en Los Cabos, que incluyen retratos familiares, sesiones de parejas, fotografía de bodas y cobertura de propuestas de matrimonio en resorts de clase mundial.","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":{"@type":"Place","name":"Los Cabos, Baja California Sur, México"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Servicios de Fotografía en Los Cabos","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía Familiar en Los Cabos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Parejas en Los Cabos"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Bodas en Cabo"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Propuestas en Los Cabos"}}]}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/es/fotografo-los-cabos#breadcrumb-los-cabos","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://ivaestudios.com/es/"},{"@type":"ListItem","position":2,"name":"Fotógrafo en Los Cabos","item":"https://ivaestudios.com/es/fotografo-los-cabos"}]},{"@type":"FAQPage","@id":"https://ivaestudios.com/es/fotografo-los-cabos#faqpage-cabo-general","mainEntity":[{"@type":"Question","name":"¿Cuánto cuesta un fotógrafo en Cabo?","acceptedAnswer":{"@type":"Answer","text":"La fotografía profesional de lujo en Los Cabos generalmente varía entre $500 y $2,500 USD dependiendo de la duración de la sesión, la cantidad de locaciones y los entregables. Una sesión estándar de 90 minutos en hora dorada en una o dos locaciones de resort incluye edición profesional, galería privada en línea y archivos digitales en alta resolución. Las bodas y coberturas de varios días se cotizan de forma individual según el alcance."}},{"@type":"Question","name":"¿Cuál es la mejor época del año para fotos en Los Cabos?","acceptedAnswer":{"@type":"Answer","text":"Los Cabos disfruta de más de 340 días de sol al año, lo que lo hace excepcional para la fotografía durante todo el año. De octubre a mayo ofrece el clima más consistente con temperaturas cálidas y mínima lluvia. Los meses de invierno (noviembre a febrero) traen los atardeceres más dramáticos del Pacífico y avistamientos de ballenas jorobadas de fondo en las imágenes costeras. Los meses de verano son más cálidos y ocasionalmente húmedos, pero producen formaciones de nubes espectaculares en la hora dorada."}},{"@type":"Question","name":"¿Pueden fotografiar en mi resort en Cabo?","acceptedAnswer":{"@type":"Answer","text":"Sí. Nuestro equipo fotografía regularmente en los mejores resorts de lujo de Los Cabos, incluyendo Waldorf Astoria Los Cabos Pedregal, One&Only Palmilla, Esperanza (Auberge Resorts), The Cape (Thompson Hotels), Chileno Bay, Nobu Hotel Los Cabos, Montage Los Cabos y Solaz. Conocemos las políticas fotográficas de cada propiedad y coordinamos con la gerencia del resort con anticipación para que tu sesión sea impecable."}},{"@type":"Question","name":"¿Con cuánta anticipación debo reservar un fotógrafo en Cabo?","acceptedAnswer":{"@type":"Answer","text":"Recomendamos reservar de cuatro a ocho semanas antes para sesiones estándar y de seis a doce meses para bodas o fechas de temporada alta (de diciembre a marzo). A veces hay disponibilidad de último minuto según nuestra agenda, así que siempre vale la pena consultarnos incluso con plazos más cortos."}},{"@type":"Question","name":"¿Cuál es la mejor hora del día para una sesión de fotos en Los Cabos?","acceptedAnswer":{"@type":"Answer","text":"La hora dorada, aproximadamente 45 minutos antes del atardecer, es el momento más codiciado para fotografiar en Cabo. La luz del lado del Pacífico en Los Cabos produce un brillo ámbar excepcionalmente cálido que envuelve a los sujetos e ilumina el paisaje desértico de maneras únicas en esta costa. Las sesiones al amanecer también son impresionantes y ofrecen playas casi vacías y una luz más suave y rosada. No recomendamos sesiones al mediodía cuando el sol de Baja está directamente encima."}},{"@type":"Question","name":"¿Ofrecen fotografía de propuestas de matrimonio en Los Cabos?","acceptedAnswer":{"@type":"Answer","text":"Por supuesto. Nuestro equipo se especializa en cobertura discreta de propuestas en locaciones icónicas de Los Cabos. Los lugares populares incluyen cenas privadas al atardecer en la playa de Pedregal, las terrazas del acantilado en The Cape y charters privados de yate con vista a El Arco. Coordinamos con los equipos de concierge del resort y los planeadores de eventos para capturar el momento de forma auténtica mientras permanecemos invisibles hasta que se revela la sorpresa."}},{"@type":"Question","name":"¿Cuántas fotos recibiré y cuándo?","acceptedAnswer":{"@type":"Answer","text":"Una sesión de 60 minutos entrega de 50 a 80 imágenes editadas profesionalmente; una sesión de 90 minutos entrega de 80 a 120. La cobertura de bodas produce de 400 a más de 800 imágenes dependiendo de las horas de cobertura. Tu galería privada en línea normalmente se entrega en dos a tres semanas. Cada imagen recibe corrección de color individual con nuestro estilo editorial característico, cálido, luminoso y cinematográfico."}},{"@type":"Question","name":"¿Qué debemos usar para una sesión de fotos en Cabo?","acceptedAnswer":{"@type":"Answer","text":"Recomendamos tonos neutros y terrosos, arena, marfil, salvia, terracota, dorado suave, que complementan la paleta de desierto y océano de Los Cabos. Las telas fluidas fotografían hermosamente con la brisa costera. Evita logos llamativos, colores neón y patrones demasiado ocupados. Para familias, coordinen colores sin igualar exactamente. Proporcionamos una guía de estilo detallada después de reservar y con gusto revisamos las selecciones de vestuario con anticipación."}},{"@type":"Question","name":"¿Es accesible El Arco para una sesión de fotos?","acceptedAnswer":{"@type":"Answer","text":"El Arco se usa mejor como un fondo dramático en lugar de una locación a la que se pueda caminar, ya que solo es accesible por taxi acuático o barco privado. Podemos incorporar El Arco a una sesión fotografiando desde Playa del Amor con el arco de fondo, o contratando un charter privado de barco donde capturamos imágenes en el agua con la formación detrás de ti. Ambos enfoques producen resultados impresionantes."}}]},{"@type":"TouristDestination","@id":"https://ivaestudios.com/es/los-cabos#destination","name":"Los Cabos","alternateName":["Cabo","Cabo San Lucas y San José del Cabo"],"description":"Los Cabos es un destino de resorts de lujo en la punta sur de la península de Baja California en México, conocido por sus dramáticos paisajes donde el desierto se encuentra con el océano, la icónica formación rocosa de El Arco, resorts de clase mundial a lo largo del Corredor Turístico y el encanto bohemio del Distrito del Arte de San José del Cabo. Una locación premier para fotografía de lujo en resorts por IVAE Studios.","url":"https://ivaestudios.com/es/fotografo-los-cabos","touristType":["Viajeros de lujo","Parejas de boda destino","Familias","Lunamieleros","Clientes de fotografía"],"geo":{"@type":"GeoCoordinates","latitude":22.8905,"longitude":-109.9167},"containedInPlace":[{"@type":"State","name":"Baja California Sur"},{"@type":"Country","name":"México"}],"includesAttraction":[{"@type":"LandmarksOrHistoricalBuildings","name":"El Arco de Cabo San Lucas","description":"El icónico arco natural de roca en Land's End donde el Océano Pacífico se encuentra con el Mar de Cortés.","geo":{"@type":"GeoCoordinates","latitude":22.8716,"longitude":-109.8942}},{"@type":"Beach","name":"Playa del Amor","alternateName":"Lovers Beach","description":"Playa apartada accesible solo por taxi acuático, enclavada entre acantilados de granito cerca de El Arco.","geo":{"@type":"GeoCoordinates","latitude":22.8735,"longitude":-109.8956}},{"@type":"Beach","name":"Playa El Médano","alternateName":"Médano Beach","description":"La principal playa nadable de Cabo San Lucas, llena de clubs de playa y con vistas a El Arco.","geo":{"@type":"GeoCoordinates","latitude":22.8875,"longitude":-109.9015}},{"@type":"TouristAttraction","name":"Distrito del Arte de San José del Cabo","alternateName":"Distrito de Galerías","description":"Centro histórico de San José del Cabo conocido por su arquitectura colonial, galerías de arte y la caminata del arte de los jueves.","geo":{"@type":"GeoCoordinates","latitude":23.0614,"longitude":-109.7075}},{"@type":"Resort","name":"One&Only Palmilla","description":"Legendario resort de lujo en el Corredor Turístico, un lugar premier para bodas destino y fotografía editorial.","url":"https://www.oneandonlyresorts.com/palmilla"},{"@type":"Resort","name":"Las Ventanas al Paraíso, A Rosewood Resort","alternateName":"Las Ventanas","description":"Icónico resort Rosewood con vista al Mar de Cortés, celebrado por su arquitectura en blanco y lujo frente al océano."},{"@type":"Resort","name":"Esperanza, Auberge Resorts Collection","alternateName":"Esperanza","description":"Resort Auberge en el acantilado de Punta Ballena con calas privadas y vistas dramáticas al océano."},{"@type":"Resort","name":"Chileno Bay Resort & Residences, Auberge Resorts Collection","alternateName":"Chileno Bay","description":"Resort Auberge contemporáneo frente al mar en una de las pocas playas nadables de Los Cabos."},{"@type":"Resort","name":"Waldorf Astoria Los Cabos Pedregal","alternateName":"Waldorf Astoria Pedregal","description":"Resort Waldorf Astoria apartado, accesible por un túnel privado, encaramado en los acantilados del Pacífico de Cabo San Lucas."}],"provider":{"@id":"https://ivaestudios.com/#organization"},"isRelatedTo":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE","ivaestudios","ivaestudios.com"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com.","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
-<script src="/dark-mode.js?v=20260531a"></script>
+<script src="/dark-mode.js?v=20261009a"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
@@ -512,8 +512,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   href="https://fonts.gstatic.com/s/cormorantgaramond/v21/co3bmX5slCNuHLi8bLeY9MK7whWMhyjYqXtKky2F7g.woff2"/>
 <link rel="preload" as="image" fetchpriority="high" href="/images/los-cabos-hero.avif" type="image/avif">
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
-<link rel="stylesheet" href="/styles/bottom-nav.css?v=20260531a">
-<link rel="stylesheet" href="/styles/mobile-exclusive-v2.css?v=20260914a">
+<link rel="stylesheet" href="/styles/bottom-nav.css?v=20261009a">
+<link rel="stylesheet" href="/styles/mobile-exclusive-v2.css?v=20261009a">
 <link rel="stylesheet" href="/styles/toque-minimo.css?v=20260914a"/>
 </head>
 <body class="has-bottom-tabs ivm-page">
@@ -1335,7 +1335,7 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
 setTimeout(function(){document.querySelectorAll('.rv:not(.vis)').forEach(function(el){el.classList.add('vis');});},1800);
 document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-q').setAttribute('aria-expanded','false')});if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true')}})});
 </script>
-<noscript><style>.rv{opacity:1!important;transform:none!important}.curtain::after{transform:scaleX(0)!important}.faq-a{max-height:none!important;padding-top:14px!important}</style></noscript>
+<noscript><style>.rv{opacity:1 !important;transform:none !important}.curtain::after{transform:scaleX(0) !important}.faq-a{max-height:none !important;padding-top:14px !important}</style></noscript>
 <script src="/js/lw-loc-sticky.js?v=20260531a" defer></script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260604b" defer></script>
 <script src="/js/pwa-register.js?v=20260906a" defer></script>

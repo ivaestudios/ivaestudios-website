@@ -7,10 +7,10 @@
    Extracted from luxury-family-photos.html (mirrors home v5 colophon). */
 
 .colophon{
-  background:var(--ink-4,#080d12);
+  background:#ffffff;
   padding:clamp(60px,8vw,100px) clamp(24px,5vw,64px) 36px;
-  border-top:1px solid rgba(201,165,78,0.22);
-  color:rgba(250,248,245,0.72);
+  border-top:1px solid rgba(31,58,90,0.14);
+  color:#4d4d4d;
 }
 .colophon-mark{
   text-align:center;
@@ -24,10 +24,10 @@
   font-weight:700;
   letter-spacing:0.32em;
   text-transform:uppercase;
-  color:#faf8f5;
+  color:#1a1a1a;
 }
 .colophon-mark-name em{
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
   font-style:normal;
 }
 .colophon-tag{
@@ -36,11 +36,11 @@
   font-family:var(--font-serif,'Cormorant Garamond',serif);
   font-size:14px;
   font-style:italic;
-  color:rgba(250,248,245,0.62);
+  color:#4d4d4d;
   line-height:1.5;
 }
 .colophon-tag em{
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
 }
 .colophon-cols{
   display:grid;
@@ -55,14 +55,14 @@
   font-weight:600;
   letter-spacing:0.32em;
   text-transform:uppercase;
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
   margin-bottom:18px;
 }
 .colophon-cols p{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:13px;
   line-height:1.75;
-  color:rgba(250,248,245,0.62);
+  color:#4d4d4d;
 }
 .colophon-cols ul{
   display:flex;
@@ -75,7 +75,7 @@
 .colophon-cols ul a{
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:12.5px;
-  color:rgba(250,248,245,0.78);
+  color:#4d4d4d;
   text-decoration:none;
   transition:color 0.25s;
   min-height:44px;
@@ -84,7 +84,7 @@
 }
 .colophon-cols ul a:hover,
 .colophon-cols ul a:focus-visible{
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
 }
 .colophon-bottom{
   display:flex;
@@ -93,15 +93,15 @@
   align-items:center;
   gap:18px;
   padding-top:28px;
-  border-top:1px solid rgba(201,165,78,0.18);
+  border-top:1px solid rgba(31,58,90,0.14);
   font-family:var(--font-sans,'Syne',sans-serif);
   font-size:11px;
   letter-spacing:0.18em;
   text-transform:uppercase;
-  color:rgba(250,248,245,0.50);
+  color:#6e6e6e;
 }
 .colophon-bottom em{
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
   font-style:italic;
   text-transform:none;
   letter-spacing:0.12em;
@@ -110,7 +110,7 @@
   display:inline-block;
   width:24px;
   height:1px;
-  background:rgba(201,165,78,0.42);
+  background:rgba(31,58,90,0.12);
 }
 .colophon-bottom a{
   color:inherit;
@@ -119,7 +119,7 @@
 }
 .colophon-bottom a:hover,
 .colophon-bottom a:focus-visible{
-  color:var(--gold,#c9a54e);
+  color:#1f3a5a;
 }
 
 /* Mobile breakpoints (matches the 4 standardized: 375/768/1024/1280). */

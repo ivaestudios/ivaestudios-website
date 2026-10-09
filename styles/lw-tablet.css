@@ -83,7 +83,7 @@
   .lw-stat__number {
     font-family: "Cormorant Garamond", serif;
     font-size: 56px;
-    color: #c9a54e;
+    color: #1f3a5a;
   }
   .lw-stat__label {
     font-size: 13px;
@@ -196,7 +196,7 @@
     font-size: 13px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #c9a54e;
+    color: #1f3a5a;
   }
 
   /* ---------- INQUIRY ---------- */
@@ -222,7 +222,7 @@
     padding: 14px 16px;
     font-size: 16px;
     background: transparent;
-    border: 1px solid rgba(201, 165, 78, 0.3);
+    border: 1px solid rgba(31,58,90,0.18);
     color: #ece7dd;
   }
   .lw-inquiry__button,
@@ -232,8 +232,8 @@
     max-width: 320px;
     margin: 24px auto 0;
     padding: 16px 32px;
-    background: #c9a54e;
-    color: #0e0d0b;
+    background: #1f3a5a;
+    color: #ffffff;
     font-family: "Syne", sans-serif;
     font-size: 13px;
     letter-spacing: 0.18em;
@@ -253,7 +253,7 @@
     margin-bottom: 48px;
   }
   .lw-faq__item {
-    border-bottom: 1px solid rgba(201, 165, 78, 0.18);
+    border-bottom: 1px solid rgba(31,58,90,0.14);
     padding: 24px 0;
   }
   .lw-faq__question {
@@ -277,7 +277,7 @@
     font-size: 12px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #c9a54e;
+    color: #1f3a5a;
     margin-bottom: 16px;
   }
   .lw-section__title {

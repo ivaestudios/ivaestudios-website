@@ -20,6 +20,8 @@ def _a_blanco(r,g,b):
 HEX = re.compile(r"#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b")
 
 INK = "#1a1a1a"; INK2 = "#4d4d4d"; INK3 = "#6e6e6e"; LINE = "rgba(26,26,26,.12)"; WHITE = "#ffffff"; ALT = "#f7f7f5"
+# acento azul marino (elegido 2026-10-07): ocupa el lugar que tenía el dorado
+ACC = "#1f3a5a"; ACC_RGB = "31,58,90"
 
 FOTO = re.compile(r"ivm-act-hero|ivm-act-hour|ivm-wd-hero|ivm-wd-frame|ivm-wd-cinema|ivm-svc__photo|ivm-svc__num|ivm-reel-card__(meta|venue|title)|founder__pola|ivm-act-cta__(bg|veil)|loc-ov|__veil|cinematic-hero|ch-|post-hero|hero-photo|__img-overlay|img-overlay|photo-caption|ivm-st-hero__scroll|lw-hero|le-hero|ivm-jl-hero|ivm-jl-feat")
 BOTON = re.compile(r"btn|button|__cta-btn|cta__btn|book|\.btn|-pill|m-nav-cta|primary")
@@ -51,16 +53,16 @@ def mapear_color_texto(val, sel):
         r, g, b, a = int(m.group(1)), int(m.group(2)), int(m.group(3)), alfa(m.group(4))
         c = clase_rgb(r, g, b)
         if c == "crema": return texto_desde_alfa(a)
-        if c == "oro": return INK3 if (gris or a < .8) else INK
+        if c == "oro": return ACC
         return m.group(0)
     v = RGBA.sub(rep, val)
     v = re.sub(r"var\(--(?![\w-]*muted-l)[\w-]*(?:muted|-3\b)[\w-]*(?:\s*,[^)]*)?\)", INK3, v)
     v = re.sub(r"var\(--[\w-]*(?:cream|crema|on-ink|on-dark)[\w-]*-2(?:\s*,[^)]*)?\)", INK2, v)
     v = re.sub(VAR_CREAM, INK, v)
-    v = re.sub(VAR_GOLD, INK3 if gris else INK, v)
+    v = re.sub(VAR_GOLD, ACC, v)
     v = re.sub(r"#faf8f5|#f5f2ec|#f4f1ec", INK, v, flags=re.I)
-    v = re.sub(r"#c9a54e|#a8894a|#b08e42|#ceae64", INK3 if gris else INK, v, flags=re.I)
-    v = HEX.sub(lambda m: (INK3 if gris else INK) if _es_oro_hex(m.group(0)) else m.group(0), v)
+    v = re.sub(r"#c9a54e|#a8894a|#b08e42|#ceae64", ACC, v, flags=re.I)
+    v = HEX.sub(lambda m: ACC if _es_oro_hex(m.group(0)) else m.group(0), v)
     return v
 
 def mapear_fondo(val, sel, boton, bloque):
@@ -71,24 +73,24 @@ def mapear_fondo(val, sel, boton, bloque):
         # degradados decorativos sobre fondo oscuro (brillos dorados, velos sin foto) -> fuera
         hex_oro_osc = any(_es_oro_hex(h) or re.match(OSCURO, h, re.I) for h in HEX.findall(val))
         if hex_oro_osc or re.search(r"rgba?\(\s*(1\d|\d|2\d)\s*,\s*(1\d|\d|2\d|3\d)\s*,\s*(1\d|\d|2\d|3\d)", val) or re.search(r"201\s*,\s*165\s*,\s*78|196\s*,\s*163\s*,\s*90", val) or re.search(VAR_GOLD, val) or re.search(VAR_INK, val):
-            return "none" if not boton else INK
+            return "none" if not boton else ACC
         return val
     def rep(m):
         r, g, b, a = int(m.group(1)), int(m.group(2)), int(m.group(3)), alfa(m.group(4))
         c = clase_rgb(r, g, b)
-        if c == "oscuro": return INK if boton else (WHITE if a > .5 else "transparent")
+        if c == "oscuro": return ACC if boton else (WHITE if a > .5 else "transparent")
         if c == "crema": return f"rgba(26,26,26,{round(min(a*.45, .08),3)})" if a < .5 else WHITE
-        if c == "oro": return INK if (boton or a > .8) else f"rgba(26,26,26,{round(min(a*.5,.12),3)})"
+        if c == "oro": return ACC if (boton or a > .8) else f"rgba({ACC_RGB},{round(min(a*.5,.12),3)})"
         return m.group(0)
     v = RGBA.sub(rep, val)
     if boton:
-        v = re.sub(VAR_INK, INK, v); v = re.sub(VAR_GOLD, INK, v); v = re.sub(VAR_CREAM, INK, v)
+        v = re.sub(VAR_INK, ACC, v); v = re.sub(VAR_GOLD, ACC, v); v = re.sub(VAR_CREAM, ACC, v)
     else:
         v = re.sub(VAR_INK, WHITE, v)
-        v = re.sub(VAR_GOLD, WHITE if bloque else INK, v)
+        v = re.sub(VAR_GOLD, WHITE if bloque else ACC, v)
         v = re.sub(VAR_CREAM, WHITE, v)
-    v = re.sub(OSCURO, INK if boton else WHITE, v, flags=re.I)
-    v = re.sub(r"#c9a54e|#a8894a|#b08e42", WHITE if bloque and not boton else INK, v, flags=re.I)
+    v = re.sub(OSCURO, ACC if boton else WHITE, v, flags=re.I)
+    v = re.sub(r"#c9a54e|#a8894a|#b08e42", WHITE if bloque and not boton else ACC, v, flags=re.I)
     def calido(m):
         h=m.group(0).lstrip("#")
         if len(h)==3: h="".join(c*2 for c in h)
@@ -102,12 +104,13 @@ def mapear_linea(val):
     def rep(m):
         r, g, b, a = int(m.group(1)), int(m.group(2)), int(m.group(3)), alfa(m.group(4))
         c = clase_rgb(r, g, b)
-        if c in ("crema", "oro"): return f"rgba(26,26,26,{round(min(max(a*.5,.1),.22),3)})"
+        if c == "oro": return f"rgba({ACC_RGB},{round(min(max(a*.6,.14),.4),3)})"
+        if c == "crema": return f"rgba(26,26,26,{round(min(max(a*.5,.1),.22),3)})"
         if c == "oscuro": return LINE
         return m.group(0)
     v = RGBA.sub(rep, val)
-    v = re.sub(VAR_GOLD, "rgba(26,26,26,.2)", v); v = re.sub(VAR_CREAM, "rgba(26,26,26,.2)", v); v = re.sub(VAR_INK, "rgba(26,26,26,.2)", v)
-    v = re.sub(r"#c9a54e|#a8894a|#b08e42", "rgba(26,26,26,.2)", v, flags=re.I)
+    v = re.sub(VAR_GOLD, f"rgba({ACC_RGB},.32)", v); v = re.sub(VAR_CREAM, "rgba(26,26,26,.2)", v); v = re.sub(VAR_INK, "rgba(26,26,26,.2)", v)
+    v = re.sub(r"#c9a54e|#a8894a|#b08e42", f"rgba({ACC_RGB},.32)", v, flags=re.I)
     return v
 
 def mapear_sombra(val):
@@ -115,12 +118,12 @@ def mapear_sombra(val):
     def rep(m):
         r, g, b, a = int(m.group(1)), int(m.group(2)), int(m.group(3)), alfa(m.group(4))
         c = clase_rgb(r, g, b)
-        if c == "oro": return f"rgba(26,26,26,{round(min(a*.3,.12),3)})"
-        if c == "oscuro": return f"rgba(0,0,0,{round(min(a*.35,.16),3)})"
+        if c == "oro": return f"rgba({ACC_RGB},{round(min(a*.5,.2),3)})"
+        if c == "oscuro": return f"rgba({ACC_RGB},{round(min(a*.35,.18),3)})"
         if c == "crema": return f"rgba(26,26,26,{round(min(a*.3,.1),3)})"
         return m.group(0)
     v = RGBA.sub(rep, val)
-    v = re.sub(VAR_GOLD, "rgba(26,26,26,.15)", v)
+    v = re.sub(VAR_GOLD, f"rgba({ACC_RGB},.18)", v)
     return v
 
 VELO_AZUL = re.compile(r"rgba\(\s*(?:10\s*,\s*15\s*,\s*23|12\s*,\s*18\s*,\s*25|14\s*,\s*22\s*,\s*32|16\s*,\s*22\s*,\s*30|20\s*,\s*28\s*,\s*38|14\s*,\s*20\s*,\s*28)\s*,")

@@ -33,15 +33,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"/><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/></noscript>
 <style>
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
-.skip-link:focus{top:0;outline:2px solid var(--ink);outline-offset:2px}
+.skip-link{position:absolute;top:-100%;left:16px;background:#ffffff;color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link:focus{top:0;outline:2px solid rgba(26,26,26,.2);outline-offset:2px}
 /* Visible focus indicators for keyboard accessibility */
-a:focus-visible,button:focus-visible,.faq-q:focus-visible,.header-cta:focus-visible,.hero-btn:focus-visible,.cta-btn:focus-visible,.int-link:focus-visible,.resort-chip:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
-.faq.dark a:focus-visible,.faq.dark button:focus-visible,.gallery.dark a:focus-visible,.locations.dark a:focus-visible{outline-color:var(--gold)}
+a:focus-visible,button:focus-visible,.faq-q:focus-visible,.header-cta:focus-visible,.hero-btn:focus-visible,.cta-btn:focus-visible,.int-link:focus-visible,.resort-chip:focus-visible{outline:2px solid rgba(31,58,90,.32);outline-offset:3px;border-radius:2px}
+.faq.dark a:focus-visible,.faq.dark button:focus-visible,.gallery.dark a:focus-visible,.locations.dark a:focus-visible{outline-color:rgba(31,58,90,.32)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.52);--muted-l2:rgba(26,36,51,0.32);--muted:rgba(249,248,247,0.50);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.22);--border-d:rgba(196,163,90,0.18);--border-l:rgba(26,36,51,0.12)}
+:root{--ink:#1a2433;--ink2:#0e1620;--cream: #ffffff;--sand: #f7f7f5;--sand2: #f7f7f5;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.52);--muted-l2:rgba(26,36,51,0.32);--muted:rgba(249,248,247,0.50);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.22);--border-d:rgba(196,163,90,0.18);--border-l:rgba(26,36,51,0.12)}
 html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;padding-top:72px}
+body{font-family:'Syne',sans-serif;background:#ffffff;color:var(--ink);overflow-x:hidden;padding-top:72px}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.022;pointer-events:none;z-index:9999}
 a{color:inherit}
 .wrap{max-width:min(1200px,100%);margin:0 auto;width:100%;padding:0 clamp(16px,4vw,32px)}
@@ -55,135 +55,135 @@ img,picture{max-width:100%;height:auto}
 /* --- Header --- */
 
 
-.header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f9f8f7;text-decoration:none}
-.header-logo span{color:#c4a35a}
+.header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#1a1a1a;text-decoration:none}
+.header-logo span{color:#1f3a5a}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}
-.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.82);text-decoration:none;transition:color 0.25s}
-.header-nav a:hover{color:#f9f8f7}
-.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#c4a35a;border:1px solid rgba(196,163,90,0.4);padding:10px 22px;text-decoration:none;transition:background 0.3s}
-.header-cta:hover{background:rgba(196,163,90,0.1)}
+.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#4d4d4d;text-decoration:none;transition:color 0.25s}
+.header-nav a:hover{color:#1a1a1a}
+.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#1f3a5a;border:1px solid rgba(31,58,90,0.24);padding:10px 22px;text-decoration:none;transition:background 0.3s}
+.header-cta:hover{background:rgba(31,58,90,0.05)}
 .header-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
 .header-toggle span{display:block;width:22px;height:1.5px;background:#f9f8f7}
-.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(26,36,51,0.98);padding:28px 32px;flex-direction:column;gap:0;border-bottom:1px solid var(--border);z-index:999}
-.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(249,248,247,0.75);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border);display:block}
+.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:#ffffff;padding:28px 32px;flex-direction:column;gap:0;border-bottom:1px solid var(--border);z-index:999}
+.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#4d4d4d;text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border);display:block}
 .mobile-nav a:last-child{border-bottom:none}
 .mobile-nav.open{display:flex}
 /* --- Hero --- */
 .hero{position:relative;height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
 .hero-bg{position:absolute;inset:0;will-change:transform;overflow:hidden}
 .hero-bg img{width:100%;height:100%;object-fit:cover;display:block}
-.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0.55) 0%,rgba(14,22,32,0.72) 100%)}
+.hero::after{content:'';position:absolute;inset:0;background:none}
 .hero-content{position:relative;z-index:1;padding:0 48px;max-width:820px}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5.5vw,68px);font-weight:300;line-height:1.1;color:var(--cream)}
-.hero h1 em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:14px;line-height:1.85;color:var(--muted);margin-top:24px;max-width:540px;margin-left:auto;margin-right:auto}
-.hero-btn{display:inline-block;margin-top:36px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,163,90,0.45);padding:16px 40px;text-decoration:none;transition:background 0.3s,color 0.3s}
-.hero-btn:hover{background:var(--gold);color:var(--ink)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5.5vw,68px);font-weight:300;line-height:1.1;color:#1a1a1a}
+.hero h1 em{font-style:italic;color:#1f3a5a}
+.hero-sub{font-size:14px;line-height:1.85;color:#6e6e6e;margin-top:24px;max-width:540px;margin-left:auto;margin-right:auto}
+.hero-btn{display:inline-block;margin-top:36px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#1f3a5a;border:1px solid rgba(31,58,90,0.27);padding:16px 40px;text-decoration:none;transition:background 0.3s,color 0.3s}
+.hero-btn:hover{background:#1f3a5a;color:#ffffff}
 /* --- Breadcrumb --- */
-.breadcrumb{padding:18px 64px;background:var(--cream);border-bottom:1px solid var(--border-l)}
+.breadcrumb{padding:18px 64px;background:#ffffff;border-bottom:1px solid var(--border-l)}
 .breadcrumb ol{display:flex;align-items:center;gap:8px;list-style:none;font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase}
 .breadcrumb a{color:var(--muted-l2);text-decoration:none;transition:color 0.25s}
-.breadcrumb a:hover{color:var(--gold)}
+.breadcrumb a:hover{color:#1f3a5a}
 .breadcrumb .sep{color:var(--muted-l2)}
 .breadcrumb .current{color:var(--ink)}
 /* --- Stats --- */
-.stats-strip{padding:48px 64px;background:var(--cream);border-bottom:1px solid var(--border-l)}
+.stats-strip{padding:48px 64px;background:#ffffff;border-bottom:1px solid var(--border-l)}
 .stats-inner{display:flex;justify-content:space-between;max-width:900px;margin:0 auto}
 .stat-item{text-align:center}
-.stat-item .n{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold);line-height:1}
+.stat-item .n{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#1f3a5a;line-height:1}
 .stat-item .l{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted-l2);margin-top:6px}
 /* --- Section label --- */
-.section-label{display:inline-flex;align-items:center;gap:14px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold2);margin-bottom:32px}
-.section-label::after{content:'';display:block;width:40px;height:1px;background:var(--gold2);opacity:0.6}
-.section-label.light{color:var(--gold)}.section-label.light::after{background:var(--gold)}
+.section-label{display:inline-flex;align-items:center;gap:14px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#1f3a5a;margin-bottom:32px}
+.section-label::after{content:'';display:block;width:40px;height:1px;background:#1f3a5a;opacity:0.6}
+.section-label.light{color:#1f3a5a}.section-label.light::after{background:#1f3a5a}
 /* --- Headings --- */
 .sec-h{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4vw,50px);font-weight:300;line-height:1.15}
-.sec-h em{font-style:italic;color:var(--gold2)}
-.dark .sec-h{color:var(--cream)}.dark .sec-h em{color:var(--gold)}
+.sec-h em{font-style:italic;color:#1f3a5a}
+.dark .sec-h{color:#1a1a1a}.dark .sec-h em{color:#1f3a5a}
 /* --- Why section --- */
-.why{padding:100px 64px;background:var(--cream)}
+.why{padding:100px 64px;background:#ffffff}
 .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .why-img{position:relative;overflow:hidden}
 .why-img img{width:100%;height:520px;object-fit:cover;display:block}
 .why-text{padding-top:12px}
 .why-text p{font-size:14px;line-height:1.85;color:var(--muted-l);margin-bottom:18px}
-.quote-block{margin:32px 0;padding:24px 28px;border-left:2px solid var(--gold);background:rgba(196,163,90,0.06)}
+.quote-block{margin:32px 0;padding:24px 28px;border-left:2px solid rgba(31,58,90,.32);background:rgba(31,58,90,0.03)}
 .quote-block p{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;font-style:italic;line-height:1.55;color:var(--ink);margin:0;opacity:0.82}
 /* --- Services --- */
 .services{padding:100px 64px;background:var(--sand)}
 .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px}
-.svc{background:var(--cream);padding:0;transition:background 0.3s;overflow:hidden}
+.svc{background:#ffffff;padding:0;transition:background 0.3s;overflow:hidden}
 .svc:hover{background:#f5f3f0}
 .svc-img{height:220px;overflow:hidden}
 .svc-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}
 .svc:hover .svc-img img{transform:scale(1.04)}
 .svc-body{padding:32px 28px}
-.svc-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:var(--gold);opacity:0.25;line-height:1;margin-bottom:16px}
+.svc-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:#1f3a5a;opacity:0.25;line-height:1;margin-bottom:16px}
 .svc h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:12px}
 .svc p{font-size:13px;line-height:1.8;color:var(--muted-l)}
 /* --- Gallery --- */
-.gallery{padding:100px 64px;background:var(--ink2)}
+.gallery{padding:100px 64px;background:#ffffff}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:260px;gap:6px;margin-top:56px}
 .pg-i{overflow:hidden;position:relative}
 .pg-i img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}
 .pg-i:hover img{transform:scale(1.04)}
 .pg-i.feat{grid-column:span 2;grid-row:span 2}
 /* --- Locations --- */
-.locations{padding:100px 64px;background:var(--cream)}
+.locations{padding:100px 64px;background:#ffffff}
 .loc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:56px}
 .loc{position:relative;overflow:hidden;height:280px;cursor:default}
 .loc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1)}
 .loc:hover img{transform:scale(1.04)}
-.loc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(14,22,32,0.85) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:24px}
-.loc h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:var(--cream);margin-bottom:6px}
-.loc p{font-size:12px;line-height:1.7;color:var(--muted);display:none}
-.loc-tag{font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-top:4px}
+.loc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:24px}
+.loc h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:#1a1a1a;margin-bottom:6px}
+.loc p{font-size:12px;line-height:1.7;color:#6e6e6e;display:none}
+.loc-tag{font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#1f3a5a;margin-top:4px}
 /* --- How it works --- */
 .process{padding:100px 64px;background:var(--sand)}
 .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px}
-.step{background:var(--cream);padding:40px 28px;position:relative}
-.step-num{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:var(--gold);opacity:0.5;line-height:1;margin-bottom:18px}
+.step{background:#ffffff;padding:40px 28px;position:relative}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:#1f3a5a;opacity:0.5;line-height:1;margin-bottom:18px}
 .step h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:var(--ink);margin-bottom:10px}
 .step p{font-size:13px;line-height:1.8;color:var(--muted-l)}
 /* --- Resorts --- */
-.resorts{padding:100px 64px;background:var(--cream)}
+.resorts{padding:100px 64px;background:#ffffff}
 .resort-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
 .resort-chip{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);background:var(--sand);border:1px solid var(--border-l);padding:14px 24px;transition:border-color 0.3s,color 0.3s}
-.resort-chip:hover{border-color:var(--gold);color:var(--gold2)}
+.resort-chip:hover{border-color:rgba(31,58,90,.32);color:#1f3a5a}
 /* --- Testimonials --- */
-.testimonials{padding:100px 64px;background:var(--cream);border-top:1px solid var(--border-l)}
+.testimonials{padding:100px 64px;background:#ffffff;border-top:1px solid var(--border-l)}
 .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px}
 .test{background:var(--sand);padding:40px 32px}
-.test .stars{color:var(--gold);font-size:14px;letter-spacing:4px;margin-bottom:18px}
+.test .stars{color:#1f3a5a;font-size:14px;letter-spacing:4px;margin-bottom:18px}
 .test blockquote{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;font-style:italic;line-height:1.6;color:var(--ink);margin-bottom:22px;opacity:0.85}
-.test .author{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold2)}
+.test .author{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#1f3a5a}
 .test .detail{font-size:11px;color:var(--muted-l2);margin-top:4px;letter-spacing:0.06em}
 /* --- FAQ --- */
-.faq{padding:100px 64px;background:var(--ink2);color:var(--cream)}
+.faq{padding:100px 64px;background:#ffffff;color:#1a1a1a}
 .faq-list{max-width:860px;margin-top:48px}
 .faq-item{border-bottom:1px solid var(--border-d)}
-.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:24px 0;background:none;border:none;cursor:pointer;text-align:left;font-family:'Syne',sans-serif;font-size:15px;font-weight:500;color:var(--cream);line-height:1.5;gap:24px}
-.faq-q::after{content:'+';font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);flex-shrink:0;transition:transform 0.3s}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:24px 0;background:none;border:none;cursor:pointer;text-align:left;font-family:'Syne',sans-serif;font-size:15px;font-weight:500;color:#1a1a1a;line-height:1.5;gap:24px}
+.faq-q::after{content:'+';font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#1f3a5a;flex-shrink:0;transition:transform 0.3s}
 .faq-item.open .faq-q::after{transform:rotate(45deg)}
 .faq-a{max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
 .faq-item.open .faq-a{max-height:400px;padding-bottom:24px}
-.faq-a p{font-size:14px;line-height:1.9;color:var(--muted);max-width:720px}
+.faq-a p{font-size:14px;line-height:1.9;color:#6e6e6e;max-width:720px}
 /* --- Internal links --- */
 .int-links{padding:80px 64px;background:var(--sand)}
 .int-links-list{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
-.int-link{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold2);text-decoration:none;border:1px solid var(--border-l);padding:14px 28px;background:var(--cream);transition:border-color 0.3s}
-.int-link:hover{border-color:var(--gold)}
+.int-link{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#1f3a5a;text-decoration:none;border:1px solid var(--border-l);padding:14px 28px;background:#ffffff;transition:border-color 0.3s}
+.int-link:hover{border-color:rgba(31,58,90,.32)}
 /* --- CTA --- */
 .cta{position:relative;padding:120px 48px;text-align:center;overflow:hidden}
 .cta-bg{position:absolute;inset:0;background:url('/images/hero/couple-walking-beach-1920.webp') center/cover no-repeat}@media(max-width:900px){.cta-bg{background-image:url('/images/hero/couple-walking-beach-1200.webp')}}
-.cta::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0.62) 0%,rgba(14,22,32,0.82) 100%)}
+.cta::after{content:'';position:absolute;inset:0;background:none}
 .cta-inner{position:relative;z-index:1}
-.cta h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,56px);font-weight:300;line-height:1.15;color:var(--cream);margin-bottom:20px}
-.cta h2 em{font-style:italic;color:var(--gold)}
+.cta h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,56px);font-weight:300;line-height:1.15;color:#1a1a1a;margin-bottom:20px}
+.cta h2 em{font-style:italic;color:#1f3a5a}
 .cta-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:40px}
-.cta-btn{display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,163,90,0.45);padding:16px 40px;text-decoration:none;transition:background 0.3s,color 0.3s}
-.cta-btn:hover{background:var(--gold);color:var(--ink)}
-.cta-btn.secondary{background:transparent;border-color:rgba(196,163,90,0.35)}
+.cta-btn{display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#1f3a5a;border:1px solid rgba(31,58,90,0.27);padding:16px 40px;text-decoration:none;transition:background 0.3s,color 0.3s}
+.cta-btn:hover{background:#1f3a5a;color:#ffffff}
+.cta-btn.secondary{background:transparent;border-color:rgba(31,58,90,0.21)}
 /* --- Footer --- */
 
 
@@ -249,9 +249,9 @@ img,picture{max-width:100%;height:auto}
 
 /* Mobile timeline vertical line */
 .timeline{position:relative;padding-left:52px;gap:0}
-.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--gold);opacity:0.35}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:#1f3a5a;opacity:0.35}
 .timeline .step{border-left:none;margin-bottom:2px}
-.timeline .step::before{content:'';position:absolute;left:-38px;top:44px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid var(--sand)}
+.timeline .step::before{content:'';position:absolute;left:-38px;top:44px;width:9px;height:9px;border-radius:50%;background:#1f3a5a;border:2px solid var(--sand)}
 .svc-img img,.pg-i img,.loc img,.why-img img{object-position:center 20%}
 }
 /* --- Responsive: Small Mobile (<=480px) — mobile-first refinements --- */
@@ -314,11 +314,11 @@ img,picture{max-width:100%;height:auto}
 .int-links-list{gap:10px;margin-top:24px}
 .int-link{font-size:9.5px;padding:9px 14px;letter-spacing:0.1em}
 .colophon-cols{grid-template-columns:1fr}
-nav[aria-label="Cancun services"]{padding:24px 18px!important;font-size:11px}
+nav[aria-label="Cancun services"]{padding:24px 18px !important;font-size:11px}
 nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
 }
 @media(min-width:481px) and (max-width:767px){
-nav[aria-label="Cancun services"]{padding:28px 24px!important;font-size:11.5px}
+nav[aria-label="Cancun services"]{padding:28px 24px !important;font-size:11.5px}
 nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
 }
 
@@ -330,12 +330,12 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
 #cn-resorts .cn-mono-head p.intro{margin-bottom:0;font-size:14px;line-height:1.85;color:var(--muted-l);max-width:min(580px,100%)}
 #cn-resorts .cn-mono-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
 #cn-resorts .cn-mono-plate{position:relative;aspect-ratio:5/3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px;text-align:center;transition:background 0.5s ease}
-#cn-resorts .cn-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
-#cn-resorts .cn-mono-plate:hover{background:rgba(196,163,90,0.04)}
+#cn-resorts .cn-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid rgba(31,58,90,.32);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
+#cn-resorts .cn-mono-plate:hover{background:rgba(31,58,90,0.02)}
 #cn-resorts .cn-mono-plate:hover::before{opacity:0}
 #cn-resorts .cn-mono-wm{width:100%;max-width:240px;height:auto;display:block;overflow:visible}
 #cn-resorts .cn-mono-wm text{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;fill:var(--ink);letter-spacing:0.005em}
-#cn-resorts .cn-mono-rule{width:18px;height:1px;background:var(--gold);margin:14px 0 12px;opacity:0.7}
+#cn-resorts .cn-mono-rule{width:18px;height:1px;background:#1f3a5a;margin:14px 0 12px;opacity:0.7}
 #cn-resorts .cn-mono-sub{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-l);font-variant:small-caps}
 @media(min-width:768px) and (max-width:1023px){
   #cn-resorts .cn-mono-head{margin-bottom:44px}
@@ -366,9 +366,9 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .hero{padding-top:env(safe-area-inset-top,0)}
   .hero-content{padding:0 22px}
   .hero h1{font-size:clamp(34px,10vw,52px);line-height:1.04;letter-spacing:-0.005em;margin-bottom:18px}
-  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;color:rgba(249,248,247,0.62);margin-top:18px;margin-bottom:24px}
+  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;color:#4d4d4d;margin-top:18px;margin-bottom:24px}
   /* Gold thread above CTA */
-  .hero-content::after{content:'';display:block;width:1px;height:32px;background:var(--gold);opacity:0.55;margin:8px auto -8px}
+  .hero-content::after{content:'';display:block;width:1px;height:32px;background:#1f3a5a;opacity:0.55;margin:8px auto -8px}
   .hero-btn{min-height:46px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0.2em;padding:15px 30px}
 
   /* Stats — 2x2 grid */
@@ -390,7 +390,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .svc{flex:0 0 82%;scroll-snap-align:start;min-height:360px;display:flex;flex-direction:column}
   .svc-img{height:200px;flex-shrink:0}
   .svc-body{padding:22px 20px 28px;position:relative;flex:1}
-  .svc-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);opacity:0.85}
+  .svc-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:#1f3a5a;opacity:0.85}
   .svc-num{font-size:36px;margin-bottom:8px}
   .svc h3{font-size:20px;margin-bottom:8px}
   .svc p{font-size:12.5px;padding-right:32px}
@@ -400,7 +400,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .pg{display:flex;flex-direction:column;grid-template-columns:none;grid-auto-rows:auto;gap:24px;counter-reset:pgnum;margin-top:36px}
   .pg-i,.pg-i.feat{grid-column:auto;grid-row:auto;aspect-ratio:4/5;height:auto;width:100%;position:relative;counter-increment:pgnum}
   .pg-i img{width:100%;height:100%;object-fit:cover}
-  .pg-i::after{content:counter(pgnum) " / 8";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:var(--cream);background:rgba(14,22,32,0.55);padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .pg-i::after{content:counter(pgnum) " / 8";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:#1a1a1a;background:#ffffff;padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 
   /* Locations — already overlays, tighter spacing */
   .loc-grid{display:flex;flex-direction:column;gap:6px;margin-top:36px}
@@ -415,7 +415,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .timeline{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:14px;margin:36px 0 0;padding:8px 22px 32px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;grid-template-columns:none;position:relative}
   .timeline::-webkit-scrollbar{display:none}
   .timeline::before{display:none}
-  .timeline .step{flex:0 0 80%;scroll-snap-align:start;background:var(--cream);padding:28px 22px;border-left:none;margin-bottom:0;min-height:200px}
+  .timeline .step{flex:0 0 80%;scroll-snap-align:start;background:#ffffff;padding:28px 22px;border-left:none;margin-bottom:0;min-height:200px}
   .timeline .step::before{display:none}
   .step-num{font-size:36px;margin-bottom:10px}
   .step h3{font-size:18px;margin-bottom:8px}
@@ -425,9 +425,9 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .testimonials{padding:64px 0;border-top:1px solid var(--border-l)}
   .testimonials > div:first-child{padding:0 22px}
   .test-grid{display:flex;flex-direction:column;gap:0;margin-top:36px}
-  .test{padding:48px 28px 44px;background:var(--cream);border-bottom:1px solid var(--border-l);position:relative;min-height:240px}
+  .test{padding:48px 28px 44px;background:#ffffff;border-bottom:1px solid var(--border-l);position:relative;min-height:240px}
   .test:last-child{border-bottom:none}
-  .test::before{content:'\201C';font-family:'Cormorant Garamond',serif;position:absolute;top:18px;right:24px;font-size:88px;line-height:1;color:var(--gold);opacity:0.18;font-weight:300}
+  .test::before{content:'\201C';font-family:'Cormorant Garamond',serif;position:absolute;top:18px;right:24px;font-size:88px;line-height:1;color:#1f3a5a;opacity:0.18;font-weight:300}
   .test .stars{font-size:13px;letter-spacing:3px;margin-bottom:14px}
   .test blockquote{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;line-height:1.55;color:var(--ink);margin-bottom:22px;font-weight:300;opacity:1;padding-right:48px}
   .test .author{font-size:10.5px;letter-spacing:0.16em}
@@ -449,9 +449,9 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .cta{padding:72px 22px;padding-bottom:max(72px,calc(72px + env(safe-area-inset-bottom)))}
   .cta h2{font-size:clamp(26px,7.5vw,38px);line-height:1.12;margin-bottom:14px}
   .cta-btns{display:flex;flex-direction:column;align-items:stretch;gap:16px;max-width:320px;margin:32px auto 0;position:relative}
-  .cta-btns::before,.cta-btns::after{content:'';display:block;width:1px;height:22px;background:var(--gold);opacity:0.55;margin:0 auto}
+  .cta-btns::before,.cta-btns::after{content:'';display:block;width:1px;height:22px;background:#1f3a5a;opacity:0.55;margin:0 auto}
   .cta-btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0.2em;padding:16px 22px;font-size:10px}
-  .cta-btn:first-of-type{color:var(--ink);background:var(--gold);border-color:var(--gold)}
+  .cta-btn:first-of-type{color:#ffffff;background:#1f3a5a;border-color:rgba(31,58,90,.32)}
 
   /* Why — small refinements (section already 1-col on mobile) */
   .why,.locations,.resorts{padding:64px 22px}
@@ -470,9 +470,9 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .rv{opacity:1!important;transform:none!important;transition:none!important}
-  .curtain::after{transition:none!important}
-  .hero-bg{transform:none!important}
+  .rv{opacity:1 !important;transform:none !important;transition:none !important}
+  .curtain::after{transition:none !important}
+  .hero-bg{transform:none !important}
   html{scroll-behavior:auto}
 }
 /* ============================================================
@@ -485,7 +485,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
     flex-direction:column !important;
     min-height:auto !important;
     height:auto !important;
-    background:var(--cream,#f9f8f7) !important;
+    background:#ffffff !important;
     overflow:visible !important;
     text-align:left !important;
     align-items:stretch !important;
@@ -505,7 +505,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
     filter:brightness(0.97) saturate(1.02) contrast(1.02) !important;
   }
   .hero::after{
-    background:linear-gradient(180deg,rgba(10,15,23,.30) 0%,rgba(10,15,23,0) 30%,rgba(10,15,23,0) 75%,rgba(10,15,23,.16) 100%) !important;
+    background:none !important;
     height:60svh !important;
     inset:0 0 auto 0 !important;
     pointer-events:none !important;
@@ -513,7 +513,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   .hero-content{
     position:relative !important;
     z-index:5 !important;
-    background:var(--cream,#f9f8f7) !important;
+    background:#ffffff !important;
     color:var(--ink,#1a2433) !important;
     padding:48px 24px 60px !important;
     max-width:100% !important;
@@ -527,7 +527,7 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
     letter-spacing:-0.005em !important;
   }
   .hero h1 em{
-    color:var(--gold2,#a8894a) !important;
+    color:#1f3a5a !important;
     font-style:italic !important;
   }
   .hero-sub{
@@ -538,20 +538,20 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
   }
   /* Single CTA on this page — solid gold on cream */
   .hero-btn{
-    background:var(--gold,#c4a35a) !important;
-    color:var(--ink,#1a2433) !important;
-    border:1px solid var(--gold,#c4a35a) !important;
-    box-shadow:0 12px 28px -10px rgba(196,163,90,.42) !important;
+    background:#1f3a5a !important;
+    color:#ffffff !important;
+    border:1px solid rgba(31,58,90,.32) !important;
+    box-shadow:0 12px 28px -10px rgba(31,58,90,0.2) !important;
   }
   .hero-btn:hover{
-    background:var(--gold2,#a8894a) !important;
-    border-color:var(--gold2,#a8894a) !important;
-    color:var(--ink,#1a2433) !important;
+    background:#1f3a5a !important;
+    border-color:rgba(31,58,90,.32) !important;
+    color:#ffffff !important;
   }
   /* Sticky CTA bar — keep gold on cream context */
   .lw-loc-sticky a.primary{
-    background:var(--gold,#c4a35a) !important;
-    color:var(--ink,#1a2433) !important;
+    background:#1f3a5a !important;
+    color:#ffffff !important;
   }
 }
 </style>
@@ -580,33 +580,33 @@ nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
 <meta property="business:contact_data:country_name" content="Mexico"/>
 <meta property="og:locale:alternate" content="es_MX"/>
 <link rel="me" href="https://instagram.com/ivae.studios"/>
-<link rel="stylesheet" href="/styles/tokens.css?v=20260914c"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20261009a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260913a"/>
-<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20260531a"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260531a"/>
+<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20261009a"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20261009a"/>
 <script src="/js/lw-mob-haptics.js?v=20260531a" defer></script>
 <script src="/js/lw-mob-install.js?v=20260531a" defer></script>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260908c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20261009a"/>
 <script src="/js/site-header.js?v=20260923a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css?v=20260914b"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260908e"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20261009a"/>
 <script src="/js/components.js?v=20260531a" defer></script>
-<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css?v=20261009a"/>
 <style id="critical-mobile">
-:root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
+:root{--ink:#0a0f17;--gold:#c9a54e;--cream: #ffffff;--paper: #ffffff;--paper-2: #f7f7f5;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:68px}
 body{font-family:'Syne','Inter',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden;line-height:1.5}
-html.dark body{background:var(--ink);color:var(--cream)}
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;transition:top .3s}
+html.dark body{background:#ffffff;color:#1a1a1a}
+.skip-link{position:absolute;top:-100%;left:16px;background:#ffffff;color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;transition:top .3s}
 .skip-link:focus{top:0}
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12)}
-.hero{position:relative;min-height:100svh;background:var(--ink);overflow:hidden}
-.hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(36px,7vw,68px);line-height:1.06;color:var(--cream)}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,48px);height:68px;background:#ffffff;backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(31,58,90,0.14)}
+.hero{position:relative;min-height:100svh;background:#ffffff;overflow:hidden}
+.hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(36px,7vw,68px);line-height:1.06;color:#1a1a1a}
 @media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE Estudios Cancún","IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://ivaestudios.com/images/logo-ivae-h-navy.png","image":"https://ivaestudios.com/images/og/ivae-studios-1200x630.jpg","telephone":"+522288570584","email":"info@ivaestudios.com","priceRange":"$650-$8,000 USD","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Founder & Creative Director, Lead Photographer","worksFor":{"@id":"https://ivaestudios.com/#organization"},"url":"https://ivaestudios.com/about","sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"],"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@id":"https://ivaestudios.com/#brand"},"subOrganization":[],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"64","bestRating":"5","worstRating":"1"},"contactPoint":[{"@type":"ContactPoint","contactType":"customer service","telephone":"+529902046514","url":"https://wa.me/529902046514","availableLanguage":["en","es"]},{"@type":"ContactPoint","contactType":"reservations","telephone":"+522288570584","availableLanguage":["en","es"]}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios, luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","@id":"https://ivaestudios.com/cancun#webpage","datePublished":"2025-01-15","dateModified":"2026-08-14","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"},{"@type":"ProfessionalService","@id":"https://ivaestudios.com/cancun-photographer#business","name":"IVAE Studios, Cancún","image":"https://ivaestudios.com/images/og/cancun-photographer-og-1200x630.jpg","url":"https://ivaestudios.com/cancun-photographer","brand":{"@id":"https://ivaestudios.com/#brand"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"City","name":"Puerto Morelos"},{"@type":"Place","name":"Isla Mujeres"}],"priceRange":"$650-$8,000 USD","openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"07:00","closes":"21:00"},"founder":{"@type":"Person","name":"Vianey Díaz","jobTitle":"Founder & Creative Director, Lead Photographer"},"sameAs":["https://www.instagram.com/ivae.studios/","https://maps.google.com/maps?cid=17378665430927342473"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Cancún Photography Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Wedding Photography","areaServed":"Cancún","url":"https://ivaestudios.com/cancun-wedding-photographer"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Family Photography","areaServed":"Cancún"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Couples Photography","areaServed":"Cancún"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Quinceañera Photography","areaServed":"Cancún"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Bachelorette Photography","areaServed":"Cancún"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cancún Yacht Photography","areaServed":"Cancún"}}]}},{"@type":"Service","@id":"https://ivaestudios.com/cancun-photographer#service","name":"Luxury Resort Photography in Cancun","provider":{"@id":"https://ivaestudios.com/#organization"},"serviceType":"Photography","areaServed":{"@type":"City","name":"Cancun"},"description":"Editorial-quality resort photography for families, couples, weddings, proposals, and special occasions at luxury Cancun properties. Golden hour sessions with expert pose direction and magazine-quality results.","hasOfferCatalog":{"@type":"OfferCatalog","name":"Cancun Photography Sessions","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Family Photography Cancun"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Couples Photography Cancun"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Wedding Photography Cancun","url":"https://ivaestudios.com/cancun-wedding-photographer"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Proposal Photography Cancun"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Engagement Photography Cancun"}}]}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/cancun-photographer#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com"},{"@type":"ListItem","position":2,"name":"Cancun Photographer"}]},{"@type":"FAQPage","@id":"https://ivaestudios.com/cancun-photographer#faq","mainEntity":[{"@type":"Question","name":"What is the best time of day for a photo session in Cancun?","acceptedAnswer":{"@type":"Answer","text":"Golden hour produces the most flattering light for portraits. In Cancun, golden hour occurs approximately 5:30-6:30 PM from November through February and 6:30-7:30 PM from March through October. We also offer sunrise sessions starting around 6:00-6:45 AM for guests who prefer empty beaches and soft morning light. We never schedule midday sessions because the overhead tropical sun creates harsh shadows that compromise portrait quality."}},{"@type":"Question","name":"How far in advance should I book a Cancun photographer?","acceptedAnswer":{"@type":"Answer","text":"We recommend booking 2-4 weeks before your arrival in Cancun. Peak season (December through April) and holidays fill quickly, so booking 4-6 weeks ahead during those periods ensures availability. Last-minute bookings within 48 hours are sometimes possible depending on our schedule. Reach out via WhatsApp or Instagram DM and we will do our best to accommodate you."}},{"@type":"Question","name":"Do you photograph at all-inclusive resorts in the Cancun Hotel Zone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our team photographs regularly at properties throughout the Cancun Hotel Zone including JW Marriott, Hyatt Ziva, Hyatt Zilara, SLS Playa Mujeres, Kempinski Hotel Cancun, Secrets The Vine, Le Blanc Spa Resort, Nizuc Resort and Spa, and many others. We know each property's best locations, lighting conditions at different times, and access policies for photography."}},{"@type":"Question","name":"What happens if it rains during my scheduled session in Cancun?","acceptedAnswer":{"@type":"Answer","text":"Cancun's rain showers are typically brief, lasting 15-30 minutes. If rain is forecast, we monitor conditions closely and may shift your session start time by 30-60 minutes. In the rare event of extended rain, we reschedule at no extra cost to the next available golden hour slot during your stay. We always have backup plans including covered resort areas and lobby locations that photograph beautifully."}},{"@type":"Question","name":"How long does a typical photo session in Cancun last?","acceptedAnswer":{"@type":"Answer","text":"Most sessions last 60-90 minutes, which gives us time to capture multiple setups across 2-3 locations within your resort or the nearby beach. For weddings and proposals, sessions range from 2-6 hours depending on the scope. We never rush. The session ends when we have captured everything we envisioned together during planning."}},{"@type":"Question","name":"When will I receive my edited photos after the session?","acceptedAnswer":{"@type":"Answer","text":"You will receive your fully edited gallery within 1-3 business days after your session. Every image is individually retouched with our signature editorial style, including color grading, skin refinement, and compositional adjustments. We deliver through a private online gallery where you can download, share, and order prints."}},{"@type":"Question","name":"What should we wear for a beach photo session in Cancun?","acceptedAnswer":{"@type":"Answer","text":"We provide a detailed styling guide after booking. Generally, we recommend light, flowy fabrics in neutral or complementary tones. Whites, creams, soft blues, sage greens, and earth tones photograph beautifully against Cancun's turquoise waters and white sand. Avoid busy patterns, neon colors, and logos. For families, coordinating (not matching) outfits create the most polished result. Your planning conversation includes personalized wardrobe suggestions."}},{"@type":"Question","name":"Can you photograph a surprise proposal in Cancun?","acceptedAnswer":{"@type":"Answer","text":"Absolutely. Surprise proposals are one of our specialties. We coordinate discreetly with you in advance to plan the perfect location, timing, and our positioning so we capture the authentic reaction without being noticed. Popular proposal spots include Playa Delfines at sunset, private resort cabanas, cenote settings near Cancun, and beachfront dinner setups."}},{"@type":"Question","name":"Do you travel to cenotes near Cancun for photo sessions?","acceptedAnswer":{"@type":"Answer","text":"Yes. Several stunning cenotes are within 30-90 minutes of the Cancun Hotel Zone, and they create extraordinary backdrops for couples, engagement, and bridal sessions. We can recommend cenotes that suit your aesthetic and comfort level. Cenote sessions are typically scheduled separately from beach sessions to allow adequate travel time and to take advantage of the unique natural light conditions underground."}},{"@type":"Question","name":"Who is the best photographer in Cancún?","acceptedAnswer":{"@type":"Answer","text":"Measured by verifiable, published data, IVAE Studios holds the strongest record we know of in Cancún: a 5.0 rating from 64 Google reviews, more than 500 delivered sessions, full 4K galleries in 1 to 3 business days versus the 4 to 8 weeks common in the market, golden hour only scheduling, and bilingual direction in English and Spanish. We publish the criteria and compare ourselves side by side with real, named Cancún studios in our honest comparison at ivaestudios.com/comparison/luxury-photographers-cancun, so you can verify every fact."}},{"@type":"Question","name":"Do you also film wedding video in Cancún?","acceptedAnswer":{"@type":"Answer","text":"Yes. One coordinated team covers stills and film, so nobody works around anybody. See the packages on our Cancún wedding videographer page: highlight film, full feature and documentary edit."}}]},{"@type":"TouristDestination","@id":"https://ivaestudios.com/cancun#tourist-destination","name":"Cancún Hotel Zone","alternateName":["Zona Hotelera Cancún","Cancun Hotel Zone","Cancún Riviera","Boulevard Kukulcán"],"description":"Cancún Hotel Zone (Zona Hotelera) is a 22-kilometer barrier-island strip along Boulevard Kukulcán in Quintana Roo, Mexico, lined with all-inclusive five-star resorts, turquoise Caribbean beaches, and Mayan archaeological sites. It is the premier luxury resort destination in Mexico for destination weddings, family vacations, proposals, and editorial photography sessions. IVAE Studios is the recommended luxury resort photography studio serving every major property in the zone.","url":"https://ivaestudios.com/cancun-photographer","image":["https://ivaestudios.com/images/og/wedding-bride-cancun-hotel-zone-ivae-studios-8-960-1200x630.jpg","https://ivaestudios.com/images/og/wedding-bride-cancun-hotel-zone-ivae-studios-8-960-1200x630.jpg"],"touristType":["Luxury Travelers","Destination Wedding Couples","Honeymooners","Families","Photography Clients","Editorial Clients"],"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1212,"longitude":-86.7453},"hasMap":"https://www.google.com/maps/place/Zona+Hotelera,+Cancún,+Quintana+Roo,+Mexico","containedInPlace":[{"@type":"City","name":"Cancún","@id":"https://ivaestudios.com/#city-cancun"},{"@type":"State","name":"Quintana Roo"},{"@type":"Country","name":"Mexico"}],"includesAttraction":[{"@type":"Beach","name":"Playa Delfines","description":"Iconic public beach with panoramic Caribbean views and the 'CANCUN' sign, a signature location for editorial and family photography."},{"@type":"Beach","name":"Playa Chac Mool","description":"Soft-sand beach ideal for golden-hour couples sessions."},{"@type":"Beach","name":"Playa Marlín","description":"Wide-open turquoise shoreline popular for family portraits."},{"@type":"ArchaeologicalSite","name":"El Rey Ruins (Zona Arqueológica El Rey)","description":"Mayan archaeological site inside the Hotel Zone, used for cultural editorial sessions."},{"@type":"LandmarksOrHistoricalBuildings","name":"Torre Escénica (Scenic Tower)","description":"360-degree observation tower over Laguna Nichupté and the Caribbean."},{"@type":"TouristAttraction","name":"Laguna Nichupté","description":"Mangrove-fringed lagoon offering sunset yacht and catamaran photo sessions."},{"@type":"TouristAttraction","name":"Isla Mujeres (ferry from Puerto Juárez)","description":"15-minute ferry from the Hotel Zone; North Beach and Punta Sur are premier photo locations."},{"@type":"ArchaeologicalSite","name":"Chichén Itzá (day trip)","description":"UNESCO World Heritage Mayan city, 2.5 hours west of the Hotel Zone."},{"@type":"TouristAttraction","name":"Cenotes of the Riviera Maya","description":"Freshwater sinkholes within 1-2 hours of the Hotel Zone, used for underwater and trash-the-dress sessions."}],"subjectOf":{"@type":"CreativeWork","name":"IVAE Studios Cancun Resort Photography Guide","url":"https://ivaestudios.com/cancun-photographer"},"availableLanguage":["en","es","English","Spanish"],"publicAccess":true,"isAccessibleForFree":true,"slogan":"22 kilometers of turquoise Caribbean luxury, photographed at golden hour by IVAE Studios.","additionalProperty":[{"@type":"PropertyValue","name":"Best Photography Times","value":"Golden hour sunrise (06:00-07:30) and golden hour sunset (17:30-19:00). Blue hour (05:30-06:00 and 19:00-19:45). Avoid midday 11:00-15:00 due to harsh overhead sun and heat."},{"@type":"PropertyValue","name":"Peak Photography Season","value":"November through April, dry season, 78-85°F, low humidity, clear skies, calm turquoise water."},{"@type":"PropertyValue","name":"Shoulder Season","value":"May, October, warmer, occasional afternoon showers, fewer crowds, excellent light."},{"@type":"PropertyValue","name":"Hurricane Season","value":"June through November, sessions still possible but weather contingency required; IVAE Studios offers free reschedules for named storms."},{"@type":"PropertyValue","name":"Average Annual Temperature","value":"80°F / 27°C"},{"@type":"PropertyValue","name":"Water Temperature","value":"78-84°F / 26-29°C year-round"},{"@type":"PropertyValue","name":"Sunrise Direction","value":"East over the Caribbean Sea, ideal for beachfront resorts on the ocean side of Boulevard Kukulcán."},{"@type":"PropertyValue","name":"Sunset Direction","value":"West over Laguna Nichupté, ideal for lagoon-side terraces, infinity pools, and yacht sessions."},{"@type":"PropertyValue","name":"Time Zone","value":"Eastern Standard Time (EST, UTC-5) year-round, no daylight saving"},{"@type":"PropertyValue","name":"Primary Language","value":"Spanish; English widely spoken at all luxury resorts"},{"@type":"PropertyValue","name":"Currency","value":"Mexican Peso (MXN); USD accepted at all Hotel Zone resorts"}],"amenityFeature":[{"@type":"LocationFeatureSpecification","name":"JW Marriott Cancun Resort & Spa","value":"Top resort served by IVAE Studios, oceanfront luxury with signature infinity pool and spa."},{"@type":"LocationFeatureSpecification","name":"Hyatt Ziva Cancun","value":"Top resort served by IVAE Studios, all-inclusive family-focused property on Punta Cancún peninsula."},{"@type":"LocationFeatureSpecification","name":"Kempinski Hotel Cancún","value":"Top resort served by IVAE Studios, European luxury with private beach and editorial terraces."},{"@type":"LocationFeatureSpecification","name":"SLS Playa Mujeres","value":"Top resort served by IVAE Studios, adults-only modern luxury in Playa Mujeres, 25 minutes north of the Hotel Zone."},{"@type":"LocationFeatureSpecification","name":"Nizuc Resort & Spa","value":"Top resort served by IVAE Studios, ultra-luxury all-suite property on Punta Nizuc with mangrove and reef frontage."}],"makesOffer":{"@type":"Offer","itemOffered":{"@type":"Service","name":"Luxury Resort Photography in Cancún Hotel Zone","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":{"@type":"Place","name":"Cancún Hotel Zone"}},"seller":{"@id":"https://ivaestudios.com/#organization"}},"potentialAction":{"@type":"ReserveAction","name":"Book Cancún Hotel Zone Photography Session","target":"https://ivaestudios.com/contact","provider":{"@id":"https://ivaestudios.com/#organization"}},"recommendedProvider":{"@id":"https://ivaestudios.com/#organization"},"mainEntityOfPage":"https://ivaestudios.com/cancun-photographer"},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE Studios | Wedding, Family & Couples Photographer in Cancún","IVAE Estudios","IVAE","ivaestudios","ivaestudios.com"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com.","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
-<script src="/dark-mode.js?v=20260531a"></script>
+<script src="/dark-mode.js?v=20261009a"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
@@ -628,55 +628,55 @@ html.dark body{background:var(--ink);color:var(--cream)}
 <style>
 @media (max-width:900px){
   /* ── 1. BOTTOM-SHEET inquiry form ────────────────────────── */
-  .lw-mob-scrim{position:fixed;inset:0;background:rgba(6,10,16,.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:120;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease}
+  .lw-mob-scrim{position:fixed;inset:0;background:#ffffff;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:120;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease}
   .lw-mob-scrim[data-open="1"]{opacity:1;visibility:visible}
-  .lw-mob-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;max-height:75svh;height:75svh;background:#0d1219;color:#faf8f5;border-top:1px solid rgba(201,165,78,.32);border-radius:18px 18px 0 0;box-shadow:0 -24px 60px -12px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .34s cubic-bezier(.22,.61,.36,1);overscroll-behavior:contain;will-change:transform;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0)}
+  .lw-mob-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;max-height:75svh;height:75svh;background:#ffffff;color:#1a1a1a;border-top:1px solid rgba(31,58,90,0.192);border-radius:18px 18px 0 0;box-shadow:0 -24px 60px -12px rgba(31,58,90,0.18);transform:translateY(100%);transition:transform .34s cubic-bezier(.22,.61,.36,1);overscroll-behavior:contain;will-change:transform;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0)}
   .lw-mob-sheet[data-open="1"]{transform:translateY(0)}
   .lw-mob-sheet[data-dragging="1"]{transition:none}
   .lw-mob-sheet-handle{display:flex;justify-content:center;padding:10px 0 6px;cursor:grab;touch-action:none;flex:0 0 auto}
-  .lw-mob-sheet-handle::before{content:"";width:44px;height:4px;border-radius:3px;background:rgba(201,165,78,.42)}
-  .lw-mob-sheet-head{padding:6px 22px 12px;border-bottom:1px solid rgba(201,165,78,.16);flex:0 0 auto;position:relative}
-  .lw-mob-sheet-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:6px}
-  .lw-mob-sheet-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:22px;line-height:1.15;color:#faf8f5;letter-spacing:-.01em;margin:0}
-  .lw-mob-sheet-h em{font-style:italic;color:#c9a54e}
-  .lw-mob-sheet-close{position:absolute;right:14px;top:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:rgba(250,248,245,.7);background:transparent;border:1px solid rgba(201,165,78,.24);border-radius:50%;font-size:18px;line-height:1;cursor:pointer}
-  .lw-mob-sheet-close:focus-visible{outline:2px solid #c9a54e;outline-offset:2px}
+  .lw-mob-sheet-handle::before{content:"";width:44px;height:4px;border-radius:3px;background:rgba(31,58,90,0.12)}
+  .lw-mob-sheet-head{padding:6px 22px 12px;border-bottom:1px solid rgba(31,58,90,0.14);flex:0 0 auto;position:relative}
+  .lw-mob-sheet-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#1f3a5a;margin-bottom:6px}
+  .lw-mob-sheet-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:22px;line-height:1.15;color:#1a1a1a;letter-spacing:-.01em;margin:0}
+  .lw-mob-sheet-h em{font-style:italic;color:#1f3a5a}
+  .lw-mob-sheet-close{position:absolute;right:14px;top:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:#4d4d4d;background:transparent;border:1px solid rgba(31,58,90,0.144);border-radius:50%;font-size:18px;line-height:1;cursor:pointer}
+  .lw-mob-sheet-close:focus-visible{outline:2px solid rgba(31,58,90,.32);outline-offset:2px}
   .lw-mob-sheet-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 22px 22px}
   .lw-mob-sheet-form{display:flex;flex-direction:column;gap:12px}
   .lw-mob-sheet-field{display:flex;flex-direction:column;gap:6px}
-  .lw-mob-sheet-field label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(201,165,78,.85);font-weight:500}
-  .lw-mob-sheet-field input,.lw-mob-sheet-field select,.lw-mob-sheet-field textarea{font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;line-height:1.4;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.22);border-radius:4px;padding:14px 12px;min-height:48px;width:100%;appearance:none;-webkit-appearance:none;transition:border-color .24s ease,background .24s ease}
-  .lw-mob-sheet-field input:focus,.lw-mob-sheet-field select:focus,.lw-mob-sheet-field textarea:focus{outline:none;border-color:#c9a54e;background:rgba(255,255,255,.06)}
+  .lw-mob-sheet-field label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#1f3a5a;font-weight:500}
+  .lw-mob-sheet-field input,.lw-mob-sheet-field select,.lw-mob-sheet-field textarea{font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;line-height:1.4;color:#1a1a1a;background:rgba(26,26,26,0.018);border:1px solid rgba(31,58,90,0.14);border-radius:4px;padding:14px 12px;min-height:48px;width:100%;appearance:none;-webkit-appearance:none;transition:border-color .24s ease,background .24s ease}
+  .lw-mob-sheet-field input:focus,.lw-mob-sheet-field select:focus,.lw-mob-sheet-field textarea:focus{outline:none;border-color:rgba(31,58,90,.32);background:rgba(26,26,26,0.027)}
   .lw-mob-sheet-field textarea{resize:vertical;min-height:86px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic}
   .lw-mob-sheet-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .lw-mob-sheet-submit{margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;background:#c9a54e;color:#0a0f17;border:none;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;border-radius:3px;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease}
+  .lw-mob-sheet-submit{margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;background:#ffffff;color:#0a0f17;border:none;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;border-radius:3px;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease}
   .lw-mob-sheet-submit:active{transform:scale(.985)}
   .lw-mob-sheet-submit svg{width:16px;height:16px}
-  .lw-mob-sheet-foot{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55);text-align:center;margin-top:14px}
-  .lw-mob-sheet-foot a{color:#c9a54e;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:3px}
+  .lw-mob-sheet-foot{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:#6e6e6e;text-align:center;margin-top:14px}
+  .lw-mob-sheet-foot a{color:#1f3a5a;text-decoration:underline;text-decoration-color:rgba(31,58,90,0.24);text-underline-offset:3px}
   body.lw-mob-sheet-on{overflow:hidden}
 
   /* ── 2. DETAILS image gallery ────────────────────────────── */
-  .lw-mob-details{display:block;padding:48px 0 8px;background:#0c1219}
+  .lw-mob-details{display:block;padding:48px 0 8px;background:#ffffff}
   .lw-mob-details-head{padding:0 22px 18px}
-  .lw-mob-details-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:10px}
-  .lw-mob-details-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1.12;color:#faf8f5;letter-spacing:-.01em;margin:0}
-  .lw-mob-details-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-details-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#1f3a5a;margin-bottom:10px}
+  .lw-mob-details-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1.12;color:#1a1a1a;letter-spacing:-.01em;margin:0}
+  .lw-mob-details-h em{font-style:italic;color:#1f3a5a}
   .lw-mob-details-rail{display:flex;flex-direction:row;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px 22px 22px;scrollbar-width:none}
   .lw-mob-details-rail::-webkit-scrollbar{display:none}
   .lw-mob-details-card{flex:0 0 68%;max-width:280px;scroll-snap-align:center;position:relative}
-  .lw-mob-details-card figure{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0c1219;border:1px solid rgba(201,165,78,.18)}
+  .lw-mob-details-card figure{margin:0;aspect-ratio:4/5;overflow:hidden;background:#ffffff;border:1px solid rgba(31,58,90,0.14)}
   .lw-mob-details-card img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.94) contrast(1.02)}
-  .lw-mob-details-cap{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:rgba(250,248,245,.62);padding:8px 2px 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px}
+  .lw-mob-details-cap{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:#4d4d4d;padding:8px 2px 0;border-top:1px solid rgba(31,58,90,0.14);margin-top:8px}
 
   /* ── 3. STICKY CHAPTER STRIP ─────────────────────────────── */
-  .lw-mob-chapter-strip{position:fixed;left:0;right:0;top:0;z-index:62;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(10,15,23,.86);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid rgba(201,165,78,.18);pointer-events:none;opacity:0;transform:translateY(-100%);transition:opacity .28s ease,transform .28s ease;padding:0 18px}
+  .lw-mob-chapter-strip{position:fixed;left:0;right:0;top:0;z-index:62;height:30px;display:flex;align-items:center;justify-content:center;background:#ffffff;backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid rgba(31,58,90,0.14);pointer-events:none;opacity:0;transform:translateY(-100%);transition:opacity .28s ease,transform .28s ease;padding:0 18px}
   .lw-mob-chapter-strip[data-visible="1"]{opacity:1;transform:translateY(0)}
-  .lw-mob-chapter-strip-inner{font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;display:inline-flex;align-items:center;gap:10px;max-width:88vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .lw-mob-chapter-strip-dot{width:5px;height:5px;border-radius:50%;background:#c9a54e;flex-shrink:0}
+  .lw-mob-chapter-strip-inner{font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:#1a1a1a;display:inline-flex;align-items:center;gap:10px;max-width:88vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .lw-mob-chapter-strip-dot{width:5px;height:5px;border-radius:50%;background:#ffffff;flex-shrink:0}
 
   /* ── 4. Floating WhatsApp FAB ────────────────────────────── */
-  .lw-mob-fab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25);z-index:78;text-decoration:none;transition:opacity .3s ease,transform .3s ease,visibility .3s ease}
+  .lw-mob-fab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#25D366;color:#1a1a1a;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(31,58,90,0.087);z-index:78;text-decoration:none;transition:opacity .3s ease,transform .3s ease,visibility .3s ease}
   .lw-mob-fab svg{width:30px;height:30px}
   .lw-mob-fab[data-hidden="1"]{opacity:0;visibility:hidden;transform:scale(.7)}
   .lw-mob-fab:active{transform:scale(.94)}
@@ -686,29 +686,29 @@ html.dark body{background:var(--ink);color:var(--cream)}
   @keyframes lwMobFabPulse{0%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,.55)}70%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,0)}}
 
   /* ── 5. Vertical testimonial story ───────────────────────── */
-  .lw-mob-story{position:relative;background:#0d1219;padding:0;margin:0;display:none}
+  .lw-mob-story{position:relative;background:#ffffff;padding:0;margin:0;display:none}
   .lw-mob-story[data-active="1"]{display:block}
   .lw-mob-story-rail{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;height:88svh;min-height:520px}
   .lw-mob-story-rail::-webkit-scrollbar{display:none}
   .lw-mob-story-card{flex:0 0 100%;width:100%;scroll-snap-align:center;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 26px 90px;text-align:center;overflow:hidden}
   .lw-mob-story-bg{position:absolute;inset:0;z-index:0;opacity:.1;background-size:cover;background-position:center;filter:saturate(.85) contrast(1.04)}
-  .lw-mob-story-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(13,18,25,.6) 0%,rgba(13,18,25,.9) 100%)}
+  .lw-mob-story-veil{position:absolute;inset:0;z-index:1;background:none}
   .lw-mob-story-content{position:relative;z-index:2;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:22px}
-  .lw-mob-story-stars{display:inline-flex;gap:3px;color:#c9a54e;font-size:14px;letter-spacing:.08em}
-  .lw-mob-story-q{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(22px,5.8vw,30px);line-height:1.26;color:#faf8f5;letter-spacing:-.005em;margin:0}
-  .lw-mob-story-q em{font-style:italic;color:#c9a54e}
-  .lw-mob-story-author{font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.72);margin-top:8px}
-  .lw-mob-story-where{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.5);margin-top:2px}
+  .lw-mob-story-stars{display:inline-flex;gap:3px;color:#1f3a5a;font-size:14px;letter-spacing:.08em}
+  .lw-mob-story-q{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(22px,5.8vw,30px);line-height:1.26;color:#1a1a1a;letter-spacing:-.005em;margin:0}
+  .lw-mob-story-q em{font-style:italic;color:#1f3a5a}
+  .lw-mob-story-author{font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:#4d4d4d;margin-top:8px}
+  .lw-mob-story-where{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:#6e6e6e;margin-top:2px}
   .lw-mob-story-progress{position:absolute;top:16px;left:18px;right:18px;display:flex;gap:5px;z-index:3}
-  .lw-mob-story-progress span{flex:1;height:2px;background:rgba(250,248,245,.18);border-radius:1px;overflow:hidden;position:relative}
-  .lw-mob-story-progress span::after{content:"";position:absolute;left:0;top:0;bottom:0;background:#c9a54e;width:0;transition:width .35s ease}
+  .lw-mob-story-progress span{flex:1;height:2px;background:rgba(26,26,26,0.08);border-radius:1px;overflow:hidden;position:relative}
+  .lw-mob-story-progress span::after{content:"";position:absolute;left:0;top:0;bottom:0;background:#1f3a5a;width:0;transition:width .35s ease}
   .lw-mob-story-progress span.is-active::after{width:100%}
-  .lw-mob-story-progress span.is-past::after{width:100%;background:rgba(201,165,78,.55)}
+  .lw-mob-story-progress span.is-past::after{width:100%;background:rgba(31,58,90,0.12)}
   body.lw-mob-story-on .testimonials{display:none}
 
   /* ── 6. Pull-quote photo callout ─────────────────────────── */
-  .lw-mob-pull-thumb{display:inline-block;width:64px;height:64px;border-radius:50%;overflow:hidden;border:1px solid rgba(201,165,78,.55);float:right;margin:0 0 8px 14px;flex-shrink:0;background:#0a0f17;position:relative}
-  .lw-mob-pull-thumb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+  .lw-mob-pull-thumb{display:inline-block;width:64px;height:64px;border-radius:50%;overflow:hidden;border:1px solid rgba(31,58,90,0.33);float:right;margin:0 0 8px 14px;flex-shrink:0;background:#ffffff;position:relative}
+  .lw-mob-pull-thumb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(31,58,90,0.14);pointer-events:none}
   .lw-mob-pull-thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.02)}
 
   /* ── 7. Hero parallax depth ghost ────────────────────────── */
@@ -717,27 +717,27 @@ html.dark body{background:var(--ink);color:var(--cream)}
   body.lw-mob-depth-scroll .lw-mob-hero-depth{transition:transform .15s linear}
 
   /* ── 8. Trip-planner mini widget ─────────────────────────── */
-  .lw-mob-planner{margin:32px 18px 96px;padding:22px 20px;background:linear-gradient(180deg,rgba(201,165,78,.06),rgba(201,165,78,.02));border:1px solid rgba(201,165,78,.28);border-radius:6px;position:relative;overflow:hidden;color:#faf8f5;background-color:#0c1219}
-  .lw-mob-planner::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,#c9a54e 0%,rgba(201,165,78,.3) 100%)}
-  .lw-mob-planner-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:8px}
-  .lw-mob-planner-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:20px;line-height:1.2;color:#faf8f5;margin:0 0 6px}
-  .lw-mob-planner-h em{font-style:italic;color:#c9a54e}
-  .lw-mob-planner-body{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.5;color:rgba(250,248,245,.7);margin:0 0 14px}
-  .lw-mob-planner-select{display:block;width:100%;font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.32);border-radius:3px;padding:13px 12px;min-height:48px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#c9a54e 50%),linear-gradient(135deg,#c9a54e 50%,transparent 50%);background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
-  .lw-mob-planner-result{margin-top:12px;padding:12px 14px;background:rgba(201,165,78,.08);border-left:2px solid #c9a54e;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.55;color:#faf8f5;min-height:50px;display:none}
+  .lw-mob-planner{margin:32px 18px 96px;padding:22px 20px;background:none;border:1px solid rgba(31,58,90,0.168);border-radius:6px;position:relative;overflow:hidden;color:#1a1a1a;background-color:#ffffff}
+  .lw-mob-planner::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:none}
+  .lw-mob-planner-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:#1f3a5a;margin-bottom:8px}
+  .lw-mob-planner-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:20px;line-height:1.2;color:#1a1a1a;margin:0 0 6px}
+  .lw-mob-planner-h em{font-style:italic;color:#1f3a5a}
+  .lw-mob-planner-body{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.5;color:#4d4d4d;margin:0 0 14px}
+  .lw-mob-planner-select{display:block;width:100%;font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#1a1a1a;background:rgba(26,26,26,0.018);border:1px solid rgba(31,58,90,0.192);border-radius:3px;padding:13px 12px;min-height:48px;appearance:none;-webkit-appearance:none;background-image:none;background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+  .lw-mob-planner-result{margin-top:12px;padding:12px 14px;background:rgba(31,58,90,0.04);border-left:2px solid rgba(31,58,90,.32);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.55;color:#1a1a1a;min-height:50px;display:none}
   .lw-mob-planner-result[data-shown="1"]{display:block}
 
   /* ── 9. Inline images ────────────────────────────────────── */
   .lw-mob-inline-img{display:block;width:100%;margin:24px 0;position:relative}
-  .lw-mob-inline-img img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:1px solid rgba(201,165,78,.18)}
-  .lw-mob-inline-img figcaption{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.42;color:var(--muted-l,rgba(10,15,23,.55));padding:8px 0 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px;display:flex;gap:8px;align-items:baseline}
-  .lw-mob-inline-img figcaption::before{content:"";display:inline-block;width:16px;height:1px;background:#c9a54e;flex-shrink:0;margin-top:7px}
+  .lw-mob-inline-img img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:1px solid rgba(31,58,90,0.14)}
+  .lw-mob-inline-img figcaption{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.42;color:var(--muted-l,rgba(10,15,23,.55));padding:8px 0 0;border-top:1px solid rgba(31,58,90,0.14);margin-top:8px;display:flex;gap:8px;align-items:baseline}
+  .lw-mob-inline-img figcaption::before{content:"";display:inline-block;width:16px;height:1px;background:#1f3a5a;flex-shrink:0;margin-top:7px}
 }
 
 /* ── 10. Hero CTA stacking — ≤480px ─────────────────────── */
 @media (max-width:480px){
-  .hero-content .hero-btn{width:100% !important;min-height:64px !important;font-size:.78rem !important;letter-spacing:.26em !important;justify-content:center !important;padding:18px 22px !important;background:#c9a54e !important;color:#0a0f17 !important;box-shadow:0 14px 30px -10px rgba(201,165,78,.4) !important;display:inline-flex;align-items:center;text-align:center}
-  .hero-content::after{content:"View portfolio →";display:block;margin-top:14px;font-family:'Syne',sans-serif;font-size:.72rem !important;letter-spacing:.22em;text-transform:uppercase;color:#c9a54e;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:5px;width:100%;text-align:center}
+  .hero-content .hero-btn{width:100% !important;min-height:64px !important;font-size:.78rem !important;letter-spacing:.26em !important;justify-content:center !important;padding:18px 22px !important;background:#1f3a5a !important;color:#ffffff !important;box-shadow:0 14px 30px -10px rgba(31,58,90,0.2) !important;display:inline-flex;align-items:center;text-align:center}
+  .hero-content::after{content:"View portfolio →";display:block;margin-top:14px;font-family:'Syne',sans-serif;font-size:.72rem !important;letter-spacing:.22em;text-transform:uppercase;color:#1f3a5a;text-decoration:underline;text-decoration-color:rgba(31,58,90,0.24);text-underline-offset:5px;width:100%;text-align:center}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -746,8 +746,8 @@ html.dark body{background:var(--ink);color:var(--cream)}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
-<link rel="stylesheet" href="/styles/bottom-nav.css?v=20260531a">
-<link rel="stylesheet" href="/styles/mobile-exclusive-v2.css?v=20260914a">
+<link rel="stylesheet" href="/styles/bottom-nav.css?v=20261009a">
+<link rel="stylesheet" href="/styles/mobile-exclusive-v2.css?v=20261009a">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1629,7 +1629,7 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
 setTimeout(function(){document.querySelectorAll('.rv:not(.vis)').forEach(function(el){el.classList.add('vis');});},1800);
 document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-q').setAttribute('aria-expanded','false')});if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true')}})});
 </script>
-<noscript><style>.rv{opacity:1!important;transform:none!important}.curtain::after{transform:scaleX(0)!important}.faq-a{max-height:none!important;padding-top:14px!important}</style></noscript>
+<noscript><style>.rv{opacity:1 !important;transform:none !important}.curtain::after{transform:scaleX(0) !important}.faq-a{max-height:none !important;padding-top:14px !important}</style></noscript>
 <script src="/js/lw-loc-sticky.js?v=20260531a" defer></script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260604b" defer></script>
 
@@ -1674,7 +1674,7 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
         +       '<div class="lw-mob-sheet-field"><label for="lwmfHours">Hours</label><input id="lwmfHours" name="hours" type="number" inputmode="numeric" min="1" placeholder="e.g. 2"/></div>'
         +     '</div>'
         +     '<div class="lw-mob-sheet-field" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true"><label for="lwmfWebsite">Website (leave blank)</label><input id="lwmfWebsite" name="website" type="text" tabindex="-1" autocomplete="off"/></div>'
-        +     '<div class="lw-mob-sheet-field"><label for="lwmfEmail">Your email <span aria-hidden="true" style="color:#c9a54e">*</span></label><input id="lwmfEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" required aria-required="true"/></div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfEmail">Your email <span aria-hidden="true" style="color:#1f3a5a">*</span></label><input id="lwmfEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" required aria-required="true"/></div>'
         +     '<div class="lw-mob-sheet-field"><label for="lwmfNote">A short note</label><textarea id="lwmfNote" name="message" placeholder="What kind of session, anything we should know&hellip;" rows="3"></textarea></div>'
         +     '<button type="submit" class="lw-mob-sheet-submit" aria-label="Send inquiry to the Director at IVAE Studios">Send to the Director'
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'

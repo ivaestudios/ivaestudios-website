@@ -23,9 +23,9 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 #faq-visible {
-  --faq-oro: var(--gold, #c4a35a);
-  --faq-crema: var(--cream, #f9f8f7);
-  --faq-filete: rgba(196, 163, 90, 0.20);
+  --faq-oro: #6e6e6e;
+  --faq-crema: #1a1a1a;
+  --faq-filete: rgba(26,26,26,.12);
 }
 
 /* ── Cabecera de la sección ───────────────────────────────────────── */
@@ -35,7 +35,7 @@
   font-size: clamp(28px, 7.5vw, 38px);
   line-height: 1.12;
   letter-spacing: -0.01em;
-  color: var(--faq-crema);
+  color: #1a1a1a;
   margin: 0 0 6px;
 }
 /* Un filete corto en dorado bajo el titular: la misma firma que llevan
@@ -46,7 +46,7 @@
   width: 42px;
   height: 1px;
   margin: 18px 0 26px;
-  background: var(--faq-oro);
+  background: #1f3a5a;
 }
 
 /* ── Cada pregunta ────────────────────────────────────────────────── */
@@ -99,12 +99,12 @@
 /* La pregunta abierta se queda en dorado A PROPÓSITO: de un vistazo se ve
    cuál está desplegada sin tener que buscar el signo. */
 #faq-visible .faq-item[open] .faq-q h3,
-#faq-visible .faq-q:focus-visible h3 { color: var(--faq-oro) !important; }
+#faq-visible .faq-q:focus-visible h3 { color: #1f3a5a !important; }
 /* El resaltado al pasar por encima solo donde hay puntero de verdad: en
    una pantalla táctil el :hover se queda PEGADO después de tocar y deja
    preguntas en dorado que ya se cerraron. */
 @media (hover: hover) and (pointer: fine) {
-  #faq-visible .faq-item:hover .faq-q h3 { color: var(--faq-oro) !important; }
+  #faq-visible .faq-item:hover .faq-q h3 { color: #1f3a5a !important; }
 }
 
 /* El signo, en dorado, girando 45° hasta volverse una × al abrir */
@@ -117,7 +117,7 @@
   font-size: 22px;
   font-weight: 300;
   line-height: 1;
-  color: var(--faq-oro);
+  color: #1f3a5a;
   transform: translateY(-50%) rotate(0deg);
   transform-origin: 50% 50%;
   transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -127,7 +127,7 @@
 }
 
 #faq-visible .faq-q:focus-visible {
-  outline: 2px solid var(--faq-oro);
+  outline: 2px solid rgba(31,58,90,.32);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -139,7 +139,7 @@
   font-size: clamp(16px, 4.2vw, 17px);
   line-height: 1.74;
   letter-spacing: 0.005em;
-  color: rgba(249, 248, 247, 0.74);
+  color: #4d4d4d;
   /* blog.css la dejaba en max-height:0 esperando un JS que no existe */
   max-height: none;
   overflow: visible;

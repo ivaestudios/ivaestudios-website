@@ -26,15 +26,15 @@
   --ink2: #0c1219;
 
   /* ── COLOR — CREAMS / SANDS (light surfaces) ──────────────── */
-  --cream-1: #faf8f5;
-  --cream-2: #f3f1ec;
-  --sand-1:  #eee8dc;
-  --sand-2:  #e5dacb;
+  --cream-1: #ffffff;
+  --cream-2: #f7f7f5;
+  --sand-1: #f7f7f5;
+  --sand-2: #f7f7f5;
 
   /* Legacy cream/sand aliases */
-  --cream: #faf8f5;
-  --sand:  #eee8dc;
-  --sand2: #e5dacb;
+  --cream: #ffffff;
+  --sand: #f7f7f5;
+  --sand2: #f7f7f5;
 
   /* ── COLOR — GOLD (accent) ────────────────────────────────── */
   --gold:       #c9a54e;
@@ -139,8 +139,8 @@
   --r-circle: 50%;
 
   /* ── BLOG ALIASES (so blog.html needs zero selector changes) */
-  --paper:   #faf8f5;
-  --paper-2: #f3f1ec;
+  --paper: #ffffff;
+  --paper-2: #f7f7f5;
   --serif:   'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --sans:    'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 

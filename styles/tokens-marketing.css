@@ -1,4 +1,4 @@
-/* GENERADO por scripts/base-blanca/blanquear_home.py a partir de styles/tokens.css: no editar a mano. */
+/* Copia CONGELADA de styles/tokens.css antes de la base blanca (2026-10), para las páginas de IVAE Marketing. */
 /* ═══════════════════════════════════════════════════════════════
    IVAE Studios — Canonical Design Tokens
    ───────────────────────────────────────────────────────────────
@@ -27,15 +27,15 @@
   --ink2: #0c1219;
 
   /* ── COLOR — CREAMS / SANDS (light surfaces) ──────────────── */
-  --cream-1: #ffffff;
-  --cream-2: #f7f7f5;
-  --sand-1: #f7f7f5;
-  --sand-2: #f7f7f5;
+  --cream-1: #faf8f5;
+  --cream-2: #f3f1ec;
+  --sand-1:  #eee8dc;
+  --sand-2:  #e5dacb;
 
   /* Legacy cream/sand aliases */
-  --cream: #ffffff;
-  --sand: #f7f7f5;
-  --sand2: #f7f7f5;
+  --cream: #faf8f5;
+  --sand:  #eee8dc;
+  --sand2: #e5dacb;
 
   /* ── COLOR — GOLD (accent) ────────────────────────────────── */
   --gold:       #c9a54e;
@@ -140,8 +140,8 @@
   --r-circle: 50%;
 
   /* ── BLOG ALIASES (so blog.html needs zero selector changes) */
-  --paper: #ffffff;
-  --paper-2: #f7f7f5;
+  --paper:   #faf8f5;
+  --paper-2: #f3f1ec;
   --serif:   'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --sans:    'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
