@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610101800';
-import { toast } from '../shell/toast.js?v=202610101800';
-import { icon, iconMarca } from '../shell/icons.js?v=202610101800';
-import { T, isEN } from '../shell/i18n.js?v=202610101800';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610101830';
+import { toast } from '../shell/toast.js?v=202610101830';
+import { icon, iconMarca } from '../shell/icons.js?v=202610101830';
+import { T, isEN } from '../shell/i18n.js?v=202610101830';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -767,7 +767,8 @@ function seccionLlamarConLinea(body, v, linea, close) {
     clear(vivoEl);
     vivoEl.hidden = false;
     if (l.activa) {
-      vivoEl.append(
+      // OJO: append() pinta "null" (a diferencia de el()): se filtra.
+      vivoEl.append(...[
         el('div', { class: 'bj-vivo__fila is-viva' }, [
           el('span', { class: 'bj-vivo__punto', 'aria-hidden': 'true' }),
           el('strong', { text: estadoLlamadaTxt(l.estado) }),
@@ -775,7 +776,7 @@ function seccionLlamarConLinea(body, v, linea, close) {
         ].filter(Boolean)),
         l.estado === 'en_curso' ? el('p', { class: 'muted bj-aj__p', text: T('Se está grabando. Al colgar aparece aquí la transcripción.', 'Recording. The transcript shows up here after you hang up.') }) : null,
         el('button', { type: 'button', class: 'btn btn-danger bj-llamar', onclick: (e) => colgar(e.currentTarget) }, [icon('close', 16), ' ' + T('Colgar', 'Hang up')]),
-      );
+      ].filter(Boolean));
       return;
     }
     const sinPaciente = ['no_contesto_agente', 'cancelada'].includes(l.estado) || (l.estado === 'fallida' && !l.resultado);
@@ -1701,11 +1702,11 @@ function seccionLinea(body, cli) {
           pintar(resumen && resumen.llamadas);
         } catch (e) { toast(e.message, { type: 'error' }); }
       } }, [T('Desconectar', 'Disconnect')]);
-      caja.append(
+      caja.append(...[
         el('label', { class: 'bj-eq__chk' }, [chkAviso, el('span', { text: T('Avisar al paciente que la llamada se graba (recomendado: son datos de salud)', 'Tell the patient the call is recorded (recommended)') })]),
         ln.entrantes ? el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-ln-desvio', text: T('Si ningún agente contesta, desviar a', 'If no agent answers, forward to') }), fDesvio]) : null,
         el('div', { class: 'btn-row bj-aj__btns' }, [btnG, btnOff]),
-      );
+      ].filter(Boolean));
       return;
     }
     caja.appendChild(el('p', { class: 'muted bj-aj__p', text: T(
@@ -1750,7 +1751,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610101800';
+  link.href = '/marketing/css/bandeja.css?v=202610101830';
   document.head.appendChild(link);
 }
 
