@@ -54,3 +54,18 @@ nav.breadcrumbs:not(.post-hero *),nav.breadcrumbs:not(.post-hero *) a{color:#6e6
   /* Las fotos de "la hora" y del cierre se agrandan por el movimiento y se salían por la derecha: la página se movía de lado */
   .ivm-act-hour,.ivm-act-cta{overflow-x:clip !important}
 }
+
+/* Piezas pensadas SOLO para el teléfono que en computadora salían sin diseño (existía desde antes del blanco):
+   la galería "In the Details" (≈6,000 px de fotos sueltas en 7 páginas) y el selector de planeación (8 páginas).
+   Sus estilos viven en @media (max-width:880px); en computadora la página ya tiene sus propias galerías.
+   OJO: la página de bodas de destino SÍ tiene diseño de computadora para su selector (y no lleva has-bottom-tabs). */
+@media (min-width:881px){
+  .lw-mob-details,body.has-bottom-tabs .lw-mob-planner{display:none !important}
+}
+
+/* Portadas con foto en computadora: su texto va claro sobre la foto (el convertidor no ve que estas clases viven dentro de la portada) */
+:is(.lw-hero,.cinematic-hero,.le-hero) :is(.lw-eyebrow,.lw-btn,.lw-meta-n,.lw-meta-cities,.lw-meta-cell,.lw-availability-text,.lw-availability-text *,.lw-hero-byline,.lw-hero-byline a,.btn-magnetic,.le-italic,.le-italic *){color:#ffffff !important}
+:is(.lw-hero,.cinematic-hero) :is(.lw-btn,.btn-magnetic):not([class*="gold"]):not([class*="primary"]){border-color:rgba(255,255,255,.55) !important}
+
+/* Sin la foto que seguía al cursor al pasar sobre enlaces (home, computadora). Pedido de Israel, 2026-10-09. */
+.cur-preview{display:none !important}

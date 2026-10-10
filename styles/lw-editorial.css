@@ -86,24 +86,23 @@
 .lw-approach-portrait{
   display:flex !important;align-items:center;justify-content:center;
   background:
-    radial-gradient(ellipse at 30% 25%,rgba(201,165,78,.10),transparent 60%),
-    linear-gradient(180deg,#0a0f17 0%,#0d131c 100%) !important;
+    none !important;
   position:relative;
 }
 .lw-approach-portrait::before{
   content:"";position:absolute;inset:14px;
-  border:1px solid rgba(255,255,255,.15);
+  border:1px solid rgba(31,58,90,0.14);
   pointer-events:none;
 }
 .lw-approach-monogram{
   display:inline-flex;align-items:baseline;gap:.04em;
   font-family:'Cormorant Garamond',Georgia,serif;
   font-style:italic;font-weight:300;
-  color:#ffffff;
+  color:#1f3a5a;
   font-size:clamp(80px,10vw,160px);
   line-height:1;
   letter-spacing:-.015em;
-  text-shadow:0 4px 30px rgba(201,165,78,.18);
+  text-shadow:none;
   -webkit-user-select:none;
   user-select:none;
 }

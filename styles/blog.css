@@ -25,8 +25,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @media(min-width:768px) and (max-width:1199px){.site-header{padding:0 48px}.header-nav{gap:28px}}
 
 /* BREADCRUMBS */
-.breadcrumbs{max-width:760px;margin:0 auto;padding:24px 64px 0;font-size:11px;letter-spacing:0.08em;color:var(--muted-l2)}
-.breadcrumbs a{color:var(--muted-l2);text-decoration:none;transition:color 0.2s}
+.breadcrumbs{max-width:760px;margin:0 auto;padding:24px 64px 0;font-size:11px;letter-spacing:0.08em;color:#6e6e6e}
+.breadcrumbs a{color:#6e6e6e;text-decoration:none;transition:color 0.2s}
 .breadcrumbs a:hover{color:#1f3a5a}
 .breadcrumbs span{margin:0 6px;opacity:0.5}
 

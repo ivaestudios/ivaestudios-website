@@ -23,8 +23,8 @@ INK = "#1a1a1a"; INK2 = "#4d4d4d"; INK3 = "#6e6e6e"; LINE = "rgba(26,26,26,.12)"
 # acento azul marino (elegido 2026-10-07): ocupa el lugar que tenía el dorado
 ACC = "#1f3a5a"; ACC_RGB = "31,58,90"
 
-FOTO = re.compile(r"ivm-act-hero|ivm-act-hour|ivm-wd-hero|ivm-wd-frame|ivm-wd-cinema|ivm-svc__photo|ivm-svc__num|ivm-reel-card__(meta|venue|title)|founder__pola|ivm-act-cta__(bg|veil)|loc-ov|__veil|cinematic-hero|ch-|post-hero|hero-photo|__img-overlay|img-overlay|photo-caption|ivm-st-hero__scroll|lw-hero|le-hero|ivm-jl-hero|ivm-jl-feat")
-BOTON = re.compile(r"btn|button|__cta-btn|cta__btn|book|\.btn|-pill|m-nav-cta|primary")
+FOTO = re.compile(r"ivm-act-hero|ivm-act-hour|ivm-wd-hero|ivm-wd-frame|ivm-wd-cinema|ivm-svc__photo|ivm-svc__num|ivm-reel-card__(meta|venue|title)|founder__pola|ivm-act-cta__(bg|veil)|loc-ov|__veil|cinematic-hero|(?<![\w-])ch-|(?<![\w-])post-hero|hero-photo|__img-overlay|img-overlay|photo-caption|ivm-st-hero__scroll|(?<![\w-])lw-hero|(?<![\w-])le-hero|ivm-jl-hero|ivm-jl-feat")
+BOTON = re.compile(r"btn|button|__cta-btn|cta__btn|\.btn|-pill(?![a-z])|m-nav-cta|primary")  # ojo: "pill" sin "pillar", y "book" fuera (book-step/book-option son secciones)
 ETIQUETA = re.compile(r"eyebrow|lbl|label|__tag|__time|venue|__step|__sub\b|__meta|counter|hint|__scroll|__kicker|small|__date|__loc|caption|__n\b|-n\b|crumb")
 BLOQUE = re.compile(r"^\s*(?:body\s+|html\s+|\.ivm\s+)*\.[a-z0-9-]+(?:\.[a-z0-9-]+)?\s*$")  # selector de sección (sin __ ni pseudo)
 
@@ -54,9 +54,11 @@ def mapear_color_texto(val, sel):
         c = clase_rgb(r, g, b)
         if c == "crema": return texto_desde_alfa(a)
         if c == "oro": return ACC
+        if c == "oscuro" and a < .6: return INK3
         return m.group(0)
     v = RGBA.sub(rep, val)
     v = re.sub(r"var\(--(?![\w-]*muted-l)[\w-]*(?:muted|-3\b)[\w-]*(?:\s*,[^)]*)?\)", INK3, v)
+    v = re.sub(r"var\(--muted-l2(?:\s*,[^)]*)?\)", INK3, v)  # gris muy claro (0.38) -> gris legible
     v = re.sub(r"var\(--[\w-]*(?:cream|crema|on-ink|on-dark)[\w-]*-2(?:\s*,[^)]*)?\)", INK2, v)
     v = re.sub(VAR_CREAM, INK, v)
     v = re.sub(VAR_GOLD, ACC, v)

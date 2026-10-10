@@ -132,14 +132,14 @@
   letter-spacing: 0.08em;
   line-height: 1.5;
   color: var(--lw-ink-soft);
-  border-left: 2px solid rgba(255,255,255,.6);
+  border-left: 2px solid rgba(31,58,90,.32);
 }
 .lw-post-hero__fig {
   display: block;
   font-family: var(--lw-serif);
   font-style: italic;
   font-size: 13px;
-  color: #ffffff;
+  color: #1f3a5a;
   margin-bottom: 6px;
   letter-spacing: 0.02em;
 }

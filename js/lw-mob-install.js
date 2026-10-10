@@ -4,6 +4,7 @@
  * - Shows on 2nd+ visit when beforeinstallprompt fires.
  * - "Not now" dismisses for 30 days.
  * IIFE, defer-loadable, inline CSS injected at top.
+ * 2026-10-09: tarjeta blanca con acento azul marino (base blanca del sitio).
  */
 (function () {
   'use strict';
@@ -41,11 +42,11 @@
     var css = '' +
       '.lw-mob-install{position:fixed;left:12px;right:12px;' +
       'bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);' +
-      'z-index:9990;background:rgba(10,15,23,0.96);' +
+      'z-index:9990;background:rgba(255,255,255,0.98);' +
       '-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);' +
-      'border-left:3px solid #C9A961;border-radius:12px;' +
-      'padding:14px 16px;color:#fff;font-family:inherit;' +
-      'box-shadow:0 18px 48px rgba(0,0,0,0.4);' +
+      'border-left:3px solid #1f3a5a;border-radius:12px;' +
+      'padding:14px 16px;color:#1a1a1a;font-family:inherit;' +
+      'box-shadow:0 18px 44px rgba(31,58,90,0.18),0 0 0 1px rgba(31,58,90,0.08);' +
       'display:flex;align-items:center;gap:12px;flex-wrap:wrap;' +
       'transform:translateY(120%);opacity:0;' +
       'transition:transform .4s ease,opacity .4s ease;' +
@@ -53,17 +54,17 @@
       '.lw-mob-install.is-visible{transform:translateY(0);opacity:1;}' +
       '.lw-mob-install__body{flex:1 1 180px;min-width:0;}' +
       '.lw-mob-install__title{font-size:14px;font-weight:600;' +
-      'letter-spacing:.01em;margin:0 0 2px;color:#fff;}' +
-      '.lw-mob-install__text{font-size:12px;opacity:.78;margin:0;line-height:1.4;}' +
+      'letter-spacing:.01em;margin:0 0 2px;color:#1a1a1a;}' +
+      '.lw-mob-install__text{font-size:12px;color:#4d4d4d;margin:0;line-height:1.4;}' +
       '.lw-mob-install__actions{display:flex;gap:8px;flex:0 0 auto;}' +
       '.lw-mob-install__btn{min-height:44px;padding:10px 16px;' +
       'border-radius:8px;font-size:13px;font-weight:600;' +
       'cursor:pointer;border:none;font-family:inherit;' +
       'letter-spacing:.02em;transition:transform .2s ease,opacity .2s ease;}' +
-      '.lw-mob-install__btn--primary{background:#C9A961;color:#0A0F17;}' +
+      '.lw-mob-install__btn--primary{background:#1f3a5a;color:#ffffff;}' +
       '.lw-mob-install__btn--primary:active{transform:scale(.97);}' +
-      '.lw-mob-install__btn--ghost{background:transparent;color:#fff;opacity:.7;}' +
-      '.lw-mob-install__btn--ghost:active{opacity:1;}' +
+      '.lw-mob-install__btn--ghost{background:transparent;color:#4d4d4d;}' +
+      '.lw-mob-install__btn--ghost:active{color:#1a1a1a;}' +
       '@media (prefers-reduced-motion: reduce){' +
       '.lw-mob-install{transition:opacity .2s ease;transform:none;}' +
       '.lw-mob-install.is-visible{transform:none;}}';

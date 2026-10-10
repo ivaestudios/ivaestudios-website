@@ -16,7 +16,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, AQUI)
 import blanquear as B
 import construir_overlay as C
 REPO = os.path.dirname(os.path.dirname(AQUI))
-SELLO = "20261009a"
+SELLO = "20261009b"
 HOME_ORIGEN = "1aa313f96"
 NO_CONVERTIR = {"imkt-toque.css", "marketing-blog.css", "wa-fab.css"}
 SOLO_HOME = ["styles/tokens-blanco.css", "styles/site-header-blanco.css", "styles/mobile-exclusive-blanco.css", "js/lang-switcher-blanco.css", "styles/home-acentos.css"]

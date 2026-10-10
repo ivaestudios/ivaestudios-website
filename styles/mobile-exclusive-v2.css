@@ -2804,7 +2804,7 @@
     font-size: 9px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(10,15,23,.55);
+    color: #6e6e6e;
     text-align: center;
   }
   .ivm-about-mast__scroll {
@@ -2812,7 +2812,7 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba(10,15,23,.5);
+    color: #6e6e6e;
     font-family: 'Syne', sans-serif;
     font-size: 9px;
     letter-spacing: 0.42em;
