@@ -439,7 +439,13 @@ function buzonTwiml(c, id) {
 
 export async function handleTwilio(request, env, url, waitUntil) {
   if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
-  const accion = url.pathname.slice(url.pathname.indexOf(RUTA_TW) + RUTA_TW.length).replace(/\/+$/, '');
+  // El enrutador de la app quita el prefijo /api/marketing antes de llegar
+  // aquí (la ruta es /llamadas/tw/<accion>). Twilio firma la URL PÚBLICA que
+  // pidió, que es exactamente la que armamos con BASE_PUBLICA + RUTA_TW.
+  const corta = '/llamadas/tw/';
+  const p = url.pathname;
+  const accion = (p.startsWith(RUTA_TW) ? p.slice(RUTA_TW.length) : p.startsWith(corta) ? p.slice(corta.length) : '').replace(/\/+$/, '');
+  const urlFirmada = `${BASE_PUBLICA}${RUTA_TW}${accion}${url.search}`;
   const params = {};
   try { const fd = await request.formData(); for (const [k, v] of fd.entries()) params[k] = String(v); } catch { /* sin cuerpo */ }
   const firma = request.headers.get('x-twilio-signature') || '';
@@ -449,7 +455,7 @@ export async function handleTwilio(request, env, url, waitUntil) {
   if (accion === 'entrante' || accion === 'estado-entrante') {
     const c = await marcaPorLinea(env, params.To);
     if (!c) return accion === 'entrante' ? twiml(say('Este número no está disponible.') + '<Hangup/>') : vacio();
-    if (!(await firmaValida(c.tw_auth_token, request.url, params, firma))) return new Response('Firma inválida', { status: 403 });
+    if (!(await firmaValida(c.tw_auth_token, urlFirmada, params, firma))) return new Response('Firma inválida', { status: 403 });
     if (accion === 'estado-entrante') {
       // La persona colgó antes de que sonara algún agente (o en el saludo).
       const f = params.CallSid ? await env.DB.prepare('SELECT * FROM mkt_llamadas WHERE twilio_sid = ? AND client_id = ?').bind(params.CallSid, c.id).first() : null;
@@ -465,7 +471,7 @@ export async function handleTwilio(request, env, url, waitUntil) {
   const fila = await filaLlamada(env, url.searchParams.get('l') || '');
   const c = fila ? await marca(env, fila.client_id) : null;
   if (!fila || !c || !c.tw_auth_token) return accion === 'grabacion' || accion.startsWith('estado') || accion === 'paciente' ? vacio() : twiml('<Hangup/>');
-  if (!(await firmaValida(c.tw_auth_token, request.url, params, firma))) return new Response('Firma inválida', { status: 403 });
+  if (!(await firmaValida(c.tw_auth_token, urlFirmada, params, firma))) return new Response('Firma inválida', { status: 403 });
   const cfg = cfgLinea(c);
   const marcaNombre = nombreComercial(c);
 
