@@ -372,9 +372,17 @@ async function whisperCanal(env, muestras, rate) {
           if (t) segs.push({ ini: base + (Number(run[0].start) || 0), fin: base + (Number(run[run.length - 1].end) || 0), texto: t });
         };
         for (let k = 1; k < palabras.length; k++) {
-          const hueco = (Number(palabras[k].start) || 0) - (Number(palabras[k - 1].end) || 0);
-          if (hueco > 1.2) { cerrar(); run = []; }
-          run.push(palabras[k]);
+          const w = palabras[k];
+          const hueco = (Number(w.start) || 0) - (Number(palabras[k - 1].end) || 0);
+          // Una palabra que "dura" más de 1.5 s en realidad cruza la pausa
+          // (Whisper le pega el silencio): va con lo que sigue, no con lo de antes.
+          const estirada = (Number(w.end) || 0) - (Number(w.start) || 0) > 1.5;
+          if (hueco > 1.2 || estirada) {
+            cerrar();
+            run = [estirada ? { ...w, start: (Number(w.end) || 0) - 0.4 } : w];
+            continue;
+          }
+          run.push(w);
         }
         cerrar();
       } else {
