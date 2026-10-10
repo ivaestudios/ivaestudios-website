@@ -47,6 +47,14 @@ const MODELO_GEMINI = 'gemini-2.5-flash';
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com';
 const TOPE_INLINE = 19 * 1024 * 1024;
 const MAX_INTENTOS = 4;
+// Motor principal de transcripción: Whisper en Cloudflare Workers AI (binding
+// AI del proyecto, centavos por hora de audio). Twilio entrega la grabación en
+// WAV de DOS canales (agente y paciente por separado): cada lado se transcribe
+// aparte y los turnos salen exactos, sin adivinar quién habló. Claude hace el
+// resumen. Gemini (Vertex) queda de respaldo.
+const MODELO_WHISPER = '@cf/openai/whisper-large-v3-turbo';
+const MODELO_RESUMEN = 'claude-haiku-4-5-20251001';
+const TRAMO_SEG = 180;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -267,6 +275,161 @@ async function geminiAudio(env, bytes, mime, prompt) {
   throw new Error('Gemini no pudo transcribir: ' + errores.join(' · ').slice(0, 300));
 }
 
+// ── WAV de Twilio → canales → Whisper ────────────────────────────────────────
+function muLawA16(b) {
+  const u = ~b & 0xff;
+  let t = ((u & 0x0f) << 3) + 0x84;
+  t <<= (u & 0x70) >> 4;
+  return (u & 0x80) ? (0x84 - t) : (t - 0x84);
+}
+function aLawA16(b) {
+  let a = b ^ 0x55;
+  let t = (a & 0x0f) << 4;
+  const seg = (a & 0x70) >> 4;
+  if (seg === 0) t += 8; else if (seg === 1) t += 0x108; else t = (t + 0x108) << (seg - 1);
+  return (a & 0x80) ? t : -t;
+}
+// Devuelve { rate, canales: [Int16Array, …] }. Acepta PCM 16 bits, mu-law y a-law.
+export function leerWav(u8) {
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const tag = (o) => String.fromCharCode(u8[o], u8[o + 1], u8[o + 2], u8[o + 3]);
+  if (u8.byteLength < 44 || tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('La grabación no es un WAV válido.');
+  let off = 12, fmt = null, data = null;
+  while (off + 8 <= u8.byteLength) {
+    const id = tag(off); const size = dv.getUint32(off + 4, true); const cuerpo = off + 8;
+    if (id === 'fmt ') fmt = { formato: dv.getUint16(cuerpo, true), canales: dv.getUint16(cuerpo + 2, true), rate: dv.getUint32(cuerpo + 4, true), bits: dv.getUint16(cuerpo + 14, true) };
+    else if (id === 'data') { data = { off: cuerpo, len: Math.min(size, u8.byteLength - cuerpo) }; break; }
+    off = cuerpo + size + (size % 2);
+  }
+  if (!fmt || !data) throw new Error('El WAV no trae formato o datos.');
+  let formato = fmt.formato;
+  if (formato === 0xfffe) formato = fmt.bits === 8 ? 7 : 1; // WAVE_FORMAT_EXTENSIBLE: lo habitual
+  const nc = Math.max(1, fmt.canales);
+  const bps = fmt.bits / 8;
+  const n = Math.floor(data.len / (bps * nc));
+  const canales = Array.from({ length: nc }, () => new Int16Array(n));
+  for (let i = 0; i < n; i++) {
+    for (let c = 0; c < nc; c++) {
+      const o = data.off + (i * nc + c) * bps;
+      let v;
+      if (formato === 1 && fmt.bits === 16) v = dv.getInt16(o, true);
+      else if (formato === 7) v = muLawA16(u8[o]);
+      else if (formato === 6) v = aLawA16(u8[o]);
+      else if (formato === 1 && fmt.bits === 8) v = (u8[o] - 128) << 8;
+      else throw new Error(`Formato de audio no soportado (${fmt.formato}/${fmt.bits} bits).`);
+      canales[c][i] = v;
+    }
+  }
+  return { rate: fmt.rate, canales };
+}
+function wavMono(muestras, rate) {
+  const buf = new ArrayBuffer(44 + muestras.length * 2);
+  const dv = new DataView(buf);
+  const w = (o, t) => { for (let i = 0; i < 4; i++) dv.setUint8(o + i, t.charCodeAt(i)); };
+  w(0, 'RIFF'); dv.setUint32(4, 36 + muestras.length * 2, true); w(8, 'WAVE');
+  w(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, rate, true); dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+  w(36, 'data'); dv.setUint32(40, muestras.length * 2, true);
+  new Int16Array(buf, 44).set(muestras);
+  return new Uint8Array(buf);
+}
+// ¿Hay voz en este tramo? (cuadros de 20 ms con energía de habla). El lado
+// callado de una llamada no se manda a Whisper: en silencio inventa frases.
+function hayVoz(m, rate) {
+  const cuadro = Math.max(80, Math.round(rate / 50));
+  let conVoz = 0;
+  for (let i = 0; i + cuadro <= m.length; i += cuadro) {
+    let suma = 0;
+    for (let j = i; j < i + cuadro; j++) suma += m[j] * m[j];
+    if (Math.sqrt(suma / cuadro) > 450) conVoz++;
+  }
+  return conVoz >= 8;
+}
+const ALUCINACIONES = /suscr[ií]b|gracias por ver|subt[ií]tulos|amara\.org|¡?gracias\.?!?$/i;
+async function whisperCanal(env, muestras, rate) {
+  const segs = [];
+  const tramo = TRAMO_SEG * rate;
+  for (let ini = 0; ini < muestras.length; ini += tramo) {
+    const parte = muestras.subarray(ini, Math.min(muestras.length, ini + tramo));
+    if (!hayVoz(parte, rate)) continue;
+    const r = await env.AI.run(MODELO_WHISPER, { audio: b64(wavMono(parte, rate)), vad_filter: true });
+    const base = ini / rate;
+    for (const sg of (r && r.segments) || []) {
+      const texto = String(sg.text || '').trim();
+      if (!texto) continue;
+      if (Number(sg.no_speech_prob) > 0.6 && Number(sg.avg_logprob) < -1) continue;
+      if (ALUCINACIONES.test(texto) && texto.length < 40) continue;
+      segs.push({ ini: base + (Number(sg.start) || 0), fin: base + (Number(sg.end) || 0), texto });
+    }
+    if (!(r && r.segments) && r && r.text && String(r.text).trim()) segs.push({ ini: base, fin: base + parte.length / rate, texto: String(r.text).trim() });
+  }
+  return segs;
+}
+// Los tramos de cada lado, en orden de tiempo, juntando lo seguido del mismo.
+function armarTurnos(segs) {
+  const orden = segs.slice().sort((a, b) => a.ini - b.ini);
+  const turnos = [];
+  for (const s of orden) {
+    const ult = turnos[turnos.length - 1];
+    if (ult && ult.quien === s.quien) ult.texto += ' ' + s.texto;
+    else turnos.push({ quien: s.quien, texto: s.texto });
+  }
+  return turnos;
+}
+async function claudeJson(env, system, user, maxTokens = 900) {
+  if (!env.ANTHROPIC_API_KEY) return null;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: MODELO_RESUMEN, max_tokens: maxTokens, system, messages: [{ role: 'user', content: user }] }),
+    signal: AbortSignal.timeout(60000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error('Claude no pudo resumir: ' + ((data.error && data.error.message) || `HTTP ${res.status}`));
+  return extraerJson(((data.content || []).map((x) => x.text || '').join('')));
+}
+async function transcribirConWhisper(env, wavBytes, { marcaNombre, fila, paciente }) {
+  const { rate, canales } = leerWav(wavBytes);
+  let turnos;
+  let etiquetar = false;
+  if (fila.buzon) {
+    turnos = armarTurnos((await whisperCanal(env, canales[0], rate)).map((x) => ({ ...x, quien: 'paciente' })));
+  } else if (canales.length >= 2) {
+    // Twilio graba la pierna principal en el canal 1: en las salientes es el
+    // agente; en las entrantes, el paciente que llamó.
+    const [q0, q1] = fila.direccion === 'entrante' ? ['paciente', 'agente'] : ['agente', 'paciente'];
+    const a = (await whisperCanal(env, canales[0], rate)).map((x) => ({ ...x, quien: q0 }));
+    const b = (await whisperCanal(env, canales[1], rate)).map((x) => ({ ...x, quien: q1 }));
+    turnos = armarTurnos([...a, ...b]);
+  } else {
+    turnos = (await whisperCanal(env, canales[0], rate)).map((x) => ({ quien: 'agente', texto: x.texto }));
+    etiquetar = true;
+  }
+  const base = { turnos, resumen: '', resultado: turnos.length ? '' : 'no_contesto', cita: '', siguiente_paso: '', temas: [], motor: 'whisper' };
+  if (!turnos.length) return base;
+  const agente = fila.user_nombre || 'el agente';
+  const texto = turnos.map((x, i) => (etiquetar ? `${i + 1}. ` : '') + (etiquetar ? x.texto : `${x.quien === 'paciente' ? 'Paciente' : 'Agente'}: ${x.texto}`)).join('\n').slice(0, 60000);
+  const system = fila.buzon
+    ? `Eres el asistente de ${marcaNombre}. Te paso la transcripción de un MENSAJE DE VOZ que dejó una persona al llamar a la clínica. Responde SOLO un JSON: {"resumen":"una o dos frases: quién llama y qué necesita","siguiente_paso":"qué hacer","temas":["máximo 4"]}. No inventes nada.`
+    : `Eres el asistente de calidad de ${marcaNombre}, una clínica. Te paso la transcripción de una llamada entre ${agente} (agente) y ${paciente || 'un paciente'}. Responde SOLO un JSON:
+{"resumen":"dos o tres frases: para qué fue la llamada y en qué quedaron","resultado":"cita | contesto | buzon | no_contesto | numero_mal","cita":"día y hora acordados si quedó una cita; si no, cadena vacía","siguiente_paso":"qué sigue, una frase","temas":["máximo 4"]${etiquetar ? ',"hablantes":["agente" o "paciente" por cada renglón numerado, en orden]' : ''}}
+Reglas: "cita" solo si quedó una cita con día u hora; "buzon" si contestó un buzón o grabadora; "numero_mal" si dicen que es número equivocado; "no_contesto" si nadie habló; si no, "contesto". Ignora los avisos automáticos. No inventes nada.`;
+  try {
+    const r = await claudeJson(env, system, texto);
+    if (r) {
+      base.resumen = String(r.resumen || '');
+      base.resultado = fila.buzon ? 'buzon' : String(r.resultado || '');
+      base.cita = String(r.cita || '');
+      base.siguiente_paso = String(r.siguiente_paso || '');
+      base.temas = Array.isArray(r.temas) ? r.temas : [];
+      if (etiquetar && Array.isArray(r.hablantes)) {
+        base.turnos = armarTurnos(turnos.map((x, i) => ({ ...x, ini: i, quien: r.hablantes[i] === 'paciente' ? 'paciente' : 'agente' })));
+      }
+    }
+  } catch (e) { base.resumen_error = String(e.message || e).slice(0, 200); }
+  return base;
+}
+
 function promptTranscripcion({ marcaNombre, fila, paciente }) {
   const agente = fila.user_nombre || 'el agente';
   if (fila.buzon) {
@@ -309,37 +472,52 @@ export async function procesarGrabacion(env, id, { forzar = false } = {}) {
   const c = fila ? await marca(env, fila.client_id) : null;
   if (!fila || !c) return false;
   try {
-    let bytes;
+    const keyMp3 = fila.grabacion_key || `${R2_PREFIJO}/${fila.client_id}/${fila.id}.mp3`;
+    const keyWav = keyMp3.replace(/\.mp3$/, '.wav');
+    let mp3 = null, wav = null;
     if (!fila.grabacion_key) {
       if (!lineaConectada(c)) throw new Error('La línea de esta marca se desconectó: no se puede bajar la grabación de Twilio.');
       if (!env.R2_BUCKET) throw new Error('Almacenamiento no disponible.');
-      const res = await fetch(`${TW_API}/Accounts/${c.tw_account_sid}/Recordings/${fila.grabacion_sid}.mp3`, {
-        headers: { authorization: 'Basic ' + btoa(`${c.tw_account_sid}:${c.tw_auth_token}`) }, signal: AbortSignal.timeout(60000),
-      });
+      const auth = { authorization: 'Basic ' + btoa(`${c.tw_account_sid}:${c.tw_auth_token}`) };
+      const res = await fetch(`${TW_API}/Accounts/${c.tw_account_sid}/Recordings/${fila.grabacion_sid}.mp3`, { headers: auth, signal: AbortSignal.timeout(60000) });
       if (!res.ok) throw new Error(`Twilio no entregó la grabación (HTTP ${res.status}).`);
-      bytes = new Uint8Array(await res.arrayBuffer());
-      if (bytes.byteLength < 200) throw new Error('La grabación llegó vacía.');
-      const key = `${R2_PREFIJO}/${fila.client_id}/${fila.id}.mp3`;
-      await env.R2_BUCKET.put(key, bytes, { httpMetadata: { contentType: 'audio/mpeg' }, customMetadata: { client_id: fila.client_id, conv_id: fila.conv_id || '' } });
-      await actualizar(env, fila.id, { grabacion_key: key, grabacion_bytes: bytes.byteLength });
+      mp3 = new Uint8Array(await res.arrayBuffer());
+      if (mp3.byteLength < 200) throw new Error('La grabación llegó vacía.');
+      // El WAV trae los dos canales separados (para transcribir a cada quien).
+      if (env.AI) {
+        try {
+          const rw = await fetch(`${TW_API}/Accounts/${c.tw_account_sid}/Recordings/${fila.grabacion_sid}.wav`, { headers: auth, signal: AbortSignal.timeout(90000) });
+          if (rw.ok) { wav = new Uint8Array(await rw.arrayBuffer()); await env.R2_BUCKET.put(keyWav, wav, { httpMetadata: { contentType: 'audio/wav' } }); }
+        } catch { wav = null; }
+      }
+      await env.R2_BUCKET.put(keyMp3, mp3, { httpMetadata: { contentType: 'audio/mpeg' }, customMetadata: { client_id: fila.client_id, conv_id: fila.conv_id || '' } });
+      await actualizar(env, fila.id, { grabacion_key: keyMp3, grabacion_bytes: mp3.byteLength });
       // Ya está con nosotros: se borra de Twilio (privacidad y costo).
       try { await tw(credDe(c), `/Recordings/${fila.grabacion_sid}.json`, { method: 'DELETE' }); } catch { /* queda en Twilio; no pasa nada */ }
-    } else {
-      const obj = await env.R2_BUCKET.get(fila.grabacion_key);
-      if (!obj) throw new Error('La grabación ya no está en el almacenamiento.');
-      bytes = new Uint8Array(await obj.arrayBuffer());
     }
     let paciente = '';
     if (fila.conv_id) {
       const v = await env.DB.prepare('SELECT nombre, username FROM mkt_conversaciones WHERE id = ?').bind(fila.conv_id).first();
       paciente = nombrePaciente(v);
     }
-    let t;
-    try {
-      t = await geminiAudio(env, bytes, 'audio/mpeg', promptTranscripcion({ marcaNombre: nombreComercial(c), fila, paciente }));
-    } catch (e) {
-      if (e.code === 'SIN_IA') { await actualizar(env, fila.id, { transcripcion_estado: 'sin_ia', transcripcion_error: e.message, procesando_desde: null }); return true; }
-      throw e;
+    const ctxT = { marcaNombre: nombreComercial(c), fila, paciente };
+    let t = null;
+    const errores = [];
+    if (env.AI) {
+      if (!wav) { const o = await env.R2_BUCKET.get(keyWav); if (o) wav = new Uint8Array(await o.arrayBuffer()); }
+      if (wav) {
+        try { t = await transcribirConWhisper(env, wav, ctxT); }
+        catch (e) { errores.push('Whisper: ' + String((e && e.message) || e).slice(0, 160)); }
+      }
+    }
+    if (!t && (saJson(env) || env.GEMINI_API_KEY)) {
+      if (!mp3) { const o = await env.R2_BUCKET.get(keyMp3); if (!o) throw new Error('La grabación ya no está en el almacenamiento.'); mp3 = new Uint8Array(await o.arrayBuffer()); }
+      try { t = await geminiAudio(env, mp3, 'audio/mpeg', promptTranscripcion(ctxT)); t.motor = 'gemini'; }
+      catch (e) { if (e.code !== 'SIN_IA') errores.push(String((e && e.message) || e).slice(0, 200)); }
+    }
+    if (!t) {
+      if (!errores.length) { await actualizar(env, fila.id, { transcripcion_estado: 'sin_ia', transcripcion_error: 'No hay motor de transcripción conectado.', procesando_desde: null }); return true; }
+      throw new Error(errores.join(' · '));
     }
     const limpio = {
       turnos: (Array.isArray(t.turnos) ? t.turnos : []).slice(0, 600).map((x) => ({ quien: x && x.quien === 'paciente' ? 'paciente' : 'agente', texto: String((x && x.texto) || '').slice(0, 2000) })).filter((x) => x.texto),
@@ -348,8 +526,11 @@ export async function procesarGrabacion(env, id, { forzar = false } = {}) {
       cita: String(t.cita || '').slice(0, 200),
       siguiente_paso: String(t.siguiente_paso || '').slice(0, 300),
       temas: (Array.isArray(t.temas) ? t.temas : []).slice(0, 4).map((x) => String(x).slice(0, 40)),
+      motor: t.motor || 'gemini',
     };
     await actualizar(env, fila.id, { transcripcion: JSON.stringify(limpio), transcripcion_estado: 'lista', transcripcion_error: null, procesando_desde: null });
+    // El WAV solo servía para transcribir; para escuchar queda el MP3.
+    try { await env.R2_BUCKET.delete(keyWav); } catch { /* noop */ }
     const fresca = await filaLlamada(env, fila.id);
     // La IA sugiere el resultado mientras ninguna persona lo haya elegido.
     if (!fresca.buzon && limpio.resultado && fresca.evento_id && (!fresca.resultado_por || fresca.resultado_por === 'auto') && limpio.resultado !== fresca.resultado) {
