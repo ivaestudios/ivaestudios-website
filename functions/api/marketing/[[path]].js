@@ -60,6 +60,7 @@ import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleF
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas } from './_bandeja.js';
+import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, publicarEnLinkedIn } from './_linkedin.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
@@ -5526,6 +5527,9 @@ async function route(request, env, authCtx) {
   // Webhook de Meta (Instagram, página, WhatsApp): sin cookie, firmado con el
   // App Secret. El GET es la verificación de Meta; el POST trae los eventos.
   if (path === '/webhook/meta') return handleWebhookMeta(request, env, url, authCtx && authCtx.waitUntil);
+  // Llamadas grabadas (Twilio): instrucciones y avisos de cada llamada. Sin
+  // cookie; cada petición se valida con la firma X-Twilio-Signature.
+  if (path.startsWith('/llamadas/tw/')) return handleTwilio(request, env, url, authCtx && authCtx.waitUntil);
 
   // ── HEALTH (público; para monitores externos: ¿responde la app y la BD?) ──
   if (path === '/health' && method === 'GET') {
@@ -5689,6 +5693,10 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'bandeja') {
     const equipoCliente = session.role === 'client' && (session.bandeja_rol === 'agente' || session.bandeja_rol === 'supervisor');
     if (!isStaff && !equipoCliente) return json({ error: 'Forbidden' }, 403);
+    // Llamadas grabadas: llamar desde un chat, escuchar, transcripción y la línea.
+    if (parts[1] === 'llamadas' || parts[1] === 'linea' || (parts[1] === 'conversaciones' && parts[3] === 'llamar')) {
+      return guardTables(() => handleLlamadas(request, env, session, url, parts, authCtx && authCtx.waitUntil));
+    }
     return guardTables(() => handleBandeja(request, env, session, url, parts));
   }
 
@@ -6822,7 +6830,10 @@ async function handleCronPublicar(request, env) {
     // agente disponible (solo marcas que lo tengan encendido).
     let reasignadas = 0;
     try { reasignadas = await reasignarVencidas(env); } catch (e) { reasignadas = { error: (e && e.message) || 'fallo' }; }
-    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas });
+    // Llamadas grabadas que se quedaron sin copiar a R2 o sin transcribir.
+    let llamadas = null;
+    try { llamadas = await procesarLlamadasPendientes(env); } catch (e) { llamadas = { error: (e && e.message) || 'fallo' }; }
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas, llamadas });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }

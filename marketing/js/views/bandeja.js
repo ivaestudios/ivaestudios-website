@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610091000';
-import { toast } from '../shell/toast.js?v=202610091000';
-import { icon, iconMarca } from '../shell/icons.js?v=202610091000';
-import { T, isEN } from '../shell/i18n.js?v=202610091000';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610101500';
+import { toast } from '../shell/toast.js?v=202610101500';
+import { icon, iconMarca } from '../shell/icons.js?v=202610101500';
+import { T, isEN } from '../shell/i18n.js?v=202610101500';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -47,6 +47,7 @@ let porSeguir = false;         // la persona lleva días sin contestar
 let sinResponder = false;      // el último mensaje es de la persona
 let periodo = 30;              // días del dashboard
 let desempeno = null;
+let llamadasPanel = null;      // { llamadas, totales, linea } del periodo (supervisor)
 let plantillaClave = 'seguimiento';
 const infoPlantilla = new Map(); // `${convId}:${clave}` -> { max, antes, despues, botones }
 
@@ -146,7 +147,12 @@ async function cargarLista({ silencioso = false } = {}) {
   if (!silencioso) cargandoLista = true;
   try {
     if (tab === 'desempeno') {
-      desempeno = await api.get(`/bandeja/desempeno?client_id=${encodeURIComponent(id)}&dias=${periodo}`);
+      const [dd, ll] = await Promise.all([
+        api.get(`/bandeja/desempeno?client_id=${encodeURIComponent(id)}&dias=${periodo}`),
+        api.get(`/bandeja/llamadas?client_id=${encodeURIComponent(id)}&dias=${periodo}`).catch(() => null),
+      ]);
+      desempeno = dd;
+      llamadasPanel = ll;
     } else if (tab === 'mensajes') {
       const qs = new URLSearchParams({ client_id: id });
       if (canal) qs.set('canal', canal);
@@ -453,16 +459,20 @@ function chat() {
     ]));
   }
   if (!mensajes.length) msgsEl.appendChild(el('p', { class: 'muted bj-msgs__nada', text: T('Todavía no hay mensajes.', 'No messages yet.') }));
-  // Mensajes y eventos del equipo (llamadas, asignaciones) en una sola línea de tiempo.
+  // Mensajes, eventos del equipo (asignaciones, llamadas anotadas a mano) y
+  // llamadas con la línea (grabadas) en una sola línea de tiempo. El evento de
+  // una llamada grabada no se pinta: su tarjeta ya lo dice todo.
+  const llamadas = convAbierta.llamadas || [];
   const linea = [
     ...mensajes.map((m) => ({ t: m.creado, m })),
-    ...eventos.map((e) => ({ t: e.creado, e })),
+    ...eventos.filter((e) => !(e.tipo === 'llamada' && e.dato && e.dato.llamada_id)).map((e) => ({ t: e.creado, e })),
+    ...llamadas.filter((l) => !['no_contesto_agente', 'cancelada', 'iniciando'].includes(l.estado)).map((l) => ({ t: l.creado, l })),
   ].sort((a, b) => String(a.t).localeCompare(String(b.t)));
   let diaPrev = '';
   for (const it of linea) {
     const dia = String(it.t || '').slice(0, 10);
     if (dia !== diaPrev) { msgsEl.appendChild(el('div', { class: 'bj-dia', text: fmtDia(dia) })); diaPrev = dia; }
-    msgsEl.appendChild(it.m ? burbuja(it.m) : notaEvento(it.e));
+    msgsEl.appendChild(it.m ? burbuja(it.m) : (it.l ? tarjetaLlamada(it.l) : notaEvento(it.e)));
   }
 
   const draft = borradores.get(v.id) || '';
@@ -620,42 +630,337 @@ function notaEvento(e) {
   ]);
 }
 
-// Llamar (tel:) y registrar cómo salió: el dashboard cuenta llamadas por agente.
+// ── LLAMADAS ─────────────────────────────────────────────────────────────────
+// Con la LÍNEA de la marca conectada (Twilio, 10-oct-2026, pedido de Sebas de
+// SMILE NOW): el agente toca Llamar, le entra la llamada a SU celular desde el
+// número de la clínica, presiona una tecla y se marca al paciente. Se graba,
+// se transcribe y aquí mismo elige cómo salió. Sin línea: como siempre (tel: y
+// registro a mano), que también sirve para lo que se llamó por fuera.
+const ESTADO_LLAMADA = {
+  iniciando: () => T('Preparando la llamada…', 'Preparing the call…'),
+  llamando_agente: () => T('Llamando a tu celular…', 'Calling your phone…'),
+  confirmando: () => T('Contestaste: presiona cualquier tecla en tu teléfono para marcarle.', 'You answered: press any key on your phone to dial.'),
+  llamando_paciente: () => T('Marcando al paciente…', 'Dialing the patient…'),
+  en_curso: () => T('En llamada', 'On the call'),
+  sonando: () => T('Sonando…', 'Ringing…'),
+  terminada: () => T('Terminó', 'Ended'),
+  no_contesto: () => T('No contestó', 'No answer'),
+  ocupado: () => T('Ocupado', 'Busy'),
+  fallida: () => T('No se pudo llamar', 'Call failed'),
+  cancelada: () => T('Cancelada', 'Canceled'),
+  no_contesto_agente: () => T('No contestaste en tu celular o no presionaste ninguna tecla.', 'You did not answer on your phone or pressed no key.'),
+  perdida: () => T('Nadie contestó', 'Nobody answered'),
+  buzon: () => T('Dejó mensaje de voz', 'Left a voicemail'),
+};
+const estadoLlamadaTxt = (e) => (ESTADO_LLAMADA[e] ? ESTADO_LLAMADA[e]() : e);
+function fmtDur(seg) {
+  const s = Math.max(0, Math.round(Number(seg) || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+// +52 998 123 4567 para mostrar en los campos.
+function fmtTelUI(t) {
+  let d = String(t || '').replace(/\D/g, '');
+  if (d.length === 13 && d.startsWith('521')) d = '52' + d.slice(3);
+  if (d.length === 12 && d.startsWith('52')) return `+52 ${d.slice(2, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
+  return d ? '+' + d : '';
+}
+function telDeConv(v) {
+  if (v.telefono) return v.telefono;
+  if (v.canal === 'whatsapp' && v.contacto_id) return '+' + v.contacto_id;
+  return '';
+}
+const lineaMarca = () => { const r = resumen && !resumen.error ? resumen : null; return r && r.llamadas && r.llamadas.conectada ? r.llamadas : null; };
+const segDesde = (iso) => { const d = new Date(String(iso || '').replace(' ', 'T') + 'Z'); return isNaN(d) ? 0 : Math.max(0, (Date.now() - d.getTime()) / 1000); };
+
 function abrirLlamada(v) {
-  const tel = v.canal === 'whatsapp' ? '+' + v.contacto_id : '';
+  const linea = lineaMarca();
+  let parar = () => {};
   ctx.sheet.openSheet({
     title: T('Llamada', 'Call'),
     mode: 'form',
+    onClose: () => parar(),
     build(body, close) {
-      let resultado = '';
-      const chips = el('div', { class: 'bj-res' });
-      const pintarChips = () => {
-        clear(chips);
-        for (const [k, lbl] of RESULTADOS_LLAMADA) {
-          chips.appendChild(el('button', { type: 'button', class: 'bj-filtro' + (resultado === k ? ' is-on' : ''), onclick: () => { resultado = k; pintarChips(); } }, [lbl()]));
-        }
-      };
-      pintarChips();
-      const minutos = el('input', { class: 'input', type: 'number', min: '0', max: '600', inputmode: 'numeric', placeholder: T('Minutos (opcional)', 'Minutes (optional)') });
-      const nota = el('textarea', { class: 'textarea', rows: 2, placeholder: T('Nota: qué se habló, qué sigue (opcional)', 'Note: what was said, next step (optional)') });
-      body.append(
-        tel ? el('a', { class: 'btn btn-primary bj-llamar', href: `tel:${tel}` }, [icon('phone', 16), ' ' + T(`Llamar a ${tel}`, `Call ${tel}`)]) : el('p', { class: 'muted', text: T('Este canal no trae número de teléfono: registra aquí la llamada que hiciste por otro medio.', 'This channel has no phone number: log here the call you made another way.') }),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('¿Cómo salió?', 'How did it go?') }), chips]),
-        el('div', { class: 'field' }, [minutos]),
-        el('div', { class: 'field' }, [nota]),
-        el('div', { class: 'btn-row' }, [
-          el('button', { type: 'button', class: 'btn btn-primary', onclick: async () => {
-            if (!resultado) { toast(T('Elige cómo salió la llamada.', 'Pick how the call went.'), { type: 'error' }); return; }
-            try {
-              await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/llamada`, { resultado, minutos: Number(minutos.value) || 0, nota: nota.value.trim() });
-              toast(T('Llamada registrada', 'Call logged'), { type: 'success' });
-              close({ force: true });
-              await abrirConv(v.id, { silencioso: true });
-              cargarLista({ silencioso: true });
-            } catch (e) { toast(e.message, { type: 'error' }); }
-          } }, [T('Registrar llamada', 'Log call')]),
-        ]),
+      if (linea) parar = seccionLlamarConLinea(body, v, linea, close);
+      else if (esStaff()) body.appendChild(el('p', { class: 'muted bj-aj__p', text: T('Para que las llamadas salgan con el número de la clínica, se graben y se transcriban, conecta la línea de la marca en Ajustes de la bandeja.', 'To call with the clinic number, record and transcribe, connect the brand line in Inbox settings.') }));
+      seccionRegistroManual(body, v, close, { plegado: !!linea });
+    },
+  });
+}
+
+// Llamar con la línea: campos, botón y el estado EN VIVO de la llamada.
+// Devuelve la función que detiene el sondeo (al cerrar la hoja).
+function seccionLlamarConLinea(body, v, linea, close) {
+  const r = resumen && !resumen.error ? resumen : null;
+  const fPac = el('input', { id: 'bj-tel-paciente', class: 'input', type: 'tel', inputmode: 'tel', autocomplete: 'off', value: fmtTelUI(telDeConv(v)), placeholder: T('Ej. 998 123 4567', 'E.g. 998 123 4567') });
+  const fMio = el('input', { id: 'bj-tel-mio', class: 'input', type: 'tel', inputmode: 'tel', autocomplete: 'tel', value: fmtTelUI((r && r.yo && r.yo.telefono) || ''), placeholder: T('Ej. 998 765 4321', 'E.g. 998 765 4321') });
+  const form = el('div', { class: 'bj-llamar-form' }, [
+    el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-tel-paciente', text: T('Número del paciente', 'Patient number') }), fPac]),
+    el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-tel-mio', text: T('Tu celular (ahí te entra la llamada)', 'Your phone (the call rings here)') }), fMio]),
+    el('p', { class: 'muted bj-aj__p', text: T(
+      `Te llamamos a tu celular desde ${linea.numero}. Contesta y presiona cualquier tecla: en ese momento marcamos al paciente con el número de la clínica. La llamada se graba y se transcribe sola.`,
+      `We call your phone from ${linea.numero}. Answer and press any key: then we dial the patient with the clinic number. The call is recorded and transcribed automatically.`) }),
+  ]);
+  const btn = el('button', { type: 'button', class: 'btn btn-primary bj-llamar' }, [icon('phone', 16), ' ' + T('Llamar con la línea de la clínica', 'Call with the clinic line')]);
+  const vivoEl = el('div', { class: 'bj-vivo', 'aria-live': 'polite', hidden: true });
+  body.append(form, btn, vivoEl);
+
+  let vivo = null, tPoll = null, tTick = null, finEn = 0, pidioTrans = false, resultado = '';
+  const parar = () => { clearTimeout(tPoll); clearInterval(tTick); tPoll = null; tTick = null; };
+
+  async function iniciar() {
+    if (btn.dataset.loading) return;
+    btn.dataset.loading = 'true';
+    try {
+      const x = await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/llamar`, { numero: fPac.value.trim(), mi_numero: fMio.value.trim() });
+      if (resumen && resumen.yo) resumen.yo.telefono = fMio.value.trim();
+      seguir(x.llamada);
+    } catch (e) {
+      if (e.status === 409 && e.data && e.data.llamada) { toast(e.message, { type: 'error' }); seguir(e.data.llamada); }
+      else {
+        toast(e.message, { type: 'error', ms: 9000 });
+        if (e.data && e.data.falta === 'mi_numero') fMio.focus();
+        else if (e.data && e.data.falta === 'numero') fPac.focus();
+      }
+    } finally { delete btn.dataset.loading; }
+  }
+  btn.addEventListener('click', iniciar);
+
+  function seguir(l) {
+    vivo = l; finEn = 0; pidioTrans = false; resultado = l.resultado || '';
+    form.hidden = true; btn.hidden = true;
+    pintar();
+    parar();
+    tTick = setInterval(() => { const t = vivoEl.querySelector('.bj-vivo__t'); if (t && vivo && vivo.estado === 'en_curso') t.textContent = fmtDur(segDesde(vivo.contestada_en)); }, 1000);
+    tPoll = setTimeout(sondear, 1200);
+  }
+
+  async function sondear() {
+    if (!body.isConnected) { parar(); return; }
+    try { const x = await api.get(`/bandeja/llamadas/${encodeURIComponent(vivo.id)}`); const antes = vivo; vivo = x.llamada; if (!resultado && vivo.resultado) resultado = vivo.resultado; if (JSON.stringify(antes) !== JSON.stringify(vivo)) pintar(); }
+    catch { /* se reintenta */ }
+    let espera = 1500;
+    if (!vivo.activa) {
+      espera = 3000;
+      if (!finEn) { finEn = Date.now(); abrirConv(v.id, { silencioso: true }); }
+      const pendiente = vivo.grabada && !['lista', 'error', 'sin_ia'].includes(vivo.transcripcion_estado);
+      // La grabación tarda unos segundos en llegar; sin ella a los 25 s no la hubo.
+      if (!vivo.grabada && Date.now() - finEn > 25000) { parar(); return; }
+      if (vivo.grabada && !pendiente) { parar(); abrirConv(v.id, { silencioso: true }); return; }
+      if (pendiente && !pidioTrans && vivo.transcripcion_estado !== 'procesando' && Date.now() - finEn > 45000) {
+        pidioTrans = true;
+        api.post(`/bandeja/llamadas/${encodeURIComponent(vivo.id)}/transcribir`, {}, { timeout: 180000 }).catch(() => {});
+      }
+      if (Date.now() - finEn > 300000) { parar(); return; }
+    }
+    tPoll = setTimeout(sondear, espera);
+  }
+
+  async function colgar(b) {
+    b.dataset.loading = 'true';
+    try { const x = await api.post(`/bandeja/llamadas/${encodeURIComponent(vivo.id)}/colgar`, {}); vivo = x.llamada; pintar(); }
+    catch (e) { toast(e.message, { type: 'error' }); }
+    finally { delete b.dataset.loading; }
+  }
+
+  function pintar() {
+    const l = vivo;
+    clear(vivoEl);
+    vivoEl.hidden = false;
+    if (l.activa) {
+      vivoEl.append(
+        el('div', { class: 'bj-vivo__fila is-viva' }, [
+          el('span', { class: 'bj-vivo__punto', 'aria-hidden': 'true' }),
+          el('strong', { text: estadoLlamadaTxt(l.estado) }),
+          l.estado === 'en_curso' ? el('span', { class: 'bj-vivo__t', text: fmtDur(segDesde(l.contestada_en)) }) : null,
+        ].filter(Boolean)),
+        l.estado === 'en_curso' ? el('p', { class: 'muted bj-aj__p', text: T('Se está grabando. Al colgar aparece aquí la transcripción.', 'Recording. The transcript shows up here after you hang up.') }) : null,
+        el('button', { type: 'button', class: 'btn btn-danger bj-llamar', onclick: (e) => colgar(e.currentTarget) }, [icon('close', 16), ' ' + T('Colgar', 'Hang up')]),
       );
+      return;
+    }
+    const sinPaciente = ['no_contesto_agente', 'cancelada'].includes(l.estado) || (l.estado === 'fallida' && !l.resultado);
+    vivoEl.append(el('div', { class: 'bj-vivo__fila' + (l.estado === 'terminada' ? ' is-ok' : ' is-mal') }, [
+      icon(l.estado === 'terminada' ? 'check' : 'warning', 16),
+      el('strong', { text: estadoLlamadaTxt(l.estado) + (l.duracion_seg ? ' · ' + fmtDur(l.duracion_seg) : '') }),
+    ]));
+    if (l.error) vivoEl.appendChild(el('p', { class: 'bj-aviso', text: l.error }));
+    if (sinPaciente) {
+      vivoEl.appendChild(el('button', { type: 'button', class: 'btn bj-llamar', onclick: () => { clear(vivoEl); vivoEl.hidden = true; form.hidden = false; btn.hidden = false; } }, [icon('refresh', 16), ' ' + T('Intentar de nuevo', 'Try again')]));
+      return;
+    }
+    // Transcripción.
+    const t = l.transcripcion;
+    if (t && t.resumen) {
+      vivoEl.appendChild(el('div', { class: 'bj-call__res-ia' }, [
+        el('span', { class: 'bj-call__lbl', text: T('Resumen', 'Summary') }),
+        el('p', { text: t.resumen }),
+        t.cita ? el('p', { class: 'bj-call__cita' }, [icon('calendar', 13), el('span', { text: ' ' + t.cita })]) : null,
+      ].filter(Boolean)));
+    } else if (l.grabada && (!l.transcripcion_estado || l.transcripcion_estado === 'pendiente' || l.transcripcion_estado === 'procesando')) {
+      vivoEl.appendChild(el('p', { class: 'muted bj-call__estado' }, [el('span', { class: 'spinner' }), el('span', { text: ' ' + T('Transcribiendo la llamada…', 'Transcribing the call…') })]));
+    } else if (l.transcripcion_estado === 'error') {
+      vivoEl.appendChild(el('p', { class: 'bj-aviso', text: T('No se pudo transcribir. La grabación quedó guardada en el chat.', 'Could not transcribe. The recording is saved in the chat.') }));
+    }
+    // ¿Cómo salió? (la IA lo sugiere; la persona confirma).
+    const chips = el('div', { class: 'bj-res' });
+    const pintarChips = () => {
+      clear(chips);
+      for (const [k, lbl] of RESULTADOS_LLAMADA) chips.appendChild(el('button', { type: 'button', class: 'bj-filtro' + (resultado === k ? ' is-on' : ''), onclick: () => { resultado = k; pintarChips(); } }, [lbl()]));
+    };
+    pintarChips();
+    const nota = el('textarea', { id: 'bj-llamada-nota', class: 'textarea', rows: 2, placeholder: T('Nota: qué se habló, qué sigue (opcional)', 'Note: what was said, next step (optional)') }, [l.nota || '']);
+    vivoEl.append(
+      el('div', { class: 'field' }, [el('label', { class: 'label', text: l.resultado_por === 'ia' ? T('¿Cómo salió? (la IA lo sugirió)', 'How did it go? (suggested by AI)') : T('¿Cómo salió?', 'How did it go?') }), chips]),
+      el('div', { class: 'field' }, [nota]),
+      el('div', { class: 'btn-row' }, [el('button', { type: 'button', class: 'btn btn-primary', onclick: async (e) => {
+        if (!resultado) { toast(T('Elige cómo salió la llamada.', 'Pick how the call went.'), { type: 'error' }); return; }
+        const b = e.currentTarget; b.dataset.loading = 'true';
+        try {
+          await api.post(`/bandeja/llamadas/${encodeURIComponent(l.id)}/resultado`, { resultado, nota: nota.value.trim() });
+          toast(T('Llamada guardada', 'Call saved'), { type: 'success' });
+          parar();
+          close({ force: true });
+          await abrirConv(v.id, { silencioso: true });
+          cargarLista({ silencioso: true });
+        } catch (err) { toast(err.message, { type: 'error' }); }
+        finally { delete b.dataset.loading; }
+      } }, [T('Guardar', 'Save')])]),
+    );
+  }
+  return parar;
+}
+
+// Registro a mano: la llamada que se hizo por fuera de la línea.
+function seccionRegistroManual(body, v, close, { plegado = false } = {}) {
+  const tel = v.canal === 'whatsapp' ? fmtTelUI('+' + v.contacto_id) : (v.telefono ? fmtTelUI(v.telefono) : '');
+  let resultado = '';
+  const chips = el('div', { class: 'bj-res' });
+  const pintarChips = () => {
+    clear(chips);
+    for (const [k, lbl] of RESULTADOS_LLAMADA) chips.appendChild(el('button', { type: 'button', class: 'bj-filtro' + (resultado === k ? ' is-on' : ''), onclick: () => { resultado = k; pintarChips(); } }, [lbl()]));
+  };
+  pintarChips();
+  const minutos = el('input', { id: 'bj-man-min', class: 'input', type: 'number', min: '0', max: '600', inputmode: 'numeric', placeholder: T('Minutos (opcional)', 'Minutes (optional)') });
+  const nota = el('textarea', { id: 'bj-man-nota', class: 'textarea', rows: 2, placeholder: T('Nota: qué se habló, qué sigue (opcional)', 'Note: what was said, next step (optional)') });
+  const hijos = [
+    !plegado ? (tel ? el('a', { class: 'btn btn-primary bj-llamar', href: `tel:${tel.replace(/\s/g, '')}` }, [icon('phone', 16), ' ' + T(`Llamar a ${tel}`, `Call ${tel}`)]) : el('p', { class: 'muted', text: T('Este canal no trae número de teléfono: registra aquí la llamada que hiciste por otro medio.', 'This channel has no phone number: log here the call you made another way.') })) : null,
+    el('div', { class: 'field' }, [el('label', { class: 'label', text: T('¿Cómo salió?', 'How did it go?') }), chips]),
+    el('div', { class: 'field' }, [minutos]),
+    el('div', { class: 'field' }, [nota]),
+    el('div', { class: 'btn-row' }, [el('button', { type: 'button', class: plegado ? 'btn' : 'btn btn-primary', onclick: async () => {
+      if (!resultado) { toast(T('Elige cómo salió la llamada.', 'Pick how the call went.'), { type: 'error' }); return; }
+      try {
+        await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/llamada`, { resultado, minutos: Number(minutos.value) || 0, nota: nota.value.trim() });
+        toast(T('Llamada registrada', 'Call logged'), { type: 'success' });
+        close({ force: true });
+        await abrirConv(v.id, { silencioso: true });
+        cargarLista({ silencioso: true });
+      } catch (e) { toast(e.message, { type: 'error' }); }
+    } }, [T('Registrar llamada', 'Log call')])]),
+  ].filter(Boolean);
+  if (!plegado) { body.append(...hijos); return; }
+  body.appendChild(el('details', { class: 'bj-manual' }, [
+    el('summary', { text: T('¿Llamaste desde tu teléfono? Regístrala aquí', 'Called from your own phone? Log it here') }),
+    el('div', { class: 'bj-manual__in' }, hijos),
+  ]));
+}
+
+// Tarjeta de una llamada con la línea: quién, cuánto, cómo salió, el audio y
+// la transcripción. En el chat va completa; en el panel, con el nombre del
+// paciente y un botón para abrir su chat.
+function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
+  const entrante = l.direccion === 'entrante';
+  const perdida = entrante && (l.estado === 'perdida' || l.estado === 'buzon');
+  const titulo = l.buzon ? T('Mensaje de voz', 'Voicemail')
+    : perdida ? T('Llamada perdida', 'Missed call')
+      : entrante ? T(`Llamada entrante · contestó ${l.user_nombre || '—'}`, `Incoming call · answered by ${l.user_nombre || '—'}`)
+        : T(`${l.user_nombre || 'Alguien'} llamó`, `${l.user_nombre || 'Someone'} called`);
+  const cuando = enPanel ? `${fmtDia(String(l.creado).slice(0, 10))} ${horaCorta(l.creado)}` : horaCorta(l.creado);
+  const dur = l.duracion_seg ? fmtDur(l.duracion_seg) : (l.buzon && l.grabacion_seg ? fmtDur(l.grabacion_seg) : estadoLlamadaTxt(l.estado));
+  const hijos = [el('div', { class: 'bj-call__top' }, [
+    icon('phone', 14),
+    el('strong', { class: 'bj-call__tit', text: titulo }),
+    el('span', { class: 'bj-call__meta', text: `${dur} · ${cuando}` }),
+  ])];
+  if (enPanel && l.conv_id) {
+    hijos.push(el('button', { type: 'button', class: 'bj-call__quien', onclick: () => { cambiarTab('mensajes'); abrirConv(l.conv_id); } }, [
+      icon('user', 12), el('span', { text: (l.conv_nombre || l.numero || T('Paciente', 'Patient')) + (l.conv_nombre && l.numero ? ` · ${l.numero}` : '') }),
+    ]));
+  }
+  if (l.activa) hijos.push(el('p', { class: 'bj-call__estado' }, [el('span', { class: 'bj-vivo__punto', 'aria-hidden': 'true' }), el('span', { text: ' ' + estadoLlamadaTxt(l.estado) })]));
+  if (!l.activa && l.resultado && !l.buzon) {
+    const lbl = (RESULTADO_TXT[l.resultado] || (() => l.resultado))();
+    hijos.push(el('button', { type: 'button', class: 'bj-call__resbtn', 'aria-label': T('Cambiar cómo salió', 'Change outcome'), onclick: async (e) => {
+      const nuevo = await ctx.sheet.pickFrom({ title: T('¿Cómo salió?', 'How did it go?'), anchor: e.currentTarget, options: RESULTADOS_LLAMADA.map(([k, f]) => ({ value: k, label: f(), current: l.resultado === k })) });
+      if (!nuevo) return;
+      try {
+        await api.post(`/bandeja/llamadas/${encodeURIComponent(l.id)}/resultado`, { resultado: nuevo });
+        toast(T('Resultado guardado', 'Outcome saved'), { type: 'success' });
+        if (alCambiar) alCambiar(); else if (convAbierta) abrirConv(convAbierta.conversacion.id, { silencioso: true });
+      } catch (err) { toast(err.message, { type: 'error' }); }
+    } }, [
+      el('span', { text: lbl }),
+      l.resultado_por === 'ia' ? el('span', { class: 'bj-call__ia', text: T('sugerido por IA', 'AI suggested') }) : null,
+      l.resultado_por === 'auto' && ['contesto'].includes(l.resultado) ? el('span', { class: 'bj-call__ia', text: T('confirmar', 'confirm') }) : null,
+      icon('down', 12),
+    ].filter(Boolean)));
+  }
+  if (l.audio) hijos.push(el('audio', { class: 'bj-call__audio', controls: true, preload: 'none', src: l.audio }));
+  else if (l.grabada && !l.activa) hijos.push(el('p', { class: 'muted bj-call__estado', text: T('Guardando la grabación…', 'Saving the recording…') }));
+  const t = l.transcripcion;
+  if (t && (t.resumen || (t.turnos && t.turnos.length))) {
+    if (t.resumen) hijos.push(el('p', { class: 'bj-call__resumen', text: t.resumen }));
+    if (t.cita) hijos.push(el('p', { class: 'bj-call__cita' }, [icon('calendar', 13), el('span', { text: ' ' + t.cita })]));
+    if (t.siguiente_paso) hijos.push(el('p', { class: 'bj-call__sig' }, [el('strong', { text: T('Sigue: ', 'Next: ') }), el('span', { text: t.siguiente_paso })]));
+    if (t.turnos && t.turnos.length) {
+      hijos.push(el('details', { class: 'bj-call__trans' }, [
+        el('summary', { text: T('Ver transcripción', 'Show transcript') }),
+        el('div', { class: 'bj-call__turnos' }, t.turnos.map((x) => el('p', { class: 'bj-turno is-' + x.quien }, [
+          el('strong', { text: (x.quien === 'paciente' ? T('Paciente', 'Patient') : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
+          el('span', { text: x.texto }),
+        ]))),
+      ]));
+    } else if (enPanel) {
+      hijos.push(el('button', { type: 'button', class: 'btn btn-ghost btn-sm bj-call__vertrans', onclick: () => verTranscripcion(l.id) }, [T('Ver transcripción', 'Show transcript')]));
+    }
+  } else if (l.grabada && !l.activa) {
+    if (l.transcripcion_estado === 'error') {
+      hijos.push(el('p', { class: 'bj-call__estado is-mal' }, [
+        el('span', { text: T('No se pudo transcribir. ', 'Could not transcribe. ') }),
+        el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: async (e) => {
+          const b = e.currentTarget; b.dataset.loading = 'true';
+          try { await api.post(`/bandeja/llamadas/${encodeURIComponent(l.id)}/transcribir`, {}, { timeout: 180000 }); toast(T('Transcripción lista', 'Transcript ready'), { type: 'success' }); if (alCambiar) alCambiar(); else if (convAbierta) abrirConv(convAbierta.conversacion.id, { silencioso: true }); }
+          catch (err) { toast(err.message, { type: 'error', ms: 8000 }); }
+          finally { delete b.dataset.loading; }
+        } }, [icon('refresh', 13), ' ' + T('Reintentar', 'Retry')]),
+      ]));
+    } else if (l.transcripcion_estado === 'sin_ia') {
+      hijos.push(el('p', { class: 'muted bj-call__estado', text: T('Grabada. La transcripción automática no está activa.', 'Recorded. Automatic transcription is off.') }));
+    } else {
+      hijos.push(el('p', { class: 'muted bj-call__estado' }, [el('span', { class: 'spinner' }), el('span', { text: ' ' + T('Transcribiendo…', 'Transcribing…') })]));
+    }
+  }
+  if (l.nota) hijos.push(el('p', { class: 'bj-call__nota', text: `“${l.nota}”` }));
+  return el('div', { class: 'bj-call' + (entrante ? ' is-entrante' : '') + (perdida ? ' is-perdida' : '') + (enPanel ? ' is-panel' : '') }, hijos);
+}
+
+async function verTranscripcion(id) {
+  let l;
+  try { l = (await api.get(`/bandeja/llamadas/${encodeURIComponent(id)}`)).llamada; }
+  catch (e) { toast(e.message, { type: 'error' }); return; }
+  ctx.sheet.openSheet({
+    title: T('Transcripción', 'Transcript'),
+    mode: 'form',
+    build(body) {
+      const t = l.transcripcion || {};
+      body.append(...[
+        l.audio ? el('audio', { class: 'bj-call__audio', controls: true, preload: 'none', src: l.audio }) : null,
+        t.resumen ? el('p', { class: 'bj-call__resumen', text: t.resumen }) : null,
+        el('div', { class: 'bj-call__turnos' }, (t.turnos || []).map((x) => el('p', { class: 'bj-turno is-' + x.quien }, [
+          el('strong', { text: (x.quien === 'paciente' ? T('Paciente', 'Patient') : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
+          el('span', { text: x.texto }),
+        ]))),
+      ].filter(Boolean));
     },
   });
 }
@@ -1015,6 +1320,34 @@ function panelDesempeno() {
   }
   wrap.appendChild(secAg);
 
+  // Llamadas con la línea: escuchar cada una y leer su transcripción.
+  const lp = llamadasPanel;
+  if (lp && ((lp.linea && lp.linea.conectada) || (lp.llamadas && lp.llamadas.length))) {
+    const tt = lp.totales || {};
+    const sec = el('section', { class: 'bj-dash__sec' }, [
+      el('h3', { class: 'bj-dash__h', text: T('Llamadas grabadas', 'Recorded calls') }),
+      el('p', { class: 'muted bj-dash__wa', text: T(
+        `${tt.llamadas || 0} llamadas · ${tt.contestadas || 0} contestadas · ${tt.grabadas || 0} grabadas · ${tt.minutos || 0} min` + (tt.perdidas ? ` · ${tt.perdidas} perdidas` : ''),
+        `${tt.llamadas || 0} calls · ${tt.contestadas || 0} answered · ${tt.grabadas || 0} recorded · ${tt.minutos || 0} min` + (tt.perdidas ? ` · ${tt.perdidas} missed` : '')) }),
+    ]);
+    const lista = lp.llamadas || [];
+    if (!lista.length) sec.appendChild(el('p', { class: 'muted', text: T('Todavía no hay llamadas con la línea en este periodo. Se hacen desde el botón del teléfono en cada chat.', 'No line calls in this period yet. They are made from the phone button in each chat.') }));
+    const caja = el('div', { class: 'bj-calls' });
+    let mostradas = 0;
+    const recargar = async () => { try { llamadasPanel = await api.get(`/bandeja/llamadas?client_id=${encodeURIComponent(cid())}&dias=${periodo}`); pintarCuerpo(); } catch (e) { toast(e.message, { type: 'error' }); } };
+    const mas = el('button', { type: 'button', class: 'btn btn-sm bj-calls__mas' });
+    const pintarMas = () => {
+      for (const l of lista.slice(mostradas, mostradas + 20)) caja.appendChild(tarjetaLlamada(l, { enPanel: true, alCambiar: recargar }));
+      mostradas = Math.min(lista.length, mostradas + 20);
+      mas.hidden = mostradas >= lista.length;
+      mas.textContent = T(`Ver más (${lista.length - mostradas})`, `Show more (${lista.length - mostradas})`);
+    };
+    mas.addEventListener('click', pintarMas);
+    pintarMas();
+    sec.append(caja, mas);
+    wrap.appendChild(sec);
+  }
+
   // Por anuncio y por canal.
   const anuncios = d.anuncios || [];
   if (anuncios.length) {
@@ -1091,9 +1424,14 @@ function seccionEquipo(body, cli) {
           catch (err) { toast(err.message, { type: 'error' }); e.target.checked = !e.target.checked; }
         } }), el('span', { text: T('Disponible', 'Available') }),
       ]) : null;
+      // Celular de agentes y supervisores: ahí les entran las llamadas con la línea.
+      const tel = u.rol ? el('input', { id: `bj-eq-tel-${u.id}`, class: 'input bj-eq__tel', type: 'tel', inputmode: 'tel', 'aria-label': T(`Celular de ${u.nombre}`, `${u.nombre}'s phone`), value: fmtTelUI(u.telefono || ''), placeholder: T('Celular para llamadas', 'Phone for calls'), onchange: async (e) => {
+        try { await api.patch(`/bandeja/equipo/${encodeURIComponent(u.id)}`, { telefono: e.target.value.trim() }); toast(T('Celular guardado', 'Phone saved'), { type: 'success' }); }
+        catch (err) { toast(err.message, { type: 'error' }); }
+      } }) : null;
       lista.appendChild(el('li', { class: 'bj-eq__fila' + (u.activo ? '' : ' is-off') }, [
         el('div', { class: 'bj-eq__quien' }, [el('strong', { text: u.nombre }), el('span', { class: 'muted', text: u.usuario || '' })]),
-        el('div', { class: 'bj-eq__ctl' }, [sel, dispo].filter(Boolean)),
+        el('div', { class: 'bj-eq__ctl' }, [sel, dispo, tel].filter(Boolean)),
       ]));
     }
     caja.appendChild(lista);
@@ -1319,10 +1657,80 @@ function abrirAjustes() {
             } }, [T('Conectar WhatsApp', 'Connect WhatsApp')]);
             body.append(el('div', { class: 'field' }, [fPhone]), el('div', { class: 'field' }, [fWaba]), el('div', { class: 'field' }, [fTok]), btnWa);
           }
+
+          // 4) Línea para llamadas grabadas (Twilio de la marca)
+          body.appendChild(el('h3', { class: 'bj-aj__h', text: T('Llamadas grabadas', 'Recorded calls') }));
+          seccionLinea(body, cli);
         }
       })();
     },
   });
+}
+
+// Línea de llamadas de la marca: se conecta con SU cuenta de Twilio. Las
+// llamadas salen con ese número, se graban y se transcriben; si es un número
+// de Twilio, cuando el paciente devuelve la llamada suena el celular de su agente.
+function seccionLinea(body, cli) {
+  const caja = el('div', { class: 'bj-ln' });
+  body.appendChild(caja);
+  const pintar = (ln) => {
+    clear(caja);
+    if (ln && ln.conectada) {
+      caja.appendChild(el('p', { class: 'bj-aj__p', text: T(`Conectada: ${ln.numero}`, `Connected: ${ln.numero}`) }));
+      caja.appendChild(el('p', { class: 'muted bj-aj__p', text: ln.entrantes
+        ? T('Recibe llamadas: si el paciente devuelve la llamada, suena el celular de su agente (o de los disponibles). Si nadie contesta, va al desvío o al buzón de voz, que también se transcribe.', 'Takes calls: when the patient calls back, their agent\'s phone rings (or the available agents\'). If nobody answers, it goes to the forward number or voicemail, which is also transcribed.')
+        : T('Solo para llamar: es un número verificado, así que cuando el paciente devuelve la llamada suena ese teléfono, no el CRM.', 'Outbound only: it is a verified number, so callbacks ring that phone, not the CRM.') }));
+      const chkAviso = el('input', { id: 'bj-ln-aviso', type: 'checkbox', checked: ln.aviso !== false });
+      const fDesvio = el('input', { id: 'bj-ln-desvio', class: 'input', type: 'tel', inputmode: 'tel', value: ln.desvio || '', placeholder: T('Desvío si nadie contesta (opcional), ej. recepción', 'Forward if nobody answers (optional)') });
+      const btnG = el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
+        btnG.dataset.loading = 'true';
+        try {
+          const x = await api.post('/bandeja/linea/cfg', { client_id: cli.id, aviso: chkAviso.checked, desvio: fDesvio.value.trim() });
+          toast(T('Línea guardada', 'Line saved'), { type: 'success' });
+          if (resumen && !resumen.error) resumen.llamadas = x.linea;
+          pintar(x.linea);
+        } catch (e) { toast(e.message, { type: 'error' }); }
+        finally { delete btnG.dataset.loading; }
+      } }, [T('Guardar', 'Save')]);
+      const btnOff = el('button', { type: 'button', class: 'btn btn-danger btn-sm', onclick: async () => {
+        if (!window.confirm(T('¿Desconectar la línea? Las llamadas ya grabadas se quedan.', 'Disconnect the line? Recorded calls stay.'))) return;
+        try {
+          await api.post('/bandeja/linea/desconectar', { client_id: cli.id });
+          toast(T('Línea desconectada', 'Line disconnected'), { type: 'success' });
+          await cargarResumen();
+          pintar(resumen && resumen.llamadas);
+        } catch (e) { toast(e.message, { type: 'error' }); }
+      } }, [T('Desconectar', 'Disconnect')]);
+      caja.append(
+        el('label', { class: 'bj-eq__chk' }, [chkAviso, el('span', { text: T('Avisar al paciente que la llamada se graba (recomendado: son datos de salud)', 'Tell the patient the call is recorded (recommended)') })]),
+        ln.entrantes ? el('div', { class: 'field' }, [fDesvio]) : null,
+        el('div', { class: 'btn-row bj-aj__btns' }, [btnG, btnOff]),
+      );
+      return;
+    }
+    caja.appendChild(el('p', { class: 'muted bj-aj__p', text: T(
+      'El agente toca Llamar en el chat, le entra la llamada a su celular desde el número de la clínica y, al presionar una tecla, se marca al paciente. Todo se graba y se transcribe. Se conecta con una cuenta de Twilio de la marca: compra ahí un número de México (o verifica el número de la clínica) y pega estos tres datos.',
+      'The agent taps Call in the chat, their phone rings from the clinic number and, after pressing a key, the patient is dialed. Everything is recorded and transcribed. Connect it with the brand\'s Twilio account: buy a Mexican number there (or verify the clinic number) and paste these three values.') }));
+    const fSid = el('input', { id: 'bj-ln-sid', class: 'input', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: T('Account SID (empieza con AC)', 'Account SID (starts with AC)') });
+    const fTok = el('input', { id: 'bj-ln-tok', class: 'input', type: 'password', autocomplete: 'off', placeholder: 'Auth Token' });
+    const fNum = el('input', { id: 'bj-ln-num', class: 'input', type: 'tel', inputmode: 'tel', placeholder: T('Número de la línea, ej. +52 998 123 4567', 'Line number, e.g. +52 998 123 4567') });
+    const btn = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: async () => {
+      btn.dataset.loading = 'true';
+      try {
+        const x = await api.post('/bandeja/linea', { client_id: cli.id, account_sid: fSid.value.trim(), auth_token: fTok.value.trim(), numero: fNum.value.trim() });
+        fTok.value = '';
+        toast(x.prueba
+          ? T('Línea conectada. Ojo: la cuenta de Twilio está en prueba y solo puede llamar a números verificados.', 'Line connected. Note: the Twilio account is a trial and can only call verified numbers.')
+          : T('Línea conectada. Ya se puede llamar desde los chats.', 'Line connected. Calls can be made from the chats.'), { type: x.prueba ? 'error' : 'success', ms: 9000 });
+        if (resumen && !resumen.error) resumen.llamadas = x.linea;
+        pintar(x.linea);
+      } catch (e) { toast(e.message, { type: 'error', ms: 10000 }); }
+      finally { delete btn.dataset.loading; }
+    } }, [icon('phone', 14), ' ' + T('Conectar línea', 'Connect line')]);
+    caja.append(el('div', { class: 'field' }, [fSid]), el('div', { class: 'field' }, [fTok]), el('div', { class: 'field' }, [fNum]), btn);
+  };
+  const r = resumen && !resumen.error ? resumen : null;
+  pintar(r && r.llamadas);
 }
 
 function filaCopiar(label, valor) {
@@ -1342,7 +1750,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610091000';
+  link.href = '/marketing/css/bandeja.css?v=202610101500';
   document.head.appendChild(link);
 }
 

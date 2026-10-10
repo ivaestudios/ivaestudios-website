@@ -25,6 +25,7 @@
 // y cada marca solo ve lo suyo (todo cuelga de client_id).
 // ============================================================================
 import { repartirPush } from './_push.js';
+import { resumenLinea, llamadaPublica } from './_llamadas-comun.js';
 
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
@@ -80,6 +81,16 @@ function randomId() {
   return [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+// Teléfono a E.164 (10 dígitos = México). Mismo criterio que aE164 en _llamadas.js.
+function telefonoE164(entrada) {
+  const s = String(entrada || '').trim();
+  if (!s) return null;
+  let d = s.replace(/\D/g, '');
+  if (s.startsWith('00')) d = d.slice(2);
+  else if (!s.startsWith('+') && d.length === 10) d = '52' + d;
+  if (d.length === 13 && d.startsWith('521')) d = '52' + d.slice(3);
+  return d.length >= 8 && d.length <= 15 ? '+' + d : null;
+}
 // Fecha como la guarda D1: 'YYYY-MM-DD HH:MM:SS' en UTC.
 function fechaDeMs(ms) {
   const n = Number(ms);
@@ -181,7 +192,8 @@ export function partirTexto(texto, lim) {
 // ── Marcas ───────────────────────────────────────────────────────────────────
 const COLS_MARCA = `id, name, brief, notes, instagram_handle, COALESCE(workspace_id, 'ivae') AS workspace_id,
   ig_user_id, ig_igsid, ig_username, ig_access_token, fb_page_id, fb_page_name, fb_access_token,
-  wa_phone_id, wa_waba_id, wa_numero, wa_access_token, bandeja_sondeo_at, bandeja_estado, bandeja_cfg`;
+  wa_phone_id, wa_waba_id, wa_numero, wa_access_token, bandeja_sondeo_at, bandeja_estado, bandeja_cfg,
+  tw_account_sid, tw_auth_token, tw_numero, tw_numero_sid`;
 
 // Los ids con los que Meta puede nombrar a la PROPIA cuenta de la marca en un
 // canal. En Instagram son dos (migración 039): ig_user_id (36610…, el de la
@@ -191,7 +203,7 @@ function idsPropios(c, canal) {
   return new Set([c.fb_page_id].filter(Boolean).map(String));
 }
 
-async function marca(env, clientId) {
+export async function marca(env, clientId) {
   if (!clientId) return null;
   return env.DB.prepare(`SELECT ${COLS_MARCA} FROM mkt_clients WHERE id = ?`).bind(clientId).first();
 }
@@ -213,7 +225,7 @@ async function marcaPorWa(env, phoneId) {
 }
 
 // Quién recibe los avisos de una marca: admins y equipo activos de SU workspace.
-async function staffDeLaMarca(env, c) {
+export async function staffDeLaMarca(env, c) {
   try {
     const r = await env.DB.prepare(
       "SELECT id FROM mkt_users WHERE active = 1 AND role IN ('admin', 'team') AND COALESCE(workspace_id, 'ivae') = ?"
@@ -224,7 +236,7 @@ async function staffDeLaMarca(env, c) {
 
 // Aviso en la campana + push al teléfono a una lista de usuarios. Best-effort:
 // jamás rompe la entrada.
-async function avisarUsuarios(env, c, ids, { tipo, body, link }) {
+export async function avisarUsuarios(env, c, ids, { tipo, body, link }) {
   try {
     const unicos = [...new Set((ids || []).filter(Boolean))];
     if (!unicos.length) return 0;
@@ -238,7 +250,7 @@ async function avisarUsuarios(env, c, ids, { tipo, body, link }) {
     return 0;
   }
 }
-async function avisarStaff(env, c, aviso) {
+export async function avisarStaff(env, c, aviso) {
   return avisarUsuarios(env, c, await staffDeLaMarca(env, c), aviso);
 }
 
@@ -248,34 +260,38 @@ async function avisarStaff(env, c, aviso) {
 // y el dueño ve un dashboard con quién contesta, cuánto tarda y cuántas citas.
 // Un agente o supervisor es un acceso de CLIENTE de la marca con bandeja_rol.
 const CFG_BASE = { reparto: true, reasignar_min: 0, dias_seguimiento: 3, avisar_agencia: false, nombre_comercial: '' };
-function cfgDe(c) {
+export function cfgDe(c) {
   let x = {};
   try { x = c && c.bandeja_cfg ? JSON.parse(c.bandeja_cfg) : {}; } catch { x = {}; }
   return { ...CFG_BASE, ...x, plantillas: (x && x.plantillas) || {} };
 }
-async function guardarCfg(env, clientId, cfg) {
+export async function guardarCfg(env, clientId, cfg) {
   await env.DB.prepare('UPDATE mkt_clients SET bandeja_cfg = ? WHERE id = ?').bind(JSON.stringify(cfg), clientId).run();
 }
 // Todos los accesos de cliente de la marca (con o sin rol en la bandeja).
 async function accesosDeMarca(env, clientId) {
   try {
     const r = await env.DB.prepare(
-      `SELECT id, name, email, username, bandeja_rol, COALESCE(bandeja_disponible, 1) AS disponible, active
+      `SELECT id, name, email, username, bandeja_rol, COALESCE(bandeja_disponible, 1) AS disponible, active, telefono
          FROM mkt_users WHERE role = 'client' AND client_id = ? ORDER BY name COLLATE NOCASE`
     ).bind(clientId).all();
     return r.results || [];
   } catch { return []; }
 }
-async function equipoDeMarca(env, clientId) {
+export async function equipoDeMarca(env, clientId) {
   return (await accesosDeMarca(env, clientId)).filter((u) => u.active && (u.bandeja_rol === 'agente' || u.bandeja_rol === 'supervisor'));
 }
-async function registrarEvento(env, { clientId, convId = null, userId = null, userNombre = null, tipo, dato = null }) {
+export async function registrarEvento(env, { clientId, convId = null, userId = null, userNombre = null, tipo, dato = null }) {
+  // Devuelve el id del evento (las llamadas grabadas lo guardan para poder
+  // corregir después el resultado que cuenta el dashboard).
+  const id = randomId();
   try {
     // Con milésimas: dos asignaciones en el mismo segundo no deben empatar.
     await env.DB.prepare(
       "INSERT INTO mkt_bandeja_eventos (id, client_id, conv_id, user_id, user_nombre, tipo, dato, creado) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%d %H:%M:%f', 'now'))"
-    ).bind(randomId(), clientId, convId, userId, userNombre, tipo, dato ? JSON.stringify(dato) : null).run();
-  } catch (e) { console.error('[bandeja evento]', e && e.message); }
+    ).bind(id, clientId, convId, userId, userNombre, tipo, dato ? JSON.stringify(dato) : null).run();
+    return id;
+  } catch (e) { console.error('[bandeja evento]', e && e.message); return null; }
 }
 // REPARTO PAREJO: entre los agentes activos y disponibles gana el que lleva
 // MENOS chats hoy (día de Cancún); si empatan, el que lleva más tiempo sin
@@ -300,7 +316,7 @@ async function siguienteAgente(env, clientId, excluir = null) {
     || String(a.name).localeCompare(String(b.name)));
   return lista[0];
 }
-async function asignar(env, c, convId, agente, { tipo = 'asignacion', dato = null } = {}) {
+export async function asignar(env, c, convId, agente, { tipo = 'asignacion', dato = null } = {}) {
   await env.DB.prepare("UPDATE mkt_conversaciones SET asignado_a = ?, asignado_en = datetime('now') WHERE id = ?").bind(agente.id, convId).run();
   await registrarEvento(env, { clientId: c.id, convId, userId: agente.id, userNombre: agente.name, tipo, dato });
 }
@@ -362,7 +378,7 @@ function horasDesde(s) {
 }
 
 // ── Conversaciones y mensajes ────────────────────────────────────────────────
-async function convDe(env, c, canal, contactoId, { nombre = null, username = null, resolverNombre = false } = {}) {
+export async function convDe(env, c, canal, contactoId, { nombre = null, username = null, resolverNombre = false } = {}) {
   const ya = await env.DB.prepare(
     'SELECT id, no_leidos, nombre, username, archivado FROM mkt_conversaciones WHERE client_id = ? AND canal = ? AND contacto_id = ?'
   ).bind(c.id, canal, contactoId).first();
@@ -990,7 +1006,7 @@ function slugPlantilla(s) {
   return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'marca';
 }
-function nombreComercial(c) {
+export function nombreComercial(c) {
   return String(cfgDe(c).nombre_comercial || c.name || '').trim();
 }
 // El nombre de la plantilla lleva la marca: varias marcas pueden compartir una
@@ -1239,7 +1255,7 @@ async function sugerirRespuesta(env, c, { tipo, canal, texto, autor, historial }
 // fallos de Meta o de Claude van como 422 con {error}.
 // La marca de cada conversación/comentario tiene que ser del workspace de la
 // sesión: se comprueba en cada consulta por id, no solo por ?client_id.
-async function convDeMiWs(env, ws, convId) {
+export async function convDeMiWs(env, ws, convId) {
   return env.DB.prepare(
     `SELECT v.*, c.name AS marca_nombre FROM mkt_conversaciones v JOIN mkt_clients c ON c.id = v.client_id
       WHERE v.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
@@ -1251,11 +1267,11 @@ async function comentarioDeMiWs(env, ws, id) {
       WHERE k.id = ? AND COALESCE(c.workspace_id, 'ivae') = ?`
   ).bind(id, ws).first();
 }
-async function marcaDeMiWs(env, ws, clientId) {
+export async function marcaDeMiWs(env, ws, clientId) {
   const c = await marca(env, clientId);
   return c && c.workspace_id === ws ? c : null;
 }
-async function leerJson(request) {
+export async function leerJson(request) {
   try { return (await request.json()) || {}; } catch { return {}; }
 }
 function fechaHoy() { return new Date().toISOString().slice(0, 10); }
@@ -1265,7 +1281,7 @@ function fechaHoy() { return new Date().toISOString().slice(0, 10); }
 function sqlPorSeguir(p = '') {
   return `((${p}seguimiento IS NOT NULL AND ${p}seguimiento <= ?) OR (${p}etapa NOT IN ('cliente', 'perdido') AND ${p}ultimo_en IS NOT NULL AND ${p}ultimo_en <= datetime('now', ?) AND (${p}ultimo_cliente_en IS NULL OR ${p}ultimo_cliente_en < ${p}ultimo_en)))`;
 }
-const RESULTADOS_LLAMADA = ['contesto', 'no_contesto', 'buzon', 'cita', 'numero_mal'];
+export const RESULTADOS_LLAMADA = ['contesto', 'no_contesto', 'buzon', 'cita', 'numero_mal'];
 const RESULTADO_TXT = { contesto: 'contestó', no_contesto: 'no contestó', buzon: 'buzón de voz', cita: 'agendó cita', numero_mal: 'número equivocado' };
 
 export async function handleBandeja(request, env, session, url, parts) {
@@ -1302,13 +1318,14 @@ export async function handleBandeja(request, env, session, url, parts) {
     const diasSeg = Math.max(1, Number(cfg.dias_seguimiento) || 3);
     const filtroAg = esAgente ? ' AND (asignado_a = ? OR asignado_a IS NULL)' : '';
     const bAg = esAgente ? [yo] : [];
-    const [convs, coms, seg, sinAsignar, porSeguir, equipo] = await Promise.all([
+    const [convs, coms, seg, sinAsignar, porSeguir, equipo, miFila] = await Promise.all([
       env.DB.prepare(`SELECT COUNT(*) AS n, COALESCE(SUM(no_leidos), 0) AS no_leidos FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0${filtroAg}`).bind(c.id, ...bAg).first(),
       env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_comentarios WHERE client_id = ? AND atendido = 0').bind(c.id).first(),
       env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND seguimiento IS NOT NULL AND seguimiento <= ?${filtroAg}`).bind(c.id, fechaHoy(), ...bAg).first(),
       env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND asignado_a IS NULL AND ultimo_cliente_en IS NOT NULL').bind(c.id).first(),
       env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND ${sqlPorSeguir()}${esAgente ? ' AND asignado_a = ?' : ''}`).bind(c.id, fechaHoy(), `-${diasSeg} days`, ...(esAgente ? [yo] : [])).first(),
       equipoDeMarca(env, c.id),
+      env.DB.prepare('SELECT telefono FROM mkt_users WHERE id = ?').bind(yo).first().catch(() => null),
     ]);
     let estado = null;
     try { estado = c.bandeja_estado ? JSON.parse(c.bandeja_estado) : null; } catch { estado = null; }
@@ -1341,7 +1358,9 @@ export async function handleBandeja(request, env, session, url, parts) {
       estado: esCliente ? null : estado,
       ultimo_webhook: ultimoWebhook,
       etapas: ETAPAS,
-      yo: { id: yo, nombre: session.name, rol: esCliente ? session.bandeja_rol : (esAdmin ? 'admin' : 'equipo'), disponible: session.bandeja_disponible !== 0, supervisor: esSupervisor },
+      yo: { id: yo, nombre: session.name, rol: esCliente ? session.bandeja_rol : (esAdmin ? 'admin' : 'equipo'), disponible: session.bandeja_disponible !== 0, supervisor: esSupervisor, telefono: (miFila && miFila.telefono) || null },
+      // Línea para llamadas grabadas (Twilio) de la marca.
+      llamadas: resumenLinea(c),
       equipo: equipo.filter((u) => u.bandeja_rol === 'agente').map((u) => ({ id: u.id, nombre: u.name, disponible: !!u.disponible })),
       cfg: { reparto: cfg.reparto !== false, reasignar_min: Number(cfg.reasignar_min) || 0, dias_seguimiento: diasSeg, nombre_comercial: nombreComercial(c), avisar_agencia: !!cfg.avisar_agencia },
       plantillas,
@@ -1385,7 +1404,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     const accion = sub[2] || '';
 
     if (!accion && method === 'GET') {
-      const [msgs, evs, asig] = await Promise.all([
+      const [msgs, evs, asig, lls] = await Promise.all([
         env.DB.prepare(
           'SELECT id, mid, direccion, texto, adjunto_tipo, adjunto_url, adjunto_id, autor_nombre, estado, error, creado, via, entregado_en, leido_en FROM mkt_mensajes WHERE conv_id = ? ORDER BY creado ASC, rowid ASC LIMIT 400'
         ).bind(conv.id).all(),
@@ -1393,6 +1412,8 @@ export async function handleBandeja(request, env, session, url, parts) {
           "SELECT tipo, user_nombre, dato, creado FROM mkt_bandeja_eventos WHERE conv_id = ? AND tipo IN ('llamada', 'asignacion', 'reasignacion', 'tomada') ORDER BY creado ASC LIMIT 200"
         ).bind(conv.id).all(),
         conv.asignado_a ? env.DB.prepare('SELECT name FROM mkt_users WHERE id = ?').bind(conv.asignado_a).first() : null,
+        // Llamadas con la línea (grabadas o no). Sin la tabla (antes de la migración 043) no hay.
+        env.DB.prepare("SELECT * FROM mkt_llamadas WHERE conv_id = ? AND estado NOT IN ('iniciando') AND (twilio_sid IS NOT NULL OR direccion = 'entrante') ORDER BY creado ASC LIMIT 100").bind(conv.id).all().catch(() => ({ results: [] })),
       ]);
       if (conv.no_leidos) await env.DB.prepare('UPDATE mkt_conversaciones SET no_leidos = 0 WHERE id = ?').bind(conv.id).run();
       const { client_id, ...resto } = conv;
@@ -1400,6 +1421,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         conversacion: { ...resto, client_id, no_leidos: 0, asignado_nombre: asig ? asig.name : null },
         mensajes: (msgs.results || []).map((m) => ({ ...m, adjunto_url: m.adjunto_url || m.adjunto_id ? `/api/marketing/bandeja/adjunto/${m.id}` : null })),
         eventos: (evs.results || []).map((e) => { let dato = null; try { dato = e.dato ? JSON.parse(e.dato) : null; } catch { dato = null; } return { ...e, dato }; }),
+        llamadas: (lls.results || []).map((f) => llamadaPublica(f)),
       });
     }
 
@@ -1655,7 +1677,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
     const accesos = await accesosDeMarca(env, c.id);
     return json({
-      accesos: accesos.map((u) => ({ id: u.id, nombre: u.name, usuario: u.username || u.email, rol: u.bandeja_rol || null, disponible: !!u.disponible, activo: !!u.active })),
+      accesos: accesos.map((u) => ({ id: u.id, nombre: u.name, usuario: u.username || u.email, rol: u.bandeja_rol || null, disponible: !!u.disponible, activo: !!u.active, telefono: u.telefono || null })),
       cfg: (() => { const x = cfgDe(c); return { reparto: x.reparto !== false, reasignar_min: Number(x.reasignar_min) || 0, dias_seguimiento: Number(x.dias_seguimiento) || 3, avisar_agencia: !!x.avisar_agencia, nombre_comercial: nombreComercial(c) }; })(),
       puede_editar: !esCliente,
     });
@@ -1677,6 +1699,13 @@ export async function handleBandeja(request, env, session, url, parts) {
     if (b.disponible !== undefined) {
       if (esAgente && objetivoId !== yo) return prohibido();
       sets.push('bandeja_disponible = ?'); binds.push(b.disponible ? 1 : 0);
+    }
+    // Celular del agente: ahí le entran las llamadas con la línea de la marca.
+    if (b.telefono !== undefined) {
+      if (esAgente && objetivoId !== yo) return prohibido();
+      const t = telefonoE164(b.telefono);
+      if (b.telefono && !t) return json({ error: 'Ese celular no parece válido. Escríbelo con lada, por ejemplo 998 123 4567.' }, 400);
+      sets.push('telefono = ?'); binds.push(t);
     }
     if (!sets.length) return json({ error: 'Nada que actualizar' }, 400);
     binds.push(u.id);
