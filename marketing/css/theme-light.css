@@ -103,7 +103,7 @@
 /* calendar.css (siempre cargada) rellena .btn-danger de rojo: el texto va en
    blanco. Antes iba #B91C1C y quedaba rojo sobre rojo, ilegible (10-oct-2026). */
 :root[data-theme="light"] .btn-danger { color: #fff; }
-:root[data-theme="light"] .btn-danger:hover { color: #fff; }
+:root[data-theme="light"] .btn-danger:hover { color: #fff; background: var(--danger); border-color: var(--danger); }
 /* Loading spinner: white → dark on plain/ghost/danger buttons; stays white on gradient */
 :root[data-theme="light"] .btn[data-loading="true"]::after { border-color: rgba(23,20,45,.22); border-top-color: #16161E; }
 :root[data-theme="light"] .btn-primary[data-loading="true"]::after { border-color: rgba(255,255,255,.4); border-top-color: #fff; }
