@@ -333,65 +333,77 @@ function wavMono(muestras, rate) {
   new Int16Array(buf, 44).set(muestras);
   return new Uint8Array(buf);
 }
-// ¿Hay voz en este tramo? (cuadros de 20 ms con energía de habla). El lado
-// callado de una llamada no se manda a Whisper: en silencio inventa frases.
-function hayVoz(m, rate) {
+// Frases de un canal: cuadros de 20 ms con energía de voz (umbral sobre el
+// ruido de fondo de ESA llamada), unidos si la pausa es menor a 0.8 s, con un
+// colchón de 0.3 s. Cada frase va sola a Whisper: los límites de cada turno
+// salen exactos y el lado callado nunca se manda (en silencio Whisper inventa).
+export function frasesDeVoz(m, rate) {
   const cuadro = Math.max(80, Math.round(rate / 50));
-  let conVoz = 0;
-  for (let i = 0; i + cuadro <= m.length; i += cuadro) {
+  const n = Math.floor(m.length / cuadro);
+  if (!n) return [];
+  const rms = new Float32Array(n);
+  for (let f = 0; f < n; f++) {
     let suma = 0;
-    for (let j = i; j < i + cuadro; j++) suma += m[j] * m[j];
-    if (Math.sqrt(suma / cuadro) > 450) conVoz++;
+    for (let j = f * cuadro; j < (f + 1) * cuadro; j++) suma += m[j] * m[j];
+    rms[f] = Math.sqrt(suma / cuadro);
   }
-  return conVoz >= 8;
-}
-const ALUCINACIONES = /suscr[ií]b|gracias por ver|subt[ií]tulos|amara\.org|¡?gracias\.?!?$/i;
-async function whisperCanal(env, muestras, rate) {
-  const segs = [];
-  const tramo = TRAMO_SEG * rate;
-  for (let ini = 0; ini < muestras.length; ini += tramo) {
-    const parte = muestras.subarray(ini, Math.min(muestras.length, ini + tramo));
-    if (!hayVoz(parte, rate)) continue;
-    const r = await env.AI.run(MODELO_WHISPER, { audio: b64(wavMono(parte, rate)), vad_filter: true });
-    const base = ini / rate;
-    for (const sg of (r && r.segments) || []) {
-      const texto = String(sg.text || '').trim();
-      if (!texto) continue;
-      if (Number(sg.no_speech_prob) > 0.6 && Number(sg.avg_logprob) < -1) continue;
-      if (ALUCINACIONES.test(texto) && texto.length < 40) continue;
-      // Con el filtro de silencio, Whisper junta en UN segmento dos frases del
-      // mismo lado aunque entre ellas haya hablado el otro. Las palabras traen
-      // su tiempo: se parte donde hay una pausa larga para no desordenar turnos.
-      const palabras = Array.isArray(sg.words) ? sg.words.filter((w) => w && String(w.word || '').trim()) : [];
-      if (palabras.length > 1) {
-        let run = [palabras[0]];
-        const cerrar = () => {
-          let t = '';
-          for (const w of run) { const x = String(w.word); t += (t && !/\s$/.test(t) && !/^\s/.test(x) ? ' ' : '') + x; }
-          t = t.trim();
-          if (t) segs.push({ ini: base + (Number(run[0].start) || 0), fin: base + (Number(run[run.length - 1].end) || 0), texto: t });
-        };
-        for (let k = 1; k < palabras.length; k++) {
-          const w = palabras[k];
-          const hueco = (Number(w.start) || 0) - (Number(palabras[k - 1].end) || 0);
-          // Una palabra que "dura" más de 1.5 s en realidad cruza la pausa
-          // (Whisper le pega el silencio): va con lo que sigue, no con lo de antes.
-          const estirada = (Number(w.end) || 0) - (Number(w.start) || 0) > 1.5;
-          if (hueco > 1.2 || estirada) {
-            cerrar();
-            run = [estirada ? { ...w, start: (Number(w.end) || 0) - 0.4 } : w];
-            continue;
-          }
-          run.push(w);
-        }
-        cerrar();
-      } else {
-        segs.push({ ini: base + (Number(sg.start) || 0), fin: base + (Number(sg.end) || 0), texto });
-      }
+  const orden = Array.from(rms).sort((a, b) => a - b);
+  const umbral = Math.max(350, (orden[Math.floor(n * 0.2)] || 0) * 3);
+  const juntar = (pausaCuadros) => {
+    const regs = [];
+    let ini = -1, ult = -1;
+    for (let f = 0; f < n; f++) {
+      if (rms[f] > umbral) { if (ini < 0) ini = f; ult = f; }
+      else if (ini >= 0 && f - ult > pausaCuadros) { regs.push([ini, ult]); ini = -1; }
     }
-    if (!(r && r.segments) && r && r.text && String(r.text).trim()) segs.push({ ini: base, fin: base + parte.length / rate, texto: String(r.text).trim() });
+    if (ini >= 0) regs.push([ini, ult]);
+    return regs.filter(([a, b]) => b - a + 1 >= 12);
+  };
+  let regs = juntar(40);
+  if (regs.length > 220) regs = juntar(150); // llamada larguísima: menos pedazos
+  const frases = [];
+  const maxCuadros = 120 * 50;
+  for (const [a, b] of regs) {
+    for (let x = a; x <= b; x += maxCuadros) {
+      const y = Math.min(b, x + maxCuadros - 1);
+      frases.push([Math.max(0, (x - 15) * cuadro), Math.min(m.length, (y + 16) * cuadro)]);
+    }
   }
-  return segs;
+  return frases;
+}
+const ALUCINACIONES = /suscr[ií]b|gracias por ver|subt[ií]tulos|amara\.org/i;
+async function whisperFrase(env, muestras, rate, idioma) {
+  const entrada = { audio: b64(wavMono(muestras, rate)) };
+  if (idioma) entrada.language = idioma;
+  const r = await env.AI.run(MODELO_WHISPER, entrada);
+  let texto = String((r && r.text) || '').trim();
+  if (ALUCINACIONES.test(texto) && texto.length < 60) texto = '';
+  return { texto, idioma: (r && r.transcription_info && r.transcription_info.language) || null };
+}
+// Todas las frases de todos los canales, de 4 en 4. El idioma se detecta con
+// la frase más larga y se fija para el resto (en frases cortas Whisper duda).
+async function whisperCanales(env, canales, rate, quienes) {
+  const trabajos = [];
+  canales.forEach((m, c) => { for (const [a, b] of frasesDeVoz(m, rate)) trabajos.push({ c, a, b }); });
+  if (!trabajos.length) return [];
+  let largo = 0;
+  trabajos.forEach((t, k) => { if (t.b - t.a > trabajos[largo].b - trabajos[largo].a) largo = k; });
+  const res = new Array(trabajos.length);
+  const t0 = trabajos[largo];
+  const prim = await whisperFrase(env, canales[t0.c].subarray(t0.a, t0.b), rate, null);
+  res[largo] = prim.texto;
+  const idioma = prim.idioma;
+  let sig = 0;
+  const trabajador = async () => {
+    while (sig < trabajos.length) {
+      const k = sig++;
+      if (k === largo) continue;
+      const t = trabajos[k];
+      res[k] = (await whisperFrase(env, canales[t.c].subarray(t.a, t.b), rate, idioma)).texto;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, trabajos.length) }, trabajador));
+  return trabajos.map((t, k) => (res[k] ? { ini: t.a / rate, fin: t.b / rate, texto: res[k], quien: quienes[t.c] || 'agente' } : null)).filter(Boolean);
 }
 // Los tramos de cada lado, en orden de tiempo, juntando lo seguido del mismo.
 function armarTurnos(segs) {
@@ -421,16 +433,14 @@ async function transcribirConWhisper(env, wavBytes, { marcaNombre, fila, pacient
   let turnos;
   let etiquetar = false;
   if (fila.buzon) {
-    turnos = armarTurnos((await whisperCanal(env, canales[0], rate)).map((x) => ({ ...x, quien: 'paciente' })));
+    turnos = armarTurnos(await whisperCanales(env, [canales[0]], rate, ['paciente']));
   } else if (canales.length >= 2) {
     // Twilio graba la pierna principal en el canal 1: en las salientes es el
     // agente; en las entrantes, el paciente que llamó.
-    const [q0, q1] = fila.direccion === 'entrante' ? ['paciente', 'agente'] : ['agente', 'paciente'];
-    const a = (await whisperCanal(env, canales[0], rate)).map((x) => ({ ...x, quien: q0 }));
-    const b = (await whisperCanal(env, canales[1], rate)).map((x) => ({ ...x, quien: q1 }));
-    turnos = armarTurnos([...a, ...b]);
+    const quienes = fila.direccion === 'entrante' ? ['paciente', 'agente'] : ['agente', 'paciente'];
+    turnos = armarTurnos(await whisperCanales(env, canales.slice(0, 2), rate, quienes));
   } else {
-    turnos = (await whisperCanal(env, canales[0], rate)).map((x) => ({ quien: 'agente', texto: x.texto }));
+    turnos = (await whisperCanales(env, [canales[0]], rate, ['agente'])).map((x) => ({ quien: 'agente', texto: x.texto }));
     etiquetar = true;
   }
   const base = { turnos, resumen: '', resultado: turnos.length ? '' : 'no_contesto', cita: '', siguiente_paso: '', temas: [], motor: 'whisper' };
