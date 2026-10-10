@@ -100,8 +100,10 @@
 :root[data-theme="light"] .topbar__client .dot { box-shadow: 0 0 0 3px rgba(15,15,35,.06); }
 
 /* ── Buttons ── */
-:root[data-theme="light"] .btn-danger { color: #B91C1C; }
-:root[data-theme="light"] .btn-danger:hover { color: #991B1B; }
+/* calendar.css (siempre cargada) rellena .btn-danger de rojo: el texto va en
+   blanco. Antes iba #B91C1C y quedaba rojo sobre rojo, ilegible (10-oct-2026). */
+:root[data-theme="light"] .btn-danger { color: #fff; }
+:root[data-theme="light"] .btn-danger:hover { color: #fff; }
 /* Loading spinner: white → dark on plain/ghost/danger buttons; stays white on gradient */
 :root[data-theme="light"] .btn[data-loading="true"]::after { border-color: rgba(23,20,45,.22); border-top-color: #16161E; }
 :root[data-theme="light"] .btn-primary[data-loading="true"]::after { border-color: rgba(255,255,255,.4); border-top-color: #fff; }

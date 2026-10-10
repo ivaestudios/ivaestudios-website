@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610101500';
-import { toast } from '../shell/toast.js?v=202610101500';
-import { icon, iconMarca } from '../shell/icons.js?v=202610101500';
-import { T, isEN } from '../shell/i18n.js?v=202610101500';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610101800';
+import { toast } from '../shell/toast.js?v=202610101800';
+import { icon, iconMarca } from '../shell/icons.js?v=202610101800';
+import { T, isEN } from '../shell/i18n.js?v=202610101800';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -900,8 +900,8 @@ function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
       } catch (err) { toast(err.message, { type: 'error' }); }
     } }, [
       el('span', { text: lbl }),
-      l.resultado_por === 'ia' ? el('span', { class: 'bj-call__ia', text: T('sugerido por IA', 'AI suggested') }) : null,
-      l.resultado_por === 'auto' && ['contesto'].includes(l.resultado) ? el('span', { class: 'bj-call__ia', text: T('confirmar', 'confirm') }) : null,
+      l.resultado_por === 'ia' ? el('span', { class: 'bj-call__ia', text: T('· sugerido por IA', '· AI suggested') }) : null,
+      l.resultado_por === 'auto' ? el('span', { class: 'bj-call__ia', text: T('· automático', '· automatic') }) : null,
       icon('down', 12),
     ].filter(Boolean)));
   }
@@ -1681,7 +1681,7 @@ function seccionLinea(body, cli) {
         ? T('Recibe llamadas: si el paciente devuelve la llamada, suena el celular de su agente (o de los disponibles). Si nadie contesta, va al desvío o al buzón de voz, que también se transcribe.', 'Takes calls: when the patient calls back, their agent\'s phone rings (or the available agents\'). If nobody answers, it goes to the forward number or voicemail, which is also transcribed.')
         : T('Solo para llamar: es un número verificado, así que cuando el paciente devuelve la llamada suena ese teléfono, no el CRM.', 'Outbound only: it is a verified number, so callbacks ring that phone, not the CRM.') }));
       const chkAviso = el('input', { id: 'bj-ln-aviso', type: 'checkbox', checked: ln.aviso !== false });
-      const fDesvio = el('input', { id: 'bj-ln-desvio', class: 'input', type: 'tel', inputmode: 'tel', value: ln.desvio || '', placeholder: T('Desvío si nadie contesta (opcional), ej. recepción', 'Forward if nobody answers (optional)') });
+      const fDesvio = el('input', { id: 'bj-ln-desvio', class: 'input', type: 'tel', inputmode: 'tel', value: ln.desvio || '', placeholder: T('Opcional, ej. recepción 998 123 4567', 'Optional, e.g. front desk') });
       const btnG = el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
         btnG.dataset.loading = 'true';
         try {
@@ -1703,7 +1703,7 @@ function seccionLinea(body, cli) {
       } }, [T('Desconectar', 'Disconnect')]);
       caja.append(
         el('label', { class: 'bj-eq__chk' }, [chkAviso, el('span', { text: T('Avisar al paciente que la llamada se graba (recomendado: son datos de salud)', 'Tell the patient the call is recorded (recommended)') })]),
-        ln.entrantes ? el('div', { class: 'field' }, [fDesvio]) : null,
+        ln.entrantes ? el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-ln-desvio', text: T('Si ningún agente contesta, desviar a', 'If no agent answers, forward to') }), fDesvio]) : null,
         el('div', { class: 'btn-row bj-aj__btns' }, [btnG, btnOff]),
       );
       return;
@@ -1750,7 +1750,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610101500';
+  link.href = '/marketing/css/bandeja.css?v=202610101800';
   document.head.appendChild(link);
 }
 
