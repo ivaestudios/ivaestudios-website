@@ -359,7 +359,27 @@ async function whisperCanal(env, muestras, rate) {
       if (!texto) continue;
       if (Number(sg.no_speech_prob) > 0.6 && Number(sg.avg_logprob) < -1) continue;
       if (ALUCINACIONES.test(texto) && texto.length < 40) continue;
-      segs.push({ ini: base + (Number(sg.start) || 0), fin: base + (Number(sg.end) || 0), texto });
+      // Con el filtro de silencio, Whisper junta en UN segmento dos frases del
+      // mismo lado aunque entre ellas haya hablado el otro. Las palabras traen
+      // su tiempo: se parte donde hay una pausa larga para no desordenar turnos.
+      const palabras = Array.isArray(sg.words) ? sg.words.filter((w) => w && String(w.word || '').trim()) : [];
+      if (palabras.length > 1) {
+        let run = [palabras[0]];
+        const cerrar = () => {
+          let t = '';
+          for (const w of run) { const x = String(w.word); t += (t && !/\s$/.test(t) && !/^\s/.test(x) ? ' ' : '') + x; }
+          t = t.trim();
+          if (t) segs.push({ ini: base + (Number(run[0].start) || 0), fin: base + (Number(run[run.length - 1].end) || 0), texto: t });
+        };
+        for (let k = 1; k < palabras.length; k++) {
+          const hueco = (Number(palabras[k].start) || 0) - (Number(palabras[k - 1].end) || 0);
+          if (hueco > 1.2) { cerrar(); run = []; }
+          run.push(palabras[k]);
+        }
+        cerrar();
+      } else {
+        segs.push({ ini: base + (Number(sg.start) || 0), fin: base + (Number(sg.end) || 0), texto });
+      }
     }
     if (!(r && r.segments) && r && r.text && String(r.text).trim()) segs.push({ ini: base, fin: base + parte.length / rate, texto: String(r.text).trim() });
   }
