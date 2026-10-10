@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610080300';
-import { setRoleDefault } from './theme.js?v=202610080300';
-import { vigilarSegmentados } from './segfade.js?v=202610080300';
-import * as store from './store.js?v=202610080300';
-import * as prefs from './prefs.js?v=202610080300';
-import * as router from './router.js?v=202610080300';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610080300';
-import { toast } from './toast.js?v=202610080300';
-import { icon } from './icons.js?v=202610080300';
-import * as iconsMod from './icons.js?v=202610080300';
-import { createTopbar } from './topbar.js?v=202610080300';
-import { createBottomNav } from './bottomnav.js?v=202610080300';
-import { createSearch } from './search.js?v=202610080300';
-import { createNotifications } from './notifications.js?v=202610080300';
-import { T } from './i18n.js?v=202610080300';
-import { startTour, tourPendiente } from './tour.js?v=202610080300';
-import * as version from './version.js?v=202610080300';
-import * as tienda from './tienda.js?v=202610080300';
-import * as pickers from '../ui/pickers.js?v=202610080300';
-import * as dnd from '../ui/dnd.js?v=202610080300';
+import { api, el, clear } from '../api.js?v=202610091000';
+import { setRoleDefault } from './theme.js?v=202610091000';
+import { vigilarSegmentados } from './segfade.js?v=202610091000';
+import * as store from './store.js?v=202610091000';
+import * as prefs from './prefs.js?v=202610091000';
+import * as router from './router.js?v=202610091000';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610091000';
+import { toast } from './toast.js?v=202610091000';
+import { icon } from './icons.js?v=202610091000';
+import * as iconsMod from './icons.js?v=202610091000';
+import { createTopbar } from './topbar.js?v=202610091000';
+import { createBottomNav } from './bottomnav.js?v=202610091000';
+import { createSearch } from './search.js?v=202610091000';
+import { createNotifications } from './notifications.js?v=202610091000';
+import { T } from './i18n.js?v=202610091000';
+import { startTour, tourPendiente } from './tour.js?v=202610091000';
+import * as version from './version.js?v=202610091000';
+import * as tienda from './tienda.js?v=202610091000';
+import * as pickers from '../ui/pickers.js?v=202610091000';
+import * as dnd from '../ui/dnd.js?v=202610091000';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;

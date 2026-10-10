@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202610080300';
-import { T } from '../shell/i18n.js?v=202610080300';
-import { icon } from '../shell/icons.js?v=202610080300';
-import { openSheet } from '../shell/sheet.js?v=202610080300';
-import * as store from '../shell/store.js?v=202610080300';
-import * as cl from '../services/checklist.js?v=202610080300';
+import { el, api, copyText, isClientRole } from '../api.js?v=202610091000';
+import { T } from '../shell/i18n.js?v=202610091000';
+import { icon } from '../shell/icons.js?v=202610091000';
+import { openSheet } from '../shell/sheet.js?v=202610091000';
+import * as store from '../shell/store.js?v=202610091000';
+import * as cl from '../services/checklist.js?v=202610091000';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -280,6 +280,14 @@ export function openPublishNowSheet(ed) {
         if (Number(post.also_youtube) === 1 && !post.yt_video_id) {
           destinos.push({ key: 'youtube', label: 'YouTube', cuenta: cli.yt_channel_title || T('canal conectado', 'connected channel'), on: true });
         }
+        if (Number(post.also_linkedin) === 1 && !post.li_post_id) {
+          let destLi = 'perfil';
+          try { destLi = (JSON.parse(post.li_options || '{}').destino) || 'perfil'; } catch { /* noop */ }
+          destinos.push({
+            key: 'linkedin', label: 'LinkedIn', on: true,
+            cuenta: destLi === 'pagina' ? (cli.li_org_name || T('página conectada', 'connected page')) : (cli.li_person_name || T('perfil conectado', 'connected profile')),
+          });
+        }
       }
 
       const pubBtn = el('button', {
@@ -312,6 +320,7 @@ export function openPublishNowSheet(ed) {
               r.yt.ok && r.yt.modo === 'oculto' ? T('YouTube (oculto)', 'YouTube (unlisted)')
                 : r.yt.ok && r.yt.modo !== 'publico' ? T('YouTube (en privado)', 'YouTube (private)')
                   : 'YouTube');
+            if (r && r.li) (r.li.ok ? salio : fallo).push(r.li.ok && r.li.destino === 'pagina' ? T('LinkedIn (página)', 'LinkedIn (Page)') : 'LinkedIn');
             ed.ctx.toast(
               (salio.length ? `${T('Publicado en', 'Published to')} ${salio.join(', ')}.` : (subiendo.length ? '' : T('No salió en ningún canal.', 'It did not go out anywhere.')))
                 + (subiendo.length ? ` ${T('Subiendo a', 'Uploading to')} ${subiendo.join(', ')}, la app lo termina sola.` : '')
@@ -364,8 +373,8 @@ export function openPublishNowSheet(ed) {
         pintarResumen();
       } else {
         body.append(el('p', { class: 'help', text: T(
-          'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube).',
-          "The piece publishes NOW to the brand's connected Instagram, plus any extra channels switched on (Facebook, TikTok, YouTube).",
+          'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube, LinkedIn).',
+          "The piece publishes NOW to the brand's connected Instagram, plus any extra channels switched on (Facebook, TikTok, YouTube, LinkedIn).",
         ) }));
       }
       body.append(

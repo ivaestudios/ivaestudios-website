@@ -61,6 +61,7 @@ import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, hand
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas } from './_bandeja.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
+import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, publicarEnLinkedIn } from './_linkedin.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -419,7 +420,8 @@ const POST_EDITABLE_FIELDS = [
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
   'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options',
-  'also_youtube', 'yt_options'
+  'also_youtube', 'yt_options',
+  'also_linkedin', 'li_options'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -480,6 +482,8 @@ const POST_V2_FIELDS = [
   // pintaba apagado aunque la pieza lo tuviera encendido en D1.
   'also_tiktok', 'tt_post_id', 'tt_error', 'tt_options',
   'also_youtube', 'yt_video_id', 'yt_error', 'yt_options',
+  // LinkedIn (2026-10-09): opt-in por pieza + destino (perfil o página) + rastro.
+  'also_linkedin', 'li_post_id', 'li_error', 'li_options',
 ];
 
 const CONTENT_TYPES = ['reel', 'post', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
@@ -1630,6 +1634,8 @@ function shapeClient(c, counts) {
     fb_page_name: c.fb_page_name || null,
     tt_username: c.tt_username || null,
     yt_channel_title: c.yt_channel_title || null,
+    li_person_name: c.li_person_name || null,
+    li_org_name: c.li_org_name || null,
     counts: counts || { posts: 0, pending: 0 }
   };
 }
@@ -5515,6 +5521,7 @@ async function route(request, env, authCtx) {
   }
   if (path === '/tt/callback' && method === 'GET') return handleTtCallback(request, env, url);
   if (path === '/yt/callback' && method === 'GET') return handleYtCallback(request, env, url);
+  if (path === '/li/callback' && method === 'GET') return handleLiCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
   // Webhook de Meta (Instagram, página, WhatsApp): sin cookie, firmado con el
   // App Secret. El GET es la verificación de Meta; el POST trae los eventos.
@@ -5995,6 +6002,12 @@ async function route(request, env, authCtx) {
     if (path === '/yt/estado' && method === 'GET') return handleYtEstado(env, session, url);
     if (path === '/yt/video' && method === 'GET') return handleYtVideo(env, session, url);
     if (path === '/yt/disconnect' && method === 'POST') return handleYtDisconnect(request, env, session);
+    return json({ error: 'Not found' }, 404);
+  }
+  if (parts[0] === 'li') {
+    if (path === '/li/login' && method === 'GET') return handleLiLogin(request, env, session, url);
+    if (path === '/li/estado' && method === 'GET') return handleLiEstado(env, session, url);
+    if (path === '/li/disconnect' && method === 'POST') return handleLiDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
 
@@ -6491,6 +6504,29 @@ async function avisarAdmins(env, { type, post, body, link }) {
   } catch { /* un aviso jamás tumba una publicación */ }
 }
 
+async function extraLinkedIn(env, post, session, permitido = true) {
+  if (!permitido) return null;
+  if (Number(post.also_linkedin) !== 1 || post.li_post_id) return null;
+  try {
+    const videoUrlLi = await videoFirmadoDePieza(env, post);
+    const slidesLi = await slidesFirmadosDePieza(env, post);
+    const rl = await publicarEnLinkedIn(env, { clientId: post.client_id, post, videoUrl: videoUrlLi, slides: slidesLi });
+    await env.DB.prepare("UPDATE mkt_posts SET li_post_id = ?, li_error = NULL, updated_at = datetime('now') WHERE id = ?")
+      .bind(rl.liPostId, post.id).run();
+    await logActivity(env, {
+      client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_li',
+      detail: `${rl.url} (${rl.destino === 'pagina' ? 'página' : 'perfil'}: ${rl.nombre || ''})`,
+    });
+    return { ok: true, post_id: rl.liPostId, url: rl.url, destino: rl.destino };
+  } catch (eLi) {
+    const msgLi = ((eLi && eLi.message) || 'Error desconocido').slice(0, 300);
+    await env.DB.prepare("UPDATE mkt_posts SET li_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgLi, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_li_error', detail: msgLi });
+    await avisarAdmins(env, { type: 'publicador_li_error', post, body: `⚠️ LINKEDIN falló — ${post.title}: ${msgLi.slice(0, 120)}` });
+    return { ok: false, error: msgLi };
+  }
+}
+
 async function extraTikTok(env, post, session, permitido = true) {
   if (!permitido) return null;
   if (Number(post.also_tiktok) !== 1 || post.tt_post_id) return null;
@@ -6595,9 +6631,9 @@ async function publicarPendientes(env) {
       // para los tres: Facebook, TikTok y YouTube — una pieza puede vivir solo
       // en YouTube y el reloj ya no truena con "no tiene Instagram conectado".
       const sinInstagram = !post.ig_user_id || !post.ig_access_token;
-      const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1;
+      const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1 || Number(post.also_linkedin) === 1;
       if (sinInstagram && pideOtroCanal) {
-        let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id;
+        let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
         let ultimoError = null;
         if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
           try {
@@ -6619,6 +6655,8 @@ async function publicarPendientes(env) {
         if (rtSolo && rtSolo.ok) algoSalio = true; else if (rtSolo) ultimoError = rtSolo.error;
         const rySolo = await extraYouTube(env, post, sesionSistema);
         if (rySolo && rySolo.ok) algoSalio = true; else if (rySolo) ultimoError = rySolo.error;
+        const rlSolo = await extraLinkedIn(env, post, sesionSistema);
+        if (rlSolo && rlSolo.ok) algoSalio = true; else if (rlSolo) ultimoError = rlSolo.error;
         if (!algoSalio) throw new Error(ultimoError || 'No se pudo publicar en ningún canal.');
         await env.DB.prepare(
           `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
@@ -6706,6 +6744,7 @@ async function publicarPendientes(env) {
       // extraYouTube para que el reloj y "Publicar ahora" hagan LO MISMO.
       await extraTikTok(env, post, sesionSistema);
       await extraYouTube(env, post, sesionSistema);
+      await extraLinkedIn(env, post, sesionSistema);
       if (reconciliada) {
         await notify(env, {
           user_ids: await adminsDeLaMarca(env, post.client_id),
@@ -6827,9 +6866,10 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
   const sinInstagram = !igConectado || igOmitidoPorEleccion;
   const pideOtroCanal = (Number(post.also_facebook) === 1 && quiere('facebook'))
     || (Number(post.also_tiktok) === 1 && quiere('tiktok'))
-    || (Number(post.also_youtube) === 1 && quiere('youtube'));
+    || (Number(post.also_youtube) === 1 && quiere('youtube'))
+    || (Number(post.also_linkedin) === 1 && quiere('linkedin'));
   if (sinInstagram && pideOtroCanal) {
-    let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id;
+    let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
     let ultimoError = null;
     let fbSolo = null;
     if (Number(post.also_facebook) === 1 && quiere('facebook') && !post.fb_post_id) {
@@ -6854,6 +6894,8 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     if (ttSolo && ttSolo.ok) algoSalio = true; else if (ttSolo) ultimoError = ttSolo.error;
     const ytSolo = await extraYouTube(env, post, session, quiere('youtube'));
     if (ytSolo && ytSolo.ok) algoSalio = true; else if (ytSolo) ultimoError = ytSolo.error;
+    const liSolo = await extraLinkedIn(env, post, session, quiere('linkedin'));
+    if (liSolo && liSolo.ok) algoSalio = true; else if (liSolo) ultimoError = liSolo.error;
     if (!algoSalio) {
       await soltarCandado();
       return json({ error: ultimoError || 'No se pudo publicar en ningún canal.' }, 422);
@@ -6863,13 +6905,13 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
       // pendiente de su Instagram (y de su hora, si la tiene). Marcarla como
       // publicada aqui la borraria de la fila del reloj en silencio.
       await soltarCandado();
-      return json({ ok: true, parcial: true, fb: fbSolo, tt: ttSolo, yt: ytSolo });
+      return json({ ok: true, parcial: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo });
     }
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
     ).bind(post.id).run();
-    return json({ ok: true, fb: fbSolo, tt: ttSolo, yt: ytSolo });
+    return json({ ok: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo });
   }
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
@@ -6908,7 +6950,8 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     // ignoraba TikTok por completo).
     const tt = await extraTikTok(env, post, session, quiere('tiktok'));
     const yt = await extraYouTube(env, post, session, quiere('youtube'));
-    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt });
+    const li = await extraLinkedIn(env, post, session, quiere('linkedin'));
+    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt, li });
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();

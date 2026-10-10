@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610080300';
-import { icon } from '../shell/icons.js?v=202610080300';
-import { T, isEN } from '../shell/i18n.js?v=202610080300';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202610091000';
+import { icon } from '../shell/icons.js?v=202610091000';
+import { T, isEN } from '../shell/i18n.js?v=202610091000';
 
 const VIEW_ID = 'conexiones';
 
@@ -44,7 +44,9 @@ async function conectar(kind, clientId) {
       ? T('Falta configurar la app de YouTube (pídeme la guía).', 'YouTube still needs setup (ask me for the guide).')
       : kind === 'tt'
         ? T('Falta configurar la app de TikTok (pídeme la guía).', 'TikTok still needs setup (ask me for the guide).')
-        : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
+        : kind === 'li'
+          ? T('Falta configurar la app de LinkedIn (pídeme la guía).', 'LinkedIn still needs setup (ask me for the guide).')
+          : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
     return;
   }
   window.location.href = url;
@@ -92,6 +94,8 @@ function tarjeta(c) {
   const fb = c.fb_page_name || null;
   const yt = c.yt_channel_title || null;
   const tt = c.tt_username ? '@' + c.tt_username : null;
+  // LinkedIn: la página de empresa manda si existe; si no, el perfil de la persona.
+  const li = c.li_org_name ? c.li_org_name : (c.li_person_name || null);
   const completa = !!(ig && fb);
   return el('article', { class: 'cx-card' + (completa ? ' cx-card--full' : '') }, [
     el('header', { class: 'cx-card__head' }, [
@@ -130,6 +134,14 @@ function tarjeta(c) {
       nombre: 'TikTok', icono: 'spark',
       conectado: !!tt, detalle: tt ? `${tt} ✓` : '',
       onConnect: cliente ? null : () => conectar('tt', c.id),
+    }) : null,
+    // LinkedIn (9-oct-2026): perfil de la persona y, cuando LinkedIn apruebe el
+    // permiso de páginas, la página de empresa. Mismo flujo (/li/login). El
+    // permiso dura 60 días: Reconectar sirve para renovarlo.
+    (li || !cliente) ? filaRed({
+      nombre: 'LinkedIn', icono: 'linkedin',
+      conectado: !!li, detalle: li ? `${li} ✓` : '',
+      onConnect: cliente ? null : () => conectar('li', c.id),
     }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
@@ -316,8 +328,8 @@ function render() {
       )
       : esCreador()
       ? T(
-        'Tus redes por marca. Verde = publica en automático. Conecta Instagram, tu página de Facebook y tu canal de YouTube con tus propias cuentas.',
-        'Your networks per brand. Green = auto-publishing. Connect Instagram, your Facebook Page and your YouTube channel with your own accounts.'
+        'Tus redes por marca. Verde = publica en automático. Conecta Instagram, tu página de Facebook, tu canal de YouTube y tu LinkedIn con tus propias cuentas.',
+        'Your networks per brand. Green = auto-publishing. Connect Instagram, your Facebook Page, your YouTube channel and your LinkedIn with your own accounts.'
       )
       : T(
         'El semáforo de redes por marca. Verde = publica en automático. Si falta Facebook: conéctalo si administras la página, o copia la invitación y mándasela al dueño (solo tiene que picar Aprobar).',
@@ -348,7 +360,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202610080300';
+  link.href = '/marketing/css/conexiones.css?v=202610091000';
   document.head.appendChild(link);
 }
 

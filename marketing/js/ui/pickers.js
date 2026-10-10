@@ -18,9 +18,9 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202610080300';
-import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202610080300';
-import { T } from '../shell/i18n.js?v=202610080300';
+} from '../api.js?v=202610091000';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202610091000';
+import { T } from '../shell/i18n.js?v=202610091000';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
@@ -233,6 +233,7 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           { key: 'also_facebook', label: 'Facebook', conectada: !!c.fb_page_name, detalle: c.fb_page_name || '', on: Number(post.also_facebook) === 1 },
           { key: 'also_tiktok', label: 'TikTok', conectada: !!c.tt_username, detalle: c.tt_username ? '@' + c.tt_username : '', on: Number(post.also_tiktok) === 1 },
           { key: 'also_youtube', label: 'YouTube', conectada: !!c.yt_channel_title, detalle: c.yt_channel_title || '', on: Number(post.also_youtube) === 1 },
+          { key: 'also_linkedin', label: 'LinkedIn', conectada: !!(c.li_person_name || c.li_org_name), detalle: c.li_org_name || c.li_person_name || '', on: Number(post.also_linkedin) === 1 },
         ];
         const boxes = {};
         const redesEl = el('div', { class: 'pk-redes' }, redes.map((r) => {
@@ -259,6 +260,7 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           also_facebook: boxes.also_facebook && boxes.also_facebook.checked ? 1 : 0,
           also_tiktok: boxes.also_tiktok && boxes.also_tiktok.checked ? 1 : 0,
           also_youtube: boxes.also_youtube && boxes.also_youtube.checked ? 1 : 0,
+          also_linkedin: boxes.also_linkedin && boxes.also_linkedin.checked ? 1 : 0,
         });
         const aviso = el('p', { class: 'pk-hint pk-hint--error', hidden: true });
         const guardar = el('button', {

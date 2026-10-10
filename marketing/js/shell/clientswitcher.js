@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el, esCreador } from '../api.js?v=202610080300';
-import { openSheet } from './sheet.js?v=202610080300';
-import { toast } from './toast.js?v=202610080300';
-import * as store from './store.js?v=202610080300';
-import { icon } from './icons.js?v=202610080300';
-import { T, isEN } from './i18n.js?v=202610080300';
+import { api, el, esCreador } from '../api.js?v=202610091000';
+import { openSheet } from './sheet.js?v=202610091000';
+import { toast } from './toast.js?v=202610091000';
+import * as store from './store.js?v=202610091000';
+import { icon } from './icons.js?v=202610091000';
+import { T, isEN } from './i18n.js?v=202610091000';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
@@ -417,6 +417,34 @@ export function openEditClient(client, { selectClient } = {}) {
                     window.location.href = `/api/marketing/yt/login?client_id=${client.id}${LANGQ}`;
                   },
                 }, [icon('play', 16), el('span', { text: T('Conectar YouTube', 'Connect YouTube') })]),
+            (client.li_person_name || client.li_org_name)
+              // LinkedIn (9-oct-2026): LinkedIn no expone revocación por API; la
+              // fila se limpia aquí y la persona puede retirar el permiso en su
+              // cuenta de LinkedIn (Datos y privacidad → Servicios permitidos).
+              ? el('div', { class: 'cs-igrow' }, [
+                  el('span', { text: 'LinkedIn · ' + (client.li_org_name || client.li_person_name) }),
+                  el('button', {
+                    class: 'btn', type: 'button', text: T('Desconectar', 'Disconnect'),
+                    onclick: async (e) => {
+                      e.currentTarget.disabled = true;
+                      const r = await fetch('/api/marketing/li/disconnect', {
+                        method: 'POST', credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ client_id: client.id }),
+                      });
+                      if (r.ok) { await store.refreshClientCounts(); toast(T('LinkedIn desconectado.', 'LinkedIn disconnected.'), { type: 'success' }); close({ source: 'li' }); }
+                      else { e.currentTarget.disabled = false; toast(T('No se pudo desconectar LinkedIn.', 'Could not disconnect LinkedIn.'), { type: 'error' }); }
+                    },
+                  }),
+                ])
+              : el('button', {
+                  class: 'btn cs-igconnect', type: 'button',
+                  onclick: async () => {
+                    const r = await fetch(`/api/marketing/li/login?client_id=${client.id}${LANGQ}`, { credentials: 'include', redirect: 'manual' });
+                    if (r.status === 503) { toast(T('Falta configurar la app de LinkedIn (pídeme la guía).', 'LinkedIn still needs setup (ask me for the guide).'), { type: 'error' }); return; }
+                    window.location.href = `/api/marketing/li/login?client_id=${client.id}${LANGQ}`;
+                  },
+                }, [icon('linkedin', 16), el('span', { text: T('Conectar LinkedIn', 'Connect LinkedIn') })]),
           ]);
           // Si está conectado: cargar métricas en vivo bajo el estado
           if (client.ig_username) {

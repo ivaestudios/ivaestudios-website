@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202610080300';
-import { pickFrom } from '../shell/sheet.js?v=202610080300';
-import * as store from '../shell/store.js?v=202610080300';
-import * as checklistService from '../services/checklist.js?v=202610080300';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202610080300';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202610080300';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202610080300';
-import { T } from '../shell/i18n.js?v=202610080300';
+} from '../api.js?v=202610091000';
+import { pickFrom } from '../shell/sheet.js?v=202610091000';
+import * as store from '../shell/store.js?v=202610091000';
+import * as checklistService from '../services/checklist.js?v=202610091000';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202610091000';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202610091000';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202610091000';
+import { T } from '../shell/i18n.js?v=202610091000';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -285,6 +285,44 @@ export function mount(host, ed) {
     onTap: () => openYouTubeVideoSheet(ed),
   });
 
+  // ── Tambien en LinkedIn (staff) ───────────────────────────────────────────
+  // 9-oct-2026: perfil de la persona o pagina de empresa de la marca. El
+  // destino lo elige la persona (li_options.destino); sin pagina conectada
+  // solo existe el perfil. LinkedIn no programa por API: lo manda el reloj.
+  const cliLi = () => ed.getClient() || {};
+  const destinoLi = () => { try { return (JSON.parse(post().li_options || '{}').destino) || 'perfil'; } catch { return 'perfil'; } };
+  const rLinkedIn = rowSwitch({
+    label: T('Publicar también en LinkedIn', 'Also publish on LinkedIn'),
+    sub: T('Al publicarse, también sale en el LinkedIn conectado de la marca (perfil o página)', "When it publishes, it also goes out on the brand's connected LinkedIn (profile or Page)"),
+    get: () => !!post().also_linkedin,
+    onToggle: (next) => { ed.setField('also_linkedin', next ? 1 : 0, { immediate: true }); sincronizarCanales(); return true; },
+  });
+  const rLinkedInDest = rowButton({
+    label: T('Destino en LinkedIn', 'LinkedIn destination'),
+    render: (v) => {
+      const c = cliLi();
+      const d = destinoLi();
+      v.appendChild(el('span', { text: d === 'pagina'
+        ? `${T('Página', 'Page')} · ${c.li_org_name || ''}`
+        : `${T('Perfil', 'Profile')} · ${c.li_person_name || T('persona conectada', 'connected person')}` }));
+    },
+    onTap: async (anchor) => {
+      const c = cliLi();
+      const cur = destinoLi();
+      const next = await pickFrom({
+        title: T('¿Dónde sale en LinkedIn?', 'Where does it go on LinkedIn?'),
+        anchor,
+        options: [
+          { value: 'perfil', label: `${T('Perfil', 'Profile')} · ${c.li_person_name || T('persona conectada', 'connected person')}`, current: cur === 'perfil' },
+          ...(c.li_org_name ? [{ value: 'pagina', label: `${T('Página', 'Page')} · ${c.li_org_name}`, current: cur === 'pagina' }] : []),
+        ],
+      });
+      if (next === null || next === cur) return;
+      ed.setField('li_options', JSON.stringify({ destino: next }), { immediate: true });
+      sincronizarCanales();
+    },
+  });
+
   // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
   // error solo vivía en la columna y en un aviso que se pierde en la lista.
   const avisoCanales = el('div', { class: 'alert alert--error', hidden: true });
@@ -295,11 +333,13 @@ export function mount(host, ed) {
     rTikTokOpts.el.hidden = !p.also_tiktok;
     rYouTubeOpts.el.hidden = !p.also_youtube;
     rYouTubeVideo.el.hidden = !p.yt_video_id;
-    try { rTikTokOpts.refresh(); rYouTubeOpts.refresh(); rYouTubeVideo.refresh(); } catch { /* noop */ }
+    rLinkedInDest.el.hidden = !p.also_linkedin;
+    try { rTikTokOpts.refresh(); rYouTubeOpts.refresh(); rYouTubeVideo.refresh(); rLinkedInDest.refresh(); } catch { /* noop */ }
     const fallos = [
       p.fb_error ? `Facebook: ${p.fb_error}` : null,
       p.tt_error ? `TikTok: ${p.tt_error}` : null,
       p.yt_error ? `YouTube: ${p.yt_error}` : null,
+      p.li_error ? `LinkedIn: ${p.li_error}` : null,
     ].filter(Boolean);
     while (avisoCanales.firstChild) avisoCanales.removeChild(avisoCanales.firstChild);
     avisoCanales.hidden = !fallos.length;
@@ -356,13 +396,13 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rHora, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rNotas, ...personRows]),
+    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rLinkedIn, rLinkedInDest, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente || !aprobacionActiva ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente && aprobacionActiva) addSection(T('Cliente', 'Client'), [rVisible.el]);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, avisoCanales]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
