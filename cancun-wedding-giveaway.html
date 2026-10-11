@@ -109,7 +109,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 .check input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--navy)}
 .check a{color:var(--navy)}
 .hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
-.cf-turnstile{margin-top:18px;min-height:65px}
+.cf-turnstile{margin-top:18px;min-height:65px;max-width:100%;overflow:hidden}
 .submit{margin-top:18px;width:100%}
 .msg{margin-top:14px;font-size:14px;line-height:1.5;padding:12px 14px;border-radius:2px;display:none}
 .msg.is-bad{display:block;background:#fbeaec;color:var(--bad);border:1px solid #f0c2c7}
@@ -329,6 +329,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
         <input type="hidden" name="source" id="source" value=""/>
         <label class="check"><input type="checkbox" id="consent" name="consent" required/><span>We are 18 or older and live in the United States. We agree to the <a href="/cancun-wedding-giveaway-rules" target="_blank" rel="noopener">Terms</a> and <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive emails about this offer. Unsubscribe any time.</span></label>
         <div class="cf-turnstile" data-sitekey="0x4AAAAAAFD1QIwySjNEhcdF" data-theme="light" data-size="flexible" data-language="en"></div>
+        <script>if(window.innerWidth<340){var _tw=document.currentScript.previousElementSibling;_tw.setAttribute('data-size','compact');_tw.style.minHeight='140px';}</script>
         <button class="btn submit" id="submit" type="submit">Send our application</button>
         <div class="msg" id="msg" role="alert" aria-live="polite"></div>
         <p class="privacy">One application per couple. We reply to every one within two business days. Your details are never sold or shared.</p>
