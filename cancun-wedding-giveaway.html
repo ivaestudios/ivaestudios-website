@@ -243,7 +243,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
       <a class="btn-o" href="#included">What's included</a>
     </div>
     <span class="deadline rv d3"><i aria-hidden="true"></i> Limited 2027 dates, first come first served</span>
-    <p class="fine rv d3">For brides and grooms who are legal residents of the 50 United States and D.C., 18 or older, marrying between February 1, 2027 and March 31, 2028. Subject to availability. The couple covers the team's travel at cost, plus any venue or vendor fees. Films and albums available at regular prices. <a href="/cancun-wedding-giveaway-rules">Terms</a>.</p>
+    <p class="fine rv d3">For brides and grooms who are legal residents of the 50 United States and D.C., 18 or older, with a wedding date in 2027. Subject to availability. The couple covers the team's travel at cost, plus any venue or vendor fees. Films and albums available at regular prices. <a href="/cancun-wedding-giveaway-rules">Terms</a>.</p>
   </div>
 </section>
 
@@ -259,7 +259,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 <section class="wrap enter" id="enter">
   <div class="enter-grid">
     <div class="card rv">
-      <form id="form" novalidate>
+      <form id="form" novalidate action="/api/giveaway" method="post">
         <span class="eyebrow">Apply · about two minutes</span>
         <h2>Tell us about <em>your wedding</em></h2>
         <p class="lead">We reply within two business days with our availability for your date and, if your wedding is outside Cancún, the travel estimate. No commitment until you say yes.</p>
@@ -300,7 +300,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
             <select class="select" id="wedding_month" name="wedding_month">
               <option value="undecided">We don't have a date yet</option>
               <option value="2027-01">January 2027</option><option value="2027-02">February 2027</option><option value="2027-03">March 2027</option><option value="2027-04">April 2027</option><option value="2027-05">May 2027</option><option value="2027-06">June 2027</option><option value="2027-07">July 2027</option><option value="2027-08">August 2027</option><option value="2027-09">September 2027</option><option value="2027-10">October 2027</option><option value="2027-11">November 2027</option><option value="2027-12">December 2027</option>
-              <option value="2028-01">January 2028</option><option value="2028-02">February 2028</option><option value="2028-03">March 2028</option><option value="later">Later</option>
+              <option value="later">2028 or later</option>
             </select></div>
           <div class="field"><label class="label" for="destination">Where is the wedding?</label>
             <select class="select" id="destination" name="destination">
@@ -324,7 +324,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
             <option value="150+">More than 150</option>
           </select></div>
         <div class="field"><label class="label" for="note">About your wedding <small>optional</small></label><span class="hint">The venue if you have one, the exact date, how you found us, anything that helps us plan. A line or two is plenty.</span><textarea class="textarea" id="note" name="note" maxlength="1500"></textarea></div>
-        <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"/></div>
+        <div class="hp" aria-hidden="true"><label for="hp_field">Leave this field empty</label><input id="hp_field" name="hp_field" type="text" tabindex="-1" autocomplete="off"/></div>
         <input type="hidden" name="ref" id="ref" value=""/>
         <input type="hidden" name="source" id="source" value=""/>
         <label class="check"><input type="checkbox" id="consent" name="consent" required/><span>We are 18 or older and live in the United States. We agree to the <a href="/cancun-wedding-giveaway-rules" target="_blank" rel="noopener">Terms</a> and <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive emails about this offer. Unsubscribe any time.</span></label>
@@ -368,7 +368,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
         <li>Sneak peek, and digital delivery in 4 to 6 weeks</li>
         <li>Pre-wedding consultation to define your inspiration</li>
       </ul>
-      <div class="value"><b>Free, on us</b><span>For weddings between February 1, 2027 and March 31, 2028, subject to availability. Want the film or an album? Add them at our regular prices.</span></div>
+      <div class="value"><b>Free, on us</b><span>For weddings held anywhere in 2027, subject to availability. Want the film or an album? Add them at our regular prices.</span></div>
       <h3 style="margin-top:30px">What you cover</h3>
       <ul>
         <li>Our travel, at cost: round trip flights from Cancún for our two photographers, two nights near your venue, and local transport. We send you the exact estimate with real fares before you confirm, and the receipts after. No markup.</li>
@@ -481,7 +481,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 </section>
 
 <section class="wrap legal">
-  <p><strong>Offer summary.</strong> IVAE Studios will photograph the full wedding day (two photographers, all edited photographs delivered digitally in a private online gallery, professional slideshow, sneak peek and pre-wedding consultation; prints and albums not included) at no charge for weddings of eligible couples held between February 1, 2027 and March 31, 2028, subject to availability and written confirmation. Open to legal residents of the 50 United States and the District of Columbia, 18 or older. For weddings outside Cancún and the Riviera Maya, Quintana Roo, Mexico, the couple covers the team's travel at cost (round trip flights from Cancún for two, two nights of lodging and local transport), quoted in writing before confirmation. Venue vendor fees, permits and any additions beyond the package are the couple's responsibility. IVAE Studios may limit the number of weddings under this offer. This offer is not a sweepstakes or contest and is in no way sponsored, endorsed, administered by, or associated with Instagram, Facebook or Meta Platforms, Inc. <a href="/cancun-wedding-giveaway-rules">Read the Terms</a>.</p>
+  <p><strong>Offer summary.</strong> IVAE Studios will photograph the full wedding day (two photographers, all edited photographs delivered digitally in a private online gallery, professional slideshow, sneak peek and pre-wedding consultation; prints and albums not included) at no charge for weddings of eligible couples held in 2027, subject to availability and written confirmation. Open to legal residents of the 50 United States and the District of Columbia, 18 or older. For weddings outside Cancún and the Riviera Maya, Quintana Roo, Mexico, the couple covers the team's travel at cost (round trip flights from Cancún for two, two nights of lodging and local transport), quoted in writing before confirmation. Venue vendor fees, permits and any additions beyond the package are the couple's responsibility. IVAE Studios may limit the number of weddings under this offer. This offer is not a sweepstakes or contest and is in no way sponsored, endorsed, administered by, or associated with Instagram, Facebook or Meta Platforms, Inc. <a href="/cancun-wedding-giveaway-rules">Read the Terms</a>.</p>
 </section>
 </main>
 
@@ -591,7 +591,7 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
     form.style.display='none'; thanks.classList.add('is-on');
     var name=(document.getElementById('first_name').value||'').trim().replace(/[<>&]/g,'');
     if(yaEstaba){ document.getElementById('thanks-h').innerHTML='We already have <em>your application</em>'; document.getElementById('thanks-p').textContent='You will hear from Vianey within two business days with our availability and, if the wedding is outside Cancún, the travel estimate. Want to add something? Write to info@ivaestudios.com.'; }
-    else { document.getElementById('thanks-h').innerHTML=(name?'Thank you, '+name:'Thank you')+', <em>we will read it</em>'; }
+    else { document.getElementById('thanks-h').innerHTML=(name?'Thank you, '+name:'Thank you')+', <em>we will read it</em>'; if(r.emailed===false){ document.getElementById('thanks-p').textContent='We have your application. Within two business days you will hear from Vianey with our availability for your date and, if your wedding is outside Cancún, the travel estimate.'; } }
     var link=r.link||(location.origin+'/cancun-wedding-giveaway?ref='+r.code);
     document.getElementById('link').value=link;
     var txt='IVAE Studios, a wedding studio from Cancún, is photographing full weddings in the US for free in 2027. You only cover their travel. Two minutes to apply: ';
@@ -609,32 +609,53 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
     var done=function(){ var b=document.getElementById('copy'); b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy'; },1800); };
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(i.value).then(done,function(){ try{document.execCommand('copy');done();}catch(e){} }); } else { try{document.execCommand('copy');done();}catch(e){} }
   });
+  function tokenTurnstile(){ var ts=form.querySelector('[name="cf-turnstile-response"]'); return ts?ts.value:''; }
+  function esperarToken(ms){ return new Promise(function(res){ var t0=Date.now(); (function p(){ var t=tokenTurnstile(); if(t) return res(t); if(Date.now()-t0>ms) return res(''); setTimeout(p,300); })(); }); }
+  function resetTurnstile(){ if(window.turnstile){ try{ window.turnstile.reset(); }catch(e){} } }
+  var reintento=false;
+  function enviar(data){
+    btn.disabled=true; btn.textContent='Sending…';
+    return fetch('/api/giveaway'+(preview?'?preview='+encodeURIComponent(preview):''),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; },function(){ return {s:r.status,j:null}; }); })
+      .then(function(x){
+        if(x.j&&x.j.ok){ showThanks(x.j, !!x.j.repeat); return; }
+        if(x.j&&x.j.retry&&!reintento&&window.turnstile){
+          // The anti-bot token expired or was already used: get a fresh one and send again by ourselves.
+          reintento=true; resetTurnstile();
+          say('One second, refreshing the anti-bot check…',true);
+          return esperarToken(9000).then(function(t){ data.turnstileToken=t; data.retry=1; return enviar(data); });
+        }
+        say((x.j&&x.j.error)||'Something went wrong. Please tap Send again, or message us on WhatsApp below.');
+        if(x.j&&x.j.field){ var f=document.getElementById(x.j.field); if(f) f.focus(); }
+        resetTurnstile();
+      })
+      .catch(function(){ say('We could not reach the server. Please check your connection and tap Send again, or message us on WhatsApp below.'); resetTurnstile(); })
+      .then(function(){ btn.disabled=false; btn.textContent='Send our application'; });
+  }
   form.addEventListener('submit',function(e){
     e.preventDefault();
     msg.className='msg';
     var data={};
-    ['first_name','partner_name','email','phone','from_city','wedding_month','destination','guests','note','website','ref','source'].forEach(function(k){ var el=form.querySelector('[name="'+k+'"]'); data[k]=el?el.value:''; });
+    ['first_name','partner_name','email','phone','from_city','wedding_month','destination','guests','note','hp_field','ref','source'].forEach(function(k){ var el=form.querySelector('[name="'+k+'"]'); data[k]=el?el.value:''; });
     data.consent=document.getElementById('consent').checked;
     if(!data.first_name.trim()){ say("Please tell us the bride's first name."); document.getElementById('first_name').focus(); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())){ say('That email address does not look right.'); document.getElementById('email').focus(); return; }
     if(!data.from_city){ say('Tell us where you will be flying from.'); document.getElementById('from_city').focus(); return; }
     if(!data.consent){ say('Please accept the Terms to apply.'); document.getElementById('consent').focus(); return; }
-    var ts=form.querySelector('[name="cf-turnstile-response"]'); data.turnstileToken=ts?ts.value:'';
-    if(window.turnstile && !data.turnstileToken && !preview){ say('One second, we are checking you are not a robot. Please try again.'); return; }
-    btn.disabled=true; var old=btn.textContent; btn.textContent='Sending…';
-    fetch('/api/giveaway'+(preview?'?preview='+encodeURIComponent(preview):''),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-      .then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; }); })
-      .then(function(x){
-        if(x.j&&x.j.ok){ showThanks(x.j, !!x.j.repeat); return; }
-        say((x.j&&x.j.error)||'Something went wrong. Please try again.');
-        if(x.j&&x.j.field){ var f=document.getElementById(x.j.field); if(f) f.focus(); }
-        if(window.turnstile){ try{ window.turnstile.reset(); }catch(e){} }
-      })
-      .catch(function(){ say('We could not reach the server. Please check your connection and try again.'); })
-      .then(function(){ btn.disabled=false; btn.textContent=old; });
+    var t=tokenTurnstile();
+    if(window.turnstile && !t && !preview){
+      // The widget is still working: wait for it instead of bouncing the couple.
+      say('One second, we are checking you are not a robot…',true); btn.disabled=true; btn.textContent='Checking…';
+      esperarToken(8000).then(function(tk){ data.turnstileToken=tk; enviar(data); });
+      return;
+    }
+    data.turnstileToken=t; enviar(data);
   });
-  // Already applied on this phone: show the confirmation again.
-  try{ var prev=JSON.parse(localStorage.getItem(LS)||'null'); if(prev&&prev.code&&!qs.get('again')){ showThanks({code:prev.code,link:prev.link}, true); } }catch(e){}
+  // Sent without JavaScript (the server redirected back here), or already applied on this phone.
+  var applied=qs.get('applied'), errq=qs.get('error');
+  if(applied){ showThanks({code:applied,link:location.origin+'/cancun-wedding-giveaway?ref='+applied,emailed:!qs.get('noemail')}, !!qs.get('repeat')); }
+  else if(errq){ say(errq); try{ document.getElementById('enter').scrollIntoView({block:'start'}); }catch(e){} }
+  else { try{ var prev=JSON.parse(localStorage.getItem(LS)||'null'); if(prev&&prev.code&&!qs.get('again')){ showThanks({code:prev.code,link:prev.link}, true); } }catch(e){} }
   // Sticky button on phones once the hero scrolls away, hidden while the form is on screen.
   var sticky=document.getElementById('sticky'), enter=document.getElementById('enter');
   function tick(){ var r=enter.getBoundingClientRect(); var vh=innerHeight; var formVisible=r.top<vh*0.6&&r.bottom>0; sticky.classList.toggle('is-on',scrollY>420&&!formVisible&&form.style.display!=='none'); }
