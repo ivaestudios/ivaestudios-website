@@ -113,6 +113,8 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 .msg.is-ok{display:block;background:#e9f4ee;color:var(--ok);border:1px solid #c6e3d1}
 .privacy{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
 .privacy a{color:var(--navy)}
+.alt{margin-top:12px;font-size:13.5px;text-align:center;color:var(--muted)}
+.alt a{color:var(--navy);font-weight:600;display:inline-block;padding:8px 0}
 .aside h3{font-size:26px}
 .aside ul{list-style:none;margin-top:16px;display:grid;gap:12px}
 .aside li{display:grid;grid-template-columns:22px 1fr;gap:12px;font-size:15px;line-height:1.5}
@@ -148,6 +150,11 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 @media(min-width:760px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}}
 .cities{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .cities span{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);padding:8px 12px;border:1px solid var(--line);background:var(--sand)}
+.quotes{display:grid;gap:14px;margin-top:28px}
+.quotes blockquote{margin:0;padding:20px 22px;background:var(--sand);border-left:3px solid var(--gold)}
+.quotes p{font-family:'Cormorant Garamond',serif;font-size:21px;line-height:1.4;color:#1a1a1a}
+.quotes footer{margin-top:12px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+@media(min-width:760px){.quotes{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
 .gal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:30px -20px 0}
 .gal figure{position:relative;overflow:hidden;background:var(--sand)}
 .gal figure:first-child{grid-column:1/-1;aspect-ratio:3/2}
@@ -279,27 +286,25 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
               <option value="los-cabos">Los Cabos</option>
             </select></div>
         </div>
-        <div class="row2">
-          <div class="field"><label class="label" for="guests">How many guests?</label>
-            <select class="select" id="guests" name="guests">
-              <option value="undecided">Not sure yet</option>
-              <option value="elopement">Just the two of us</option>
-              <option value="2-30">Up to 30</option>
-              <option value="31-80">31 to 80</option>
-              <option value="81-150">81 to 150</option>
-              <option value="150+">More than 150</option>
-            </select></div>
-          <div class="field"><label class="label" for="instagram">Instagram <small>optional</small></label><input class="input" id="instagram" name="instagram" type="text" placeholder="@yourname" autocapitalize="off" autocorrect="off" maxlength="60"/></div>
-        </div>
+        <div class="field"><label class="label" for="guests">How many guests?</label>
+          <select class="select" id="guests" name="guests">
+            <option value="undecided">Not sure yet</option>
+            <option value="elopement">Just the two of us</option>
+            <option value="2-30">Up to 30</option>
+            <option value="31-80">31 to 80</option>
+            <option value="81-150">81 to 150</option>
+            <option value="150+">More than 150</option>
+          </select></div>
         <div class="field"><label class="label" for="note">About your wedding <small>optional</small></label><span class="hint">The venue if you have one, the exact date, how you found us, anything that helps us plan. A line or two is plenty.</span><textarea class="textarea" id="note" name="note" maxlength="1500"></textarea></div>
         <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"/></div>
         <input type="hidden" name="ref" id="ref" value=""/>
         <input type="hidden" name="source" id="source" value=""/>
-        <label class="check"><input type="checkbox" id="consent" name="consent" required/><span>I am 18 or older, a resident of the United States, and I agree to the <a href="/cancun-wedding-giveaway-rules" target="_blank" rel="noopener">Terms</a> and the <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>. I would like to receive emails from IVAE Studios about this offer and about wedding photography. I can unsubscribe at any time.</span></label>
+        <label class="check"><input type="checkbox" id="consent" name="consent" required/><span>We are 18 or older and live in the United States. We agree to the <a href="/cancun-wedding-giveaway-rules" target="_blank" rel="noopener">Terms</a> and <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive emails about this offer. Unsubscribe any time.</span></label>
         <div class="cf-turnstile" data-sitekey="0x4AAAAAAFD1QIwySjNEhcdF" data-theme="light" data-size="flexible" data-language="en"></div>
         <button class="btn submit" id="submit" type="submit">Send our application</button>
         <div class="msg" id="msg" role="alert" aria-live="polite"></div>
         <p class="privacy">One application per couple. We reply to every one within two business days. Your details are never sold or shared.</p>
+        <p class="alt"><span>Prefer to talk first?</span> <a href="https://wa.me/529902046514?text=Hi%2C%20we%20are%20planning%20our%202027%20wedding%20and%20we%20would%20like%20to%20apply%20for%20the%20free%20photography." target="_blank" rel="noopener">Message us on WhatsApp</a></p>
       </form>
 
       <div class="thanks" id="thanks">
@@ -338,7 +343,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
       <div class="value"><b>Free, on us</b><span>For weddings between February 1, 2027 and March 31, 2028, subject to availability. Want the film, a second photographer or an album? Add them at our regular prices.</span></div>
       <h3 style="margin-top:30px">What you cover</h3>
       <ul>
-        <li>Our travel, at cost and quoted before you confirm: round trip flights from Cancún for two, two nights near your venue, and local transport. Usually between $900 and $1,800 depending on the city.</li>
+        <li>Our travel, at cost: round trip flights from Cancún for two, two nights near your venue, and local transport. We send you the exact estimate with real fares before you confirm, and the receipts after. No markup.</li>
         <li>Weddings in Cancún or the Riviera Maya: no travel cost at all.</li>
         <li>Any vendor fee or permit your venue charges for outside photographers.</li>
       </ul>
@@ -357,6 +362,18 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     </div>
     <p class="intro rv d3">Cancún is a direct flight from most of the United States, which keeps our travel small. In 2027 we are flying to:</p>
     <div class="cities rv d3"><span>Dallas</span><span>Houston</span><span>Chicago</span><span>New York</span><span>Philadelphia</span><span>Atlanta</span><span>Miami</span><span>Charlotte</span><span>Denver</span><span>Los Angeles</span><span>and more</span></div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <span class="eyebrow rv">In the words of our couples</span>
+    <h2 class="sec-h rv d1">5.0 on Google, <em>47 reviews</em></h2>
+    <div class="quotes rv d2">
+      <blockquote><p>"Such a great photographer. She made it feel relaxed and comfortable. Quality was great. Communication was great. One of our best memories in Cancun for sure."</p><footer>Joni Blake · Google review</footer></blockquote>
+      <blockquote><p>"Oh my goodness, if you are in the area IVAE Studios is the most amazing. We had so much fun at our photoshoot. We are somewhat awkward in front of the camera, but Vianey did excellent posing us and making us feel comfortable."</p><footer>Kalin · Google review</footer></blockquote>
+      <blockquote><p>"I cannot recommend IVAE Studios enough. From the initial contact until the photos were delivered the communication and customer service was outstanding."</p><footer>Laura Stubblefield · Google review</footer></blockquote>
+    </div>
   </div>
 </section>
 
@@ -422,11 +439,12 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     <h2 class="sec-h rv d1">Questions couples <em>are asking</em></h2>
     <div class="faq-list rv d2">
       <details><summary>Is it really free? What's the catch?</summary><p>Yes. Your full wedding day photographed by our team, all your edited photos, the slideshow and your private gallery with print rights, free. You cover our travel at cost when the wedding is outside Cancún and the Riviera Maya, and any fee your venue charges outside vendors. If you want the film, a second photographer or an album, those are at our regular prices. There is no obligation to add anything.</p></details>
-      <details><summary>How much is the travel?</summary><p>It depends on the city and the dates. Round trip flights from Cancún for two people, two nights near your venue and local transport usually come to between $900 and $1,800. We send you the estimate with real fares before you confirm, and the receipts after. For weddings in Cancún or the Riviera Maya there is no travel cost.</p></details>
+      <details><summary>How much is the travel?</summary><p>It depends on your city and your dates: round trip flights from Cancún for two people, two nights near your venue and local transport, all at cost. Cancún has direct flights from most big US cities, so it is usually less than couples expect. We send you the estimate with real fares before you confirm, and the receipts after. For weddings in Cancún or the Riviera Maya there is no travel cost.</p></details>
       <details><summary>Where can the wedding be?</summary><p>Anywhere in the United States, or in Cancún and the Riviera Maya. Cancún is a direct flight from most big cities, which is why Dallas, Houston, Chicago, New York, Philadelphia, Atlanta, Miami, Charlotte, Denver and Los Angeles are the easiest for us. Other cities work too; the travel estimate tells you exactly what it costs.</p></details>
       <details><summary>Do we need to have a date or a venue already?</summary><p>No. Tell us the month you are thinking of and we will tell you what we have open. Dates are first come, first served, and we confirm them in writing.</p></details>
       <details><summary>How many weddings are you doing this way?</summary><p>A limited number in 2027, because we want to give each one the same care as any other wedding we photograph. When a month fills up, we say so.</p></details>
       <details><summary>Does the venue charge for an outside photographer?</summary><p>Some venues and resorts charge a vendor fee or require a day pass for outside vendors. That fee, when it exists, is paid by the couple. We will tell you what to expect before you confirm.</p></details>
+      <details><summary>Do you speak English?</summary><p>Yes. Vianey and the team are fully bilingual. From the first email to the final gallery, everything is in English, with Spanish available if you prefer.</p></details>
       <details><summary>Can we apply if we already booked a photographer?</summary><p>Yes. Many couples add us for the full day or for part of it. Tell us your plans and we will tell you how we can fit.</p></details>
       <details><summary>What happens with our information?</summary><p>We use it to reply to your application and to send you a handful of emails about this offer and our wedding work. We never sell or share your details, and every email has a way to unsubscribe. <a href="/privacy-policy">Privacy Policy</a>.</p></details>
       <details><summary>We are not in the United States. Can we apply?</summary><p>This offer is for legal residents of the 50 United States and the District of Columbia. If you are planning a wedding in Mexico from somewhere else, write to <a href="mailto:info@ivaestudios.com">info@ivaestudios.com</a> and we will gladly help.</p></details>
@@ -551,7 +569,7 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
     e.preventDefault();
     msg.className='msg';
     var data={};
-    ['first_name','partner_name','email','phone','from_city','wedding_month','destination','guests','instagram','note','website','ref','source'].forEach(function(k){ var el=form.querySelector('[name="'+k+'"]'); data[k]=el?el.value:''; });
+    ['first_name','partner_name','email','phone','from_city','wedding_month','destination','guests','note','website','ref','source'].forEach(function(k){ var el=form.querySelector('[name="'+k+'"]'); data[k]=el?el.value:''; });
     data.consent=document.getElementById('consent').checked;
     if(!data.first_name.trim()){ say("Please tell us the bride's first name."); document.getElementById('first_name').focus(); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())){ say('That email address does not look right.'); document.getElementById('email').focus(); return; }
