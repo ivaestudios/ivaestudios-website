@@ -328,7 +328,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
         <input type="hidden" name="ref" id="ref" value=""/>
         <input type="hidden" name="source" id="source" value=""/>
         <label class="check"><input type="checkbox" id="consent" name="consent" required/><span>We are 18 or older and live in the United States. We agree to the <a href="/cancun-wedding-giveaway-rules" target="_blank" rel="noopener">Terms</a> and <a href="/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and to receive emails about this offer. Unsubscribe any time.</span></label>
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFD1QIwySjNEhcdF" data-theme="light" data-size="flexible" data-language="en"></div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFD1QIwySjNEhcdF" data-theme="light" data-size="flexible" data-language="en" data-error-callback="ivaeTsError"></div>
         <script>if(window.innerWidth<340){var _tw=document.currentScript.previousElementSibling;_tw.setAttribute('data-size','compact');_tw.style.minHeight='140px';}</script>
         <button class="btn submit" id="submit" type="submit">Send our application</button>
         <div class="msg" id="msg" role="alert" aria-live="polite"></div>
@@ -611,7 +611,9 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(i.value).then(done,function(){ try{document.execCommand('copy');done();}catch(e){} }); } else { try{document.execCommand('copy');done();}catch(e){} }
   });
   function tokenTurnstile(){ var ts=form.querySelector('[name="cf-turnstile-response"]'); return ts?ts.value:''; }
-  function esperarToken(ms){ return new Promise(function(res){ var t0=Date.now(); (function p(){ var t=tokenTurnstile(); if(t) return res(t); if(Date.now()-t0>ms) return res(''); setTimeout(p,300); })(); }); }
+  // If the anti-bot widget reports an error, we stop waiting for it: the server keeps the application anyway.
+  window.ivaeTsError=function(){ window._ivaeTsFailed=true; return true; };
+  function esperarToken(ms){ return new Promise(function(res){ var t0=Date.now(); (function p(){ var t=tokenTurnstile(); if(t) return res(t); if(window._ivaeTsFailed||Date.now()-t0>ms) return res(''); setTimeout(p,300); })(); }); }
   function resetTurnstile(){ if(window.turnstile){ try{ window.turnstile.reset(); }catch(e){} } }
   var reintento=false;
   function enviar(data){
