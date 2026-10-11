@@ -67,6 +67,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 
 /* ── Hero ── */
 .hero{display:grid;gap:26px;padding:10px 20px 44px}
+/* El encabezado del sitio es fijo (56px en teléfono, 68px en escritorio) y el CSS global pone body padding-top:0 !important: la portada se reserva ese espacio. */
 .hero-media{position:relative;margin:0 -20px;aspect-ratio:4/5;overflow:hidden;background:var(--sand)}
 .hero-media .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.3s ease}
 .hero-media .slide.is-on{opacity:1}
@@ -80,12 +81,12 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 .fine{font-size:12px;color:var(--muted);line-height:1.5;margin-top:16px;max-width:52ch}
 .deadline{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
 .deadline i{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block}
-@media(min-width:900px){.hero{grid-template-columns:1.05fr .95fr;align-items:center;gap:56px;padding:32px 20px 70px}.hero-media{margin:0;aspect-ratio:4/5;max-height:640px}.hero-text{order:-1}}
+@media(min-width:900px){.hero{grid-template-columns:1.05fr .95fr;align-items:center;gap:56px;padding:100px 20px 70px}.hero-media{margin:0;aspect-ratio:4/5;max-height:640px}.hero-text{order:-1}}
 .hero-sub-m{display:none}
 .legal-m{display:none}
 @media(max-width:899px){
   /* Portada móvil = la de escritorio en vertical: titular, foto, texto corto, botones (opción A de Israel, 11-oct) */
-  .hero{display:grid;gap:14px;padding:14px 16px 30px}
+  .hero{display:grid;gap:14px;padding:72px 16px 30px}
   .hero-text{display:contents}
   .hero-text .eyebrow{order:1}
   .hero-text h1{order:2;margin-top:0;font-size:clamp(38px,10.4vw,52px);line-height:1.06}
