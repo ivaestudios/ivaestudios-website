@@ -169,7 +169,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 
 /* ── Sections ── */
 .sec{padding:60px 0;border-top:1px solid var(--line)}
-@media(max-width:899px){.sec{padding:44px 0}.enter{padding:40px 0 48px}.wrap{padding:0 16px}.gal{margin:24px -16px 0}.textarea{min-height:120px}.card{padding:22px 16px 24px}}
+@media(max-width:899px){.sec{padding:44px 0}.enter{padding:40px 0 48px}.wrap{padding:0 16px}.textarea{min-height:120px}.card{padding:22px 16px 24px}}
 .sec .intro{margin-top:16px;font-size:16px;line-height:1.65;color:var(--ink);max-width:60ch}
 .steps{display:grid;gap:22px;margin-top:34px}
 .step{padding-top:18px;border-top:1px solid var(--line)}
@@ -204,7 +204,9 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 .faq-list a{color:var(--navy)}
 .legal{padding:34px 0 46px;border-top:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--muted)}
 .legal a{color:var(--navy)}
-.fine a,.privacy a,.check a,.faq-list a,.legal a{padding:6px 0;margin:-6px 0;display:inline-block}
+.fine a,.privacy a,.check a,.faq-list a,.legal a,.legal-m a{padding:10px 0;margin:-10px 0;display:inline-block}
+.alt a{padding:12px 0}
+@media(max-width:899px){.gal{margin:24px -16px 0}}
 .sticky{position:fixed;left:0;right:0;bottom:0;z-index:900;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.96);border-top:1px solid var(--line);backdrop-filter:blur(8px);transform:translateY(110%);transition:transform .3s}
 .sticky.is-on{transform:none}
 .sticky .btn{width:100%}
