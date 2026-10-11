@@ -566,6 +566,9 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
   var src=qs.get('utm_source')||qs.get('src')||'';
   if(qs.get('utm_medium')) src+=(src?'/':'')+qs.get('utm_medium');
   if(qs.get('utm_campaign')) src+=(src?'/':'')+qs.get('utm_campaign');
+  // Which ad and placement sent them (Meta fills {{ad.id}} and {{placement}} in the link).
+  if(qs.get('ad')) src+=(src?'/':'')+'ad:'+qs.get('ad').replace(/[^0-9]/g,'').slice(0,20);
+  if(qs.get('placement')) src+=(src?'/':'')+qs.get('placement').replace(/[^a-z0-9_-]/gi,'').slice(0,40);
   if(!src && document.referrer){ try{ src='ref:'+new URL(document.referrer).hostname.replace(/^www\./,''); }catch(e){} }
   try{ if(src) sessionStorage.setItem(LS+'_src',src); else src=sessionStorage.getItem(LS+'_src')||''; }catch(e){}
   document.getElementById('ref').value=ref;
