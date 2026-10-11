@@ -69,7 +69,10 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 /* ── Hero ── */
 .hero{display:grid;gap:26px;padding:10px 20px 44px}
 .hero-media{position:relative;margin:0 -20px;aspect-ratio:4/5;overflow:hidden;background:var(--sand)}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+.hero-media .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.3s ease}
+.hero-media .slide.is-on{opacity:1}
+.hero-media img{width:100%;height:100%;object-fit:cover}
+@media(prefers-reduced-motion:reduce){.hero-media .slide{transition:none}}
 .hero-badge{position:absolute;left:20px;bottom:18px;background:rgba(255,255,255,.92);color:var(--navy);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;padding:9px 13px}
 .hero-text h1{font-size:clamp(38px,8.6vw,66px);margin-top:14px;text-wrap:balance}
 .hero-sub{margin-top:18px;font-size:16.5px;line-height:1.65;color:var(--ink);max-width:56ch}
@@ -198,13 +201,38 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 
 <main id="main-content">
 <section class="wrap hero">
-  <div class="hero-media rv">
-    <picture>
+  <div class="hero-media rv" id="heroSlides">
+    <picture class="slide is-on">
       <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-novia-mirada-480.avif 480w, /images/optimized/boda-ji-kailyn-novia-mirada-768.avif 768w, /images/optimized/boda-ji-kailyn-novia-mirada-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
       <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-novia-mirada-480.webp 480w, /images/optimized/boda-ji-kailyn-novia-mirada-768.webp 768w, /images/optimized/boda-ji-kailyn-novia-mirada-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
-      <img src="/images/optimized/boda-ji-kailyn-novia-mirada-768.jpg" srcset="/images/optimized/boda-ji-kailyn-novia-mirada-480.jpg 480w, /images/optimized/boda-ji-kailyn-novia-mirada-768.jpg 768w, /images/optimized/boda-ji-kailyn-novia-mirada-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="Kailyn, the bride, on her wedding day in May 2026, photographed by IVAE Studios" fetchpriority="high" decoding="async"/>
+      <img src="/images/optimized/boda-ji-kailyn-novia-mirada-768.jpg" srcset="/images/optimized/boda-ji-kailyn-novia-mirada-480.jpg 480w, /images/optimized/boda-ji-kailyn-novia-mirada-768.jpg 768w, /images/optimized/boda-ji-kailyn-novia-mirada-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="Kailyn, the bride, on her wedding day in May 2026, photographed by IVAE Studios" style="object-position:50% 12%" fetchpriority="high" decoding="async"/>
     </picture>
-    <span class="hero-badge">Ji &amp; Kailyn · May 2026</span>
+    <picture class="slide">
+      <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-480.avif 480w, /images/optimized/boda-ji-kailyn-novio-sillon-768.avif 768w, /images/optimized/boda-ji-kailyn-novio-sillon-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-480.webp 480w, /images/optimized/boda-ji-kailyn-novio-sillon-768.webp 768w, /images/optimized/boda-ji-kailyn-novio-sillon-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <img src="/images/optimized/boda-ji-kailyn-novio-sillon-768.jpg" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-480.jpg 480w, /images/optimized/boda-ji-kailyn-novio-sillon-768.jpg 768w, /images/optimized/boda-ji-kailyn-novio-sillon-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="Ji, the groom, getting ready" style="object-position:50% 22%" loading="lazy" decoding="async"/>
+    </picture>
+    <picture class="slide">
+      <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-novia-banca-bn-480.avif 480w, /images/optimized/boda-ji-kailyn-novia-banca-bn-768.avif 768w, /images/optimized/boda-ji-kailyn-novia-banca-bn-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-novia-banca-bn-480.webp 480w, /images/optimized/boda-ji-kailyn-novia-banca-bn-768.webp 768w, /images/optimized/boda-ji-kailyn-novia-banca-bn-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <img src="/images/optimized/boda-ji-kailyn-novia-banca-bn-768.jpg" srcset="/images/optimized/boda-ji-kailyn-novia-banca-bn-480.jpg 480w, /images/optimized/boda-ji-kailyn-novia-banca-bn-768.jpg 768w, /images/optimized/boda-ji-kailyn-novia-banca-bn-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="Kailyn putting on her shoes, in black and white" style="object-position:50% 28%" loading="lazy" decoding="async"/>
+    </picture>
+    <picture class="slide">
+      <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-anillos-estuche-480.avif 480w, /images/optimized/boda-ji-kailyn-anillos-estuche-768.avif 768w, /images/optimized/boda-ji-kailyn-anillos-estuche-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-anillos-estuche-480.webp 480w, /images/optimized/boda-ji-kailyn-anillos-estuche-768.webp 768w, /images/optimized/boda-ji-kailyn-anillos-estuche-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <img src="/images/optimized/boda-ji-kailyn-anillos-estuche-768.jpg" srcset="/images/optimized/boda-ji-kailyn-anillos-estuche-480.jpg 480w, /images/optimized/boda-ji-kailyn-anillos-estuche-768.jpg 768w, /images/optimized/boda-ji-kailyn-anillos-estuche-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="The wedding rings in their box" style="object-position:50% 50%" loading="lazy" decoding="async"/>
+    </picture>
+    <picture class="slide">
+      <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-2-480.avif 480w, /images/optimized/boda-ji-kailyn-novio-sillon-2-768.avif 768w, /images/optimized/boda-ji-kailyn-novio-sillon-2-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-2-480.webp 480w, /images/optimized/boda-ji-kailyn-novio-sillon-2-768.webp 768w, /images/optimized/boda-ji-kailyn-novio-sillon-2-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <img src="/images/optimized/boda-ji-kailyn-novio-sillon-2-768.jpg" srcset="/images/optimized/boda-ji-kailyn-novio-sillon-2-480.jpg 480w, /images/optimized/boda-ji-kailyn-novio-sillon-2-768.jpg 768w, /images/optimized/boda-ji-kailyn-novio-sillon-2-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="Ji waiting in the armchair" style="object-position:50% 32%" loading="lazy" decoding="async"/>
+    </picture>
+    <picture class="slide">
+      <source type="image/avif" srcset="/images/optimized/boda-ji-kailyn-anillos-zapatos-480.avif 480w, /images/optimized/boda-ji-kailyn-anillos-zapatos-768.avif 768w, /images/optimized/boda-ji-kailyn-anillos-zapatos-1200.avif 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <source type="image/webp" srcset="/images/optimized/boda-ji-kailyn-anillos-zapatos-480.webp 480w, /images/optimized/boda-ji-kailyn-anillos-zapatos-768.webp 768w, /images/optimized/boda-ji-kailyn-anillos-zapatos-1200.webp 1200w" sizes="(min-width:900px) 48vw, 100vw"/>
+      <img src="/images/optimized/boda-ji-kailyn-anillos-zapatos-768.jpg" srcset="/images/optimized/boda-ji-kailyn-anillos-zapatos-480.jpg 480w, /images/optimized/boda-ji-kailyn-anillos-zapatos-768.jpg 768w, /images/optimized/boda-ji-kailyn-anillos-zapatos-1200.jpg 1200w" sizes="(min-width:900px) 48vw, 100vw" width="1200" height="1800" alt="The rings and the bride's shoes" style="object-position:50% 45%" loading="lazy" decoding="async"/>
+    </picture>
+<span class="hero-badge">Ji &amp; Kailyn · May 2026</span>
   </div>
   <div class="hero-text">
     <span class="eyebrow rv">2027 · Brides and grooms from the United States</span>
@@ -522,6 +550,22 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
     setTimeout(showInView,300);
     setTimeout(showAll,2600);
   }catch(e){showAll();}
+})();
+/* Portada: las fotos van pasando solas con fundido. Se detiene si la pestaña
+   no se ve o si la persona pidió menos movimiento. */
+(function(){
+  var box=document.getElementById('heroSlides'); if(!box) return;
+  var slides=box.querySelectorAll('.slide'); if(slides.length<2) return;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var i=0;
+  function precargar(k){ var img=slides[k].querySelector('img'); if(img&&img.loading==='lazy'){ img.loading='eager'; } }
+  precargar(1);
+  setInterval(function(){
+    if(document.hidden) return;
+    var n=(i+1)%slides.length;
+    slides[i].classList.remove('is-on'); slides[n].classList.add('is-on'); i=n;
+    precargar((n+1)%slides.length);
+  },4500);
 })();
 </script>
 <script>
