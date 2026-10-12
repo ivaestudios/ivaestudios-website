@@ -5,10 +5,10 @@
 <script>document.documentElement.classList.add('js-on');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Your Wedding Photographed for Free, You Only Cover Our Travel | IVAE Studios</title>
-<meta name="description" content="IVAE Studios, a destination wedding studio from Cancún, is photographing full weddings for brides and grooms from the United States in 2027 at no cost. You only cover our travel. In Cancún or the Riviera Maya there is no travel cost at all."/>
+<meta name="description" content="IVAE Studios is photographing full weddings for brides and grooms across the United States in 2027 at no cost. We fly to your city; you only cover our travel. Limited dates."/>
 <link rel="canonical" href="https://ivaestudios.com/cancun-wedding-giveaway"/>
 <meta property="og:title" content="Your wedding photography, free. You only cover our travel."/>
-<meta property="og:description" content="IVAE Studios from Cancún is photographing 2027 weddings for US couples at no cost. Your city or the beach in Cancún. You only cover our travel. Limited dates."/>
+<meta property="og:description" content="IVAE Studios is photographing 2027 weddings for US couples at no cost, in your city. You only cover our travel. Limited dates."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://ivaestudios.com/cancun-wedding-giveaway"/>
 <meta property="og:image" content="https://ivaestudios.com/images/og/cancun-wedding-giveaway-og-1200x630.jpg"/>
@@ -19,7 +19,7 @@
 <meta property="og:locale" content="en_US"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Your wedding photography, free. You only cover our travel."/>
-<meta name="twitter:description" content="IVAE Studios from Cancún is photographing 2027 weddings for US couples at no cost. Your city or the beach in Cancún. You only cover our travel. Limited dates."/>
+<meta name="twitter:description" content="IVAE Studios is photographing 2027 weddings for US couples at no cost, in your city. You only cover our travel. Limited dates."/>
 <meta name="twitter:image" content="https://ivaestudios.com/images/og/cancun-wedding-giveaway-og-1200x630.jpg"/>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="theme-color" content="#ffffff"/>
@@ -263,8 +263,8 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
   <div class="hero-text">
     <span class="eyebrow rv">2027 · Brides and grooms from the United States</span>
     <h1 class="rv d1">Your whole wedding, <em>photographed for free</em>. You only cover our travel.</h1>
-    <p class="hero-sub rv d2">We are IVAE Studios, a destination wedding studio from Cancún. In 2027 we are photographing weddings for brides and grooms from the United States at no cost: <strong>your full wedding day</strong>, from getting ready to the party, with all your edited photos. Whether you marry in Chicago, Dallas, New York or on the beach in Cancún, the only thing you cover is our flights and stay, quoted at cost before you confirm. In Cancún or the Riviera Maya there is no travel cost at all. Simple as that: write to us.</p>
-    <p class="hero-sub-m rv d2">Your full day, two photographers, every edited photo. You only cover our travel. In Cancún or the Riviera Maya, not even that.</p>
+    <p class="hero-sub rv d2">We are IVAE Studios, a destination wedding studio. In 2027 we are flying to the United States to photograph weddings for brides and grooms at no cost: <strong>your full wedding day</strong>, from getting ready to the party, with all your edited photos. Whether you marry in Chicago, Dallas, New York or anywhere else in the country, the only thing you cover is our flights and stay, quoted at cost before you confirm. Simple as that: write to us.</p>
+    <p class="hero-sub-m rv d2">Your full day, two photographers, every edited photo, in your city. You only cover our travel.</p>
     <div class="hero-cta rv d3">
       <a class="btn" href="#enter">Apply for your date</a>
       <a class="btn-o" href="#included">What's included</a>
@@ -279,7 +279,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     <div><b>Free</b><span>The whole wedding day</span></div>
     <div><b>2</b><span>Photographers, all day</span></div>
     <div><b>All</b><span>Your edited photos, online</span></div>
-    <div><b>$0</b><span>Travel in Cancún and Riviera Maya</span></div>
+    <div><b>USA</b><span>We fly to your city</span></div>
   </div>
 </div>
 
@@ -291,7 +291,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
       <form id="form" novalidate action="/api/giveaway" method="post">
         <span class="eyebrow">Apply · about two minutes</span>
         <h2>Tell us about <em>your wedding</em></h2>
-        <p class="lead">We reply within two business days with our availability for your date and, if your wedding is outside Cancún, the travel estimate. No commitment until you say yes.</p>
+        <p class="lead">We reply within two business days with our availability for your date and the travel estimate. No commitment until you say yes.</p>
         <div class="row2">
           <div class="field"><label class="label" for="first_name">Bride's first name</label><input class="input" id="first_name" name="first_name" type="text" autocomplete="given-name" required maxlength="80"/></div>
           <div class="field"><label class="label" for="partner_name">Groom's first name</label><input class="input" id="partner_name" name="partner_name" type="text" maxlength="80"/></div>
@@ -334,13 +334,8 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
           <div class="field"><label class="label" for="destination">Where is the wedding?</label>
             <select class="select" id="destination" name="destination">
               <option value="undecided">Still deciding</option>
-              <option value="us-city">In our city, in the United States</option>
-              <option value="us-other">Elsewhere in the United States</option>
-              <option value="cancun">Cancún</option>
-              <option value="riviera-maya">Riviera Maya (Playa del Carmen, Puerto Morelos, Akumal)</option>
-              <option value="tulum">Tulum</option>
-              <option value="isla-mujeres">Isla Mujeres</option>
-              <option value="los-cabos">Los Cabos</option>
+              <option value="us-city">In our city</option>
+              <option value="us-other">In another US city</option>
             </select></div>
         </div>
         <div class="field"><label class="label" for="guests">How many guests?</label>
@@ -368,7 +363,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
       <div class="thanks" id="thanks">
         <span class="eyebrow">Application received</span>
         <h2 id="thanks-h">Thank you, <em>we will be in touch</em></h2>
-        <p class="lead" id="thanks-p">We sent a confirmation to your email. Within two business days you will hear from Vianey with our availability for your date and, if your wedding is outside Cancún, the travel estimate.</p>
+        <p class="lead" id="thanks-p">We sent a confirmation to your email. Within two business days you will hear from Vianey with our availability for your date and the travel estimate.</p>
         <div class="next"><strong>While you wait</strong>This is a complete wedding exactly as our couples receive it, from the bouquet to the candles: <a href="https://gallery.ivaestudios.com/gallery.html?id=25e55b14abf7e8535affef8eef23a6a8&amp;muestra=02cb2779ae2ae59411c7ca28612b859a" target="_blank" rel="noopener">see Ji &amp; Kailyn's gallery</a>.</div>
         <p class="share-h"><strong>Know another bride and groom getting married in 2027?</strong> Send them the link. The offer is open to them too, while dates last.</p>
         <div class="linkbox"><input class="input" id="link" type="text" readonly aria-label="Link to share"/><button class="btn-o" id="copy" type="button">Copy</button></div>
@@ -401,8 +396,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
       <div class="value"><b>Free, on us</b><span>For weddings held anywhere in 2027, subject to availability. Want the film or an album? Add them at our regular prices.</span></div>
       <h3 style="margin-top:30px">What you cover</h3>
       <ul>
-        <li>Our travel, at cost: round trip flights from Cancún for our two photographers, two nights near your venue, and local transport. We send you the exact estimate with real fares before you confirm, and the receipts after. No markup.</li>
-        <li>Weddings in Cancún or the Riviera Maya: no travel cost at all.</li>
+        <li>Our travel, at cost: round trip flights for our two photographers, two nights near your venue, and local transport. We send you the exact estimate with real fares before you confirm, and the receipts after. No markup.</li>
         <li>Any vendor fee or permit your venue charges for outside photographers.</li>
       </ul>
     </aside>
@@ -415,10 +409,10 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     <h2 class="sec-h rv d1">Three steps, <em>no catch</em></h2>
     <div class="steps">
       <div class="step rv d1"><span class="num">Step 01</span><h3>Apply in two minutes</h3><p>Your names, your email, where you are based, where and when the wedding is. Nothing to pay, nothing to decide yet.</p></div>
-      <div class="step rv d2"><span class="num">Step 02</span><h3>We reply within two business days</h3><p>Vianey writes back with our availability for your date and, if the wedding is outside Cancún, the travel estimate at cost. Flights, two nights, transport. No markup.</p></div>
+      <div class="step rv d2"><span class="num">Step 02</span><h3>We reply within two business days</h3><p>Vianey writes back with our availability for your date and the travel estimate at cost. Flights, two nights, transport. No markup.</p></div>
       <div class="step rv d3"><span class="num">Step 03</span><h3>Confirm and we are there</h3><p>A simple agreement and the travel paid so we can book. Then the consultation, the wedding, your sneak peek and the full gallery in 4 to 6 weeks.</p></div>
     </div>
-    <p class="intro rv d3">Cancún is a direct flight from most of the United States, which keeps our travel small. In 2027 we are flying to:</p>
+    <p class="intro rv d3">We fly direct to most of the United States, which keeps our travel small. In 2027 we are flying to:</p>
     <div class="cities rv d3"><span>Dallas</span><span>Houston</span><span>Chicago</span><span>New York</span><span>Philadelphia</span><span>Atlanta</span><span>Miami</span><span>Charlotte</span><span>Denver</span><span>Los Angeles</span><span>and more</span></div>
   </div>
 </section>
@@ -427,7 +421,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
   <div class="wrap">
     <span class="eyebrow rv">Why free</span>
     <h2 class="sec-h rv d1">Because a wedding is worth more to us <em>than any ad</em></h2>
-    <p class="intro rv d2">We photograph twelve weddings a year in Cancún and the Riviera Maya, most of them for couples who fly in from the United States. In 2027 we want to meet you where you live and build our work in your cities. We would rather spend on a flight and a hotel than on advertising, and you get a wedding photographed the way we do it, for the cost of a plane ticket. That is the whole deal.</p>
+    <p class="intro rv d2">We photograph twelve weddings a year, most of them for couples from the United States who travel to us. In 2027 we want to do the opposite: fly to you, meet you where you live and build our work in your cities. We would rather spend on a flight and a hotel than on advertising, and you get a wedding photographed the way we do it, for the cost of a plane ticket. That is the whole deal.</p>
   </div>
 </section>
 
@@ -473,7 +467,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     <div class="proof rv d3">
       <div><b>12</b><span>Weddings a year, by choice</span></div>
       <div><b>2</b><span>Photographers at every wedding</span></div>
-      <div><b>EN / ES</b><span>Bilingual team based in Cancún</span></div>
+      <div><b>EN / ES</b><span>Bilingual team, English and Spanish</span></div>
       <a class="btn-o" href="https://gallery.ivaestudios.com/gallery.html?id=25e55b14abf7e8535affef8eef23a6a8&amp;muestra=02cb2779ae2ae59411c7ca28612b859a" target="_blank" rel="noopener">See Ji &amp; Kailyn's full gallery</a>
     </div>
   </div>
@@ -484,9 +478,9 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
     <span class="eyebrow rv">Straight answers</span>
     <h2 class="sec-h rv d1">Questions couples <em>are asking</em></h2>
     <div class="faq-list rv d2">
-      <details><summary>Is it really free? What's the catch?</summary><p>Yes. Your full wedding day photographed by our two photographers, all your edited photos, the slideshow and your private online gallery, free. You cover our travel at cost when the wedding is outside Cancún and the Riviera Maya, and any fee your venue charges outside vendors. Prints and albums are not included; if you want the film or an album, those are at our regular prices. There is no obligation to add anything.</p></details>
-      <details><summary>How much is the travel?</summary><p>It depends on your city and your dates: round trip flights from Cancún for our two photographers, two nights near your venue and local transport, all at cost. Cancún has direct flights from most big US cities, so it is usually less than couples expect. We send you the estimate with real fares before you confirm, and the receipts after. For weddings in Cancún or the Riviera Maya there is no travel cost.</p></details>
-      <details><summary>Where can the wedding be?</summary><p>Anywhere in the United States, or in Cancún and the Riviera Maya. Cancún is a direct flight from most big cities, which is why Dallas, Houston, Chicago, New York, Philadelphia, Atlanta, Miami, Charlotte, Denver and Los Angeles are the easiest for us. Other cities work too; the travel estimate tells you exactly what it costs.</p></details>
+      <details><summary>Is it really free? What's the catch?</summary><p>Yes. Your full wedding day photographed by our two photographers, all your edited photos, the slideshow and your private online gallery, free. You cover our travel at cost, and any fee your venue charges outside vendors. Prints and albums are not included; if you want the film or an album, those are at our regular prices. There is no obligation to add anything.</p></details>
+      <details><summary>How much is the travel?</summary><p>It depends on your city and your dates: round trip flights for our two photographers, two nights near your venue and local transport, all at cost. We fly direct to most big US cities, so it is usually less than couples expect. We send you the estimate with real fares before you confirm, and the receipts after.</p></details>
+      <details><summary>Where can the wedding be?</summary><p>Anywhere in the United States. We fly direct to most big cities, which is why Dallas, Houston, Chicago, New York, Philadelphia, Atlanta, Miami, Charlotte, Denver and Los Angeles are the easiest for us. Other cities work too; the travel estimate tells you exactly what it costs.</p></details>
       <details><summary>Do we need to have a date or a venue already?</summary><p>No. Tell us the month you are thinking of and we will tell you what we have open. Dates are first come, first served, and we confirm them in writing.</p></details>
       <details><summary>How many weddings are you doing this way?</summary><p>A limited number in 2027, because we want to give each one the same care as any other wedding we photograph. When a month fills up, we say so.</p></details>
       <details><summary>Does the venue charge for an outside photographer?</summary><p>Some venues and resorts charge a vendor fee or require a day pass for outside vendors. That fee, when it exists, is paid by the couple. We will tell you what to expect before you confirm.</p></details>
@@ -499,7 +493,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
 </section>
 
 <section class="wrap legal">
-  <p><strong>Offer summary.</strong> IVAE Studios will photograph the full wedding day (two photographers, all edited photographs delivered digitally in a private online gallery, professional slideshow, sneak peek and pre-wedding consultation; prints and albums not included) at no charge for weddings of eligible couples held in 2027, subject to availability and written confirmation. Open to legal residents of the 50 United States and the District of Columbia, 18 or older. For weddings outside Cancún and the Riviera Maya, Quintana Roo, Mexico, the couple covers the team's travel at cost (round trip flights from Cancún for two, two nights of lodging and local transport), quoted in writing before confirmation. Venue vendor fees, permits and any additions beyond the package are the couple's responsibility. IVAE Studios may limit the number of weddings under this offer. This offer is not a sweepstakes or contest and is in no way sponsored, endorsed, administered by, or associated with Instagram, Facebook or Meta Platforms, Inc. <a href="/cancun-wedding-giveaway-rules">Read the Terms</a>.</p>
+  <p><strong>Offer summary.</strong> IVAE Studios will photograph the full wedding day (two photographers, all edited photographs delivered digitally in a private online gallery, professional slideshow, sneak peek and pre-wedding consultation; prints and albums not included) at no charge for weddings of eligible couples held in 2027, subject to availability and written confirmation. Open to legal residents of the 50 United States and the District of Columbia, 18 or older. The couple covers the team's travel at cost (round trip flights for the two photographers, two nights of lodging and local transport), quoted in writing before confirmation. Venue vendor fees, permits and any additions beyond the package are the couple's responsibility. IVAE Studios may limit the number of weddings under this offer. This offer is not a sweepstakes or contest and is in no way sponsored, endorsed, administered by, or associated with Instagram, Facebook or Meta Platforms, Inc. <a href="/cancun-wedding-giveaway-rules">Read the Terms</a>.</p>
 </section>
 </main>
 
@@ -513,7 +507,7 @@ h1 em,h2 em{font-style:italic;color:var(--navy)}
   <div class="colophon-cols">
     <div>
       <div class="col-h">The Studio</div>
-      <p>IVAE Studios is a luxury destination photography studio based in Cancún, working across the Riviera Maya and Los Cabos. Led by Director Vianey Díaz. Editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+      <p>IVAE Studios is a luxury destination photography studio based in Mexico, flying to weddings across the United States. Led by Director Vianey Díaz. Editorial cameras, two languages, one obsession with the hour the light is honest.</p>
     </div>
     <div>
       <div class="col-h">Studio</div>
@@ -611,11 +605,11 @@ window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('s
   function showThanks(r, yaEstaba){
     form.style.display='none'; thanks.classList.add('is-on');
     var name=(document.getElementById('first_name').value||'').trim().replace(/[<>&]/g,'');
-    if(yaEstaba){ document.getElementById('thanks-h').innerHTML='We already have <em>your application</em>'; document.getElementById('thanks-p').textContent='You will hear from Vianey within two business days with our availability and, if the wedding is outside Cancún, the travel estimate. Want to add something? Write to info@ivaestudios.com.'; }
-    else { document.getElementById('thanks-h').innerHTML=(name?'Thank you, '+name:'Thank you')+', <em>we will read it</em>'; if(r.emailed===false){ document.getElementById('thanks-p').textContent='We have your application. Within two business days you will hear from Vianey with our availability for your date and, if your wedding is outside Cancún, the travel estimate.'; } }
+    if(yaEstaba){ document.getElementById('thanks-h').innerHTML='We already have <em>your application</em>'; document.getElementById('thanks-p').textContent='You will hear from Vianey within two business days with our availability and the travel estimate. Want to add something? Write to info@ivaestudios.com.'; }
+    else { document.getElementById('thanks-h').innerHTML=(name?'Thank you, '+name:'Thank you')+', <em>we will read it</em>'; if(r.emailed===false){ document.getElementById('thanks-p').textContent='We have your application. Within two business days you will hear from Vianey with our availability for your date and the travel estimate.'; } }
     var link=r.link||(location.origin+'/cancun-wedding-giveaway?ref='+r.code);
     document.getElementById('link').value=link;
-    var txt='IVAE Studios, a wedding studio from Cancún, is photographing full weddings in the US for free in 2027. You only cover their travel. Two minutes to apply: ';
+    var txt='IVAE Studios is photographing full weddings across the US for free in 2027. You only cover their travel. Two minutes to apply: ';
     document.getElementById('sh-wa').href='https://wa.me/?text='+encodeURIComponent(txt+link);
     document.getElementById('sh-sms').href='sms:?&body='+encodeURIComponent(txt+link);
     document.getElementById('sh-mail').href='mailto:?subject='+encodeURIComponent('Free wedding photography in 2027, you only cover their travel')+'&body='+encodeURIComponent(txt+link);
