@@ -1251,6 +1251,10 @@ async function sugerirRespuesta(env, c, { tipo, canal, texto, autor, historial }
     tipo === 'comentario'
       ? 'NUNCA des precios en público: si preguntan precio, agradece e invita a que escriba por mensaje directo;'
       : 'no inventes precios, disponibilidad ni citas: si no están en la ficha, di que se le confirman enseguida;',
+    // 14-oct-2026 (demo del CRM a SMILE NOW): la IA ofreció "una consulta sin costo" y dijo cuántos años
+    // duran unas carillas, nada de eso estaba en la ficha. Para una clínica eso es una promesa comercial o
+    // médica que nadie autorizó.
+    'NUNCA ofrezcas ni prometas nada que no esté textual en la ficha: consultas o valoraciones gratis, descuentos, promociones, regalos, garantías, duración o resultados de un tratamiento; si la persona lo pregunta, di que se lo confirman en la valoración o enseguida por este medio;',
     'nunca digas que eres una IA ni un asistente; sin hashtags; sin firmar. Devuelve SOLO el texto de la respuesta, sin comillas ni explicación.',
   ].join('\n');
   const user = tipo === 'comentario'
