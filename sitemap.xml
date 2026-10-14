@@ -4,7 +4,7 @@
 
   <url>
     <loc>https://ivaestudios.com/</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
@@ -14,7 +14,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
@@ -202,7 +202,7 @@
 
   <url>
     <loc>https://ivaestudios.com/cancun-photographer</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photographer"/>
@@ -212,7 +212,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografo-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photographer"/>
@@ -222,7 +222,7 @@
 
   <url>
     <loc>https://ivaestudios.com/cancun-photographer-prices</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -245,6 +245,20 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-wedding-cost-2026"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/costo-boda-cancun-2026"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cancun-wedding-cost-2026"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/cancun-wedding-giveaway</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/cancun-wedding-giveaway-rules</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 
   <url>
@@ -303,7 +317,7 @@
 
   <url>
     <loc>https://ivaestudios.com/couples-photography-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
@@ -313,7 +327,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografia-parejas-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
@@ -336,20 +350,8 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/cancun-wedding-giveaway</loc>
-    <lastmod>2026-10-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ivaestudios.com/cancun-wedding-giveaway-rules</loc>
-    <lastmod>2026-10-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
     <loc>https://ivaestudios.com/destination-wedding-photographer-mexico</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
@@ -409,7 +411,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -654,7 +656,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografo-tulum</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -682,7 +684,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/manejo-instagram-cancun</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -696,42 +698,42 @@
 
   <url>
     <loc>https://ivaestudios.com/es/precios-fotografo-cancun</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/es/redes-sociales-restaurantes-cancun</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/es/redes-sociales-spa-wellness-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/es/sobre-ivae-marketing</loc>
-    <lastmod>2026-06-25</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -773,7 +775,7 @@
 
   <url>
     <loc>https://ivaestudios.com/instagram-management-cancun</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -924,7 +926,7 @@
 
   <url>
     <loc>https://ivaestudios.com/luxury-family-photos-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
@@ -934,7 +936,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotos-familiares-lujo-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
@@ -944,7 +946,7 @@
 
   <url>
     <loc>https://ivaestudios.com/marketing-about</loc>
-    <lastmod>2026-06-25</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1215,28 +1217,28 @@
 
   <url>
     <loc>https://ivaestudios.com/social-media-dental-clinic-mexico</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/social-media-luxury-hotels-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/social-media-management</loc>
-    <lastmod>2026-06-25</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/social-media-management-mexico-city</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management-mexico-city"/>
@@ -1246,7 +1248,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/redes-sociales-ciudad-de-mexico</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management-mexico-city"/>
@@ -1256,14 +1258,14 @@
 
   <url>
     <loc>https://ivaestudios.com/social-media-restaurants-cancun</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/social-media-spa-wellness-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1277,7 +1279,7 @@
 
   <url>
     <loc>https://ivaestudios.com/tiktok-agency-hotels-mexico</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1291,7 +1293,7 @@
 
   <url>
     <loc>https://ivaestudios.com/tulum-photographer</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1528,7 +1530,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/anniversary-photography-mexico</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
@@ -1538,7 +1540,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/fotografia-aniversario-mexico</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
@@ -2275,7 +2277,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/couples-photographer-cancun</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
@@ -2285,7 +2287,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/fotografo-parejas-cancun</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
@@ -2680,7 +2682,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
@@ -2690,7 +2692,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/sesion-compromiso-cancun-riviera-maya</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
@@ -2872,7 +2874,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/family-vacation-photos-mexico</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
@@ -2882,7 +2884,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/fotos-vacaciones-familiares-mexico</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
@@ -3069,7 +3071,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
@@ -3079,7 +3081,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/fotografo-luna-de-miel-riviera-maya</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
@@ -3593,7 +3595,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
@@ -3603,7 +3605,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/costo-sesion-familiar-lujo-cancun-2026</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-family-photoshoot-cost-cancun-2026"/>
@@ -3751,7 +3753,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
@@ -3761,7 +3763,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/sesion-maternidad-cancun-riviera-maya</loc>
-    <lastmod>2026-06-06</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
@@ -3952,7 +3954,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/minisesiones-familiares-cancun-residentes</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4538,7 +4540,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/sesion-mama-e-hija-playa-del-carmen</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4653,7 +4655,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/surprise-proposal-photography-cancun</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
@@ -4663,7 +4665,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/fotografia-propuesta-sorpresa-cancun</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
@@ -4776,7 +4778,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/tulum-photography-guide</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
@@ -4786,7 +4788,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/guia-fotografia-tulum</loc>
-    <lastmod>2026-06-06</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
@@ -5018,7 +5020,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/wedding-photography-packages-what-they-include-2026</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photography-packages-what-they-include-2026"/>
@@ -5028,7 +5030,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog/paquetes-de-fotografia-de-boda-que-incluyen-2026</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photography-packages-what-they-include-2026"/>
@@ -5303,7 +5305,7 @@
 
   <url>
     <loc>https://ivaestudios.com/comparison/luxury-photographers-cancun</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/comparison/luxury-photographers-cancun"/>
@@ -5313,7 +5315,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/comparison/luxury-photographers-cancun"/>
@@ -5323,7 +5325,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
