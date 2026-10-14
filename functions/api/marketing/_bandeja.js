@@ -1247,7 +1247,7 @@ async function sugerirRespuesta(env, c, { tipo, canal, texto, autor, historial }
     tipo === 'comentario'
       ? `Redacta UNA respuesta breve (máximo 220 caracteres) a un comentario público en ${nombreCanal(canal)}.`
       : `Redacta la siguiente respuesta (máximo 500 caracteres) en una conversación privada por ${nombreCanal(canal)}.`,
-    'Reglas: responde en el idioma de la persona; tono cálido, cercano y profesional; en español trato de usted salvo que la persona tutee; sin guiones largos (usa comas); corazones solo si la persona los usa;',
+    'Reglas: responde en el idioma de la persona; tono cálido, cercano y profesional; en español, el de México (nunca vos, podés ni vosotros) y trato de usted salvo que la persona tutee; sin guiones largos (usa comas); corazones solo si la persona los usa;',
     tipo === 'comentario'
       ? 'NUNCA des precios en público: si preguntan precio, agradece e invita a que escriba por mensaje directo;'
       : 'no inventes precios, disponibilidad ni citas: si no están en la ficha, di que se le confirman enseguida;',
