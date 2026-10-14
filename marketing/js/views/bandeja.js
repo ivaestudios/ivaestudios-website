@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141721';
-import { toast } from '../shell/toast.js?v=202610141721';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141721';
-import { T, isEN } from '../shell/i18n.js?v=202610141721';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141802';
+import { toast } from '../shell/toast.js?v=202610141802';
+import { icon, iconMarca } from '../shell/icons.js?v=202610141802';
+import { T, isEN } from '../shell/i18n.js?v=202610141802';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -560,7 +560,7 @@ function chat() {
   const sinApi = !esWa && v.canal !== 'correo' && horas > 24 * 7;
   const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, disabled: sinApi, placeholder: sinApi
     ? (v.canal === 'instagram' ? T('Escríbele desde Instagram con el botón de arriba', 'Write from Instagram using the button above') : T('Escríbele desde Business Suite con el botón de arriba', 'Write from Business Suite using the button above'))
-    : usaPlantilla ? T('Tu mensaje, en un párrafo…', 'Your message, one paragraph…') : T('Escribe tu respuesta…', 'Write your reply…'),
+    : usaPlantilla ? T('Escribe tu mensaje…', 'Write your message…') : T('Escribe tu respuesta…', 'Write your reply…'),
     oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); if (usaPlantilla) pintarVistaPrevia(v, e.target.value); },
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
@@ -1351,12 +1351,16 @@ function tarjetaComentario(k) {
     oninput: (e) => autoAlto(e.target) });
   const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', onclick: () => sugerirCom(k, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
   const btnPub = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: () => responderCom(k, ta, 'publico', btnPub) }, [icon('send', 14), ' ' + T('Responder', 'Reply')]);
-  const btnAmbos = el('button', { type: 'button', class: 'btn btn-sm', onclick: () => responderCom(k, ta, 'ambos', btnAmbos), title: T('Responde en público y además le manda un mensaje privado (Meta permite uno por comentario).', 'Replies publicly and also sends a private message (Meta allows one per comment).') }, [T('Responder + mensaje', 'Reply + DM')]);
+  const btnAmbos = el('button', { type: 'button', class: 'btn btn-sm', onclick: () => responderCom(k, ta, 'ambos', btnAmbos), title: T('Responde en público y además le manda un mensaje privado (Meta permite uno por comentario).', 'Replies publicly and also sends a private message (Meta allows one per comment).') }, [T('Responder + mensaje privado', 'Reply + private message')]);
   const btnVisto = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => marcarComentario(k, true) }, [icon('check', 14), ' ' + T('Visto', 'Seen')]);
   const btnOcultar = el('button', { type: 'button', class: 'btn btn-ghost btn-sm bj-ocultar', onclick: () => ocultarCom(k, btnOcultar) }, [icon('eye', 14), ' ' + T('Ocultar', 'Hide')]);
+  // Ordenados (14-oct-2026): Sugerir | Responder; abajo, a lo ancho, responder
+  // también por mensaje privado; y aparte, chicos, Visto y Ocultar. Antes los
+  // cinco caían en tres renglones disparejos con "Ocultar" solo al final.
   card.appendChild(el('div', { class: 'bj-com__acciones' }, [
     ta,
-    el('div', { class: 'bj-com__btns' }, [btnIA, btnPub, btnAmbos, btnVisto, btnOcultar]),
+    el('div', { class: 'bj-com__btns' }, [btnIA, btnPub, btnAmbos]),
+    el('div', { class: 'bj-com__sec' }, [btnVisto, btnOcultar]),
   ]));
   return card;
 }
@@ -1926,7 +1930,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141721';
+  link.href = '/marketing/css/bandeja.css?v=202610141802';
   document.head.appendChild(link);
 }
 

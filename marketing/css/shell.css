@@ -142,6 +142,11 @@ body.has-subhead #viewScroll {
 }
 .tb-lang__btn:hover { color: var(--text); }
 .tb-lang__btn.is-active { background: var(--brand); color: #fff; }
+/* Se ve de 26px; se toca en 44 de alto (y crece hacia afuera por los lados). */
+.tb-lang__btn { position: relative; }
+.tb-lang__btn::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%); }
+.tb-lang__btn:first-child::before { left: -14px; }
+.tb-lang__btn:last-child::before { right: -12px; }
 
 /* ── MÓVIL: que el avatar NO se salga de la pantalla ──────────────────────────
    Reporte de Vianey (2026-08-28, grabando los videos de Apple): en el iPhone
@@ -430,6 +435,9 @@ a.update-bar__btn { display: inline-flex; align-items: center; text-decoration: 
   transition: background var(--t-fast), color var(--t-fast);
 }
 .sheet__close:hover { background: var(--surface-3); color: var(--text); }
+/* Se ve de 38px pero se toca en 44 (mínimo de Apple para el dedo). */
+.sheet__close { position: relative; }
+.sheet__close::before { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 .sheet__body {
   overflow-y: auto;
   overscroll-behavior: contain;

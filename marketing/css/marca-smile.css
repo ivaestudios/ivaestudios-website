@@ -36,6 +36,9 @@ html:root[data-marca="smile"] {
   --grad: linear-gradient(135deg, #353735 0%, #171817 100%);
   --grad-soft: linear-gradient(135deg, rgba(176, 140, 45, .14) 0%, rgba(229, 213, 172, .22) 100%);
   --ring: 0 0 0 2px var(--surface, #fff), 0 0 0 4px #B08C2D, 0 0 0 7px rgba(176, 140, 45, .22);
+  /* Sombra de los botones principales: carbón, no el halo violeta de IVAE. */
+  --sh-glow: 0 6px 18px -6px rgba(31, 33, 32, .42), 0 2px 6px -2px rgba(31, 33, 32, .22);
+  --sh-glow-hover: 0 10px 26px -6px rgba(31, 33, 32, .48), 0 3px 10px -2px rgba(176, 140, 45, .22);
   --client-accent: #B08C2D;
   --client-accent-soft: rgba(176, 140, 45, .16);
   --client-accent-line: rgba(176, 140, 45, .42);
@@ -69,6 +72,14 @@ html:root[data-marca="smile"] .seg button.is-active { box-shadow: var(--sh-1), 0
 html:root[data-marca="smile"] .input:focus,
 html:root[data-marca="smile"] .select:focus,
 html:root[data-marca="smile"] .textarea:focus { border-color: var(--sm-gold); box-shadow: 0 0 0 3px rgba(176, 140, 45, .2); }
+
+/* Estado vacío: el ícono trae borde y sombra violeta de la base. */
+html:root[data-marca="smile"] .empty__icon {
+  border-color: rgba(176, 140, 45, .3); box-shadow: 0 6px 20px -8px rgba(126, 98, 25, .35);
+}
+
+/* Cuadrícula: el día de hoy con halo dorado (la base lo trae magenta). */
+html:root[data-marca="smile"] .cal-mcell.is-today { box-shadow: inset 0 0 0 1.5px var(--sm-gold), 0 0 34px -12px rgba(176, 140, 45, .35) !important; }
 
 /* ── Barra superior: el nombre como su logo ─────────────────────────────── */
 html:root[data-marca="smile"] .tb-client__name {
@@ -149,7 +160,9 @@ html:root[data-marca="smile"] .bj-turno.is-agente strong { color: var(--sm-gold-
 html:root[data-marca="smile"] .bj-plantilla { background: #FFFDF8; border-color: color-mix(in srgb, var(--sm-gold) 40%, var(--border)); }
 html:root[data-marca="smile"] .bj-ventana { color: var(--sm-gold-text); }
 
-/* Desempeño: barras doradas y números en carbón. */
+/* Desempeño: barras doradas y números en carbón; anuncios con filo dorado (no morado). */
+html:root[data-marca="smile"] .bj-ad { border-left-color: var(--sm-gold); }
+html:root[data-marca="smile"] .bj-ad.is-org { border-left-color: var(--text-mute); }
 html:root[data-marca="smile"] .bj-barra { background: linear-gradient(180deg, #CAB67F, #B08C2D); }
 html:root[data-marca="smile"] .bj-kpi.is-bien .bj-kpi__v { color: var(--sm-gold-text); }
 html:root[data-marca="smile"] .bj-dispo.is-on { color: #15803d; }

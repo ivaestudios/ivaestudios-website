@@ -107,10 +107,11 @@
 /* Menús Mostrar · Red · Etapa: tres botones iguales; lleno = está filtrando. */
 /* Sin filtro los tres miden lo mismo; el que filtra crece lo que pida su
    valor ("Cita agendada", "Sin responder") y los otros se reparten el resto. */
-.bj-menus { display: flex; gap: 7px; min-width: 0; }
+.bj-menus { display: flex; align-items: stretch; gap: 7px; min-width: 0; }
 .bj-menus--2 { max-width: 460px; }
 .bj-menus > .bj-menu { flex: 1 1 0; min-width: 82px; }
-.bj-menus > .bj-menu.is-on { flex: 1 1 auto; min-width: 0; }
+/* min-width:auto = nunca más angosto que su palabra más larga. */
+.bj-menus > .bj-menu.is-on { flex: 1 1 auto; min-width: auto; }
 @media (max-width: 359px) { .bj-menus > .bj-menu { min-width: 78px; } }
 .bj-menu {
   appearance: none; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 50px; padding: 6px 6px 6px 11px;
@@ -121,7 +122,22 @@
 .bj-menu:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-menu__txt { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .bj-menu__lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-mute); line-height: 1.2; }
-.bj-menu__val { font-size: 14px; font-weight: 700; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bj-menu__val {
+  font-size: 14px; font-weight: 700; line-height: 1.2;
+  /* Nunca parte una palabra ("Mes-senger"): baja de renglón entre palabras. */
+  white-space: normal; overflow-wrap: normal; -webkit-hyphens: manual; hyphens: manual;
+}
+/* 320px con varios filtros: el menú activo suelta la flecha y baja medio
+   punto, así cabe la palabra más larga ("Messenger") sin partirla. */
+@media (max-width: 359px) {
+  .bj-menu.is-on > .ico { display: none; }
+  .bj-menu.is-on { padding-right: 9px; }
+  .bj-menu.is-on .bj-menu__val { font-size: 12.5px; }
+  /* "Sugerir" queda en su ícono: el campo de escribir necesita el ancho. */
+  .bj-composer .bj-ia { font-size: 0; gap: 0; width: 44px; padding: 0; justify-content: center; }
+}
+/* 320px: el nombre del chat baja a un segundo renglón antes que cortarse. */
+@media (max-width: 359px) { .bj-chat__nombre { font-size: 15px !important; line-height: 1.2; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; } }
 .bj-menu > .ico { flex: none; color: var(--text-mute); }
 .bj-menu.is-on { background: var(--grad, var(--brand)); border-color: transparent; color: #fff; }
 .bj-menu.is-on .bj-menu__lbl, .bj-menu.is-on > .ico { color: rgba(255, 255, 255, .78); }
@@ -302,14 +318,15 @@ video.bj-adj { max-height: 320px; width: 100%; }
 }
 .bj-composer__btns { display: flex; gap: 6px; flex: none; align-items: center; }
 .bj-enviar {
-  appearance: none; flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; cursor: pointer;
+  appearance: none; flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
   display: grid; place-items: center; color: #fff; background: var(--c, var(--brand));
   box-shadow: var(--sh-1); transition: transform var(--t-fast), filter var(--t-fast);
 }
 .bj-enviar:hover { filter: brightness(1.08); }
 .bj-enviar:active { transform: scale(.94); }
 .bj-enviar[disabled] { opacity: .55; cursor: not-allowed; }
-.bj-ia { gap: 4px; border-radius: 999px; }
+.bj-ia { gap: 5px; border-radius: 999px; }
+.bj-composer .bj-ia { min-height: 44px; padding: 0 14px; }
 .bj-aviso {
   margin: 0; font-size: var(--fs-1); line-height: 1.4; padding: 6px 10px; border-radius: var(--r-sm);
   color: #b45309; background: color-mix(in srgb, #f59e0b 14%, transparent); border: 1px solid color-mix(in srgb, #f59e0b 40%, transparent);
@@ -338,9 +355,11 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-com__resp span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .bj-com__acciones { display: grid; gap: 8px; border-top: 1px dashed var(--border); padding-top: 8px; }
 .bj-com__ta { width: 100%; max-width: 100%; box-sizing: border-box; }
-.bj-com__btns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.bj-com__btns .btn { flex: 0 0 auto; }
-.bj-ocultar { margin-left: auto; }
+.bj-com__btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.bj-com__btns .btn { width: 100%; min-width: 0; }
+.bj-com__btns .btn:nth-child(3) { grid-column: 1 / -1; }
+.bj-com__sec { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: -2px -6px 0; }
+.bj-com__sec .btn { color: var(--text-dim); }
 
 /* ── Estados ─────────────────────────────────────────────────────────────── */
 .bj-cargando { display: grid; place-items: center; padding: 40px; }
@@ -512,7 +531,8 @@ video.bj-adj { max-height: 320px; width: 100%; }
   border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
   font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; max-width: 170px;
 }
-.bj-asignado span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bj-asignado > span:not(.ico) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bj-asignado > .ico { flex: none; }
 .bj-asignado.is-libre { color: #b45309; border-color: color-mix(in srgb, #f59e0b 45%, var(--border)); }
 .bj-asignado.is-mio { cursor: default; color: #15803d; border-color: color-mix(in srgb, #22c55e 40%, var(--border)); }
 
@@ -587,18 +607,19 @@ video.bj-adj { max-height: 320px; width: 100%; }
   border: 1px solid var(--border); border-radius: var(--r-md, 10px); background: var(--surface);
 }
 .bj-eq__fila.is-off { opacity: .55; }
-.bj-eq__quien { display: grid; gap: 1px; min-width: 0; }
+.bj-eq__quien { min-width: 0; }
 .bj-eq__quien span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
 .bj-eq__ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .bj-eq__rol { min-height: 38px; width: auto; }
 .bj-eq__dispo, .bj-eq__chk { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.bj-eq__dispo { min-height: 44px; }
 .bj-eq__chk { margin: 4px 0 8px; align-items: flex-start; line-height: 1.35; }
 .bj-eq__chk input, .bj-eq__dispo input { width: 18px; height: 18px; flex: none; margin-top: 1px; }
 .bj-eq__nuevo:empty { display: none; }
 .bj-eq__nuevo { margin-top: 10px; padding: 10px; border-radius: 10px; background: color-mix(in srgb, #22c55e 8%, var(--surface)); border: 1px solid color-mix(in srgb, #22c55e 30%, var(--border)); }
-@media (min-width: 600px) {
-  .bj-eq__fila { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
-}
+/* Desde 600px el nombre va en un renglón y el rol a su lado (no en columna angosta). */
+.bj-eq__quien { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.bj-eq__quien strong { font-size: 14px; }
 
 /* ── Dashboard de desempeño ──────────────────────────────────────────────── */
 .bj-dash { display: grid; gap: 14px; min-width: 0; }
@@ -636,7 +657,7 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-ad.is-org { border-left-color: var(--text-mute); }
 .bj-ad__t { font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
 .bj-ad__n { font-size: 12px; color: var(--text-dim); }
-.bj-dash__canales { margin-top: 4px; }
+.bj-dash__canales { margin-top: 4px; flex-wrap: wrap !important; overflow: visible !important; }
 /* Con la pestaña Desempeño, en el teléfono las tres no caben: la fila desliza. */
 .bj-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .bj-seg::-webkit-scrollbar { display: none; }
@@ -694,6 +715,17 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-call__cab { display: grid; gap: 2px; min-width: 0; }
 .bj-call__tit { font-size: 14px; line-height: 1.3; color: var(--text); min-width: 0; overflow-wrap: anywhere; }
 .bj-call__meta { font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+/* Paciente de la llamada (panel de Desempeño): pastilla que abre su chat.
+   Se había perdido al rehacer la tarjeta (14-oct-2026) y salía como botón
+   gris del navegador con el ícono en otro renglón. */
+.bj-call__quien {
+  appearance: none; justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 5px 12px;
+  border-radius: 16px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  font: inherit; font-size: 12.5px; font-weight: 700; line-height: 1.3; text-align: left; cursor: pointer; max-width: 100%; min-width: 0;
+}
+.bj-call__quien:hover { border-color: var(--border-strong); }
+.bj-call__quien > .ico { flex: none; color: var(--text-mute); }
+.bj-call__quien > span:not(.ico) { min-width: 0; overflow-wrap: anywhere; }
 .bj-call__resbtn {
   appearance: none; justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 10px;
   border-radius: var(--r-pill, 999px); border: 1px solid color-mix(in srgb, #0d9488 40%, var(--border));
@@ -714,7 +746,7 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-call__trans { border-top: 1px solid var(--border); padding-top: 2px; }
 .bj-call__trans summary {
   cursor: pointer; list-style: none; font-size: 13px; font-weight: 700; color: var(--brand);
-  min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 .bj-call__trans summary::-webkit-details-marker { display: none; }
 .bj-call__trans summary::after {
@@ -732,7 +764,7 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-calls__mas[hidden] { display: none; }
 
 /* Celular de cada agente (Equipo) y línea (Ajustes) */
-.bj-eq__tel { min-height: 38px; width: 100%; max-width: 220px; }
+.bj-eq__tel { min-height: 40px; flex: 1 1 180px; width: auto; min-width: 0; max-width: 260px; }
 .bj-ln { display: grid; gap: 8px; }
 
 /* ── Reproductor propio (llamadas y notas de voz), 14-oct-2026 ──────────────
@@ -754,7 +786,7 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-play__btn:active { transform: scale(.94); }
 .bj-play__btn:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-play__btn svg path { fill: currentColor; }
-.bj-play__barra { flex: 1; min-width: 0; height: 26px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.bj-play__barra { flex: 1; min-width: 0; height: 44px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
 .bj-play__barra:focus { outline: none; }
 .bj-play__barra::-webkit-slider-runnable-track {
   height: 4px; border-radius: 4px;
@@ -771,3 +803,30 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-play.is-sonando .bj-play__t { color: var(--text); }
 /* Nota de voz dentro de una burbuja: sin cápsula, del color de la red. */
 .bj-play.is-nota { --pc: var(--c, var(--brand)); width: 250px; max-width: 100%; padding: 2px 0; background: transparent; border: 0; }
+
+/* ── Zonas táctiles en el teléfono (14-oct-2026, auditoría medida) ─────────
+   Apple pide 44×44 para tocar con el dedo. Las pastillas se VEN de 30-32px
+   (así deben verse) pero su zona de toque crece con un ::before invisible,
+   centrado. ::before porque .btn ya usa ::after para su ruedita de carga.
+   Solo donde el contenedor no recorta (overflow visible). */
+@media (max-width: 899px) {
+  .bj-etapa, .bj-asignado, .bj-call__resbtn, .bj-call__quien, .bj-play__btn, .bj-seg button, .bj-filtros .bj-filtro, .bj-res .bj-filtro,
+  .bj-chat__head .btn-icon, .bj-plantilla .bj-plantilla__seg button { position: relative; }
+  .bj-etapa::before, .bj-asignado::before, .bj-call__resbtn::before, .bj-call__quien::before, .bj-play__btn::before,
+  .bj-seg button::before, .bj-filtros .bj-filtro::before, .bj-res .bj-filtro::before,
+  .bj-chat__head .btn-icon::before, .bj-plantilla .bj-plantilla__seg button::before {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%);
+  }
+  /* El segmento de la plantilla nunca necesita deslizar: sin recorte, su zona crece. */
+  .bj-plantilla .bj-plantilla__seg { overflow: visible; }
+  /* Botones de acción de la Bandeja: 44px en el teléfono (antes 34), y así
+     "Sugerir" mide lo mismo que el campo y el botón de enviar. */
+  .bj-root .btn-sm { min-height: 44px; }
+  /* Pestañas y chips de periodo: 40px visibles; su zona de 44 cabe en el
+     relleno del contenedor que desliza (no se recorta). */
+  .bj-seg button { min-height: 40px; }
+  .bj-root .bj-filtros { padding-top: 2px; padding-bottom: 2px; }
+  .bj-root .bj-filtros .bj-filtro { min-height: 40px; }
+  .bj-res .bj-filtro { min-height: 38px; }
+}
