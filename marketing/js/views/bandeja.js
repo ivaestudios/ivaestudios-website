@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141802';
-import { toast } from '../shell/toast.js?v=202610141802';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141802';
-import { T, isEN } from '../shell/i18n.js?v=202610141802';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141814';
+import { toast } from '../shell/toast.js?v=202610141814';
+import { icon, iconMarca } from '../shell/icons.js?v=202610141814';
+import { T, isEN } from '../shell/i18n.js?v=202610141814';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -426,7 +426,7 @@ function filtrosMensajes() {
   });
   return el('div', { class: 'bj-filtros-wrap' }, [
     el('label', { class: 'bj-buscar' }, [icon('search', 17), buscar]),
-    el('div', { class: 'bj-menus' }, [menuVista, menuRed, menuEtapa]),
+    el('div', { class: 'bj-menus' + (vista && canal && etapa ? ' is-llenos' : '') }, [menuVista, menuRed, menuEtapa]),
   ]);
 }
 
@@ -1281,7 +1281,7 @@ function abrirFicha(v) {
 // ── Comentarios ──────────────────────────────────────────────────────────────
 function filtrosComentarios() {
   const r = resumen && !resumen.error ? resumen : null;
-  return el('div', { class: 'bj-filtros-wrap' }, [el('div', { class: 'bj-menus bj-menus--2' }, [
+  return el('div', { class: 'bj-filtros-wrap' }, [el('div', { class: 'bj-menus bj-menus--2' + (estadoCom === 'todos' && canal ? ' is-llenos' : '') }, [
     menuFiltro({
       titulo: T('Ver', 'View'), hoja: T('Qué comentarios ver', 'Which comments to see'), valor: estadoCom === 'todos' ? T('Todos', 'All') : T('Pendientes', 'Pending'), activo: estadoCom === 'todos',
       opciones: () => [
@@ -1930,7 +1930,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141802';
+  link.href = '/marketing/css/bandeja.css?v=202610141814';
   document.head.appendChild(link);
 }
 

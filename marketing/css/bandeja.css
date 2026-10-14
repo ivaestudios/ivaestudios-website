@@ -110,8 +110,11 @@
 .bj-menus { display: flex; align-items: stretch; gap: 7px; min-width: 0; }
 .bj-menus--2 { max-width: 460px; }
 .bj-menus > .bj-menu { flex: 1 1 0; min-width: 82px; }
-/* min-width:auto = nunca más angosto que su palabra más larga. */
-.bj-menus > .bj-menu.is-on { flex: 1 1 auto; min-width: auto; }
+/* El que filtra mide lo que pide su texto (sin crecer de más) y nunca menos
+   que su palabra más larga; los otros llenan el resto. Si TODOS filtran,
+   crecen parejo para cerrar la fila (.is-llenos, lo pone el JS). */
+.bj-menus > .bj-menu.is-on { flex: 0 1 auto; min-width: auto; }
+.bj-menus.is-llenos > .bj-menu.is-on { flex: 1 1 auto; }
 @media (max-width: 359px) { .bj-menus > .bj-menu { min-width: 78px; } }
 .bj-menu {
   appearance: none; display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 50px; padding: 6px 6px 6px 11px;
