@@ -777,6 +777,15 @@ async function handleMe(session, env) {
     const r = await env.DB.prepare('SELECT tour_visto_at FROM mkt_users WHERE id = ?').bind(session.user_id).first();
     tourPendiente = !!(r && !r.tour_visto_at);
   } catch { tourPendiente = false; }
+  // Marca en MODO DEMO de la Bandeja (bandeja_cfg.demo): su equipo entra directo
+  // a la Bandeja en vez del calendario (demo del CRM, 14-oct-2026).
+  let bandejaDemo = false;
+  if (session.role === 'client' && session.bandeja_rol && session.client_id) {
+    try {
+      const r = await env.DB.prepare('SELECT bandeja_cfg FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
+      bandejaDemo = !!(r && r.bandeja_cfg && JSON.parse(r.bandeja_cfg).demo === true);
+    } catch { bandejaDemo = false; }
+  }
   return json({
     id: session.user_id,
     email: session.email,
@@ -787,6 +796,7 @@ async function handleMe(session, env) {
     // 'agente' (atiende sus chats) o 'supervisor' (ve todo + desempeño).
     bandeja_rol: session.role === 'client' ? (session.bandeja_rol || null) : null,
     bandeja_disponible: session.bandeja_disponible !== 0,
+    bandeja_demo: bandejaDemo,
     // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo).
     tour_pendiente: tourPendiente && !(session.role === 'client' && session.bandeja_rol === 'agente'),
     email_verified: emailVerified,

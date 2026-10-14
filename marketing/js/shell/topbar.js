@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610141600';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141600';
-import * as store from './store.js?v=202610141600';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141600';
-import { toast } from './toast.js?v=202610141600';
-import { icon } from './icons.js?v=202610141600';
-import { openClientSwitcher } from './clientswitcher.js?v=202610141600';
-import { T, isEN, setLang } from './i18n.js?v=202610141600';
+import { startTour } from './tour.js?v=202610141606';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141606';
+import * as store from './store.js?v=202610141606';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141606';
+import { toast } from './toast.js?v=202610141606';
+import { icon } from './icons.js?v=202610141606';
+import { openClientSwitcher } from './clientswitcher.js?v=202610141606';
+import { T, isEN, setLang } from './i18n.js?v=202610141606';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610141600';
-import { getTheme, setTheme } from './theme.js?v=202610141600';
-import * as version from './version.js?v=202610141600';
-import * as tienda from './tienda.js?v=202610141600';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141600';
-import * as prefs from './prefs.js?v=202610141600';
+import { abrirBloqueados } from './moderacion.js?v=202610141606';
+import { getTheme, setTheme } from './theme.js?v=202610141606';
+import * as version from './version.js?v=202610141606';
+import * as tienda from './tienda.js?v=202610141606';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141606';
+import * as prefs from './prefs.js?v=202610141606';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
