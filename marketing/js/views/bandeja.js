@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141606';
-import { toast } from '../shell/toast.js?v=202610141606';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141606';
-import { T, isEN } from '../shell/i18n.js?v=202610141606';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141721';
+import { toast } from '../shell/toast.js?v=202610141721';
+import { icon, iconMarca } from '../shell/icons.js?v=202610141721';
+import { T, isEN } from '../shell/i18n.js?v=202610141721';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -107,11 +107,6 @@ const equipoAgentes = () => ((resumen && !resumen.error && resumen.equipo) || []
 function chipCanal(c) {
   return el('span', { class: 'chip bj-chip-canal', style: { '--c': colorDe(c) } }, [
     icoCanal(c, 12), el('span', { class: 'chip__txt', text: CANAL_TXT[c] || c }),
-  ]);
-}
-function chipEtapa(e) {
-  return el('span', { class: 'chip', style: { '--c': ETAPA_COLOR[e] || 'var(--text-dim)' } }, [
-    el('span', { class: 'swatch' }), el('span', { class: 'chip__txt', text: (ETAPA_TXT[e] || (() => e))() }),
   ]);
 }
 function nombreDe(v) {
@@ -224,7 +219,6 @@ function pintarCabecera() {
         el('p', { class: 'bj-sub', text: cli
           ? T(`Comentarios y mensajes de ${cli.name}, en un solo lugar.`, `Comments and messages for ${cli.name}, all in one place.`)
           : T('Elige una marca arriba.', 'Pick a brand above.') }),
-        r && r.demo ? el('p', { class: 'bj-demo', text: T('Demo: puedes contestar y probar todo; nada se envía a pacientes reales.', 'Demo: reply and try everything; nothing is sent to real patients.') }) : null,
       ].filter(Boolean)),
       // El agente marca si está disponible: si no, el reparto lo salta.
       esAgente() && r ? el('button', {
@@ -236,14 +230,23 @@ function pintarCabecera() {
         onclick: abrirAjustes,
       }, [icon('settings', 18)]) : null,
     ].filter(Boolean)),
+    // Aviso de demo: una línea, no un globo de dos renglones.
+    r && r.demo ? el('p', { class: 'bj-demo' }, [
+      icon('info', 14),
+      el('span', { text: T('Demo: nada se envía a pacientes reales.', 'Demo: nothing reaches real patients.') }),
+    ]) : null,
     // Al agente no le sirve el semáforo de conexiones (lo administra la agencia).
-    r && !esAgente() ? el('div', { class: 'bj-canales' }, ['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
+    // En el teléfono cada red es logo + punto verde (la cuenta solo en escritorio):
+    // antes la fila se salía de la pantalla con "Messenger · SMI…".
+    r && !esAgente() ? el('div', { class: 'bj-canales', role: 'list', 'aria-label': T('Redes conectadas', 'Connected networks') }, [el('span', { class: 'bj-canales__lbl', text: T('Redes', 'Networks') }), ...['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
       const c = r.canales[k];
-      return el('span', { class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) } }, [
-        icoCanal(k, 14), el('span', { text: CANAL_TXT[k] + (c.conectado && c.cuenta ? ' · ' + c.cuenta : '') }),
-        c.conectado ? null : el('span', { class: 'bj-canal__off', text: T('sin conectar', 'not connected') }),
+      return el('span', { role: 'listitem', class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) }, title: CANAL_TXT[k] + (c.cuenta ? ' · ' + c.cuenta : '') }, [
+        icoCanal(k, 14),
+        el('span', { class: 'bj-canal__red', text: CANAL_TXT[k] }),
+        c.conectado && c.cuenta ? el('span', { class: 'bj-canal__cuenta', text: c.cuenta }) : null,
+        c.conectado ? el('span', { class: 'bj-canal__ok', 'aria-label': T('conectado', 'connected') }) : el('span', { class: 'bj-canal__off', text: T('sin conectar', 'not connected') }),
       ].filter(Boolean));
-    })) : null,
+    })]) : null,
   ].filter(Boolean));
   // Segmento de pestañas con contadores vivos.
   if (segEl) {
@@ -328,30 +331,103 @@ function chipFiltro(label, activo, onclick, ico = null, red = null) {
   ].filter(Boolean));
 }
 
-function filtrosMensajes() {
-  const fila = el('div', { class: 'bj-filtros' });
-  const canales = [['', T('Todos', 'All')], ['instagram', 'Instagram'], ['messenger', 'Messenger'], ['whatsapp', 'WhatsApp']];
-  if (resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado) canales.push(['correo', T('Correo', 'Email')]);
-  for (const [k, lbl] of canales) fila.appendChild(chipFiltro(lbl, canal === k, () => { canal = k; cargarLista(); pintarCuerpo(); }, null, k || null));
-  fila.appendChild(chipFiltro(T('Sin leer', 'Unread'), soloSinLeer, () => { soloSinLeer = !soloSinLeer; cargarLista(); pintarCuerpo(); }, 'bell'));
-  // Equipo: los míos, los que nadie tiene, los que esperan respuesta y los
-  // que hay que seguir (la persona lleva días sin contestar).
-  const r = resumen && !resumen.error ? resumen : null;
-  const hayEquipo = !!(r && r.equipo && r.equipo.length) || esAgente();
-  const fila2 = el('div', { class: 'bj-filtros' });
-  if (hayEquipo) {
-    fila2.appendChild(chipFiltro(T('Míos', 'Mine'), asignado === 'yo', () => { asignado = asignado === 'yo' ? '' : 'yo'; cargarLista(); pintarCuerpo(); }, 'user'));
-    fila2.appendChild(chipFiltro(T('Sin asignar', 'Unassigned') + (r && r.sin_asignar ? ` · ${r.sin_asignar}` : ''), asignado === 'sin', () => { asignado = asignado === 'sin' ? '' : 'sin'; cargarLista(); pintarCuerpo(); }, 'users'));
-  }
-  fila2.appendChild(chipFiltro(T('Sin responder', 'Awaiting reply'), sinResponder, () => { sinResponder = !sinResponder; cargarLista(); pintarCuerpo(); }, 'clock'));
-  fila2.appendChild(chipFiltro(T('Por seguir', 'Follow up') + (r && r.por_seguir ? ` · ${r.por_seguir}` : ''), porSeguir, () => { porSeguir = !porSeguir; cargarLista(); pintarCuerpo(); }, 'refresh'));
-  const sel = el('select', { class: 'select bj-select', 'aria-label': T('Etapa', 'Stage'), onchange: (e) => { etapa = e.target.value; cargarLista(); } }, [
-    el('option', { value: '', text: T('Todas las etapas', 'All stages') }),
-    ...ETAPAS.map((k) => el('option', { value: k, text: ETAPA_TXT[k](), selected: etapa === k })),
+// ── Filtros: buscador + 3 menús (Mostrar · Red · Etapa) ────────────────────
+// 14-oct-2026 (Israel: "que se vea profesional"): antes eran 7 chips sueltos
+// en dos filas que se salían de la pantalla + el <select> nativo del teléfono
+// (la ruedita de iOS). Regla de la casa: una fila que crece se agrupa en
+// menús. Las opciones se arman AL TOCAR, así los contadores y los filtros del
+// equipo siempre salen con el resumen al día (antes, si la lista llegaba antes
+// que el resumen, "Míos" y "Sin asignar" no aparecían).
+const VISTAS = [
+  ['', 'inbox', () => T('Todos', 'All')],
+  ['sin_leer', 'bell', () => T('Sin leer', 'Unread')],
+  ['sin_responder', 'clock', () => T('Sin responder', 'Awaiting reply')],
+  ['por_seguir', 'refresh', () => T('Por seguir', 'Follow up')],
+  ['mios', 'user', () => T('Míos', 'Mine')],
+  ['sin_asignar', 'users', () => T('Sin asignar', 'Unassigned')],
+];
+function vistaActual() {
+  if (soloSinLeer) return 'sin_leer';
+  if (sinResponder) return 'sin_responder';
+  if (porSeguir) return 'por_seguir';
+  if (asignado === 'yo') return 'mios';
+  if (asignado === 'sin') return 'sin_asignar';
+  return '';
+}
+function ponerVista(k) {
+  soloSinLeer = k === 'sin_leer';
+  sinResponder = k === 'sin_responder';
+  porSeguir = k === 'por_seguir';
+  asignado = k === 'mios' ? 'yo' : (k === 'sin_asignar' ? 'sin' : '');
+}
+// Botón de menú: etiqueta chica arriba, valor elegido abajo. Lleno = filtrando.
+function menuFiltro({ titulo, hoja = '', valor, activo, opciones, alElegir }) {
+  const b = el('button', {
+    type: 'button', class: 'bj-menu' + (activo ? ' is-on' : ''), 'aria-haspopup': 'listbox', 'aria-label': `${titulo}: ${valor}`,
+    onclick: async () => {
+      const v = await ctx.sheet.pickFrom({ title: hoja || titulo, anchor: b, options: opciones() });
+      if (v === null || v === undefined) return;
+      alElegir(v);
+    },
+  }, [
+    el('span', { class: 'bj-menu__txt' }, [el('span', { class: 'bj-menu__lbl', text: titulo }), el('span', { class: 'bj-menu__val', text: valor })]),
+    icon('down', 14),
   ]);
-  const buscar = el('input', { class: 'input bj-buscar', type: 'search', placeholder: T('Buscar persona o texto', 'Search person or text'), value: busqueda,
-    oninput: (e) => { busqueda = e.target.value.trim(); clearTimeout(buscar._t); buscar._t = setTimeout(() => cargarLista(), 350); } });
-  return el('div', { class: 'bj-filtros-wrap' }, [fila, fila2, el('div', { class: 'bj-filtros2' }, [sel, buscar])]);
+  return b;
+}
+const icoPick = (k, n = 18) => el('span', { class: 'bj-pick-ico', style: { color: CANAL_COLOR[k] || 'currentColor' } }, [icoCanal(k, n)]);
+
+function filtrosMensajes() {
+  const vista = vistaActual();
+  const vistaTxt = (VISTAS.find(([k]) => k === vista) || VISTAS[0])[2]();
+  const menuVista = menuFiltro({
+    titulo: T('Ver', 'View'), hoja: T('Qué conversaciones ver', 'Which conversations to see'), valor: vistaTxt, activo: !!vista,
+    opciones: () => {
+      const r = resumen && !resumen.error ? resumen : null;
+      const hayEquipo = !!(r && r.equipo && r.equipo.length) || esAgente();
+      const sub = {
+        '': T('Todas las conversaciones', 'Every conversation'),
+        sin_leer: r && r.no_leidos ? T(`${r.no_leidos} mensajes nuevos`, `${r.no_leidos} new messages`) : T('Nada nuevo por ahora', 'Nothing new right now'),
+        sin_responder: T('El último mensaje es de la persona', 'The last message is from the person'),
+        por_seguir: r && r.por_seguir ? T(`${r.por_seguir} llevan días sin contestar`, `${r.por_seguir} have gone quiet for days`) : T('Llevan días sin contestar', 'Gone quiet for days'),
+        mios: T('Los que atiendes tú', 'The ones you handle'),
+        sin_asignar: r && r.sin_asignar ? T(`${r.sin_asignar} sin agente`, `${r.sin_asignar} without an agent`) : T('Sin agente', 'Without an agent'),
+      };
+      return VISTAS.filter(([k]) => hayEquipo || (k !== 'mios' && k !== 'sin_asignar'))
+        .map(([k, ico, f]) => ({ value: k, label: f(), sub: sub[k], icon: icon(ico, 18), current: vista === k }));
+    },
+    alElegir: (k) => { ponerVista(k); cargarLista(); pintarCuerpo(); },
+  });
+  const menuRed = menuFiltro({
+    titulo: T('Red', 'Network'), hoja: T('Filtrar por red', 'Filter by network'), valor: canal ? CANAL_TXT[canal] || canal : T('Todas', 'All'), activo: !!canal,
+    opciones: () => {
+      const r = resumen && !resumen.error ? resumen : null;
+      const redes = ['instagram', 'messenger', 'whatsapp'];
+      if (r && r.canales && r.canales.correo && r.canales.correo.conectado) redes.push('correo');
+      return [
+        { value: '', label: T('Todas las redes', 'All networks'), icon: icon('inbox', 18), current: !canal },
+        ...redes.map((k) => ({ value: k, label: CANAL_TXT[k], icon: icoPick(k), current: canal === k })),
+      ];
+    },
+    alElegir: (k) => { canal = k; cargarLista(); pintarCuerpo(); },
+  });
+  const menuEtapa = menuFiltro({
+    titulo: T('Etapa', 'Stage'), hoja: T('Filtrar por etapa', 'Filter by stage'), valor: etapa ? ETAPA_TXT[etapa]() : T('Todas', 'All'), activo: !!etapa,
+    opciones: () => [
+      { value: '', label: T('Todas las etapas', 'All stages'), icon: icon('sliders', 18), current: !etapa },
+      ...ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: etapa === k })),
+    ],
+    alElegir: (k) => { etapa = k; cargarLista(); pintarCuerpo(); },
+  });
+  const buscar = el('input', {
+    class: 'bj-buscar__in', type: 'search', enterkeyhint: 'search', autocomplete: 'off', id: 'bj-buscar',
+    placeholder: T('Buscar persona o texto', 'Search person or text'), 'aria-label': T('Buscar', 'Search'), value: busqueda,
+    oninput: (e) => { busqueda = e.target.value.trim(); clearTimeout(buscar._t); buscar._t = setTimeout(() => cargarLista(), 350); },
+  });
+  return el('div', { class: 'bj-filtros-wrap' }, [
+    el('label', { class: 'bj-buscar' }, [icon('search', 17), buscar]),
+    el('div', { class: 'bj-menus' }, [menuVista, menuRed, menuEtapa]),
+  ]);
 }
 
 function listaConvs() {
@@ -386,20 +462,20 @@ function listaConvs() {
           el('span', { class: 'bj-conv__nombre', text: nombreDe(v) }),
           el('span', { class: 'bj-conv__hora', text: timeAgo(v.ultimo_en) }),
         ]),
-        // Quién lo atiende y si vino de un anuncio (solo si hay equipo o anuncio).
-        (v.asignado_nombre && !esAgente()) || origenAnuncio(v) || (esAgente() && !v.asignado_a)
-          ? el('span', { class: 'bj-conv__tags' }, [
-            origenAnuncio(v) ? el('span', { class: 'bj-tag bj-tag--ad', text: T('Anuncio', 'Ad') }) : null,
-            v.asignado_nombre && !esAgente() ? el('span', { class: 'bj-tag', text: v.asignado_nombre }) : null,
-            !v.asignado_a && (esAgente() || equipoAgentes().length) ? el('span', { class: 'bj-tag bj-tag--libre', text: T('Sin asignar', 'Unassigned') }) : null,
-          ].filter(Boolean))
-          : null,
+        // Etapa del CRM (con su nombre, no un punto mudo), quién lo atiende y si
+        // vino de un anuncio.
+        el('span', { class: 'bj-conv__tags' }, [
+          el('span', { class: 'bj-tag bj-tag--etapa', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }, [
+            el('span', { class: 'bj-tag__punto' }), el('span', { text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }),
+          ]),
+          v.asignado_nombre && !esAgente() ? el('span', { class: 'bj-tag bj-tag--agente' }, [icon('user', 11), el('span', { text: v.asignado_nombre.split(' ')[0] })]) : null,
+          !v.asignado_a && (esAgente() || equipoAgentes().length) ? el('span', { class: 'bj-tag bj-tag--libre', text: T('Sin asignar', 'Unassigned') }) : null,
+          origenAnuncio(v) ? el('span', { class: 'bj-tag bj-tag--ad', text: T('Anuncio', 'Ad') }) : null,
+        ].filter(Boolean)),
         el('span', { class: 'bj-conv__fila' }, [
           el('span', { class: 'bj-conv__ultimo', text: v.ultimo_texto || '' }),
-          v.no_leidos
-            ? el('span', { class: 'bj-conv__n', text: String(v.no_leidos) })
-            : el('span', { class: 'bj-conv__etapa', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' }, title: (ETAPA_TXT[v.etapa] || (() => v.etapa))() }),
-        ]),
+          v.no_leidos ? el('span', { class: 'bj-conv__n', text: String(v.no_leidos) }) : null,
+        ].filter(Boolean)),
       ].filter(Boolean)),
     ]));
   }
@@ -444,7 +520,7 @@ function chat() {
         el('button', { type: 'button', class: 'bj-etapa', 'aria-label': T('Cambiar etapa', 'Change stage'), onclick: async (e) => {
           const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
           if (nueva && nueva !== v.etapa) { await cambiarEtapa(v, nueva); pintarCuerpo(); }
-        } }, [chipEtapa(v.etapa), icon('down', 13)]),
+        } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }), icon('down', 13)]),
         botonAsignado(v),
       ].filter(Boolean)),
     ]),
@@ -459,7 +535,6 @@ function chat() {
       el('span', { text: T('Llegó por el anuncio', 'Came from the ad') + (origen.titulo ? `: “${origen.titulo}”` : '') }),
     ]));
   }
-  if (!mensajes.length) msgsEl.appendChild(el('p', { class: 'muted bj-msgs__nada', text: T('Todavía no hay mensajes.', 'No messages yet.') }));
   // Mensajes, eventos del equipo (asignaciones, llamadas anotadas a mano) y
   // llamadas con la línea (grabadas) en una sola línea de tiempo. El evento de
   // una llamada grabada no se pinta: su tarjeta ya lo dice todo.
@@ -469,6 +544,9 @@ function chat() {
     ...eventos.filter((e) => !(e.tipo === 'llamada' && e.dato && e.dato.llamada_id)).map((e) => ({ t: e.creado, e })),
     ...llamadas.filter((l) => !['no_contesto_agente', 'cancelada', 'iniciando'].includes(l.estado)).map((l) => ({ t: l.creado, l })),
   ].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+  // "Todavía no hay mensajes" solo si de verdad no hay nada: antes salía
+  // junto a la tarjeta de un mensaje de voz (14-oct-2026, captura de Israel).
+  if (!linea.length) msgsEl.appendChild(el('p', { class: 'muted bj-msgs__nada', text: T('Todavía no hay mensajes.', 'No messages yet.') }));
   let diaPrev = '';
   for (const it of linea) {
     const dia = String(it.t || '').slice(0, 10);
@@ -482,7 +560,7 @@ function chat() {
   const sinApi = !esWa && v.canal !== 'correo' && horas > 24 * 7;
   const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, disabled: sinApi, placeholder: sinApi
     ? (v.canal === 'instagram' ? T('Escríbele desde Instagram con el botón de arriba', 'Write from Instagram using the button above') : T('Escríbele desde Business Suite con el botón de arriba', 'Write from Business Suite using the button above'))
-    : usaPlantilla ? T('Escribe lo que quieras decirle (un solo párrafo)…', 'Write what you want to say (one paragraph)…') : T('Escribe tu respuesta…', 'Write your reply…'),
+    : usaPlantilla ? T('Tu mensaje, en un párrafo…', 'Your message, one paragraph…') : T('Escribe tu respuesta…', 'Write your reply…'),
     oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); if (usaPlantilla) pintarVistaPrevia(v, e.target.value); },
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
@@ -494,25 +572,30 @@ function chat() {
     const pl = plantillasMarca[plantillaClave] || {};
     const aprobada = pl.estado === 'APPROVED';
     if (usaPlantilla) {
+      // Compacta (14-oct-2026): en el teléfono la caja se comía medio chat.
+      // Renglón 1: por qué va en plantilla + costo. Renglón 2: tipo + conteo.
       avisos.push(el('div', { class: 'bj-plantilla' }, [
         el('div', { class: 'bj-plantilla__fila' }, [
-          el('strong', { text: horas >= 23.9
-            ? T('Pasaron más de 24 h: sale dentro de la plantilla', 'Over 24 h: it goes inside the template')
-            : T('Sale con botones de confirmación', 'Goes with confirmation buttons') }),
+          el('strong', { class: 'bj-plantilla__tit', text: horas >= 23.9
+            ? T('Más de 24 h: va en plantilla', 'Over 24 h: sent as a template')
+            : T('Con botones de confirmación', 'With confirmation buttons') }),
           // Meta decide la categoría: utilidad ≈ USD 0.0085, marketing ≈ USD 0.0397 (México, oct-2026).
           el('span', { class: 'bj-plantilla__costo', text: pl.categoria === 'MARKETING'
             ? T('≈ 75 centavos (Meta la cobra como marketing)', '≈ USD 0.04 (billed as marketing)')
             : pl.categoria ? T('≈ 15 centavos', '≈ USD 0.01') : T('≈ 15 a 75 centavos, según la categoría que le dé Meta', '≈ USD 0.01 to 0.04, depending on the category Meta assigns') }),
         ]),
-        el('div', { class: 'seg bj-plantilla__seg', role: 'tablist' }, [
-          ['seguimiento', T('Seguimiento', 'Follow-up')], ['confirmacion', T('Con botones', 'With buttons')],
-        ].map(([k, lbl]) => el('button', { type: 'button', role: 'tab', class: plantillaClave === k ? 'is-active' : '', onclick: () => { plantillaClave = k; pintarCuerpo(); } }, [lbl]))),
+        el('div', { class: 'bj-plantilla__fila' }, [
+          el('div', { class: 'seg bj-plantilla__seg', role: 'tablist' }, [
+            ['seguimiento', T('Seguimiento', 'Follow-up')], ['confirmacion', T('Con botones', 'With buttons')],
+          ].map(([k, lbl]) => el('button', { type: 'button', role: 'tab', class: plantillaClave === k ? 'is-active' : '', onclick: () => { plantillaClave = k; pintarCuerpo(); } }, [lbl]))),
+          el('span', { class: 'bj-plantilla__cuenta', 'aria-live': 'polite' }),
+        ]),
         !aprobada ? el('p', { class: 'bj-aviso', text: pl.estado === 'PENDING' || pl.estado === 'IN_APPEAL'
           ? T('Meta todavía está revisando esta plantilla. En cuanto la apruebe se puede enviar.', 'Meta is still reviewing this template. It can be sent once approved.')
           : (pl.estado
             ? T(`La plantilla está en estado ${pl.estado}${pl.motivo ? ' (' + pl.motivo + ')' : ''}.`, `The template status is ${pl.estado}${pl.motivo ? ' (' + pl.motivo + ')' : ''}.`)
             : T('Esta marca todavía no tiene sus plantillas abiertas. Créalas en Ajustes de la bandeja.', 'This brand has no open templates yet. Create them in Inbox settings.')) }) : null,
-        el('div', { class: 'bj-plantilla__previa', 'aria-live': 'polite' }),
+        el('div', { class: 'bj-plantilla__previa' }),
       ].filter(Boolean)));
     } else if (horas < 24) {
       const quedan = Math.max(0, 24 - horas);
@@ -611,8 +694,10 @@ async function pintarVistaPrevia(v, texto) {
       el('span', { class: 'bj-plantilla__fijo', text: info.despues }),
     ]),
     info.botones && info.botones.length ? el('span', { class: 'bj-plantilla__btns' }, info.botones.map((b) => el('span', { class: 'bj-plantilla__btn', text: b }))) : null,
-    el('span', { class: 'bj-plantilla__cuenta' + (n > info.max ? ' is-mal' : ''), text: `${n} / ${info.max}` + (/[\r\n]/.test(texto || '') ? T(' · los saltos de línea se vuelven espacios', ' · line breaks become spaces') : '') }),
+    /[\r\n]/.test(texto || '') ? el('span', { class: 'bj-plantilla__nota', text: T('Los saltos de línea se vuelven espacios.', 'Line breaks become spaces.') }) : null,
   ].filter(Boolean));
+  const cuenta = composerEl.querySelector('.bj-plantilla__cuenta');
+  if (cuenta) { cuenta.textContent = `${n} / ${info.max}`; cuenta.classList.toggle('is-mal', n > info.max); }
 }
 
 // Llamadas y asignaciones dentro del chat, como notas pequeñas.
@@ -867,6 +952,60 @@ function seccionRegistroManual(body, v, close, { plegado = false } = {}) {
   ]));
 }
 
+// ── Reproductor de audio propio (14-oct-2026) ──────────────────────────────
+// El <audio controls> del navegador decía "0:00 / 0:00" hasta darle play (iOS
+// no precarga) y cada navegador lo pinta distinto. Este es como la nota de voz
+// de WhatsApp: botón redondo, barra que se arrastra y la duración desde el
+// principio (la sabemos por la grabación). Solo suena uno a la vez.
+let sonando = null;
+function reproductor(src, segs = 0, { nota = false } = {}) {
+  const audio = el('audio', { preload: 'metadata', src });
+  let total = Number(segs) || 0;
+  const ico = () => icon(audio.paused ? 'play' : 'pause', 18);
+  const btn = el('button', { type: 'button', class: 'bj-play__btn', 'aria-label': T('Reproducir', 'Play') }, [icon('play', 18)]);
+  const barra = el('input', { type: 'range', class: 'bj-play__barra', min: '0', max: '1000', step: '1', value: '0', 'aria-label': T('Avance de la grabación', 'Recording position') });
+  const tiempo = el('span', { class: 'bj-play__t', text: total ? fmtDur(total) : '0:00' });
+  const caja = el('div', { class: 'bj-play' + (nota ? ' is-nota' : '') }, [btn, barra, tiempo, audio]);
+  const pintar = () => {
+    const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : total;
+    const p = dur ? Math.min(1, audio.currentTime / dur) : 0;
+    if (!barra._arrastrando) barra.value = String(Math.round(p * 1000));
+    caja.style.setProperty('--p', (p * 100).toFixed(2) + '%');
+    tiempo.textContent = audio.currentTime > 0 || !audio.paused ? `${fmtDur(audio.currentTime)} / ${fmtDur(dur)}` : fmtDur(dur);
+  };
+  const estado = () => {
+    clear(btn); btn.appendChild(ico());
+    btn.setAttribute('aria-label', audio.paused ? T('Reproducir', 'Play') : T('Pausar', 'Pause'));
+    caja.classList.toggle('is-sonando', !audio.paused);
+  };
+  btn.addEventListener('click', () => {
+    if (audio.paused) {
+      if (sonando && sonando !== audio) sonando.pause();
+      sonando = audio;
+      audio.play().catch(() => toast(T('No se pudo reproducir la grabación.', 'Could not play the recording.'), { type: 'error' }));
+    } else audio.pause();
+  });
+  audio.addEventListener('loadedmetadata', () => { if (Number.isFinite(audio.duration) && audio.duration > 0) total = audio.duration; pintar(); });
+  audio.addEventListener('timeupdate', pintar);
+  audio.addEventListener('play', estado);
+  audio.addEventListener('pause', estado);
+  audio.addEventListener('ended', () => { audio.currentTime = 0; pintar(); estado(); });
+  barra.addEventListener('input', () => {
+    barra._arrastrando = true;
+    const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : total;
+    caja.style.setProperty('--p', (Number(barra.value) / 10).toFixed(2) + '%');
+    if (dur) tiempo.textContent = `${fmtDur(dur * Number(barra.value) / 1000)} / ${fmtDur(dur)}`;
+  });
+  barra.addEventListener('change', () => {
+    barra._arrastrando = false;
+    const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : total;
+    if (dur) { try { audio.currentTime = dur * Number(barra.value) / 1000; } catch { /* aún sin datos */ } }
+    pintar();
+  });
+  pintar();
+  return caja;
+}
+
 // Tarjeta de una llamada con la línea: quién, cuánto, cómo salió, el audio y
 // la transcripción. En el chat va completa; en el panel, con el nombre del
 // paciente y un botón para abrir su chat.
@@ -878,11 +1017,15 @@ function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
       : entrante ? T(`Llamada entrante · contestó ${l.user_nombre || '—'}`, `Incoming call · answered by ${l.user_nombre || '—'}`)
         : T(`${l.user_nombre || 'Alguien'} llamó`, `${l.user_nombre || 'Someone'} called`);
   const cuando = enPanel ? `${fmtDia(String(l.creado).slice(0, 10))} ${horaCorta(l.creado)}` : horaCorta(l.creado);
-  const dur = l.duracion_seg ? fmtDur(l.duracion_seg) : (l.buzon && l.grabacion_seg ? fmtDur(l.grabacion_seg) : estadoLlamadaTxt(l.estado));
+  // El mensaje de voz dura lo que su grabación (no la llamada con el saludo):
+  // antes la tarjeta decía 0:34 y el reproductor 0:14.
+  const dur = l.buzon && l.grabacion_seg ? fmtDur(l.grabacion_seg) : (l.duracion_seg ? fmtDur(l.duracion_seg) : estadoLlamadaTxt(l.estado));
   const hijos = [el('div', { class: 'bj-call__top' }, [
-    icon('phone', 14),
-    el('strong', { class: 'bj-call__tit', text: titulo }),
-    el('span', { class: 'bj-call__meta', text: `${dur} · ${cuando}` }),
+    el('span', { class: 'bj-call__ico' }, [icon(l.buzon ? 'volume' : 'phone', 16)]),
+    el('span', { class: 'bj-call__cab' }, [
+      el('strong', { class: 'bj-call__tit', text: titulo }),
+      el('span', { class: 'bj-call__meta', text: `${dur} · ${cuando}` }),
+    ]),
   ])];
   if (enPanel && l.conv_id) {
     hijos.push(el('button', { type: 'button', class: 'bj-call__quien', onclick: () => { cambiarTab('mensajes'); abrirConv(l.conv_id); } }, [
@@ -907,13 +1050,18 @@ function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
       icon('down', 12),
     ].filter(Boolean)));
   }
-  if (l.audio) hijos.push(el('audio', { class: 'bj-call__audio', controls: true, preload: 'none', src: l.audio }));
+  if (l.audio) hijos.push(reproductor(l.audio, l.grabacion_seg || l.duracion_seg));
   else if (l.grabada && !l.activa) hijos.push(el('p', { class: 'muted bj-call__estado', text: T('Guardando la grabación…', 'Saving the recording…') }));
   const t = l.transcripcion;
   if (t && (t.resumen || (t.turnos && t.turnos.length))) {
-    if (t.resumen) hijos.push(el('p', { class: 'bj-call__resumen', text: t.resumen }));
-    if (t.cita) hijos.push(el('p', { class: 'bj-call__cita' }, [icon('calendar', 13), el('span', { text: ' ' + t.cita })]));
-    if (t.siguiente_paso) hijos.push(el('p', { class: 'bj-call__sig' }, [el('strong', { text: T('Sigue: ', 'Next: ') }), el('span', { text: t.siguiente_paso })]));
+    if (t.resumen || t.cita || t.siguiente_paso) {
+      hijos.push(el('div', { class: 'bj-call__res-ia' }, [
+        el('span', { class: 'bj-call__lbl' }, [icon('sparkles', 12), el('span', { text: T('Resumen de la llamada', 'Call summary') })]),
+        t.resumen ? el('p', { class: 'bj-call__resumen', text: t.resumen }) : null,
+        t.cita ? el('p', { class: 'bj-call__cita' }, [icon('calendar', 14), el('span', { text: t.cita })]) : null,
+        t.siguiente_paso ? el('p', { class: 'bj-call__sig' }, [el('strong', { text: T('Sigue: ', 'Next: ') }), el('span', { text: t.siguiente_paso })]) : null,
+      ].filter(Boolean)));
+    }
     if (t.turnos && t.turnos.length) {
       hijos.push(el('details', { class: 'bj-call__trans' }, [
         el('summary', { text: T('Ver transcripción', 'Show transcript') }),
@@ -956,7 +1104,7 @@ async function verTranscripcion(id) {
     build(body) {
       const t = l.transcripcion || {};
       body.append(...[
-        l.audio ? el('audio', { class: 'bj-call__audio', controls: true, preload: 'none', src: l.audio }) : null,
+        l.audio ? reproductor(l.audio, l.grabacion_seg || l.duracion_seg) : null,
         t.resumen ? el('p', { class: 'bj-call__resumen', text: t.resumen }) : null,
         el('div', { class: 'bj-call__turnos' }, (t.turnos || []).map((x) => el('p', { class: 'bj-turno is-' + x.quien }, [
           el('strong', { text: (x.quien === 'paciente' ? T('Paciente', 'Patient') : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
@@ -988,7 +1136,7 @@ function burbuja(m) {
   if (m.adjunto_url) {
     if (m.adjunto_tipo === 'image') hijos.push(el('a', { href: m.adjunto_url, target: '_blank', rel: 'noopener', class: 'bj-adj' }, [el('img', { src: m.adjunto_url, alt: T('Foto', 'Photo'), loading: 'lazy' })]));
     else if (m.adjunto_tipo === 'video') hijos.push(el('video', { src: m.adjunto_url, controls: true, class: 'bj-adj', preload: 'metadata' }));
-    else if (m.adjunto_tipo === 'audio') hijos.push(el('audio', { src: m.adjunto_url, controls: true, class: 'bj-adj-audio', preload: 'metadata' }));
+    else if (m.adjunto_tipo === 'audio') hijos.push(reproductor(m.adjunto_url, 0, { nota: true }));
     else hijos.push(el('a', { href: m.adjunto_url, target: '_blank', rel: 'noopener', class: 'bj-adj-link' }, [icon('link', 13), ' ' + ({ share: T('Publicación compartida', 'Shared post'), story_mention: T('Mención en historia', 'Story mention') }[m.adjunto_tipo] || T('Adjunto', 'Attachment'))]));
   } else if (m.adjunto_tipo && !m.texto) {
     hijos.push(el('span', { class: 'muted', text: ({ share: T('Compartió una publicación', 'Shared a post'), story_mention: T('Te mencionó en una historia', 'Mentioned you in a story') }[m.adjunto_tipo] || T('Adjunto', 'Attachment')) }));
@@ -1017,7 +1165,7 @@ function burbuja(m) {
 
 function autoAlto(ta) {
   ta.style.height = 'auto';
-  ta.style.height = Math.min(160, Math.max(44, ta.scrollHeight)) + 'px';
+  ta.style.height = Math.min(window.innerWidth < 600 ? 120 : 160, Math.max(44, ta.scrollHeight)) + 'px';
 }
 
 async function enviar(v, ta) {
@@ -1080,10 +1228,25 @@ function abrirFicha(v) {
       const nombre = el('input', { class: 'input', value: v.nombre || '', placeholder: T('Nombre', 'Name') });
       const seg = el('input', { class: 'input', type: 'date', value: v.seguimiento || '' });
       const notas = el('textarea', { class: 'textarea', rows: 4, placeholder: T('Notas: qué pidió, qué se le cotizó, qué sigue…', 'Notes: what they asked, what was quoted, what is next…') }, [v.notas || '']);
-      const sel = el('select', { class: 'select' }, ETAPAS.map((k) => el('option', { value: k, text: ETAPA_TXT[k](), selected: v.etapa === k })));
+      // Etapa con el selector de la app (antes <select>: la ruedita de iOS).
+      const sel = { value: v.etapa || 'nuevo' };
+      const btnEtapa = el('button', { type: 'button', class: 'bj-campo-etapa', id: 'bj-ficha-etapa' });
+      const pintarEtapa = () => {
+        clear(btnEtapa);
+        btnEtapa.append(
+          el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[sel.value] || 'var(--text-mute)' } }),
+          el('span', { class: 'bj-campo-etapa__txt', text: (ETAPA_TXT[sel.value] || (() => sel.value))() }),
+          icon('down', 16),
+        );
+      };
+      pintarEtapa();
+      btnEtapa.addEventListener('click', async () => {
+        const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: btnEtapa, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: sel.value === k })) });
+        if (nueva) { sel.value = nueva; pintarEtapa(); }
+      });
       body.append(
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Nombre', 'Name') }), nombre]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Etapa', 'Stage') }), sel]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-ficha-etapa', text: T('Etapa', 'Stage') }), btnEtapa]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Dar seguimiento el', 'Follow up on') }), seg,
           el('p', { class: 'field__hint muted', text: T('Ese día te llega un aviso al teléfono.', 'You get an alert on your phone that day.') })]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Notas', 'Notes') }), notas]),
@@ -1117,15 +1280,26 @@ function abrirFicha(v) {
 
 // ── Comentarios ──────────────────────────────────────────────────────────────
 function filtrosComentarios() {
-  const fila = el('div', { class: 'bj-filtros' });
-  fila.append(
-    chipFiltro(T('Pendientes', 'Pending'), estadoCom === 'pendientes', () => { estadoCom = 'pendientes'; cargarLista(); pintarCuerpo(); }, 'bell'),
-    chipFiltro(T('Todos', 'All'), estadoCom === 'todos', () => { estadoCom = 'todos'; cargarLista(); pintarCuerpo(); }),
-    el('span', { class: 'bj-filtros__sep' }),
-    chipFiltro('Instagram', canal === 'instagram', () => { canal = canal === 'instagram' ? '' : 'instagram'; cargarLista(); pintarCuerpo(); }, 'instagram'),
-    chipFiltro('Facebook', canal === 'facebook', () => { canal = canal === 'facebook' ? '' : 'facebook'; cargarLista(); pintarCuerpo(); }, 'facebook'),
-  );
-  return el('div', { class: 'bj-filtros-wrap' }, [fila]);
+  const r = resumen && !resumen.error ? resumen : null;
+  return el('div', { class: 'bj-filtros-wrap' }, [el('div', { class: 'bj-menus bj-menus--2' }, [
+    menuFiltro({
+      titulo: T('Ver', 'View'), hoja: T('Qué comentarios ver', 'Which comments to see'), valor: estadoCom === 'todos' ? T('Todos', 'All') : T('Pendientes', 'Pending'), activo: estadoCom === 'todos',
+      opciones: () => [
+        { value: 'pendientes', label: T('Pendientes', 'Pending'), sub: r && r.comentarios_pendientes ? T(`${r.comentarios_pendientes} por contestar`, `${r.comentarios_pendientes} to answer`) : T('Por contestar', 'To answer'), icon: icon('bell', 18), current: estadoCom === 'pendientes' },
+        { value: 'todos', label: T('Todos', 'All'), sub: T('También los contestados y ocultos', 'Answered and hidden too'), icon: icon('inbox', 18), current: estadoCom === 'todos' },
+      ],
+      alElegir: (k) => { estadoCom = k; cargarLista(); pintarCuerpo(); },
+    }),
+    menuFiltro({
+      titulo: T('Red', 'Network'), hoja: T('Filtrar por red', 'Filter by network'), valor: canal ? CANAL_TXT[canal] || canal : T('Todas', 'All'), activo: !!canal,
+      opciones: () => [
+        { value: '', label: T('Todas las redes', 'All networks'), icon: icon('inbox', 18), current: !canal },
+        { value: 'instagram', label: 'Instagram', icon: icoPick('instagram'), current: canal === 'instagram' },
+        { value: 'facebook', label: 'Facebook', icon: icoPick('facebook'), current: canal === 'facebook' },
+      ],
+      alElegir: (k) => { canal = k; cargarLista(); pintarCuerpo(); },
+    }),
+  ])]);
 }
 
 function listaComentarios() {
@@ -1752,7 +1926,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141606';
+  link.href = '/marketing/css/bandeja.css?v=202610141721';
   document.head.appendChild(link);
 }
 

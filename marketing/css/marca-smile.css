@@ -1,0 +1,155 @@
+/* ============================================================================
+   Tema de marca: SMILE NOW (14-oct-2026).
+   Israel: "para él usa los colores de SMILE, solo aplica para él". Se activa
+   SOLO con html[data-marca="smile"], que el shell pone cuando /auth/me trae
+   marca_tema = 'smile' (bandeja_cfg.tema de la marca, y únicamente en accesos
+   de CLIENTE). El staff y las demás marcas no cargan nada distinto.
+
+   Paleta de su sitio y su logo (smilenowdentalclinic.com): carbón #222423,
+   dorado #B08C2D / #CAB67F / #E5D5AC y blanco. El logo es "SMILE" en carbón
+   y "NOW" en dorado degradado, con tipografía geométrica espaciada (Raleway).
+   Contraste: el dorado de texto es #7E6219 (5.6:1 sobre blanco); el dorado
+   claro solo va de RELLENO con texto carbón encima (7.8:1).
+   ============================================================================ */
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('/marketing/fonts/raleway-latin-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html:root[data-marca="smile"] {
+  --sm-ink: #1F2120;
+  --sm-ink-2: #343634;
+  --sm-gold: #B08C2D;
+  --sm-gold-text: #7E6219;
+  --sm-gold-mid: #CAB67F;
+  --sm-gold-light: #E5D5AC;
+  --sm-gold-pale: #F7F1E1;
+  --sm-gold-grad: linear-gradient(100deg, #A8842A 0%, #D9C47E 46%, #EDE3B8 58%, #B08C2D 100%);
+  --sm-ink-grad: linear-gradient(140deg, #3A3C3A 0%, #1B1C1B 100%);
+
+  --brand: #7E6219;
+  --brand-strong: #1F2120;
+  --grad: linear-gradient(135deg, #353735 0%, #171817 100%);
+  --grad-soft: linear-gradient(135deg, rgba(176, 140, 45, .14) 0%, rgba(229, 213, 172, .22) 100%);
+  --ring: 0 0 0 2px var(--surface, #fff), 0 0 0 4px #B08C2D, 0 0 0 7px rgba(176, 140, 45, .22);
+  --client-accent: #B08C2D;
+  --client-accent-soft: rgba(176, 140, 45, .16);
+  --client-accent-line: rgba(176, 140, 45, .42);
+}
+html:root[data-marca="smile"][data-theme="light"] {
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface-2: #F5F3EE;
+  --surface-3: rgba(31, 33, 32, .045);
+  --border: #E8E3D7;
+  --border-strong: #D3CAB5;
+  --text: #1F2120;
+  --text-dim: #4D4B45;
+  --text-mute: #6B675D;
+}
+
+/* Fondo: casi blanco con un lavado dorado apenas visible (en vez del magenta). */
+html:root[data-marca="smile"][data-theme="light"] body {
+  background:
+    radial-gradient(60% 40% at 12% -4%, rgba(176, 140, 45, .075), transparent 62%),
+    radial-gradient(50% 36% at 96% -4%, rgba(229, 213, 172, .16), transparent 62%),
+    #F7F6F2;
+  background-attachment: fixed;
+}
+html:root[data-marca="smile"] ::selection { background: rgba(176, 140, 45, .28); color: #1F2120; }
+
+/* Botón activo de los segmentos: sombra neutra (la base trae un halo morado). */
+html:root[data-marca="smile"] .seg button.is-active { box-shadow: var(--sh-1), 0 2px 8px -2px rgba(0, 0, 0, .35); }
+
+/* Campos enfocados: filo dorado (la base trae un halo violeta). */
+html:root[data-marca="smile"] .input:focus,
+html:root[data-marca="smile"] .select:focus,
+html:root[data-marca="smile"] .textarea:focus { border-color: var(--sm-gold); box-shadow: 0 0 0 3px rgba(176, 140, 45, .2); }
+
+/* ── Barra superior: el nombre como su logo ─────────────────────────────── */
+html:root[data-marca="smile"] .tb-client__name {
+  font-family: 'Raleway', 'Outfit', system-ui, sans-serif;
+  font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--sm-ink);
+}
+html:root[data-marca="smile"] .tb-client__acento {
+  font-weight: 600;
+  background: var(--sm-gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+html:root[data-marca="smile"] .tb-client__dot {
+  background: var(--sm-gold-grad) !important;
+  box-shadow: 0 0 0 3px rgba(176, 140, 45, .18);
+}
+html:root[data-marca="smile"][data-theme="light"] #topbar { border-bottom-color: rgba(176, 140, 45, .28); }
+
+/* ── Bandeja ─────────────────────────────────────────────────────────────── */
+html:root[data-marca="smile"] .bj-title {
+  font-family: 'Raleway', 'Outfit', system-ui, sans-serif;
+  font-weight: 700; letter-spacing: -.01em;
+}
+html:root[data-marca="smile"] .bj-demo {
+  background: var(--sm-gold-pale); border-color: color-mix(in srgb, var(--sm-gold) 38%, var(--border)); color: var(--sm-ink);
+}
+html:root[data-marca="smile"] .bj-demo .ico { color: var(--sm-gold-text); }
+
+/* Contadores de las pestañas: dorado con número carbón (no rojo de alarma). */
+html:root[data-marca="smile"] .bj-seg__n { background: var(--sm-gold-grad); color: var(--sm-ink); }
+html:root[data-marca="smile"] .bj-seg button.is-active .bj-seg__n { background: var(--sm-gold-grad); color: var(--sm-ink); }
+
+/* Filas: avatar carbón con iniciales doradas; la red sigue en el filo y en el logo. */
+html:root[data-marca="smile"] .bj-avatar { background: var(--sm-ink-grad); color: var(--sm-gold-light); letter-spacing: .02em; }
+html:root[data-marca="smile"] .bj-conv.is-unread { background: #FFFDF8; }
+html:root[data-marca="smile"] .bj-conv.is-active { background: var(--sm-gold-pale); }
+html:root[data-marca="smile"] .bj-conv.is-unread .bj-conv__hora { color: var(--sm-gold-text); }
+html:root[data-marca="smile"] .bj-conv__n { background: var(--sm-gold-grad); color: var(--sm-ink); }
+
+/* Etiqueta "Anuncio": dorado, no morado. */
+html:root[data-marca="smile"] .bj-tag--ad { color: var(--sm-gold-text); background: var(--sm-gold-pale); border-color: color-mix(in srgb, var(--sm-gold) 40%, var(--border)); }
+html:root[data-marca="smile"] .bj-nota--ad { color: var(--sm-gold-text); }
+
+/* Menús de filtro y botones llenos: carbón, con el detalle en dorado. */
+html:root[data-marca="smile"] .bj-menu.is-on > .ico { color: var(--sm-gold-light); }
+html:root[data-marca="smile"] .bj-menu.is-on .bj-menu__lbl { color: var(--sm-gold-light); }
+
+/* Chat: cabecera blanca con filo dorado; lienzo marfil; respuestas en dorado claro. */
+html:root[data-marca="smile"] .bj-chat__head {
+  background: var(--surface);
+  border-bottom: 1px solid color-mix(in srgb, var(--sm-gold) 30%, var(--border));
+}
+html:root[data-marca="smile"][data-theme="light"] .bj-root {
+  --bj-lienzo: #F3F1EC;
+  --bj-punto: rgba(176, 140, 45, .09);
+  --bj-in: #FFFFFF;
+  --bj-in-txt: #1F2120;
+}
+html:root[data-marca="smile"] .bj-burbuja.is-out .bj-burbuja__cuerpo,
+html:root[data-marca="smile"] .bj-burbuja.is-out .bj-burbuja__cuerpo::after { background: #F1E8CF; }
+html:root[data-marca="smile"] .bj-burbuja.is-plantilla .bj-burbuja__cuerpo { border-color: color-mix(in srgb, var(--sm-gold) 55%, transparent); }
+html:root[data-marca="smile"] .bj-enviar { background: var(--sm-gold-grad); color: var(--sm-ink); }
+html:root[data-marca="smile"] .bj-ia .ico { color: var(--sm-gold-text); }
+
+/* Llamadas: el acento de la tarjeta es el dorado; el botón de play, carbón. */
+html:root[data-marca="smile"] .bj-call { --cc: #9A7621; }
+html:root[data-marca="smile"] .bj-call.is-entrante { --cc: #9A7621; }
+html:root[data-marca="smile"] .bj-call.is-perdida { --cc: #B45309; }
+html:root[data-marca="smile"] .bj-call__ico { background: var(--sm-gold-pale); }
+html:root[data-marca="smile"] .bj-play__btn { background: var(--sm-ink-grad); color: var(--sm-gold-light); }
+html:root[data-marca="smile"] .bj-play { --pc: var(--sm-gold); }
+html:root[data-marca="smile"] .bj-call__cita { color: var(--sm-gold-text); }
+html:root[data-marca="smile"] .bj-call__res-ia { background: #FAF7EF; }
+html:root[data-marca="smile"] .bj-call__resbtn {
+  color: var(--sm-ink); border-color: color-mix(in srgb, var(--sm-gold) 45%, var(--border)); background: var(--sm-gold-pale);
+}
+html:root[data-marca="smile"] .bj-turno.is-agente strong { color: var(--sm-gold-text); }
+
+/* Plantilla de WhatsApp: tarjeta blanca con filo dorado (no verde). */
+html:root[data-marca="smile"] .bj-plantilla { background: #FFFDF8; border-color: color-mix(in srgb, var(--sm-gold) 40%, var(--border)); }
+html:root[data-marca="smile"] .bj-ventana { color: var(--sm-gold-text); }
+
+/* Desempeño: barras doradas y números en carbón. */
+html:root[data-marca="smile"] .bj-barra { background: linear-gradient(180deg, #CAB67F, #B08C2D); }
+html:root[data-marca="smile"] .bj-kpi.is-bien .bj-kpi__v { color: var(--sm-gold-text); }
+html:root[data-marca="smile"] .bj-dispo.is-on { color: #15803d; }

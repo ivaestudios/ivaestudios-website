@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610141606';
-import { setRoleDefault } from './theme.js?v=202610141606';
-import { vigilarSegmentados } from './segfade.js?v=202610141606';
-import * as store from './store.js?v=202610141606';
-import * as prefs from './prefs.js?v=202610141606';
-import * as router from './router.js?v=202610141606';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610141606';
-import { toast } from './toast.js?v=202610141606';
-import { icon } from './icons.js?v=202610141606';
-import * as iconsMod from './icons.js?v=202610141606';
-import { createTopbar } from './topbar.js?v=202610141606';
-import { createBottomNav } from './bottomnav.js?v=202610141606';
-import { createSearch } from './search.js?v=202610141606';
-import { createNotifications } from './notifications.js?v=202610141606';
-import { T } from './i18n.js?v=202610141606';
-import { startTour, tourPendiente } from './tour.js?v=202610141606';
-import * as version from './version.js?v=202610141606';
-import * as tienda from './tienda.js?v=202610141606';
-import * as pickers from '../ui/pickers.js?v=202610141606';
-import * as dnd from '../ui/dnd.js?v=202610141606';
+import { api, el, clear } from '../api.js?v=202610141721';
+import { setRoleDefault } from './theme.js?v=202610141721';
+import { vigilarSegmentados } from './segfade.js?v=202610141721';
+import * as store from './store.js?v=202610141721';
+import * as prefs from './prefs.js?v=202610141721';
+import * as router from './router.js?v=202610141721';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610141721';
+import { toast } from './toast.js?v=202610141721';
+import { icon } from './icons.js?v=202610141721';
+import * as iconsMod from './icons.js?v=202610141721';
+import { createTopbar } from './topbar.js?v=202610141721';
+import { createBottomNav } from './bottomnav.js?v=202610141721';
+import { createSearch } from './search.js?v=202610141721';
+import { createNotifications } from './notifications.js?v=202610141721';
+import { T } from './i18n.js?v=202610141721';
+import { startTour, tourPendiente } from './tour.js?v=202610141721';
+import * as version from './version.js?v=202610141721';
+import * as tienda from './tienda.js?v=202610141721';
+import * as pickers from '../ui/pickers.js?v=202610141721';
+import * as dnd from '../ui/dnd.js?v=202610141721';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -683,6 +683,9 @@ export async function boot() {
   // portal de solo lectura. Marca el body para ocultar el chrome de agencia
   // (Equipo, Accesos de cliente, etc.). El backend limita todo a SU marca.
   if (me.role === 'client') document.body.classList.add('is-client');
+  // Tema de la marca del cliente (bandeja_cfg.tema): pinta la app con SUS
+  // colores (css/marca-<tema>.css). Solo cuentas de cliente; el staff no.
+  if (me.role === 'client' && me.marca_tema) document.documentElement.dataset.marca = me.marca_tema;
   // Creador de contenido: misma app, sin el chrome de agencia (accesos de
   // cliente, "tu cliente aprueba", invitación al dueño de la página).
   if (me.workspace_type === 'creador') document.body.classList.add('is-creador');

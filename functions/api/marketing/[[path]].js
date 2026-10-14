@@ -779,12 +779,18 @@ async function handleMe(session, env) {
   } catch { tourPendiente = false; }
   // Marca en MODO DEMO de la Bandeja (bandeja_cfg.demo): su equipo entra directo
   // a la Bandeja en vez del calendario (demo del CRM, 14-oct-2026).
+  // TEMA DE MARCA (bandeja_cfg.tema, 14-oct-2026, Israel: "usa los colores de
+  // SMILE, solo aplica para él"): los accesos de CLIENTE de esa marca ven la app
+  // con los colores de su marca. El staff y las demás marcas no cambian.
   let bandejaDemo = false;
-  if (session.role === 'client' && session.bandeja_rol && session.client_id) {
+  let marcaTema = null;
+  if (session.role === 'client' && session.client_id) {
     try {
       const r = await env.DB.prepare('SELECT bandeja_cfg FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
-      bandejaDemo = !!(r && r.bandeja_cfg && JSON.parse(r.bandeja_cfg).demo === true);
-    } catch { bandejaDemo = false; }
+      const cfg = r && r.bandeja_cfg ? JSON.parse(r.bandeja_cfg) : {};
+      bandejaDemo = !!(session.bandeja_rol && cfg.demo === true);
+      if (typeof cfg.tema === 'string' && /^[a-z0-9-]{1,24}$/.test(cfg.tema)) marcaTema = cfg.tema;
+    } catch { bandejaDemo = false; marcaTema = null; }
   }
   return json({
     id: session.user_id,
@@ -797,6 +803,7 @@ async function handleMe(session, env) {
     bandeja_rol: session.role === 'client' ? (session.bandeja_rol || null) : null,
     bandeja_disponible: session.bandeja_disponible !== 0,
     bandeja_demo: bandejaDemo,
+    marca_tema: marcaTema,
     // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo).
     tour_pendiente: tourPendiente && !(session.role === 'client' && session.bandeja_rol === 'agente'),
     email_verified: emailVerified,

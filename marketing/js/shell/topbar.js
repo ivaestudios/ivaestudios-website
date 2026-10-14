@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610141606';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141606';
-import * as store from './store.js?v=202610141606';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141606';
-import { toast } from './toast.js?v=202610141606';
-import { icon } from './icons.js?v=202610141606';
-import { openClientSwitcher } from './clientswitcher.js?v=202610141606';
-import { T, isEN, setLang } from './i18n.js?v=202610141606';
+import { startTour } from './tour.js?v=202610141721';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141721';
+import * as store from './store.js?v=202610141721';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141721';
+import { toast } from './toast.js?v=202610141721';
+import { icon } from './icons.js?v=202610141721';
+import { openClientSwitcher } from './clientswitcher.js?v=202610141721';
+import { T, isEN, setLang } from './i18n.js?v=202610141721';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610141606';
-import { getTheme, setTheme } from './theme.js?v=202610141606';
-import * as version from './version.js?v=202610141606';
-import * as tienda from './tienda.js?v=202610141606';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141606';
-import * as prefs from './prefs.js?v=202610141606';
+import { abrirBloqueados } from './moderacion.js?v=202610141721';
+import { getTheme, setTheme } from './theme.js?v=202610141721';
+import * as version from './version.js?v=202610141721';
+import * as tienda from './tienda.js?v=202610141721';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141721';
+import * as prefs from './prefs.js?v=202610141721';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -259,6 +259,13 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     const c = clients.find((x) => x.id === activeClientId);
     clientDot.style.background = c ? safeColor(c.brand_color) : 'var(--brand)';
     clientName.textContent = c ? c.name : T('Elige un cliente', 'Choose a client');
+    // Con tema de marca (html[data-marca]) la última palabra lleva el acento de
+    // su logo, como "SMILE NOW" con NOW en dorado.
+    const partes = c && document.documentElement.dataset.marca ? String(c.name).trim().split(/\s+/) : [];
+    if (partes.length > 1) {
+      clientName.textContent = partes.slice(0, -1).join(' ') + ' ';
+      clientName.appendChild(el('span', { class: 'tb-client__acento', text: partes[partes.length - 1] }));
+    }
     document.body.style.setProperty('--client-accent', c ? safeColor(c.brand_color) : 'var(--brand)');
   }
 
