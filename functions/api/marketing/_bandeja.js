@@ -268,6 +268,16 @@ export function cfgDe(c) {
 export async function guardarCfg(env, clientId, cfg) {
   await env.DB.prepare('UPDATE mkt_clients SET bandeja_cfg = ? WHERE id = ?').bind(JSON.stringify(cfg), clientId).run();
 }
+// MODO DEMO (14-oct-2026, Israel: "tengo que hacerle una muestra a Sebastián de
+// cómo sería el CRM"). Una marca con bandeja_cfg.demo = true se ve conectada y
+// todo funciona dentro de la app (contestar, plantilla abierta, comentarios,
+// ocultar), pero NADA sale a Meta: la marca demo no tiene tokens y aquí se corta
+// antes de cualquier llamada externa. Vive en un workspace propio, aislado.
+export function esDemo(c) { return cfgDe(c).demo === true; }
+function cuentaDemo(c, canal) {
+  const x = cfgDe(c).demo_cuentas || {};
+  return x[canal] || ({ instagram: '@' + (c.ig_username || c.instagram_handle || 'marca'), messenger: nombreComercial(c), whatsapp: '+52 998 000 0000' })[canal] || null;
+}
 // Todos los accesos de cliente de la marca (con o sin rol en la bandeja).
 async function accesosDeMarca(env, clientId) {
   try {
@@ -1099,6 +1109,16 @@ function espacioPlantilla(c, conv, autorNombre, clave) {
 }
 
 async function enviarPlantillaAbierta(c, conv, texto, { clave = 'seguimiento', autorNombre = '' } = {}) {
+  if (esDemo(c)) {
+    const d = defPlantilla(c, clave);
+    if (!d) throw errSinCanal('Esa plantilla no existe.');
+    const esp = espacioPlantilla(c, conv, autorNombre, clave);
+    const p3 = limpiarParaPlantilla(texto);
+    if (!p3) throw errSinCanal('Escribe el mensaje.');
+    if (Array.from(p3).length > esp.max) throw errSinCanal(`Dentro de la plantilla caben ${esp.max} caracteres y tu mensaje tiene ${Array.from(p3).length}. Acórtalo un poco.`);
+    const visto = renderPlantilla(esp.cuerpo, [esp.p1, esp.p2, p3]) + (d.botones.length ? '\n' + d.botones.map((b) => `[ ${b} ]`).join('  ') : '');
+    return { mid: 'demo:' + randomId(), texto: visto, via: 'plantilla:' + clave };
+  }
   if (!c.wa_phone_id || !c.wa_access_token) throw errSinCanal('Esta marca no tiene WhatsApp conectado.');
   const d = defPlantilla(c, clave);
   if (!d) throw errSinCanal('Esa plantilla no existe.');
@@ -1136,6 +1156,7 @@ async function enviarMetaConVentana(url, token, to, texto) {
 // Manda un texto por el canal de la conversación. Devuelve los mids.
 async function enviarTexto(c, conv, texto, env, opts = {}) {
   const lim = LIM_TEXTO[conv.canal] || 1900;
+  if (esDemo(c)) return partirTexto(texto, lim).map(() => 'demo:' + randomId());
   const mids = [];
   for (const pieza of partirTexto(texto, lim)) {
     if (conv.canal === 'correo') {
@@ -1185,6 +1206,11 @@ async function enviarTexto(c, conv, texto, env, opts = {}) {
 // ── SALIDA: comentarios ──────────────────────────────────────────────────────
 async function responderComentario(c, cm, texto, modo) {
   const out = {};
+  if (esDemo(c)) {
+    if (modo === 'publico' || modo === 'ambos') out.publico = { id: 'demo:' + randomId() };
+    if (modo === 'dm' || modo === 'ambos') out.dm = { recipient_id: cm.autor_id, message_id: 'demo:' + randomId() };
+    return out;
+  }
   const esIG = cm.canal === 'instagram';
   if (esIG && (!c.ig_user_id || !c.ig_access_token)) throw Object.assign(new Error('Esta marca no tiene Instagram conectado.'), { code: 'SIN_CANAL' });
   if (!esIG && (!c.fb_page_id || !c.fb_access_token)) throw Object.assign(new Error('Esta marca no tiene la página de Facebook conectada.'), { code: 'SIN_CANAL' });
@@ -1202,6 +1228,7 @@ async function responderComentario(c, cm, texto, modo) {
   return out;
 }
 async function ocultarComentario(c, cm, oculto) {
+  if (esDemo(c)) return { success: true };
   if (cm.canal === 'instagram') return graph(`${GRAPH_IG}/${cm.comment_id}`, { method: 'POST', token: c.ig_access_token, body: { hide: !!oculto } });
   return graph(`${GRAPH_FB}/${cm.comment_id}`, { method: 'POST', token: c.fb_access_token, body: { is_hidden: !!oculto } });
 }
@@ -1338,7 +1365,9 @@ export async function handleBandeja(request, env, session, url, parts) {
       const d = defPlantilla(c, k);
       const p = cfg.plantillas[k];
       const vigente = p && p.nombre === d.nombre;
-      plantillas[k] = { titulo: d.titulo, estado: vigente ? p.estado || null : null, categoria: vigente ? p.categoria || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
+      plantillas[k] = esDemo(c)
+        ? { titulo: d.titulo, estado: 'APPROVED', categoria: 'UTILITY', motivo: null, cuerpo: d.cuerpo, botones: d.botones }
+        : { titulo: d.titulo, estado: vigente ? p.estado || null : null, categoria: vigente ? p.categoria || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
     }
     return json({
       marca: { id: c.id, name: c.name },
@@ -1348,12 +1377,18 @@ export async function handleBandeja(request, env, session, url, parts) {
       seguimientos_hoy: Number(seg.n) || 0,
       sin_asignar: Number(sinAsignar.n) || 0,
       por_seguir: Number(porSeguir.n) || 0,
-      canales: {
+      canales: esDemo(c) ? {
+        instagram: { conectado: true, cuenta: cuentaDemo(c, 'instagram') },
+        messenger: { conectado: true, cuenta: cuentaDemo(c, 'messenger') },
+        whatsapp: { conectado: true, cuenta: cuentaDemo(c, 'whatsapp') },
+        correo: { conectado: false, cuenta: null },
+      } : {
         instagram: { conectado: !!(c.ig_user_id && c.ig_access_token), cuenta: c.ig_username ? '@' + c.ig_username : null },
         messenger: { conectado: !!(c.fb_page_id && c.fb_access_token), cuenta: c.fb_page_name || null },
         whatsapp: { conectado: !!(c.wa_phone_id && c.wa_access_token), cuenta: c.wa_numero || null },
         correo: { conectado: await correoDeLaMarca(env, c.id), cuenta: CORREO_BUZON },
       },
+      demo: esDemo(c),
       sondeo_at: c.bandeja_sondeo_at || null,
       estado: esCliente ? null : estado,
       ultimo_webhook: ultimoWebhook,
@@ -1481,6 +1516,8 @@ export async function handleBandeja(request, env, session, url, parts) {
         await insertarMensaje(env, { convId: conv.id, mid: f.mid, direccion: 'out', texto: f.texto, autorUserId: yo, autorNombre: session.name, estado: 'enviado', via: f.via });
       }
       await refrescarConv(env, conv.id, 0);
+      // Demo: en WhatsApp el mensaje aparece entregado (dos palomitas), como en la vida real.
+      if (conv.canal === 'whatsapp' && esDemo(c)) await env.DB.prepare("UPDATE mkt_mensajes SET estado = 'entregado', entregado_en = datetime('now') WHERE conv_id = ? AND mid LIKE 'demo:%' AND estado = 'enviado'").bind(conv.id).run();
       await env.DB.prepare("UPDATE mkt_conversaciones SET no_leidos = 0, etapa = CASE WHEN etapa = 'nuevo' THEN 'platica' ELSE etapa END WHERE id = ?").bind(conv.id).run();
       // El agente que contesta un chat sin dueño se lo queda.
       if (esAgente && !conv.asignado_a) await asignar(env, c, conv.id, { id: yo, name: session.name }, { tipo: 'tomada' });
