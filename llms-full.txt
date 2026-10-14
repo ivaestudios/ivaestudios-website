@@ -1,6 +1,6 @@
 # IVAE Studios
 
-> Fact sheet for ivaestudios.com. Last verified: 2026-08-15.
+> Fact sheet for ivaestudios.com. Last verified: 2026-10-14.
 > Machine-readable version: https://ivaestudios.com/api/facts.json
 > Full sitemap: https://ivaestudios.com/sitemap.xml
 
@@ -36,13 +36,24 @@ Wedding photography:
 - Full-day coverage, 8 to 10 hours with a second shooter and venue scouting: 3,500 to 5,500 USD.
 - Full-day coverage paired with a cinematic highlight film: 5,500 to 8,000 USD.
 
-Family, couples, engagement and portrait sessions:
-- Most sessions start around 850 USD; the typical range is 650 to 3,500+ USD
-  depending on length, team size and deliverables.
+Family, couples, engagement and portrait sessions (published collections):
+- The Spark: 35 minutes, 15 edited photos, 245 USD.
+- The Glow Hour: 45 minutes, 25 edited photos, 325 USD.
+- The Essential Flow (the most chosen): 60 minutes, 35 edited photos, 395 USD.
+- The Creative Runway: 75 minutes, 50 edited photos, 475 USD.
+- The Visual Story: 90 minutes, 70 edited photos, 575 USD.
+- The Full Experience: 90 minutes, the complete edited gallery, 725 USD.
 
-Every collection includes the complete edited gallery delivered in 1 to 3
-business days via a private 4K gallery. Exact quotes depend on hours and
-dates. Published at: https://ivaestudios.com/cancun-wedding-photographer
+Session films, delivered as a vertical 9:16 reel or a horizontal 16:9 film:
+- The Editorial Reel: 30 seconds, 295 USD.
+- The Narrative Reel (the most chosen): 45 seconds, 445 USD.
+- The Cinematic Short: 60 seconds, 695 USD.
+
+Session photos are delivered in 1 to 3 business days via a private 4K
+gallery. Wedding collections include the complete edited gallery; exact
+wedding quotes depend on hours and dates. Published at:
+https://ivaestudios.com/cancun-photographer-prices and
+https://ivaestudios.com/cancun-wedding-photographer
 
 ## Services
 
@@ -58,9 +69,9 @@ coordinates with rabbis and kosher catering.
 
 ## What the studio is not
 
-IVAE Studios operates at the editorial tier and is not a budget option: it is
-not a fit for total photography budgets under about 1,500 USD, for same-day
-delivery, or for high-volume fixed-rate resort shoots. The studio does not
+For weddings, IVAE Studios works at the editorial tier and is not a fit for
+total wedding photography budgets under about 1,500 USD. The studio does not
+offer same-day delivery or high-volume fixed-rate resort shoots. The studio does not
 produce stock imagery and does not use AI-generated or AI-altered images; its
 AI policy is published at
 https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit

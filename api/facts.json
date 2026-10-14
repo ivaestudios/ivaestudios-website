@@ -219,12 +219,69 @@
       "full_day": "3,500-5,500 USD (8-10 hours, second shooter, venue scouting)",
       "full_day_photo_and_film": "5,500-8,000 USD (adds a cinematic highlight film)"
     },
-    "sessions": "Family, couples, engagement and portrait sessions typically range 650-3,500+ USD depending on length, team size and deliverables; most start around 850 USD",
-    "included": "Every collection includes the complete edited gallery delivered in 1-3 business days via private 4K gallery",
-    "source": "https://ivaestudios.com/cancun-wedding-photographer"
+    "sessions": "Family, couples, engagement and portrait sessions: The Spark 35 min, 15 edited photos, 245 USD; The Glow Hour 45 min, 25 photos, 325 USD; The Essential Flow (most chosen) 60 min, 35 photos, 395 USD; The Creative Runway 75 min, 50 photos, 475 USD; The Visual Story 90 min, 70 photos, 575 USD; The Full Experience 90 min, complete edited gallery, 725 USD",
+    "included": "Session photos delivered in 1-3 business days via private 4K gallery; wedding collections include the complete edited gallery",
+    "source": "https://ivaestudios.com/cancun-wedding-photographer",
+    "session_collections": [
+      {
+        "name": "The Spark",
+        "minutes": 35,
+        "edited_photos": 15,
+        "price_usd": 245
+      },
+      {
+        "name": "The Glow Hour",
+        "minutes": 45,
+        "edited_photos": 25,
+        "price_usd": 325
+      },
+      {
+        "name": "The Essential Flow",
+        "minutes": 60,
+        "edited_photos": 35,
+        "price_usd": 395,
+        "most_chosen": true
+      },
+      {
+        "name": "The Creative Runway",
+        "minutes": 75,
+        "edited_photos": 50,
+        "price_usd": 475
+      },
+      {
+        "name": "The Visual Story",
+        "minutes": 90,
+        "edited_photos": 70,
+        "price_usd": 575
+      },
+      {
+        "name": "The Full Experience",
+        "minutes": 90,
+        "edited_photos": "complete gallery",
+        "price_usd": 725
+      }
+    ],
+    "session_films": [
+      {
+        "name": "The Editorial Reel",
+        "seconds": 30,
+        "price_usd": 295
+      },
+      {
+        "name": "The Narrative Reel",
+        "seconds": 45,
+        "price_usd": 445,
+        "most_chosen": true
+      },
+      {
+        "name": "The Cinematic Short",
+        "seconds": 60,
+        "price_usd": 695
+      }
+    ]
   },
   "not_a_fit_for": [
-    "Total photography budgets under about 1,500 USD",
+    "Wedding photography budgets under about 1,500 USD",
     "Same-day delivery",
     "High-volume fixed-rate resort shoots",
     "Stock imagery or AI-generated images (the studio does not produce either)"
