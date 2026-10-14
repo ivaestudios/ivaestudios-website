@@ -12,15 +12,15 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202610141814';
-import { icon } from '../shell/icons.js?v=202610141814';
-import { T } from '../shell/i18n.js?v=202610141814';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202610141814';
-import * as prefs from '../shell/prefs.js?v=202610141814';
+import { el, clear, toast } from '../api.js?v=202610141838';
+import { icon } from '../shell/icons.js?v=202610141838';
+import { T } from '../shell/i18n.js?v=202610141838';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202610141838';
+import * as prefs from '../shell/prefs.js?v=202610141838';
 import {
   esArchivoDeVideo, grupoDePaginasVideo, cargarVideo, playThrough, analizarPagina,
   slidesRealesDe, huecosDe, zoomSrc, cortarWebCodecs, armarZip,
-} from '../lib/cortador-video.js?v=202610141814';
+} from '../lib/cortador-video.js?v=202610141838';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -922,6 +922,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202610141814';
+  link.href = '/marketing/css/carrusel.css?v=202610141838';
   document.head.appendChild(link);
 }

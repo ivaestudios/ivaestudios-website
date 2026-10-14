@@ -16,10 +16,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202610141814';
-import { icon } from '../shell/icons.js?v=202610141814';
-import { T } from '../shell/i18n.js?v=202610141814';
-import { ACTION_LABELS, CAMPOS, statusChangeText } from '../lib/actividad-fmt.js?v=202610141814';
+import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202610141838';
+import { icon } from '../shell/icons.js?v=202610141838';
+import { T } from '../shell/i18n.js?v=202610141838';
+import { ACTION_LABELS, CAMPOS, statusChangeText } from '../lib/actividad-fmt.js?v=202610141838';
 
 const PAGE = 40;
 

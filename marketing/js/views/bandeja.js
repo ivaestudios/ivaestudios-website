@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141814';
-import { toast } from '../shell/toast.js?v=202610141814';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141814';
-import { T, isEN } from '../shell/i18n.js?v=202610141814';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141838';
+import { toast } from '../shell/toast.js?v=202610141838';
+import { icon, iconMarca } from '../shell/icons.js?v=202610141838';
+import { T, isEN } from '../shell/i18n.js?v=202610141838';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -238,9 +238,17 @@ function pintarCabecera() {
     // Al agente no le sirve el semáforo de conexiones (lo administra la agencia).
     // En el teléfono cada red es logo + punto verde (la cuenta solo en escritorio):
     // antes la fila se salía de la pantalla con "Messenger · SMI…".
-    r && !esAgente() ? el('div', { class: 'bj-canales', role: 'list', 'aria-label': T('Redes conectadas', 'Connected networks') }, [el('span', { class: 'bj-canales__lbl', text: T('Redes', 'Networks') }), ...['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
+    // Cada red es un BOTÓN que filtra los mensajes por esa red (14-oct-2026,
+    // Israel: "los botones para seleccionar por redes no funcionan"); otro toque
+    // quita el filtro. Va sincronizado con el menú "Red".
+    r && !esAgente() ? el('div', { class: 'bj-canales', role: 'group', 'aria-label': T('Filtrar por red', 'Filter by network') }, [el('span', { class: 'bj-canales__lbl', text: T('Redes', 'Networks') }), ...['instagram', 'messenger', 'whatsapp', 'correo'].filter((k) => r.canales[k] && (k !== 'correo' || r.canales[k].conectado)).map((k) => {
       const c = r.canales[k];
-      return el('span', { role: 'listitem', class: 'bj-canal' + (c.conectado ? ' is-on' : ''), style: { '--c': colorDe(k) }, title: CANAL_TXT[k] + (c.cuenta ? ' · ' + c.cuenta : '') }, [
+      const sel = tab === 'mensajes' && canal === k;
+      return el('button', {
+        type: 'button', class: 'bj-canal' + (c.conectado ? ' is-on' : '') + (sel ? ' is-sel' : ''), style: { '--c': colorDe(k) },
+        'aria-pressed': String(sel), title: sel ? T(`Quitar el filtro de ${CANAL_TXT[k]}`, `Clear the ${CANAL_TXT[k]} filter`) : T(`Ver solo ${CANAL_TXT[k]}`, `Show only ${CANAL_TXT[k]}`) + (c.cuenta ? ' · ' + c.cuenta : ''),
+        onclick: () => filtrarRed(k),
+      }, [
         icoCanal(k, 14),
         el('span', { class: 'bj-canal__red', text: CANAL_TXT[k] }),
         c.conectado && c.cuenta ? el('span', { class: 'bj-canal__cuenta', text: c.cuenta }) : null,
@@ -265,6 +273,21 @@ function pintarCabecera() {
       ]) : null,
     ].filter(Boolean));
   }
+}
+
+// Toque en una red de la cabecera: lleva a Mensajes con solo esa red; si ya
+// estaba elegida, quita el filtro.
+function filtrarRed(k) {
+  const quitar = tab === 'mensajes' && canal === k;
+  if (tab !== 'mensajes') {
+    tab = 'mensajes';
+    convAbierta = null;
+    try { ctx.router.navigate(VIEW_ID, { cliente: cid() }); } catch { /* sin router */ }
+  }
+  canal = quitar ? '' : k;
+  pintarCabecera();
+  pintarCuerpo();
+  cargarLista();
 }
 
 async function cambiarDisponible(si) {
@@ -409,7 +432,7 @@ function filtrosMensajes() {
         ...redes.map((k) => ({ value: k, label: CANAL_TXT[k], icon: icoPick(k), current: canal === k })),
       ];
     },
-    alElegir: (k) => { canal = k; cargarLista(); pintarCuerpo(); },
+    alElegir: (k) => { canal = k; cargarLista(); pintarCabecera(); pintarCuerpo(); },
   });
   const menuEtapa = menuFiltro({
     titulo: T('Etapa', 'Stage'), hoja: T('Filtrar por etapa', 'Filter by stage'), valor: etapa ? ETAPA_TXT[etapa]() : T('Todas', 'All'), activo: !!etapa,
@@ -1930,7 +1953,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141814';
+  link.href = '/marketing/css/bandeja.css?v=202610141838';
   document.head.appendChild(link);
 }
 
