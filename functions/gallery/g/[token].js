@@ -34,8 +34,14 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+// Los buscadores (Googlebot, Bingbot...) reciben LO MISMO que una persona
+// (el 302). Darles otra pagina por User-Agent es cloaking para Bing aunque
+// lleve noindex. Las vistas previas sociales siguen igual. 2026-10-14.
+const SEARCH_ENGINE_UA_RE = /googlebot|google-inspectiontool|bingbot|bingpreview|msnbot|adidxbot|applebot|duckduckbot|yandexbot|baiduspider|slurp|petalbot|seznambot/i;
+
 function isCrawler(ua) {
   if (!ua) return false;
+  if (SEARCH_ENGINE_UA_RE.test(ua)) return false;
   return CRAWLER_UA_RE.test(ua);
 }
 
