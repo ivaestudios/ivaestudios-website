@@ -31,6 +31,24 @@
   X-Robots-Tag: noindex, nofollow
 /gallery/README.md
   X-Robots-Tag: noindex, nofollow
+# Mas archivos internos que se servian sin noindex (2026-10-14). Las carpetas
+# ademas dan 404 desde functions/<carpeta>/_middleware.js.
+/_docs/*
+  X-Robots-Tag: noindex, nofollow
+/_backups/*
+  X-Robots-Tag: noindex, nofollow
+/_estrategia/*
+  X-Robots-Tag: noindex, nofollow
+/PLAN_MAESTRO.md
+  X-Robots-Tag: noindex, nofollow
+/SEO-IMPLEMENTATION-GUIDE.md
+  X-Robots-Tag: noindex, nofollow
+/PWA_ICONS_TODO.md
+  X-Robots-Tag: noindex, nofollow
+/.indexation-audit.json
+  X-Robots-Tag: noindex, nofollow
+/.tldr-batches.json
+  X-Robots-Tag: noindex, nofollow
 # Documentos que se mandan por link a una pareja (listas de precios): se sirven,
 # pero no se indexan ni los recogen los rastreadores de IA. 2026-09-11.
 /docs/*
