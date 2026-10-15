@@ -88,6 +88,7 @@
 }
 
 .bj-seg { justify-self: start; }
+.bj-seg[hidden] { display: none; }
 .bj-seg button { display: inline-flex; align-items: center; gap: 7px; }
 .bj-seg__n {
   display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px;

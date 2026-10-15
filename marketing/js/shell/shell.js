@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610141838';
-import { setRoleDefault } from './theme.js?v=202610141838';
-import { vigilarSegmentados } from './segfade.js?v=202610141838';
-import * as store from './store.js?v=202610141838';
-import * as prefs from './prefs.js?v=202610141838';
-import * as router from './router.js?v=202610141838';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610141838';
-import { toast } from './toast.js?v=202610141838';
-import { icon } from './icons.js?v=202610141838';
-import * as iconsMod from './icons.js?v=202610141838';
-import { createTopbar } from './topbar.js?v=202610141838';
-import { createBottomNav } from './bottomnav.js?v=202610141838';
-import { createSearch } from './search.js?v=202610141838';
-import { createNotifications } from './notifications.js?v=202610141838';
-import { T } from './i18n.js?v=202610141838';
-import { startTour, tourPendiente } from './tour.js?v=202610141838';
-import * as version from './version.js?v=202610141838';
-import * as tienda from './tienda.js?v=202610141838';
-import * as pickers from '../ui/pickers.js?v=202610141838';
-import * as dnd from '../ui/dnd.js?v=202610141838';
+import { api, el, clear } from '../api.js?v=202610141901';
+import { setRoleDefault } from './theme.js?v=202610141901';
+import { vigilarSegmentados } from './segfade.js?v=202610141901';
+import * as store from './store.js?v=202610141901';
+import * as prefs from './prefs.js?v=202610141901';
+import * as router from './router.js?v=202610141901';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610141901';
+import { toast } from './toast.js?v=202610141901';
+import { icon } from './icons.js?v=202610141901';
+import * as iconsMod from './icons.js?v=202610141901';
+import { createTopbar } from './topbar.js?v=202610141901';
+import { createBottomNav } from './bottomnav.js?v=202610141901';
+import { createSearch } from './search.js?v=202610141901';
+import { createNotifications } from './notifications.js?v=202610141901';
+import { T } from './i18n.js?v=202610141901';
+import { startTour, tourPendiente } from './tour.js?v=202610141901';
+import * as version from './version.js?v=202610141901';
+import * as tienda from './tienda.js?v=202610141901';
+import * as pickers from '../ui/pickers.js?v=202610141901';
+import * as dnd from '../ui/dnd.js?v=202610141901';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -72,11 +72,14 @@ const CLIENT_CONEXIONES_IDS = [
 // Bandeja; el SUPERVISOR ve sus vistas de cliente y además la Bandeja.
 const rolBandeja = () => { const m = store.getState().me || {}; return m.role === 'client' ? (m.bandeja_rol || null) : null; };
 const esAgenteBandeja = () => rolBandeja() === 'agente';
-const clientCanView = (view) => (esAgenteBandeja() ? view === 'bandeja' : false)
-  || (!esAgenteBandeja() && CLIENT_VIEWS.includes(view))
+// Marca "solo CRM" (bandeja_cfg.solo_crm → /auth/me.solo_crm): su equipo,
+// supervisor incluido, solo entra a la Bandeja (sin calendario ni contenido).
+const soloBandeja = () => esAgenteBandeja() || (!!rolBandeja() && !!(store.getState().me || {}).solo_crm);
+const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
+  || (!soloBandeja() && CLIENT_VIEWS.includes(view))
   || (view === 'bandeja' && !!rolBandeja())
-  || (view === 'metricas' && !esAgenteBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
-  || (view === 'conexiones' && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
+  || (view === 'metricas' && !soloBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
+  || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),
@@ -221,7 +224,7 @@ function buildSubhead(root) {
   // aquí queda invisible en el celular, que es donde Vianey trabaja: le pasó a
   // Feed el 12-sep-2026 ("¿en qué parte está?").
   const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'feed', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
-  const segViews = esAgenteBandeja() ? [] : CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
+  const segViews = soloBandeja() ? [] : CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
@@ -787,8 +790,8 @@ export async function boot() {
     onBeforeMount(view, params, { paramsOnly }) {
       // El cliente solo entra a las vistas de calendario (+ editor de post via
       // deep-link). Cualquier otra vista lo regresa a su Calendario.
-      if (isClientRole() && !clientCanView(view) && (view !== 'post' || esAgenteBandeja())) {
-        router.navigate(esAgenteBandeja() ? 'bandeja' : 'meses', params.cliente ? { cliente: params.cliente } : {});
+      if (isClientRole() && !clientCanView(view) && (view !== 'post' || soloBandeja())) {
+        router.navigate(soloBandeja() ? 'bandeja' : 'meses', params.cliente ? { cliente: params.cliente } : {});
         return;
       }
       // Coherencia de cliente: la URL manda. La validez se calcula con el
@@ -823,7 +826,7 @@ export async function boot() {
   store.loadPosts(activeClientId);
 
   // Demo del CRM: el equipo de una marca demo entra directo a la Bandeja.
-  const defaultView = (store.getState().me || {}).bandeja_demo && rolBandeja() ? 'bandeja' : prefs.lastContentView(activeClientId);
+  const defaultView = soloBandeja() || ((store.getState().me || {}).bandeja_demo && rolBandeja()) ? 'bandeja' : prefs.lastContentView(activeClientId);
   router.start({ view: defaultView, params: activeClientId ? { cliente: activeClientId } : {} });
 
   store.set({ booted: true });

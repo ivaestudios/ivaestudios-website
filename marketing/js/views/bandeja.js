@@ -22,10 +22,10 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141838';
-import { toast } from '../shell/toast.js?v=202610141838';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141838';
-import { T, isEN } from '../shell/i18n.js?v=202610141838';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141901';
+import { toast } from '../shell/toast.js?v=202610141901';
+import { icon, iconMarca } from '../shell/icons.js?v=202610141901';
+import { T, isEN } from '../shell/i18n.js?v=202610141901';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -102,6 +102,9 @@ const esStaff = () => yoMe().role === 'admin' || yoMe().role === 'team';
 const esAgente = () => yoMe().role === 'client' && yoMe().bandeja_rol === 'agente';
 const esSupervisor = () => esStaff() || (yoMe().role === 'client' && yoMe().bandeja_rol === 'supervisor');
 const cid = () => (clienteActivo() || {}).id || '';
+// Marca "solo CRM" (/auth/me.solo_crm): sin la pestaña de Comentarios, solo
+// Mensajes y Desempeño (demo de Sebastián, 14-oct-2026).
+const sinComentarios = () => yoMe().role === 'client' && !!yoMe().solo_crm;
 const equipoAgentes = () => ((resumen && !resumen.error && resumen.equipo) || []);
 
 function chipCanal(c) {
@@ -217,7 +220,9 @@ function pintarCabecera() {
       el('div', { class: 'bj-head__txt' }, [
         el('h1', { class: 'bj-title', text: T('Bandeja', 'Inbox') }),
         el('p', { class: 'bj-sub', text: cli
-          ? T(`Comentarios y mensajes de ${cli.name}, en un solo lugar.`, `Comments and messages for ${cli.name}, all in one place.`)
+          ? (sinComentarios()
+            ? T(`Mensajes y llamadas de ${cli.name}, en un solo lugar.`, `Messages and calls for ${cli.name}, all in one place.`)
+            : T(`Comentarios y mensajes de ${cli.name}, en un solo lugar.`, `Comments and messages for ${cli.name}, all in one place.`))
           : T('Elige una marca arriba.', 'Pick a brand above.') }),
       ].filter(Boolean)),
       // El agente marca si está disponible: si no, el reparto lo salta.
@@ -265,13 +270,15 @@ function pintarCabecera() {
       el('button', { type: 'button', role: 'tab', class: tab === 'mensajes' ? 'is-active' : '', 'aria-selected': String(tab === 'mensajes'), onclick: () => cambiarTab('mensajes') }, [
         el('span', { text: T('Mensajes', 'Messages') }), nMsg ? el('span', { class: 'bj-seg__n', text: String(nMsg) }) : null,
       ].filter(Boolean)),
-      el('button', { type: 'button', role: 'tab', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
+      sinComentarios() ? null : el('button', { type: 'button', role: 'tab', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
         el('span', { text: T('Comentarios', 'Comments') }), nCom ? el('span', { class: 'bj-seg__n', text: String(nCom) }) : null,
       ].filter(Boolean)),
       esSupervisor() ? el('button', { type: 'button', role: 'tab', class: tab === 'desempeno' ? 'is-active' : '', 'aria-selected': String(tab === 'desempeno'), onclick: () => cambiarTab('desempeno') }, [
         el('span', { text: T('Desempeño', 'Performance') }),
       ]) : null,
     ].filter(Boolean));
+    // Una sola pestaña no navega a nada (agente de una marca solo CRM): fuera.
+    segEl.hidden = segEl.children.length < 2;
   }
 }
 
@@ -1953,12 +1960,12 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141838';
+  link.href = '/marketing/css/bandeja.css?v=202610141901';
   document.head.appendChild(link);
 }
 
 function aplicarParams(params) {
-  if (params && params.tab === 'comentarios') tab = 'comentarios';
+  if (params && params.tab === 'comentarios' && !sinComentarios()) tab = 'comentarios';
   else if (params && params.tab === 'desempeno' && esSupervisor()) tab = 'desempeno';
   else if (params && params.tab === 'mensajes') tab = 'mensajes';
   if (params && params.seguir === '1') { porSeguir = true; tab = 'mensajes'; }

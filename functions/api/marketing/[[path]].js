@@ -784,13 +784,18 @@ async function handleMe(session, env) {
   // con los colores de su marca. El staff y las demás marcas no cambian.
   let bandejaDemo = false;
   let marcaTema = null;
+  // SOLO CRM (bandeja_cfg.solo_crm, 14-oct-2026, Israel sobre la demo de
+  // Sebastián: "quita lo de los comentarios y lo del calendario, solo el CRM y
+  // estadísticas de bandeja"): sus accesos ven únicamente Mensajes y Desempeño.
+  let soloCrm = false;
   if (session.role === 'client' && session.client_id) {
     try {
       const r = await env.DB.prepare('SELECT bandeja_cfg FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
       const cfg = r && r.bandeja_cfg ? JSON.parse(r.bandeja_cfg) : {};
       bandejaDemo = !!(session.bandeja_rol && cfg.demo === true);
       if (typeof cfg.tema === 'string' && /^[a-z0-9-]{1,24}$/.test(cfg.tema)) marcaTema = cfg.tema;
-    } catch { bandejaDemo = false; marcaTema = null; }
+      soloCrm = !!(session.bandeja_rol && cfg.solo_crm === true);
+    } catch { bandejaDemo = false; marcaTema = null; soloCrm = false; }
   }
   return json({
     id: session.user_id,
@@ -804,6 +809,7 @@ async function handleMe(session, env) {
     bandeja_disponible: session.bandeja_disponible !== 0,
     bandeja_demo: bandejaDemo,
     marca_tema: marcaTema,
+    solo_crm: soloCrm,
     // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo).
     tour_pendiente: tourPendiente && !(session.role === 'client' && session.bandeja_rol === 'agente'),
     email_verified: emailVerified,

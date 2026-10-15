@@ -11,11 +11,11 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202610141838';
-import * as store from './store.js?v=202610141838';
-import * as prefs from './prefs.js?v=202610141838';
-import { icon } from './icons.js?v=202610141838';
-import { T } from './i18n.js?v=202610141838';
+import { el, clear } from '../api.js?v=202610141901';
+import * as store from './store.js?v=202610141901';
+import * as prefs from './prefs.js?v=202610141901';
+import { icon } from './icons.js?v=202610141901';
+import { T } from './i18n.js?v=202610141901';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -78,7 +78,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   });
   const meBn = store.getState().me || {};
   // El cliente solo ve Contenido (su calendario) + Avisos. Sin Inicio ni Mi trabajo.
-  if (meBn.role === 'client' && meBn.bandeja_rol === 'agente') {
+  if (meBn.role === 'client' && (meBn.bandeja_rol === 'agente' || (meBn.bandeja_rol && meBn.solo_crm))) {
     clear(root).append(tabBandeja, tabAvisos);
   } else if (meBn.role === 'client' && meBn.bandeja_rol === 'supervisor') {
     clear(root).append(tabContenido, tabBandeja, tabAvisos);

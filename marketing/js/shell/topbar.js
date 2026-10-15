@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610141838';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141838';
-import * as store from './store.js?v=202610141838';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141838';
-import { toast } from './toast.js?v=202610141838';
-import { icon } from './icons.js?v=202610141838';
-import { openClientSwitcher } from './clientswitcher.js?v=202610141838';
-import { T, isEN, setLang } from './i18n.js?v=202610141838';
+import { startTour } from './tour.js?v=202610141901';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610141901';
+import * as store from './store.js?v=202610141901';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610141901';
+import { toast } from './toast.js?v=202610141901';
+import { icon } from './icons.js?v=202610141901';
+import { openClientSwitcher } from './clientswitcher.js?v=202610141901';
+import { T, isEN, setLang } from './i18n.js?v=202610141901';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610141838';
-import { getTheme, setTheme } from './theme.js?v=202610141838';
-import * as version from './version.js?v=202610141838';
-import * as tienda from './tienda.js?v=202610141838';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141838';
-import * as prefs from './prefs.js?v=202610141838';
+import { abrirBloqueados } from './moderacion.js?v=202610141901';
+import { getTheme, setTheme } from './theme.js?v=202610141901';
+import * as version from './version.js?v=202610141901';
+import * as tienda from './tienda.js?v=202610141901';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610141901';
+import * as prefs from './prefs.js?v=202610141901';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -114,7 +114,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   // sus pestañas de cliente + Bandeja.
   const rolBj = isClient ? ((store.getState().me || {}).bandeja_rol || null) : null;
   const visibleTabs = isClient
-    ? (rolBj === 'agente'
+    ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
       : DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'bandeja' && rolBj === 'supervisor')))
     : DESKTOP_TABS.filter((t) => t.id !== 'pauta' || esAdmin);
