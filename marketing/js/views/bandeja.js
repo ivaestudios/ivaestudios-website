@@ -22,10 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610141901';
-import { toast } from '../shell/toast.js?v=202610141901';
-import { icon, iconMarca } from '../shell/icons.js?v=202610141901';
-import { T, isEN } from '../shell/i18n.js?v=202610141901';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151446';
+import { toast } from '../shell/toast.js?v=202610151446';
+import { icon, iconMarca } from '../shell/icons.js?v=202610151446';
+import { T, isEN } from '../shell/i18n.js?v=202610151446';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento } from './bandeja-crm.js?v=202610151446';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -36,7 +37,7 @@ let unsubs = [];
 let timer = null;
 let mounted = false;
 
-let tab = 'mensajes';          // 'mensajes' | 'comentarios' | 'desempeno'
+let tab = 'mensajes';          // 'mensajes' | 'embudo' | 'comentarios' | 'desempeno'
 let canal = '';                // filtro de canal ('' = todos)
 let etapa = '';                // filtro de etapa ('' = todas)
 let soloSinLeer = false;
@@ -56,6 +57,7 @@ let convs = [];
 let coms = [];
 let convAbierta = null;        // { conversacion, mensajes }
 let convPedida = null;         // deep-link ?conv=
+let opPedida = null;           // deep-link ?op= (oportunidad, desde un aviso de tarea)
 let cargandoLista = false;
 let enviando = false;
 const borradores = new Map();  // convId -> texto del composer
@@ -133,6 +135,7 @@ async function cargarResumen() {
   try { resumen = await api.get(`/bandeja/resumen?client_id=${encodeURIComponent(id)}`); }
   catch (e) { resumen = { error: e.message }; }
   pintarCabecera();
+  if (tab === 'embudo') pintarBarraCRM();
   // El filtro "Correo" depende del resumen, que llega después de pintar la
   // lista: si cambió, se vuelve a pintar el cuerpo para que aparezca.
   const conCorreo = !!(resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado);
@@ -142,6 +145,8 @@ async function cargarResumen() {
 async function cargarLista({ silencioso = false } = {}) {
   const id = cid();
   if (!id) return;
+  // El embudo (CRM) se carga y se pinta solo (bandeja-crm.js).
+  if (tab === 'embudo') { await cargarCRM({ silencioso }); return; }
   if (!silencioso) cargandoLista = true;
   try {
     if (tab === 'desempeno') {
@@ -270,6 +275,11 @@ function pintarCabecera() {
       el('button', { type: 'button', role: 'tab', class: tab === 'mensajes' ? 'is-active' : '', 'aria-selected': String(tab === 'mensajes'), onclick: () => cambiarTab('mensajes') }, [
         el('span', { text: T('Mensajes', 'Messages') }), nMsg ? el('span', { class: 'bj-seg__n', text: String(nMsg) }) : null,
       ].filter(Boolean)),
+      // EMBUDO (CRM, 15-oct-2026): oportunidades por etapa y tareas. El número
+      // son las tareas vencidas o de hoy.
+      el('button', { type: 'button', role: 'tab', class: tab === 'embudo' ? 'is-active' : '', 'aria-selected': String(tab === 'embudo'), onclick: () => cambiarTab('embudo') }, [
+        el('span', { text: T('Embudo', 'Pipeline') }), r && r.tareas_hoy ? el('span', { class: 'bj-seg__n', text: String(r.tareas_hoy) }) : null,
+      ].filter(Boolean)),
       sinComentarios() ? null : el('button', { type: 'button', role: 'tab', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
         el('span', { text: T('Comentarios', 'Comments') }), nCom ? el('span', { class: 'bj-seg__n', text: String(nCom) }) : null,
       ].filter(Boolean)),
@@ -279,6 +289,9 @@ function pintarCabecera() {
     ].filter(Boolean));
     // Una sola pestaña no navega a nada (agente de una marca solo CRM): fuera.
     segEl.hidden = segEl.children.length < 2;
+    // Cuatro pestañas (equipo de la agencia) no caben en un renglón del
+    // teléfono: ahí van en cuadrícula de 2×2 (bandeja.css, .bj-seg--4).
+    segEl.classList.toggle('bj-seg--4', segEl.children.length >= 4);
   }
 }
 
@@ -325,6 +338,7 @@ function pintarCuerpo() {
   rootEl.classList.toggle('is-chat', tab === 'mensajes' && !!convAbierta);
   // En escritorio, Mensajes ocupa justo la pantalla (bandeja.css, .is-msgs).
   rootEl.classList.toggle('is-msgs', tab === 'mensajes' && !!cid());
+  rootEl.classList.toggle('is-emb', tab === 'embudo' && !!cid());
   if (!cid()) {
     cuerpoEl.appendChild(vacio('inbox', T('Elige una marca', 'Pick a brand'), T('La bandeja es por marca: elige una arriba.', 'The inbox is per brand: pick one above.')));
     return;
@@ -335,6 +349,8 @@ function pintarCuerpo() {
       el('section', { class: 'bj-chat' }, [convAbierta ? chat() : vacioChat()]),
     ]);
     cuerpoEl.appendChild(split);
+  } else if (tab === 'embudo') {
+    cuerpoEl.appendChild(panelEmbudo());
   } else if (tab === 'desempeno') {
     cuerpoEl.appendChild(panelDesempeno());
   } else {
@@ -555,7 +571,8 @@ function chat() {
       ].filter(Boolean)),
     ]),
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Llamada', 'Call'), title: T('Llamar o registrar llamada', 'Call or log a call'), onclick: () => abrirLlamada(v) }, [icon('phone', 18)]),
-    el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Ficha de la persona', 'Person card'), onclick: () => abrirFicha(v) }, [icon('user', 18)]),
+    // La ficha ahora es la OPORTUNIDAD completa (datos, plan, tareas, historial).
+    el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Oportunidad: datos, plan, tareas e historial', 'Deal: details, plan, tasks and history'), title: T('Oportunidad', 'Deal'), onclick: () => abrirOportunidad(v.id) }, [icon('briefcase', 18)]),
   ]);
 
   msgsEl = el('div', { class: 'bj-msgs' });
@@ -732,6 +749,20 @@ async function pintarVistaPrevia(v, texto) {
 
 // Llamadas y asignaciones dentro del chat, como notas pequeñas.
 function notaEvento(e) {
+  // Eventos del CRM (etapa, tarea, plan, cita, comentario): mismo texto que el historial.
+  const crm = textoEvento(e);
+  if (crm) {
+    return el('div', { class: 'bj-nota bj-nota--crm' + (e.tipo === 'nota' ? ' bj-nota--comentario' : '') }, [
+      icon(iconoEvento(e.tipo, e.dato), 12),
+      el('span', { text: crm + ' · ' + horaCorta(e.creado) }),
+    ]);
+  }
+  return el('div', { class: 'bj-nota' + (e.tipo === 'llamada' ? ' bj-nota--llamada' : '') }, [
+    e.tipo === 'llamada' ? icon('phone', 12) : icon('user', 12),
+    el('span', { text: textoNotaEvento(e) + ' · ' + horaCorta(e.creado) }),
+  ]);
+}
+function textoNotaEvento(e) {
   const d = e.dato || {};
   let txt = '';
   if (e.tipo === 'llamada') {
@@ -740,10 +771,7 @@ function notaEvento(e) {
   } else if (e.tipo === 'tomada') txt = T(`${e.user_nombre || 'Alguien'} tomó el chat`, `${e.user_nombre || 'Someone'} took the chat`);
   else if (e.tipo === 'reasignacion') txt = T(`Reasignado a ${e.user_nombre || '—'}`, `Reassigned to ${e.user_nombre || '—'}`) + (d.motivo ? ` · ${d.motivo}` : '') + (d.por ? T(` · por ${d.por}`, ` · by ${d.por}`) : '');
   else txt = T(`Asignado a ${e.user_nombre || '—'}`, `Assigned to ${e.user_nombre || '—'}`) + (d.por ? T(` · por ${d.por}`, ` · by ${d.por}`) : '');
-  return el('div', { class: 'bj-nota' + (e.tipo === 'llamada' ? ' bj-nota--llamada' : '') }, [
-    e.tipo === 'llamada' ? icon('phone', 12) : icon('user', 12),
-    el('span', { text: txt + ' · ' + horaCorta(e.creado) }),
-  ]);
+  return txt;
 }
 
 // ── LLAMADAS ─────────────────────────────────────────────────────────────────
@@ -788,13 +816,13 @@ function telDeConv(v) {
 const lineaMarca = () => { const r = resumen && !resumen.error ? resumen : null; return r && r.llamadas && r.llamadas.conectada ? r.llamadas : null; };
 const segDesde = (iso) => { const d = new Date(String(iso || '').replace(' ', 'T') + 'Z'); return isNaN(d) ? 0 : Math.max(0, (Date.now() - d.getTime()) / 1000); };
 
-function abrirLlamada(v) {
+function abrirLlamada(v, { alCerrar = null } = {}) {
   const linea = lineaMarca();
   let parar = () => {};
   ctx.sheet.openSheet({
     title: T('Llamada', 'Call'),
     mode: 'form',
-    onClose: () => parar(),
+    onClose: () => { parar(); if (alCerrar) alCerrar(); },
     build(body, close) {
       if (linea) parar = seccionLlamarConLinea(body, v, linea, close);
       else if (esStaff()) body.appendChild(el('p', { class: 'muted bj-aj__p', text: T('Para que las llamadas salgan con el número de la clínica, se graben y se transcriban, conecta la línea de la marca en Ajustes de la bandeja.', 'To call with the clinic number, record and transcribe, connect the brand line in Inbox settings.') }));
@@ -1247,65 +1275,6 @@ async function cambiarEtapa(v, nueva) {
     if (enLista) enLista.etapa = nueva;
     toast(T(`Etapa: ${ETAPA_TXT[nueva]()}`, `Stage: ${ETAPA_TXT[nueva]()}`), { type: 'success' });
   } catch (e) { toast(e.message, { type: 'error' }); }
-}
-
-// Ficha CRM: nombre, etapa, seguimiento, notas, archivar.
-function abrirFicha(v) {
-  ctx.sheet.openSheet({
-    title: T('Ficha de la persona', 'Person card'),
-    mode: 'form',
-    build(body, close) {
-      const nombre = el('input', { class: 'input', value: v.nombre || '', placeholder: T('Nombre', 'Name') });
-      const seg = el('input', { class: 'input', type: 'date', value: v.seguimiento || '' });
-      const notas = el('textarea', { class: 'textarea', rows: 4, placeholder: T('Notas: qué pidió, qué se le cotizó, qué sigue…', 'Notes: what they asked, what was quoted, what is next…') }, [v.notas || '']);
-      // Etapa con el selector de la app (antes <select>: la ruedita de iOS).
-      const sel = { value: v.etapa || 'nuevo' };
-      const btnEtapa = el('button', { type: 'button', class: 'bj-campo-etapa', id: 'bj-ficha-etapa' });
-      const pintarEtapa = () => {
-        clear(btnEtapa);
-        btnEtapa.append(
-          el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[sel.value] || 'var(--text-mute)' } }),
-          el('span', { class: 'bj-campo-etapa__txt', text: (ETAPA_TXT[sel.value] || (() => sel.value))() }),
-          icon('down', 16),
-        );
-      };
-      pintarEtapa();
-      btnEtapa.addEventListener('click', async () => {
-        const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: btnEtapa, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: sel.value === k })) });
-        if (nueva) { sel.value = nueva; pintarEtapa(); }
-      });
-      body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Nombre', 'Name') }), nombre]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', for: 'bj-ficha-etapa', text: T('Etapa', 'Stage') }), btnEtapa]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Dar seguimiento el', 'Follow up on') }), seg,
-          el('p', { class: 'field__hint muted', text: T('Ese día te llega un aviso al teléfono.', 'You get an alert on your phone that day.') })]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Notas', 'Notes') }), notas]),
-        el('p', { class: 'muted bj-ficha__id', text: `${CANAL_TXT[v.canal]} · ${v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : 'ID ' + v.contacto_id)}` }),
-        el('div', { class: 'btn-row bj-ficha__btns' }, [
-          el('button', { type: 'button', class: 'btn btn-primary', onclick: async () => {
-            try {
-              await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, { nombre: nombre.value.trim(), etapa: sel.value, seguimiento: seg.value || '', notas: notas.value });
-              Object.assign(v, { nombre: nombre.value.trim() || null, etapa: sel.value, seguimiento: seg.value || null, notas: notas.value });
-              toast(T('Ficha guardada', 'Card saved'), { type: 'success' });
-              close({ force: true });
-              await cargarLista({ silencioso: true });
-              pintarCuerpo();
-            } catch (e) { toast(e.message, { type: 'error' }); }
-          } }, [T('Guardar', 'Save')]),
-          el('button', { type: 'button', class: 'btn btn-ghost', onclick: async () => {
-            try {
-              await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, { archivado: !v.archivado });
-              toast(v.archivado ? T('Conversación recuperada', 'Conversation restored') : T('Conversación archivada', 'Conversation archived'), { type: 'success' });
-              close({ force: true });
-              convAbierta = null;
-              await cargarLista({ silencioso: true });
-              pintarCuerpo();
-            } catch (e) { toast(e.message, { type: 'error' }); }
-          } }, [v.archivado ? T('Recuperar', 'Restore') : T('Archivar', 'Archive')]),
-        ]),
-      );
-    },
-  });
 }
 
 // ── Comentarios ──────────────────────────────────────────────────────────────
@@ -1955,18 +1924,50 @@ function filaCopiar(label, valor) {
 }
 
 // ── Montaje ──────────────────────────────────────────────────────────────────
+// El CRM (embudo, oportunidades, tareas) vive en bandeja-crm.js; aquí se le
+// pasa lo que comparte con la Bandeja.
+function conectarDepsCRM() {
+  conectarCRM({
+    ctx: () => ctx,
+    cid, esAgente, esSupervisor, yoMe, equipoAgentes,
+    resumen: () => (resumen && !resumen.error ? resumen : null),
+    ETAPAS, ETAPA_TXT, ETAPA_COLOR, CANAL_TXT, RESULTADO_TXT,
+    icoCanal, colorDe, nombreDe, origenAnuncio, telDeConv, fmtTelUI, menuFiltro,
+    textoEventoChat: textoNotaEvento,
+    abrirLlamada,
+    // Ir del CRM al chat de esa persona.
+    abrirChat(convId) {
+      tab = 'mensajes';
+      try { ctx.router.navigate(VIEW_ID, { cliente: cid() }); } catch { /* sin router */ }
+      pintarCabecera();
+      pintarCuerpo();
+      cargarLista();
+      abrirConv(convId);
+    },
+    // Algo cambió en una oportunidad: contadores, la lista y el chat abierto.
+    alCambiar(convId) {
+      if (!mounted) return;
+      cargarResumen();
+      if (convAbierta && convAbierta.conversacion.id === convId) abrirConv(convId, { silencioso: true });
+      if (tab === 'mensajes') cargarLista({ silencioso: true });
+    },
+  });
+}
+
 function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/bandeja.css'));
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610141901';
+  link.href = '/marketing/css/bandeja.css?v=202610151446';
   document.head.appendChild(link);
 }
 
 function aplicarParams(params) {
   if (params && params.tab === 'comentarios' && !sinComentarios()) tab = 'comentarios';
   else if (params && params.tab === 'desempeno' && esSupervisor()) tab = 'desempeno';
+  else if (params && params.tab === 'embudo') tab = 'embudo';
+  if (params && params.op) { opPedida = params.op; tab = 'embudo'; }
   else if (params && params.tab === 'mensajes') tab = 'mensajes';
   if (params && params.seguir === '1') { porSeguir = true; tab = 'mensajes'; }
   if (params && params.conv) { convPedida = params.conv; tab = 'mensajes'; }
@@ -1979,6 +1980,7 @@ async function arrancar() {
   pintarCuerpo();
   await Promise.all([cargarResumen(), cargarLista()]);
   if (convPedida) { const id = convPedida; convPedida = null; await abrirConv(id); }
+  if (opPedida) { const id = opPedida; opPedida = null; abrirOportunidad(id); }
 }
 
 export default {
@@ -1987,13 +1989,14 @@ export default {
     ctx = c;
     mounted = true;
     ensureCss();
+    conectarDepsCRM();
     aplicarParams(params || ((ctx.router.current && ctx.router.current()) || {}).params);
     headEl = el('header', { class: 'bj-head' });
     segEl = el('div', { class: 'seg bj-seg', role: 'tablist', 'aria-label': T('Bandeja', 'Inbox') });
     cuerpoEl = el('div', { class: 'bj-cuerpo' });
     rootEl = el('div', { class: 'bj-root' }, [headEl, segEl, cuerpoEl]);
     host.appendChild(rootEl);
-    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; desempeno = null; infoPlantilla.clear(); arrancar(); }));
+    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; desempeno = null; infoPlantilla.clear(); reiniciarCRM(); arrancar(); }));
     arrancar();
     programarRefresco();
   },
@@ -2002,6 +2005,7 @@ export default {
     aplicarParams(params);
     if (convPedida) { const id = convPedida; convPedida = null; if (tab !== antes) { pintarCabecera(); cargarLista(); } abrirConv(id); return; }
     if (tab !== antes) { convAbierta = null; pintarCabecera(); pintarCuerpo(); cargarLista(); }
+    if (opPedida) { const id = opPedida; opPedida = null; abrirOportunidad(id); }
   },
   unmount() {
     mounted = false;

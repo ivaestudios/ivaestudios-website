@@ -59,7 +59,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
-import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas } from './_bandeja.js';
+import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas } from './_bandeja.js';
 import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, publicarEnLinkedIn } from './_linkedin.js';
@@ -6856,7 +6856,10 @@ async function handleCronPublicar(request, env) {
     // Llamadas grabadas que se quedaron sin copiar a R2 o sin transcribir.
     let llamadas = null;
     try { llamadas = await procesarLlamadasPendientes(env); } catch (e) { llamadas = { error: (e && e.message) || 'fallo' }; }
-    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas, llamadas });
+    // CRM: aviso al teléfono de quien tiene una tarea que ya se venció.
+    let tareas = 0;
+    try { tareas = await avisarTareas(env); } catch (e) { tareas = { error: (e && e.message) || 'fallo' }; }
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas, llamadas, tareas });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }

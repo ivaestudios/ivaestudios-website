@@ -224,7 +224,7 @@ async function aplicarResultado(env, fila, { resultado, por, nota, session = nul
   if (por === 'agente' && resultado === 'cita' && fila.conv_id) {
     const v = await env.DB.prepare('SELECT etapa FROM mkt_conversaciones WHERE id = ?').bind(fila.conv_id).first();
     if (v && v.etapa !== 'cita' && v.etapa !== 'cliente') {
-      await env.DB.prepare("UPDATE mkt_conversaciones SET etapa = 'cita', updated_at = datetime('now') WHERE id = ?").bind(fila.conv_id).run();
+      await env.DB.prepare("UPDATE mkt_conversaciones SET etapa = 'cita', etapa_en = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(fila.conv_id).run();
       await registrarEvento(env, { clientId: fila.client_id, convId: fila.conv_id, userId: session ? session.user_id : fila.user_id, userNombre: session ? session.name : fila.user_nombre, tipo: 'etapa', dato: { de: v.etapa, a: 'cita' } });
     }
   }

@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202610141901';
+import { isEN, T } from './shell/i18n.js?v=202610151446';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -336,6 +336,7 @@ export const NOTIF_TYPE_LABELS = {
   comentario:    T('Comentario', 'Comment'),
   mensaje:       T('Mensaje', 'Message'),           // bandeja: DM de IG / Messenger / WhatsApp
   seguimiento:   T('Seguimiento', 'Follow-up'),     // bandeja: CRM, fecha de seguimiento
+  tarea:         T('Tarea', 'Task'),                // bandeja: CRM, tarea de una oportunidad
   mencion:       T('Mención', 'Mention'),
   asignacion:    T('Asignación', 'Assignment'),
   recordatorio:  T('Recordatorio', 'Reminder'),

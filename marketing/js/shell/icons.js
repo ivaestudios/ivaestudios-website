@@ -18,6 +18,10 @@ const PATHS = {
   plus:      'M12 5v14M5 12h14',
   close:     'M6 6l12 12M18 6L6 18',
   check:     'M20 6 9 17l-5-5',
+  // Globo de conversación (abrir el chat desde el CRM).
+  chat:      'M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z',
+  // Lista con palomitas (tareas del CRM).
+  tasks:     'M10 6h10M10 12h10M10 18h10M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5',
   left:      'M15 18l-6-6 6-6',
   right:     'M9 18l6-6-6-6',
   down:      'M6 9l6 6 6-6',
