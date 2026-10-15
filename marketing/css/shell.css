@@ -447,8 +447,11 @@ a.update-bar__btn { display: inline-flex; align-items: center; text-decoration: 
 .sheet__footer {
   position: sticky; bottom: 0;
   display: flex; gap: var(--s-3); justify-content: flex-end;
-  padding: var(--s-3) 0 0;
+  /* El fondo baja hasta el filo de la hoja (cubre el relleno inferior del
+     cuerpo): antes el texto que pasaba por debajo se asomaba bajo los botones. */
+  padding: var(--s-3) 0 var(--s-4);
   margin-top: var(--s-4);
+  margin-bottom: calc(-1 * var(--s-4));
   background: var(--surface);
 }
 .sheet__footer .btn { min-height: 48px; }

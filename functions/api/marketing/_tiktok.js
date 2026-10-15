@@ -252,6 +252,20 @@ export async function handleTtDisconnect(request, env, session) {
   return json({ ok: true, revocado });
 }
 
+// Duración (s) de un MP4 leyendo su caja 'mvhd' (sin librerías). null si no se encuentra.
+export function duracionMp4(buf) {
+  const b = new Uint8Array(buf);
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  for (let i = 4; i < b.length - 32; i++) {
+    if (b[i] !== 0x6d || b[i + 1] !== 0x76 || b[i + 2] !== 0x68 || b[i + 3] !== 0x64) continue; // 'mvhd'
+    const v = b[i + 4];
+    if (v === 0) { const ts = dv.getUint32(i + 16); const du = dv.getUint32(i + 20); return ts ? du / ts : null; }
+    if (v === 1) { const ts = dv.getUint32(i + 24); const du = Number(dv.getBigUint64(i + 28)); return ts ? du / ts : null; }
+    return null;
+  }
+  return null;
+}
+
 export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }) {
   const tok = await tokenTikTokVigente(env, clientId);
   const auth = { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json; charset=UTF-8' };
@@ -285,6 +299,10 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   // buzón. Cuando aprueben (tt_app_auditada = 1) manda la elección humana.
   let privado = false;
   if (!auditada && opciones.includes('SELF_ONLY')) { privacidad = 'SELF_ONLY'; privado = true; }
+  // El contenido de marca (patrocinado) NO puede ser privado (regla de TikTok):
+  // sin auditoría eso no se puede publicar directo → va al buzón, donde la
+  // persona lo declara y lo publica desde la app de TikTok.
+  if (elec.brand_content && privacidad === 'SELF_ONLY') { privacidad = null; privado = false; }
   const directo = (publico || privado) && !!privacidad;
   const modoDirecto = privado ? 'privado' : 'directo';
 
@@ -298,6 +316,8 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
         description: captionTikTok(post, 4000),
         ...(directo ? { privacy_level: privacidad } : {}),
         ...(elec.allow_comment === false ? { disable_comment: true } : {}),
+        ...(directo && elec.brand_content ? { brand_content_toggle: true } : {}),
+        ...(directo && elec.brand_organic ? { brand_organic_toggle: true } : {}),
       },
       source_info: { source: 'PULL_FROM_URL', photo_images: slides.slice(0, 35), photo_cover_index: 0 },
     };
@@ -311,6 +331,13 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   if (!vid.ok) throw new Error('No se pudo leer el video del almacén (' + vid.status + ').');
   const bytes = await vid.arrayBuffer();
   if (bytes.byteLength > 64 * 1024 * 1024) throw new Error('El video pasa de 64MB — comprimirlo para TikTok.');
+  // Duración máxima que acepta ESA cuenta (creator_info): se revisa antes de subir.
+  const maxSeg = Number(ci.data && ci.data.max_video_post_duration_sec) || 0;
+  const durSeg = duracionMp4(bytes);
+  if (maxSeg && durSeg && durSeg > maxSeg + 0.5) {
+    const f = (x) => `${Math.floor(Math.round(x) / 60)}:${String(Math.round(x) % 60).padStart(2, '0')}`;
+    throw new Error(`El video dura ${f(durSeg)} y esta cuenta de TikTok acepta hasta ${f(maxSeg)}. Hay que recortarlo.`);
+  }
 
   let modoFinal = directo ? modoDirecto : 'buzon';
   const initBuzon = () => ttJson(`${TT_API}/post/publish/inbox/video/init/`, {

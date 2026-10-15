@@ -9,7 +9,11 @@
 //     qué cuenta se publica, que la privacidad la elija una persona (SIN valor
 //     por defecto), que las interacciones nazcan apagadas y respeten lo que la
 //     cuenta tenga deshabilitado, y la declaración de uso de música antes de
-//     publicar. Todo eso vive en esta hoja.
+//     publicar. Todo eso vive en esta hoja. Y (15-oct-2026, para la auditoría
+//     de Direct Post) la DECLARACIÓN DE CONTENIDO COMERCIAL ("Tu marca" →
+//     «Contenido promocional», "Contenido de marca" → «Colaboración pagada»;
+//     lo de marca no puede ser privado y lleva la Política de Contenido de
+//     Marca) y la DURACIÓN MÁXIMA que acepta esa cuenta.
 //   · YOUTUBE — la ley COPPA obliga a declarar si el video es contenido para
 //     niños; YouTube no acepta un valor por defecto nuestro. Mientras el
 //     proyecto no pase la revisión de YouTube, todo sube en PRIVADO (lo fuerza
@@ -19,16 +23,18 @@
 // publicador del backend).
 // ============================================================================
 
-import { el, api } from '../api.js?v=202610151733';
-import { T } from '../shell/i18n.js?v=202610151733';
-import { openSheet } from '../shell/sheet.js?v=202610151733';
+import { el, api } from '../api.js?v=202610151857';
+import { T } from '../shell/i18n.js?v=202610151857';
+import { openSheet } from '../shell/sheet.js?v=202610151857';
 
 // Fila de opción única (radio) con el mismo lenguaje visual de los pickers.
-function filaOpcion({ label, sub, activa, onPick }) {
+function filaOpcion({ label, sub, activa, onPick, disabled = false }) {
   const row = el('button', {
     class: 'pick-row' + (activa ? ' is-current' : ''), type: 'button', role: 'option',
-    'aria-selected': activa ? 'true' : 'false',
-    onclick: onPick,
+    'aria-selected': activa ? 'true' : 'false', 'aria-disabled': disabled ? 'true' : null,
+    disabled: disabled ? 'disabled' : null,
+    style: disabled ? { opacity: '.5', cursor: 'not-allowed' } : null,
+    onclick: disabled ? null : onPick,
   }, [
     el('span', { class: 'pick-row__main' }, [
       el('span', { class: 'pick-row__label', text: label }),
@@ -96,24 +102,57 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
   let comentarios = elec.allow_comment === true;
   let duos = elec.allow_duet === true;
   let stitch = elec.allow_stitch === true;
+  // Contenido comercial (apagado por defecto, como pide TikTok).
+  let tuMarca = elec.brand_organic === true;
+  let patrocinado = elec.brand_content === true;
+  let declarar = tuMarca || patrocinado;
+  let maxSeg = null;      // duración máxima que acepta la cuenta
+  let durSeg = null;      // duración del video de la pieza
+
+  const LIGA_MUSICA = 'https://www.tiktok.com/legal/page/global/music-usage-confirmation/en';
+  const LIGA_MARCA = 'https://www.tiktok.com/legal/page/global/bc-policy/en';
+  const fmtDur = (s) => { const t = Math.round(s); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
 
   openSheet({
     title: T('Opciones de TikTok', 'TikTok options'),
     mode: 'form',
     build(body, close) {
       const cuenta = el('p', { class: 'help', text: T('Leyendo la cuenta de TikTok…', 'Reading the TikTok account…') });
+      const duracion = el('p', { class: 'help' });
       const lista = el('div', { class: 'pick-list', role: 'listbox' });
       const switches = el('div', { class: 'edsection__rows' });
-      const nota = el('p', { class: 'help', text: T(
-        'Al publicar aceptas la Confirmación de Uso de Música de TikTok.',
-        'By publishing you accept TikTok\'s Music Usage Confirmation.',
-      ) });
+      const comercial = el('div', { class: 'edsection__rows' });
+      const etiqueta = el('p', { class: 'help' });
+      const nota = el('p', { class: 'help' });
+      const error = el('p', { class: 'help', role: 'alert', style: { color: 'var(--danger, #c0352b)', fontWeight: '600' } });
+      const liga = (href, txt) => el('a', { href, target: '_blank', rel: 'noopener', text: txt });
+      function pintarNota() {
+        while (nota.firstChild) nota.removeChild(nota.firstChild);
+        // TikTok pide esta declaración, con sus ligas, antes de publicar.
+        if (declarar && patrocinado) {
+          nota.append(T('Al publicar aceptas la ', 'By posting, you agree to TikTok\'s '), liga(LIGA_MARCA, T('Política de Contenido de Marca', 'Branded Content Policy')),
+            T(' y la ', ' and '), liga(LIGA_MUSICA, T('Confirmación de Uso de Música', 'Music Usage Confirmation')), T(' de TikTok.', '.'));
+        } else {
+          nota.append(T('Al publicar aceptas la ', 'By posting, you agree to TikTok\'s '), liga(LIGA_MUSICA, T('Confirmación de Uso de Música', 'Music Usage Confirmation')), T(' de TikTok.', '.'));
+        }
+      }
+      pintarNota();
       const guardar = el('button', {
         class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'),
         onclick: () => {
+          error.textContent = '';
+          if (declarar && !tuMarca && !patrocinado) {
+            error.textContent = T('Elige si el contenido es de tu marca, de marca (patrocinado) o ambos; o apaga «Declarar contenido comercial».', 'Choose Your brand, Branded content or both; or turn off "Disclose commercial content".');
+            return;
+          }
+          if (maxSeg && durSeg && durSeg > maxSeg + 0.5) {
+            error.textContent = T(`El video dura ${fmtDur(durSeg)} y esta cuenta de TikTok acepta hasta ${fmtDur(maxSeg)}. Recórtalo antes de publicarlo.`, `The video is ${fmtDur(durSeg)} long and this TikTok account accepts up to ${fmtDur(maxSeg)}. Trim it before posting.`);
+            return;
+          }
           ed.setField('tt_options', JSON.stringify({
             privacy_level: privacidad || null,
             allow_comment: comentarios, allow_duet: duos, allow_stitch: stitch,
+            brand_organic: declarar && tuMarca, brand_content: declarar && patrocinado,
           }), { immediate: true });
           close({ source: 'done' });
           if (onSaved) onSaved();
@@ -122,15 +161,36 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
 
       body.append(
         cuenta,
+        duracion,
         el('h3', { class: 'edsection__title', text: T('Privacidad en TikTok (la eliges tú)', 'TikTok privacy (you choose)') }),
         lista,
         switches,
+        el('h3', { class: 'edsection__title', text: T('Contenido comercial', 'Commercial content') }),
+        comercial,
+        etiqueta,
         nota,
+        error,
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           guardar,
         ]),
       );
+
+      // Duración del video de la pieza (para compararla con lo que acepta la cuenta).
+      if (post.video_url) {
+        const v = document.createElement('video');
+        v.preload = 'metadata'; v.muted = true;
+        v.onloadedmetadata = () => { if (Number.isFinite(v.duration)) { durSeg = v.duration; pintarDuracion(); } v.removeAttribute('src'); v.load(); };
+        v.src = post.video_url;
+      }
+      function pintarDuracion() {
+        if (!maxSeg) { duracion.textContent = ''; return; }
+        const pasa = durSeg && durSeg > maxSeg + 0.5;
+        duracion.textContent = (durSeg ? T(`Este video dura ${fmtDur(durSeg)}. `, `This video is ${fmtDur(durSeg)} long. `) : '')
+          + T(`Esta cuenta acepta videos de hasta ${fmtDur(maxSeg)}.`, `This account accepts videos up to ${fmtDur(maxSeg)}.`)
+          + (pasa ? T(' Hay que recortarlo para publicarlo.', ' It must be trimmed to post.') : '');
+        duracion.style.color = pasa ? 'var(--danger, #c0352b)' : '';
+      }
 
       (async () => {
         let d = {};
@@ -146,13 +206,19 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
         }
         cuenta.textContent = `${T('Se publicará en', 'Will publish to')}: ${d.nickname || d.username || T('la cuenta conectada', 'the connected account')}` +
           (d.auditada ? '' : T(' · hasta que TikTok apruebe la app, se publica en su perfil como PRIVADO (solo lo ve la cuenta)', ' · until TikTok approves the app, it posts to the profile as PRIVATE (only the account can see it)'));
+        maxSeg = Number(d.max_video_post_duration_sec) || null;
+        pintarDuracion();
 
         function pintar() {
+          // Lo de marca (patrocinado) no puede ser privado: "Solo yo" se apaga.
+          if (declarar && patrocinado && privacidad === 'SELF_ONLY') privacidad = '';
           while (lista.firstChild) lista.removeChild(lista.firstChild);
           for (const o of (d.privacy_level_options || [])) {
+            const bloqueada = o === 'SELF_ONLY' && declarar && patrocinado;
             lista.appendChild(filaOpcion({
               label: ETIQUETAS_TT[o] || o,
-              activa: privacidad === o,
+              sub: bloqueada ? T('El contenido de marca no puede ser privado', 'Branded content visibility cannot be set to private') : null,
+              activa: privacidad === o, disabled: bloqueada,
               onPick: () => { privacidad = o; pintar(); },
             }));
           }
@@ -162,6 +228,22 @@ export function openTikTokSheet(ed, { onSaved } = {}) {
             filaSwitch({ label: T('Permitir dúos', 'Allow duets'), get: () => duos, set: (v) => { duos = v; }, disabled: !!d.duet_disabled }),
             filaSwitch({ label: T('Permitir stitch', 'Allow stitch'), get: () => stitch, set: (v) => { stitch = v; }, disabled: !!d.stitch_disabled }),
           );
+          while (comercial.firstChild) comercial.removeChild(comercial.firstChild);
+          comercial.append(filaSwitch({
+            label: T('Declarar contenido comercial', 'Disclose commercial content'),
+            sub: T('Si el video promociona una marca, un producto o un servicio.', 'If the video promotes a brand, product or service.'),
+            get: () => declarar, set: (v) => { declarar = v; if (!v) { tuMarca = false; patrocinado = false; } error.textContent = ''; pintar(); },
+          }));
+          if (declarar) {
+            comercial.append(
+              filaSwitch({ label: T('Tu marca', 'Your brand'), sub: T('Promocionas tu propio negocio.', 'You are promoting your own business.'), get: () => tuMarca, set: (v) => { tuMarca = v; error.textContent = ''; pintar(); } }),
+              filaSwitch({ label: T('Contenido de marca', 'Branded content'), sub: T('Promocionas a otra marca o a un tercero.', 'You are promoting another brand or a third party.'), get: () => patrocinado, set: (v) => { patrocinado = v; error.textContent = ''; pintar(); } }),
+            );
+          }
+          etiqueta.textContent = !declarar ? '' : (patrocinado
+            ? T('Tu video se etiquetará como «Colaboración pagada».', 'Your video will be labeled as "Paid partnership".')
+            : (tuMarca ? T('Tu video se etiquetará como «Contenido promocional».', 'Your video will be labeled as "Promotional content".') : T('Elige al menos una opción.', 'Choose at least one option.')));
+          pintarNota();
         }
         if (d.comment_disabled) comentarios = false;
         if (d.duet_disabled) duos = false;
