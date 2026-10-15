@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151653';
-import { toast } from '../shell/toast.js?v=202610151653';
-import { icon, iconMarca } from '../shell/icons.js?v=202610151653';
-import { T, isEN } from '../shell/i18n.js?v=202610151653';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610151653';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151733';
+import { toast } from '../shell/toast.js?v=202610151733';
+import { icon, iconMarca } from '../shell/icons.js?v=202610151733';
+import { T, isEN } from '../shell/i18n.js?v=202610151733';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610151733';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -278,18 +278,18 @@ function pintarCabecera() {
     const nMsg = r ? r.no_leidos : 0;
     const nCom = r ? r.comentarios_pendientes : 0;
     segEl.append(...[
-      el('button', { type: 'button', role: 'tab', class: tab === 'mensajes' ? 'is-active' : '', 'aria-selected': String(tab === 'mensajes'), onclick: () => cambiarTab('mensajes') }, [
+      el('button', { type: 'button', role: 'tab', 'data-tab': 'mensajes', class: tab === 'mensajes' ? 'is-active' : '', 'aria-selected': String(tab === 'mensajes'), onclick: () => cambiarTab('mensajes') }, [
         el('span', { text: T('Mensajes', 'Messages') }), nMsg ? el('span', { class: 'bj-seg__n', text: String(nMsg) }) : null,
       ].filter(Boolean)),
       // EMBUDO (CRM, 15-oct-2026): oportunidades por etapa y tareas. El número
       // son las tareas vencidas o de hoy.
-      el('button', { type: 'button', role: 'tab', class: tab === 'embudo' ? 'is-active' : '', 'aria-selected': String(tab === 'embudo'), onclick: () => cambiarTab('embudo') }, [
+      el('button', { type: 'button', role: 'tab', 'data-tab': 'embudo', class: tab === 'embudo' ? 'is-active' : '', 'aria-selected': String(tab === 'embudo'), onclick: () => cambiarTab('embudo') }, [
         el('span', { text: T('Embudo', 'Pipeline') }), r && r.tareas_hoy ? el('span', { class: 'bj-seg__n', text: String(r.tareas_hoy) }) : null,
       ].filter(Boolean)),
-      sinComentarios() ? null : el('button', { type: 'button', role: 'tab', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
+      sinComentarios() ? null : el('button', { type: 'button', role: 'tab', 'data-tab': 'comentarios', class: tab === 'comentarios' ? 'is-active' : '', 'aria-selected': String(tab === 'comentarios'), onclick: () => cambiarTab('comentarios') }, [
         el('span', { text: T('Comentarios', 'Comments') }), nCom ? el('span', { class: 'bj-seg__n', text: String(nCom) }) : null,
       ].filter(Boolean)),
-      esSupervisor() ? el('button', { type: 'button', role: 'tab', class: tab === 'desempeno' ? 'is-active' : '', 'aria-selected': String(tab === 'desempeno'), onclick: () => cambiarTab('desempeno') }, [
+      esSupervisor() ? el('button', { type: 'button', role: 'tab', 'data-tab': 'desempeno', class: tab === 'desempeno' ? 'is-active' : '', 'aria-selected': String(tab === 'desempeno'), onclick: () => cambiarTab('desempeno') }, [
         el('span', { text: T('Desempeño', 'Performance') }),
       ]) : null,
     ].filter(Boolean));
@@ -1962,7 +1962,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610151653';
+  link.href = '/marketing/css/bandeja.css?v=202610151733';
   document.head.appendChild(link);
 }
 

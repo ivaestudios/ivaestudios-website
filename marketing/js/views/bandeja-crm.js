@@ -22,10 +22,10 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151653';
-import { toast } from '../shell/toast.js?v=202610151653';
-import { icon } from '../shell/icons.js?v=202610151653';
-import { T, isEN } from '../shell/i18n.js?v=202610151653';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151733';
+import { toast } from '../shell/toast.js?v=202610151733';
+import { icon } from '../shell/icons.js?v=202610151733';
+import { T, isEN } from '../shell/i18n.js?v=202610151733';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -270,8 +270,8 @@ export function pintarBarra() {
   const r = d.resumen();
   const nHoy = r && r.tareas_hoy ? r.tareas_hoy : 0;
   poner(segEl, 
-    el('button', { type: 'button', role: 'tab', class: vista === 'tablero' ? 'is-active' : '', 'aria-selected': String(vista === 'tablero'), onclick: () => cambiarVista('tablero') }, [icon('board', 15), el('span', { text: T('Tablero', 'Board') })]),
-    el('button', { type: 'button', role: 'tab', class: vista === 'tareas' ? 'is-active' : '', 'aria-selected': String(vista === 'tareas'), onclick: () => cambiarVista('tareas') }, [
+    el('button', { type: 'button', role: 'tab', 'data-vista': 'tablero', class: vista === 'tablero' ? 'is-active' : '', 'aria-selected': String(vista === 'tablero'), onclick: () => cambiarVista('tablero') }, [icon('board', 15), el('span', { text: T('Tablero', 'Board') })]),
+    el('button', { type: 'button', role: 'tab', 'data-vista': 'tareas', class: vista === 'tareas' ? 'is-active' : '', 'aria-selected': String(vista === 'tareas'), onclick: () => cambiarVista('tareas') }, [
       icon('tasks', 15), el('span', { text: T('Tareas', 'Tasks') }), nHoy ? el('span', { class: 'bj-seg__n', 'aria-label': T(`${nHoy} para hoy o vencidas`, `${nHoy} due today or overdue`), text: String(nHoy) }) : null,
     ].filter(Boolean)),
   );
@@ -1049,7 +1049,7 @@ export async function abrirOportunidad(convId) {
     const nPend = (datos.tareas || []).filter((t) => t.estado === 'pendiente').length;
     const nPlan = (bor.plan.items || []).length;
     for (const [k, lbl, n] of [['datos', T('Datos', 'Details'), 0], ['plan', T('Plan', 'Plan'), nPlan], ['tareas', T('Tareas', 'Tasks'), nPend], ['historial', T('Historial', 'History'), 0]]) {
-      refs.tabs.appendChild(el('button', { type: 'button', role: 'tab', class: seccion === k ? 'is-active' : '', 'aria-selected': String(seccion === k), onclick: () => irA(k) }, [
+      refs.tabs.appendChild(el('button', { type: 'button', role: 'tab', 'data-sec': k, class: seccion === k ? 'is-active' : '', 'aria-selected': String(seccion === k), onclick: () => irA(k) }, [
         el('span', { text: lbl }), n ? el('span', { class: 'bj-op__tab-n', text: String(n) }) : null,
       ].filter(Boolean)));
     }

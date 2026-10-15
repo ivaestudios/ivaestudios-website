@@ -788,6 +788,11 @@ async function handleMe(session, env) {
   // Sebastián: "quita lo de los comentarios y lo del calendario, solo el CRM y
   // estadísticas de bandeja"): sus accesos ven únicamente Mensajes y Desempeño.
   let soloCrm = false;
+  // VISITA GUIADA DEL CRM (15-oct-2026, Israel: "una visita guiada súper
+  // detallada, que solo se active una vez y solo para este CRM de prueba"):
+  // solo los accesos de una marca DEMO, una vez por persona. Quién ya la vio
+  // vive en bandeja_cfg.tour_crm_vistos (sin migración).
+  let tourCrm = false;
   if (session.role === 'client' && session.client_id) {
     try {
       const r = await env.DB.prepare('SELECT bandeja_cfg FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
@@ -795,7 +800,8 @@ async function handleMe(session, env) {
       bandejaDemo = !!(session.bandeja_rol && cfg.demo === true);
       if (typeof cfg.tema === 'string' && /^[a-z0-9-]{1,24}$/.test(cfg.tema)) marcaTema = cfg.tema;
       soloCrm = !!(session.bandeja_rol && cfg.solo_crm === true);
-    } catch { bandejaDemo = false; marcaTema = null; soloCrm = false; }
+      tourCrm = bandejaDemo && !(cfg.tour_crm_vistos && cfg.tour_crm_vistos[session.user_id]);
+    } catch { bandejaDemo = false; marcaTema = null; soloCrm = false; tourCrm = false; }
   }
   return json({
     id: session.user_id,
@@ -810,8 +816,10 @@ async function handleMe(session, env) {
     bandeja_demo: bandejaDemo,
     marca_tema: marcaTema,
     solo_crm: soloCrm,
-    // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo).
-    tour_pendiente: tourPendiente && !(session.role === 'client' && session.bandeja_rol === 'agente'),
+    // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo),
+    // ni las cuentas de la demo del CRM: no tienen calendario; ven la suya.
+    tour_pendiente: tourPendiente && !bandejaDemo && !(session.role === 'client' && session.bandeja_rol === 'agente'),
+    tour_crm_pendiente: tourCrm,
     email_verified: emailVerified,
     // Apple 1.2: el shell exige aceptar el EULA antes de dejar entrar.
     eula_accepted: await eulaAceptado(env, session.user_id),
@@ -5631,6 +5639,19 @@ async function route(request, env, authCtx) {
   if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
   // EULA (Apple 1.2): aceptación afirmativa, exigida al entrar.
   if (path === '/auth/accept-eula' && method === 'POST') return handleAcceptEula(env, session);
+  // Visita guiada del CRM vista (demo): se marca al EMPEZAR, una vez por persona,
+  // en la configuración de su marca. También cuenta como vista la general.
+  if (path === '/auth/tour-crm-visto' && method === 'POST') {
+    if (session.role === 'client' && session.client_id && /^[a-f0-9]{8,64}$/i.test(String(session.user_id))) {
+      try {
+        await env.DB.prepare("UPDATE mkt_clients SET bandeja_cfg = json_set(COALESCE(bandeja_cfg, '{}'), '$.tour_crm_vistos.' || ?, datetime('now')) WHERE id = ?")
+          .bind(session.user_id, session.client_id).run();
+      } catch { /* sin columna: nada que marcar */ }
+    }
+    try { await env.DB.prepare("UPDATE mkt_users SET tour_visto_at = COALESCE(tour_visto_at, datetime('now')) WHERE id = ?").bind(session.user_id).run(); }
+    catch { /* pre-migración */ }
+    return json({ ok: true });
+  }
   // Visita guiada vista: se marca al EMPEZAR, para que salga una sola vez.
   if (path === '/auth/tour-visto' && method === 'POST') {
     try { await env.DB.prepare("UPDATE mkt_users SET tour_visto_at = COALESCE(tour_visto_at, datetime('now')) WHERE id = ?").bind(session.user_id).run(); }

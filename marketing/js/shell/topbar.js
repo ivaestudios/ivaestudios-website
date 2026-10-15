@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610151653';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610151653';
-import * as store from './store.js?v=202610151653';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610151653';
-import { toast } from './toast.js?v=202610151653';
-import { icon } from './icons.js?v=202610151653';
-import { openClientSwitcher } from './clientswitcher.js?v=202610151653';
-import { T, isEN, setLang } from './i18n.js?v=202610151653';
+import { startTour } from './tour.js?v=202610151733';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610151733';
+import * as store from './store.js?v=202610151733';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610151733';
+import { toast } from './toast.js?v=202610151733';
+import { icon } from './icons.js?v=202610151733';
+import { openClientSwitcher } from './clientswitcher.js?v=202610151733';
+import { T, isEN, setLang } from './i18n.js?v=202610151733';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610151653';
-import { getTheme, setTheme } from './theme.js?v=202610151653';
-import * as version from './version.js?v=202610151653';
-import * as tienda from './tienda.js?v=202610151653';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610151653';
-import * as prefs from './prefs.js?v=202610151653';
+import { abrirBloqueados } from './moderacion.js?v=202610151733';
+import { getTheme, setTheme } from './theme.js?v=202610151733';
+import * as version from './version.js?v=202610151733';
+import * as tienda from './tienda.js?v=202610151733';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610151733';
+import * as prefs from './prefs.js?v=202610151733';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -474,7 +474,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // Antes este renglon abria la LISTA de avisos, o sea que "ajustes" no
           // ajustaba nada. Ahora abre el interruptor de los avisos al telefono.
           // Visita guiada (1-oct-2026): repetirla a mano desde aquí.
-          accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true }), 380); }),
+          // En la demo del CRM se repite SU visita (la general habla del calendario).
+          accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true, modo: me && me.bandeja_demo ? 'crm' : 'general' }), 380); }),
           accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Sugerencias y problemas (8-oct-2026): formulario dentro de la app
