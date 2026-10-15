@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151446';
-import { toast } from '../shell/toast.js?v=202610151446';
-import { icon, iconMarca } from '../shell/icons.js?v=202610151446';
-import { T, isEN } from '../shell/i18n.js?v=202610151446';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento } from './bandeja-crm.js?v=202610151446';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151626';
+import { toast } from '../shell/toast.js?v=202610151626';
+import { icon, iconMarca } from '../shell/icons.js?v=202610151626';
+import { T, isEN } from '../shell/i18n.js?v=202610151626';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento } from './bandeja-crm.js?v=202610151626';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -72,7 +72,11 @@ const ETAPA_TXT = {
   cliente: () => T('Cliente', 'Customer'),
   perdido: () => T('Perdido', 'Lost'),
 };
-const ETAPA_COLOR = { nuevo: '#3b82f6', platica: '#a855f7', cotizado: '#f59e0b', cita: '#0d9488', cliente: '#22c55e', perdido: '#6b7280' };
+// Etapas en UN solo color: escalones del color de la marca, de claro (nuevo)
+// a lleno (cliente), y gris para perdido (bandeja.css, --et-*). Antes eran
+// azul/morado/naranja/verde... y se veía un arcoíris (15-oct-2026, Israel:
+// "hay muchos colores como raros, que se vea lo más profesional posible").
+const ETAPA_COLOR = { nuevo: 'var(--et-nuevo)', platica: 'var(--et-platica)', cotizado: 'var(--et-cotizado)', cita: 'var(--et-cita)', cliente: 'var(--et-cliente)', perdido: 'var(--et-perdido)' };
 const RESULTADOS_LLAMADA = [
   ['contesto', () => T('Contestó', 'Answered')],
   ['cita', () => T('Agendó cita', 'Booked')],
@@ -1959,7 +1963,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610151446';
+  link.href = '/marketing/css/bandeja.css?v=202610151626';
   document.head.appendChild(link);
 }
 

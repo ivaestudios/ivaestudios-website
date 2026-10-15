@@ -853,6 +853,25 @@ video.bj-adj { max-height: 320px; width: 100%; }
    tablero se deslizan de una en una con una barra de etapas arriba; desde
    900px van todas a la vista y cada una desliza sola.
    ============================================================================ */
+/* ETAPAS: UN solo color en escalones de MUY OSCURO a CLARO (Israel, 15-oct:
+   "tal vez solo tres o uno, pero que sea de súper oscuro a claro"). La base es
+   el color de la marca activa (--client-accent: dorado en SMILE; el shell lo
+   pone en <body> al elegir marca), mezclado con casi-negro y con blanco.
+   Perdido va aparte, en gris. --et-*-txt = el texto que se lee encima. */
+body {
+  --et-base:     var(--client-accent, var(--brand));
+  --et-nuevo:    color-mix(in srgb, var(--et-base) 34%, #0d0d0f);
+  --et-platica:  color-mix(in srgb, var(--et-base) 62%, #0d0d0f);
+  --et-cotizado: var(--et-base);
+  --et-cita:     color-mix(in srgb, var(--et-base) 58%, #fff);
+  --et-cliente:  color-mix(in srgb, var(--et-base) 30%, #fff);
+  --et-perdido:  #6f6f78;
+  --et-nuevo-txt: #fff; --et-platica-txt: #fff; --et-cotizado-txt: #fff;
+  --et-cita-txt: #1b1b1f; --et-cliente-txt: #1b1b1f; --et-perdido-txt: #fff;
+  --crm-rojo:    #c0352b;
+}
+/* El dorado de SMILE a mitad de la escala es claro: texto oscuro encima. */
+html[data-marca="smile"] body { --et-cotizado-txt: #1b1b1f; }
 .bj-emb { display: grid; gap: 10px; min-width: 0; }
 .bj-emb__barra { display: grid; gap: 8px; min-width: 0; }
 .bj-emb__seg { display: flex; width: 100%; }
@@ -876,10 +895,7 @@ button.bj-emb__kpi:hover { border-color: var(--border-strong); }
 button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-emb__kpi-n { font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .bj-emb__kpi-lbl { font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--text-dim); }
-.bj-emb__kpi.is-valor .bj-emb__kpi-n { color: #0f766e; }
-.bj-emb__kpi.is-aviso .bj-emb__kpi-n { color: #b45309; }
-.bj-emb__kpi.is-mal { border-color: color-mix(in srgb, #ef4444 40%, var(--border)); background: color-mix(in srgb, #ef4444 6%, var(--surface)); }
-.bj-emb__kpi.is-mal .bj-emb__kpi-n { color: #dc2626; }
+.bj-emb__kpi.is-mal .bj-emb__kpi-n { color: var(--crm-rojo); }
 @media (min-width: 700px) { .bj-emb__kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 /* Barra de etapas del teléfono (salta entre columnas) */
@@ -890,7 +906,9 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
   min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
   font: inherit; font-size: 13px; font-weight: 700; color: var(--text-dim); cursor: pointer; white-space: nowrap;
 }
-.bj-emb__etapa.is-on { color: var(--text); border-color: var(--e); box-shadow: inset 0 0 0 1px var(--e); background: color-mix(in srgb, var(--e) 10%, var(--surface)); }
+.bj-emb__etapa.is-on { color: var(--t, #fff); border-color: var(--e); background: var(--e); }
+.bj-emb__etapa.is-on .bj-col__punto { display: none; }
+.bj-emb__etapa.is-on .bj-emb__etapa-n { background: rgba(255, 255, 255, .28); color: inherit; }
 .bj-emb__etapa:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-emb__etapa-n { font-size: 11.5px; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--text); font-variant-numeric: tabular-nums; }
 
@@ -907,28 +925,30 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
   background: color-mix(in srgb, var(--surface-2) 72%, var(--surface));
   transition: background var(--t-fast), box-shadow var(--t-fast);
 }
-.bj-col.is-over { background: color-mix(in srgb, var(--e) 9%, var(--surface)); box-shadow: inset 0 0 0 2px var(--e); }
-.bj-col__head { padding: 11px 12px 9px; border-bottom: 1px solid var(--border); border-radius: 14px 14px 0 0; box-shadow: inset 0 3px 0 var(--e); }
+.bj-col.is-over { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand) 55%, transparent); }
+/* Cabecera de columna llena con el color de su etapa: el tablero se lee de
+   oscuro (Nuevo) a claro (Cliente). */
+.bj-col__head { padding: 11px 12px 10px; border-radius: 13px 13px 0 0; background: var(--e); color: var(--t, #fff); }
+.bj-col__head .bj-col__punto { display: none; }
 .bj-col__fila { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .bj-col__punto { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--e); }
-.bj-col__nombre { flex: 1; min-width: 0; margin: 0; font-size: 13.5px; font-weight: 800; line-height: 1.25; }
-.bj-col__n { flex: none; min-width: 26px; text-align: center; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: var(--surface); border: 1px solid var(--border); font-variant-numeric: tabular-nums; }
-.bj-col__valor { margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.bj-col__valor.is-vacio { font-weight: 600; color: var(--text-mute); }
+.bj-col__nombre { flex: 1; min-width: 0; margin: 0; font-size: 13.5px; font-weight: 800; line-height: 1.25; color: inherit; }
+.bj-col__n { flex: none; min-width: 26px; text-align: center; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(255, 255, 255, .24); color: inherit; font-variant-numeric: tabular-nums; }
+.bj-col__valor { margin-top: 4px; font-size: 13px; font-weight: 700; color: inherit; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bj-col__valor.is-vacio { font-weight: 600; opacity: .78; }
 .bj-col__cards { display: grid; align-content: start; gap: 8px; padding: 8px; min-width: 0; }
 .bj-col__vacio { margin: 2px 0; padding: 16px 8px; text-align: center; font-size: 12.5px; color: var(--text-mute); border: 1.5px dashed var(--border); border-radius: 10px; }
 .bj-col__mas { justify-self: center; }
 
 /* Tarjeta de oportunidad */
 .bj-card {
-  appearance: none; display: grid; gap: 7px; width: 100%; min-width: 0; padding: 10px 11px 9px 13px; text-align: left;
+  appearance: none; display: grid; gap: 7px; width: 100%; min-width: 0; padding: 11px 11px 10px; text-align: left;
   border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text);
-  font: inherit; cursor: pointer; box-shadow: inset 3px 0 0 var(--c, var(--brand)), 0 1px 2px rgba(0, 0, 0, .05);
+  font: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(15, 15, 35, .05);
   transition: border-color var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
 }
-.bj-card:hover { border-color: var(--border-strong); box-shadow: inset 3px 0 0 var(--c, var(--brand)), 0 6px 16px -8px rgba(0, 0, 0, .22); }
-.bj-card:focus-visible { outline: none; box-shadow: inset 3px 0 0 var(--c, var(--brand)), var(--ring); }
-.bj-card.is-vencida { border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
+.bj-card:hover { border-color: var(--border-strong); box-shadow: 0 6px 16px -8px rgba(15, 15, 35, .22); }
+.bj-card:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-card.is-arrastrada { opacity: .35; }
 .bj-card__top { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
 .bj-card__quien { flex: 1; min-width: 0; display: grid; gap: 1px; }
@@ -936,12 +956,9 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-avatar--sm .bj-avatar__ico { width: 15px; height: 15px; right: -3px; bottom: -3px; border-width: 1.5px; }
 .bj-card__nombre { min-width: 0; padding-top: 1px; font-size: 14px; font-weight: 700; line-height: 1.25; overflow-wrap: break-word; }
 .bj-card__valor { font-size: 13.5px; font-weight: 800; line-height: 1.3; font-variant-numeric: tabular-nums; }
-.bj-card__tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.bj-card__tag {
-  display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 7px; border-radius: 999px;
-  font-size: 10.5px; font-weight: 700; white-space: nowrap; color: var(--text-dim); background: var(--surface-2); border: 1px solid var(--border);
-}
-.bj-card__tag.is-ad { color: #b45309; background: color-mix(in srgb, #f59e0b 12%, var(--surface)); border-color: color-mix(in srgb, #f59e0b 35%, var(--border)); }
+.bj-card__meta { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12px; line-height: 1.4; color: var(--text-dim); }
+.bj-card__dato { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.bj-card__dato > .ico { flex: none; color: var(--text-mute); }
 .bj-card__tarea {
   display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-width: 0; padding: 6px 8px; border-radius: 8px;
   font-size: 12px; line-height: 1.3; color: var(--text-dim); background: var(--surface-2);
@@ -949,16 +966,16 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-card__tarea > .ico { flex: none; }
 .bj-card__tarea-txt { flex: 1 1 120px; min-width: 0; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
 .bj-card__vence { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
-.bj-card__tarea.is-hoy .bj-card__vence { color: #b45309; }
-.bj-card__tarea.is-vencida { background: color-mix(in srgb, #ef4444 9%, var(--surface)); color: #b91c1c; }
-.bj-card__tarea.is-vencida .bj-card__vence { color: #dc2626; }
-.bj-card__tarea.is-falta { background: color-mix(in srgb, #f59e0b 10%, var(--surface)); color: #b45309; }
-.bj-card__tarea.is-falta .bj-card__tarea-txt { color: #b45309; }
-.bj-card__cita { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0f766e; }
+.bj-card__tarea.is-hoy .bj-card__vence { color: var(--text); }
+.bj-card__tarea.is-vencida .bj-card__vence { color: var(--crm-rojo); }
+.bj-card__tarea.is-vencida > .ico { color: var(--crm-rojo); }
+.bj-card__tarea.is-falta { color: var(--text-mute); }
+.bj-card__tarea.is-falta .bj-card__tarea-txt { color: var(--text-mute); font-weight: 600; }
+.bj-card__cita { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text); }
 .bj-card__cita.is-pasada { color: var(--text-mute); }
 .bj-card__motivo { font-size: 12px; line-height: 1.35; color: var(--text-dim); font-style: italic; overflow-wrap: anywhere; }
 .bj-card__pie { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.5px; color: var(--text-mute); }
-.bj-card__n { flex: none; display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #25D366; color: #06210f; font-size: 11px; font-weight: 800; }
+.bj-card__n { flex: none; display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 11px; font-weight: 800; }
 .bj-emb__nota { margin: 0; font-size: 12px; line-height: 1.45; }
 .bj-emb__vacio { display: grid; justify-items: center; gap: 8px; padding: 36px 16px; text-align: center; color: var(--text-dim); }
 .bj-emb__vacio p { margin: 0; max-width: 46ch; line-height: 1.45; }
@@ -968,23 +985,22 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-tv { display: grid; gap: 10px; align-content: start; min-width: 0; }
 .bj-tv__seg { display: flex; width: 100%; max-width: 420px; }
 .bj-tv__grupo { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); }
-.bj-tv__grupo.is-mal { color: #dc2626; }
+.bj-tv__grupo.is-mal { color: var(--crm-rojo); }
 .bj-tv__n { padding: 1px 8px; border-radius: 999px; font-size: 11.5px; letter-spacing: 0; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); font-variant-numeric: tabular-nums; }
 .bj-tareas { display: grid; gap: 6px; min-width: 0; }
 .bj-tarea {
   display: flex; align-items: flex-start; gap: 2px; min-width: 0; padding: 2px 2px 2px 0;
   border-radius: 12px; border: 1px solid var(--border); background: var(--surface);
 }
-.bj-tarea.is-vencida { border-color: color-mix(in srgb, #ef4444 40%, var(--border)); background: color-mix(in srgb, #ef4444 4%, var(--surface)); }
 .bj-tarea__check { appearance: none; flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 12px; }
 .bj-tarea__check .ico {
   display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
   border: 2px solid var(--border-strong); color: transparent; transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
 }
 .bj-tarea__check .ico svg { width: 13px; height: 13px; }
-.bj-tarea__check:hover .ico { border-color: #16a34a; color: #16a34a; }
+.bj-tarea__check:hover .ico { border-color: var(--brand); color: var(--brand); }
 .bj-tarea__check:focus-visible { outline: none; box-shadow: var(--ring); }
-.bj-tarea__check.is-hecha .ico { background: #16a34a; border-color: #16a34a; color: #fff; }
+.bj-tarea__check.is-hecha .ico { background: var(--brand); border-color: var(--brand); color: #fff; }
 .bj-tarea__cuerpo {
   appearance: none; flex: 1; min-width: 0; display: grid; gap: 3px; align-content: center; min-height: 44px; padding: 8px 2px;
   border: 0; background: none; color: inherit; font: inherit; text-align: left;
@@ -996,8 +1012,8 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-tarea__meta { display: flex; flex-wrap: wrap; gap: 3px 10px; font-size: 12px; color: var(--text-dim); }
 .bj-tarea__meta > span { display: inline-flex; align-items: center; gap: 4px; }
 .bj-tarea__vence { font-weight: 700; font-variant-numeric: tabular-nums; }
-.bj-tarea__vence.is-vencida { color: #dc2626; }
-.bj-tarea__vence.is-hoy { color: #b45309; }
+.bj-tarea__vence.is-vencida { color: var(--crm-rojo); }
+.bj-tarea__vence.is-hoy { color: var(--text); }
 .bj-tarea__notas { font-size: 12.5px; line-height: 1.4; color: var(--text-dim); overflow-wrap: anywhere; }
 .bj-tarea__menu { flex: none; width: 44px; min-height: 44px; }
 
@@ -1014,7 +1030,11 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-op__quien-txt { display: grid; gap: 3px; min-width: 0; }
 .bj-op__linea { margin: 0; display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13.5px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
 .bj-op__linea.is-mute { font-size: 12.5px; font-weight: 500; color: var(--text-dim); }
-.bj-op__canal { font-weight: 800; color: color-mix(in srgb, var(--c, var(--brand)) 72%, var(--text)); }
+.bj-op__canal { font-weight: 800; color: var(--text); }
+/* Avatares del CRM en neutro con el logo de la red a color (el tema de marca,
+   p. ej. SMILE, pone los suyos encima). */
+.bj-emb .bj-avatar, .bj-op .bj-avatar { background: color-mix(in srgb, var(--text) 9%, var(--surface)); color: var(--text); }
+.bj-emb .bj-avatar__ico, .bj-op .bj-avatar__ico { background: var(--surface); color: var(--c, var(--text-dim)); border-color: var(--surface); box-shadow: 0 0 0 1px var(--border); }
 .bj-op__valor { display: grid; justify-items: end; gap: 1px; text-align: right; }
 .bj-op__valor-lbl { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-mute); }
 .bj-op__valor-n { font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
@@ -1046,11 +1066,12 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
   transition: background var(--t-fast);
 }
 .bj-etapas__paso:first-child::after { clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%); border-radius: 8px 0 0 8px; }
-.bj-etapas__paso:hover::after { background: color-mix(in srgb, var(--e) 16%, var(--surface-2)); }
-.bj-etapas__paso.is-hecho::after { background: color-mix(in srgb, var(--e) 24%, var(--surface)); }
-.bj-etapas__paso.is-actual::after { background: var(--e); }
-.bj-etapas__paso.is-hecho { color: var(--text); }
-.bj-etapas__paso.is-actual { color: #fff; }
+/* Pasos ya recorridos con el color de su etapa (de oscuro a claro); los que
+   faltan, en gris. La actual va en negritas. */
+.bj-etapas__paso:hover::after { background: color-mix(in srgb, var(--e) 22%, var(--surface-2)); }
+.bj-etapas__paso.is-hecho::after, .bj-etapas__paso.is-hecho:hover::after { background: var(--e); }
+.bj-etapas__paso.is-hecho { color: var(--t, #fff); }
+.bj-etapas__paso.is-actual { font-weight: 800; }
 .bj-etapas__paso:focus-visible { outline: none; }
 .bj-etapas__paso:focus-visible::after { box-shadow: none; outline: 2px solid var(--text); }
 .bj-etapas__txt { position: relative; z-index: 1; display: block; overflow-wrap: anywhere; line-height: 1.15; }
@@ -1060,7 +1081,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
   color: var(--text-dim); cursor: pointer;
 }
 .bj-etapas__perdido:hover { border-color: color-mix(in srgb, #6b7280 50%, var(--border)); color: var(--text); }
-.bj-etapas__perdido.is-actual { background: #6b7280; border-color: #6b7280; color: #fff; }
+.bj-etapas__perdido.is-actual { background: #57575f; border-color: #57575f; color: #fff; }
 .bj-etapas__perdido:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-op__etapa-txt { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 13px; }
 
@@ -1112,7 +1133,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 }
 .bj-op__link:focus-visible { outline: none; box-shadow: var(--ring); border-radius: 6px; }
 .bj-op__vacio { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-dim); }
-.bj-op__vacio.is-aviso { color: #b45309; }
+.bj-op__vacio.is-aviso { color: var(--text-dim); }
 .bj-op__p { margin: 0 0 12px; font-size: 13.5px; line-height: 1.45; }
 .bj-op__btns { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 
@@ -1120,7 +1141,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-plan { display: grid; gap: 8px; }
 .bj-partida {
   display: grid; gap: 6px; min-width: 0; padding: 8px 8px 8px 11px; border-radius: 12px;
-  border: 1px solid var(--border); background: var(--surface); box-shadow: inset 3px 0 0 var(--e);
+  border: 1px solid var(--border); background: var(--surface);
 }
 .bj-partida.is-rechazado .bj-partida__trat { text-decoration: line-through; color: var(--text-mute); }
 .bj-partida__fila { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -1139,25 +1160,24 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 }
 .bj-partida__estado {
   appearance: none; flex: none; position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px;
-  border-radius: 999px; border: 1px solid color-mix(in srgb, var(--e) 40%, var(--border)); background: color-mix(in srgb, var(--e) 9%, var(--surface));
+  border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
   font: inherit; font-size: 12.5px; font-weight: 700; color: var(--text); cursor: pointer; white-space: nowrap;
 }
 .bj-partida__estado:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-partida__quitar { flex: none; width: 44px; min-height: 44px; color: var(--text-mute); }
-.bj-partida__quitar:hover { color: #dc2626; }
+.bj-partida__quitar:hover { color: var(--crm-rojo); }
 .bj-plan__acciones { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
 .bj-plan__acciones .btn { display: inline-flex; align-items: center; gap: 6px; }
 .bj-plan__totales { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .bj-plan__tot { display: grid; gap: 1px; min-width: 0; padding: 8px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); font-size: 11.5px; color: var(--text-dim); }
 .bj-plan__tot strong { font-size: 15px; color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.bj-plan__tot:first-child strong { color: #0f766e; }
 
 /* Tareas dentro de la oportunidad */
 .bj-tareas__nueva { justify-self: start; display: inline-flex; align-items: center; gap: 6px; }
 .bj-op__hechas { gap: 4px; }
 .bj-ftarea {
   display: grid; gap: 10px; min-width: 0; padding: 12px; border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--brand) 30%, var(--border)); background: var(--surface);
+  border: 1px solid var(--border-strong); background: var(--surface);
 }
 .bj-ftarea .field { margin: 0; }
 .bj-ftarea .textarea { min-height: 64px; }
@@ -1197,11 +1217,8 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
   display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
   background: var(--surface); border: 1px solid var(--border); color: var(--text-dim);
 }
-.bj-hist__item.is-in .bj-hist__ico { color: #0369a1; background: color-mix(in srgb, #0ea5e9 12%, var(--surface)); border-color: color-mix(in srgb, #0ea5e9 35%, var(--border)); }
-.bj-hist__item.is-out .bj-hist__ico { color: #334155; background: color-mix(in srgb, #64748b 12%, var(--surface)); }
-.bj-hist__item.is-llamada .bj-hist__ico { color: #0f766e; background: color-mix(in srgb, #14b8a6 12%, var(--surface)); border-color: color-mix(in srgb, #14b8a6 35%, var(--border)); }
-.bj-hist__item.is-etapa .bj-hist__ico { color: #1d4ed8; background: color-mix(in srgb, #3b82f6 12%, var(--surface)); border-color: color-mix(in srgb, #3b82f6 35%, var(--border)); }
-.bj-hist__item.is-tarea .bj-hist__ico { color: #b45309; background: color-mix(in srgb, #f59e0b 12%, var(--surface)); border-color: color-mix(in srgb, #f59e0b 35%, var(--border)); }
+/* Íconos del historial en neutro; solo el mensaje del paciente se marca con la marca. */
+.bj-hist__item.is-in .bj-hist__ico { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 35%, var(--border)); }
 .bj-hist__item.is-nota .bj-hist__ico { color: var(--text); }
 .bj-hist__txt { min-width: 0; padding-top: 3px; }
 .bj-hist__tit { margin: 0; font-size: 13.5px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
@@ -1216,7 +1233,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 }
 .bj-op__pie[hidden] { display: none; }
 .bj-op__pie-txt { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
-.bj-op__pie-punto { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 0 3px color-mix(in srgb, #f59e0b 25%, transparent); }
+.bj-op__pie-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
 .bj-op__pie-btns { display: flex; gap: 8px; margin-left: auto; }
 .bj-op.is-sucio { padding-bottom: 0; }
 
@@ -1226,7 +1243,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-cat__fila > .input { flex: 1; min-width: 0; }
 
 /* Eventos del CRM dentro del chat */
-.bj-nota--crm { color: color-mix(in srgb, #1d4ed8 78%, var(--text)); }
+.bj-nota--crm { color: var(--text-dim); }
 .bj-nota--comentario { color: var(--text); font-weight: 600; }
 
 /* ── Escritorio: el tablero llena la pantalla y cada columna desliza sola ── */

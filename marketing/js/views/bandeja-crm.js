@@ -22,10 +22,10 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151446';
-import { toast } from '../shell/toast.js?v=202610151446';
-import { icon } from '../shell/icons.js?v=202610151446';
-import { T, isEN } from '../shell/i18n.js?v=202610151446';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151626';
+import { toast } from '../shell/toast.js?v=202610151626';
+import { icon } from '../shell/icons.js?v=202610151626';
+import { T, isEN } from '../shell/i18n.js?v=202610151626';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -141,10 +141,10 @@ const TIPOS = [
 ];
 const TIPO = Object.fromEntries(TIPOS.map(([k, ico, txt, ej]) => [k, { ico, txt, ej }]));
 const PARTIDAS = [
-  ['propuesto', () => T('Propuesto', 'Proposed'), '#64748b'],
-  ['aceptado', () => T('Aceptado', 'Accepted'), '#0d9488'],
-  ['realizado', () => T('Realizado', 'Done'), '#16a34a'],
-  ['rechazado', () => T('Rechazado', 'Declined'), '#dc2626'],
+  ['propuesto', () => T('Propuesto', 'Proposed'), '#a1a1aa'],
+  ['aceptado', () => T('Aceptado', 'Accepted'), 'var(--brand)'],
+  ['realizado', () => T('Realizado', 'Done'), 'var(--text)'],
+  ['rechazado', () => T('Rechazado', 'Declined'), '#c0352b'],
 ];
 const PARTIDA = Object.fromEntries(PARTIDAS.map(([k, txt, color]) => [k, { txt, color }]));
 const MOTIVOS = [
@@ -358,7 +358,7 @@ function vistaTablero() {
   // Teléfono: barra de etapas para saltar entre columnas.
   const chips = el('div', { class: 'bj-emb__etapas', role: 'tablist', 'aria-label': T('Etapas', 'Stages') }, d.ETAPAS.map((k, i) => el('button', {
     type: 'button', role: 'tab', class: 'bj-emb__etapa' + (i === colMovil ? ' is-on' : ''), 'aria-selected': String(i === colMovil),
-    style: { '--e': d.ETAPA_COLOR[k] }, onclick: () => irAColumna(i, true),
+    style: { '--e': d.ETAPA_COLOR[k], '--t': `var(--et-${k}-txt)` }, onclick: () => irAColumna(i, true),
   }, [el('span', { class: 'bj-col__punto' }), el('span', { text: etq(k) }), el('span', { class: 'bj-emb__etapa-n', text: String(porEtapa[k].length) })])));
 
   const tablero = el('div', { class: 'bj-tablero', onscroll: (e) => alDeslizar(e.currentTarget) }, d.ETAPAS.map((k) => columna(k, porEtapa[k])));
@@ -371,7 +371,7 @@ function columna(k, lista) {
   const todas = COLS_ABIERTAS.has(k);
   const visibles = todas ? lista : lista.slice(0, POR_COLUMNA);
   const tot = fmtTotales(lista);
-  return el('section', { class: 'bj-col', 'data-etapa': k, style: { '--e': d.ETAPA_COLOR[k] }, 'aria-label': `${etq(k)} · ${lista.length}` }, [
+  return el('section', { class: 'bj-col', 'data-etapa': k, style: { '--e': d.ETAPA_COLOR[k], '--t': `var(--et-${k}-txt)` }, 'aria-label': `${etq(k)} · ${lista.length}` }, [
     el('header', { class: 'bj-col__head' }, [
       el('div', { class: 'bj-col__fila' }, [
         el('span', { class: 'bj-col__punto' }),
@@ -391,27 +391,29 @@ function tarjeta(v) {
   const prox = v.proxima_tarea;
   const ev = prox && prox.vence_en ? estadoVence(prox.vence_en) : 'sin';
   const viva = ABIERTAS.includes(v.etapa);
-  const o = d.origenAnuncio(v);
   const nom = d.nombreDe(v);
+  // Datos en gris, cada uno con su ícono y sin partirse (antes: pastillas de
+  // colores por red, anuncio, agente y tratamientos). La red ya la dice el
+  // logo del avatar; el anuncio vive dentro de la oportunidad.
+  const nPlan = Number(v.plan_n) || 0;
+  const meta = [
+    v.asignado_nombre && !d.esAgente() ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: primerNombre(v.asignado_nombre) })]) : null,
+    !v.asignado_a && !d.esAgente() && d.equipoAgentes().length ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: T('Sin asignar', 'Unassigned') })]) : null,
+    nPlan ? el('span', { class: 'bj-card__dato' }, [icon('activity', 12), el('span', { text: nPlan === 1 ? T('1 tratamiento', '1 treatment') : T(`${nPlan} tratamientos`, `${nPlan} treatments`) })]) : null,
+  ].filter(Boolean);
   return el('button', {
     type: 'button', class: 'bj-card' + (ev === 'vencida' && viva ? ' is-vencida' : ''), 'data-id': v.id,
-    style: { '--c': d.colorDe(v.canal) },
-    'aria-label': `${nom} · ${etq(v.etapa)}${v.valor_estimado != null ? ' · ' + fmtDinero(v.valor_estimado, v.moneda) : ''}`,
+    'aria-label': `${nom} · ${d.CANAL_TXT[v.canal] || v.canal} · ${etq(v.etapa)}${v.valor_estimado != null ? ' · ' + fmtDinero(v.valor_estimado, v.moneda) : ''}`,
     onclick: () => { if (Date.now() - ultimoArrastre > 350) abrirOportunidad(v.id); },
   }, [
     el('span', { class: 'bj-card__top' }, [
-      el('span', { class: 'bj-avatar bj-avatar--sm' }, [el('span', { text: initials(nom) }), el('span', { class: 'bj-avatar__ico' }, [d.icoCanal(v.canal, 9)])]),
+      el('span', { class: 'bj-avatar bj-avatar--sm', style: { '--c': d.colorDe(v.canal) } }, [el('span', { text: initials(nom) }), el('span', { class: 'bj-avatar__ico' }, [d.icoCanal(v.canal, 9)])]),
       el('span', { class: 'bj-card__quien' }, [
         el('span', { class: 'bj-card__nombre', text: nom }),
         v.valor_estimado != null ? el('span', { class: 'bj-card__valor', text: fmtDinero(v.valor_estimado, v.moneda) }) : null,
       ].filter(Boolean)),
     ]),
-    el('span', { class: 'bj-card__tags' }, [
-      el('span', { class: 'bj-card__tag' }, [el('span', { text: d.CANAL_TXT[v.canal] || v.canal })]),
-      o ? el('span', { class: 'bj-card__tag is-ad', text: T('Anuncio', 'Ad') }) : null,
-      v.asignado_nombre && !d.esAgente() ? el('span', { class: 'bj-card__tag' }, [icon('user', 11), el('span', { text: primerNombre(v.asignado_nombre) })]) : null,
-      Number(v.plan_n) ? el('span', { class: 'bj-card__tag' }, [icon('activity', 11), el('span', { text: Number(v.plan_n) === 1 ? T('1 tratamiento', '1 treatment') : T(`${v.plan_n} tratamientos`, `${v.plan_n} treatments`) })]) : null,
-    ].filter(Boolean)),
+    meta.length ? el('span', { class: 'bj-card__meta' }, meta) : null,
     prox ? el('span', { class: 'bj-card__tarea is-' + ev }, [
       icon((TIPO[prox.tipo] || TIPO.seguimiento).ico, 13),
       el('span', { class: 'bj-card__tarea-txt', text: prox.titulo }),
@@ -1004,6 +1006,7 @@ export async function abrirOportunidad(convId) {
     poner(refs.etapas,
       el('div', { class: 'bj-etapas' + (perdido ? ' is-perdido' : ''), role: 'group', 'aria-label': T('Etapa', 'Stage'), style: { '--e': color } }, pasos.map((k, j) => el('button', {
         type: 'button', class: 'bj-etapas__paso' + (!perdido && j <= i ? ' is-hecho' : '') + (k === v.etapa ? ' is-actual' : ''),
+        style: { '--e': d.ETAPA_COLOR[k], '--t': `var(--et-${k}-txt)` },
         'aria-pressed': String(k === v.etapa), 'aria-label': T(`Mover a ${etq(k)}`, `Move to ${etq(k)}`), title: etq(k),
         onclick: (e) => cambiarEtapa(k, e.currentTarget),
       }, [el('span', { class: 'bj-etapas__txt', text: etq(k) })]))),
