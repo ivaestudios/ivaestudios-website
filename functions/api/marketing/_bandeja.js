@@ -266,7 +266,17 @@ export function cfgDe(c) {
   return { ...CFG_BASE, ...x, plantillas: (x && x.plantillas) || {} };
 }
 export async function guardarCfg(env, clientId, cfg) {
-  await env.DB.prepare('UPDATE mkt_clients SET bandeja_cfg = ? WHERE id = ?').bind(JSON.stringify(cfg), clientId).run();
+  // Quién ya vio la visita guiada del CRM se toma SIEMPRE de lo que hay en la
+  // base al momento de escribir: si otra petición leyó la configuración antes
+  // de que se marcara, no la borra (y la visita no vuelve a salir).
+  const { tour_crm_vistos: _ignorar, ...resto } = cfg || {};
+  await env.DB.prepare(
+    `UPDATE mkt_clients SET bandeja_cfg = CASE
+       WHEN json_valid(bandeja_cfg) AND json_type(bandeja_cfg, '$.tour_crm_vistos') = 'object'
+         THEN json_set(?, '$.tour_crm_vistos', json_extract(bandeja_cfg, '$.tour_crm_vistos'))
+       ELSE ? END
+     WHERE id = ?`
+  ).bind(JSON.stringify(resto), JSON.stringify(resto), clientId).run();
 }
 // MODO DEMO (14-oct-2026, Israel: "tengo que hacerle una muestra a Sebastián de
 // cómo sería el CRM"). Una marca con bandeja_cfg.demo = true se ve conectada y
