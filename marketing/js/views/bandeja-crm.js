@@ -22,10 +22,10 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151626';
-import { toast } from '../shell/toast.js?v=202610151626';
-import { icon } from '../shell/icons.js?v=202610151626';
-import { T, isEN } from '../shell/i18n.js?v=202610151626';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202610151653';
+import { toast } from '../shell/toast.js?v=202610151653';
+import { icon } from '../shell/icons.js?v=202610151653';
+import { T, isEN } from '../shell/i18n.js?v=202610151653';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -183,6 +183,7 @@ export function textoEvento(e) {
       if (x.accion === 'reprogramada') return T(`${quien} reprogramó ${tt}`, `${quien} rescheduled ${tt}`) + (x.vence_en ? ` · ${fmtVence(x.vence_en)}` : '');
       if (x.accion === 'reasignada') return T(`${quien} pasó ${tt} a ${x.para}`, `${quien} handed ${tt} to ${x.para}`);
       if (x.accion === 'borrada') return T(`${quien} borró la tarea ${tt}`, `${quien} deleted the task ${tt}`);
+      if (x.accion === 'canceladas') return x.n === 1 ? T('Se canceló su tarea pendiente al marcarlo como perdido', 'Its pending task was cancelled when marked as lost') : T(`Se cancelaron sus ${x.n} tareas pendientes al marcarlo como perdido`, `Its ${x.n} pending tasks were cancelled when marked as lost`);
       return T(`${quien} creó la tarea ${tt}`, `${quien} created the task ${tt}`)
         + (x.para && x.para !== quien ? T(` para ${x.para}`, ` for ${x.para}`) : '')
         + (x.vence_en ? T(` · vence ${fmtVence(x.vence_en)}`, ` · due ${fmtVence(x.vence_en)}`) : '');
@@ -341,17 +342,23 @@ function vistaTablero() {
   const hoy = hoyCun();
   const en7 = masDias(hoy, 7);
   const citas = filas.filter((v) => v.fecha_cita && v.etapa !== 'perdido' && v.fecha_cita.slice(0, 10) >= hoy && v.fecha_cita.slice(0, 10) <= en7 && !citaPasada(v.fecha_cita)).length;
-  const vencidas = abiertas.filter((v) => vencida(v)).length;
+  // Tareas vencidas (no pacientes): el mismo número que el grupo "Vencidas" de la vista Tareas.
+  const vencidas = filas.reduce((n, v) => n + (Number(v.tareas_vencidas) || 0), 0);
   const sinPaso = abiertas.filter((v) => !Number(v.tareas_pend)).length;
+  // El que se puede tocar lo dice ("Ver →"); los demás son solo datos.
   const kpi = (n, lbl, tono = '', onclick = null) => el(onclick ? 'button' : 'div', {
-    class: 'bj-emb__kpi' + (tono ? ' is-' + tono : ''), ...(onclick ? { type: 'button', onclick } : {}),
-  }, [el('span', { class: 'bj-emb__kpi-n', text: n }), el('span', { class: 'bj-emb__kpi-lbl', text: lbl })]);
+    class: 'bj-emb__kpi' + (tono ? ' is-' + tono : ''), ...(onclick ? { type: 'button', onclick, 'aria-label': `${n} ${lbl} · ${T('ver tareas', 'see tasks')}` } : {}),
+  }, [
+    el('span', { class: 'bj-emb__kpi-n', text: n }),
+    el('span', { class: 'bj-emb__kpi-lbl', text: lbl }),
+    onclick ? el('span', { class: 'bj-emb__kpi-ver' }, [el('span', { text: T('Ver', 'See') }), icon('right', 13)]) : null,
+  ].filter(Boolean));
   const kpis = el('div', { class: 'bj-emb__kpis' }, [
     kpi(String(abiertas.length), abiertas.length === 1 ? T('oportunidad abierta', 'open deal') : T('oportunidades abiertas', 'open deals')),
     kpi(fmtTotales(abiertas) || '$0', T('en juego', 'in play'), 'valor'),
     kpi(String(citas), T('citas en 7 días', 'visits in 7 days')),
     vencidas
-      ? kpi(String(vencidas), vencidas === 1 ? T('con tarea vencida', 'with an overdue task') : T('con tareas vencidas', 'with overdue tasks'), 'mal', () => cambiarVista('tareas'))
+      ? kpi(String(vencidas), vencidas === 1 ? T('tarea vencida', 'overdue task') : T('tareas vencidas', 'overdue tasks'), 'mal', () => cambiarVista('tareas'))
       : kpi(String(sinPaso), T('sin siguiente paso', 'without a next step'), sinPaso ? 'aviso' : ''),
   ]);
 
@@ -398,7 +405,7 @@ function tarjeta(v) {
   const nPlan = Number(v.plan_n) || 0;
   const meta = [
     v.asignado_nombre && !d.esAgente() ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: primerNombre(v.asignado_nombre) })]) : null,
-    !v.asignado_a && !d.esAgente() && d.equipoAgentes().length ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: T('Sin asignar', 'Unassigned') })]) : null,
+    !v.asignado_a && (d.esAgente() || d.equipoAgentes().length) ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: T('Sin asignar', 'Unassigned') })]) : null,
     nPlan ? el('span', { class: 'bj-card__dato' }, [icon('activity', 12), el('span', { text: nPlan === 1 ? T('1 tratamiento', '1 treatment') : T(`${nPlan} tratamientos`, `${nPlan} treatments`) })]) : null,
   ].filter(Boolean);
   return el('button', {
@@ -423,7 +430,7 @@ function tarjeta(v) {
     v.etapa === 'perdido' && v.motivo_perdida ? el('span', { class: 'bj-card__motivo', text: v.motivo_perdida }) : null,
     el('span', { class: 'bj-card__pie' }, [
       el('span', { text: mayus(enEtapa(v.etapa_en)) }),
-      v.no_leidos ? el('span', { class: 'bj-card__n', 'aria-label': T(`${v.no_leidos} sin leer`, `${v.no_leidos} unread`), text: String(v.no_leidos) }) : null,
+      v.no_leidos ? el('span', { class: 'bj-card__n', title: T(`${v.no_leidos} ${v.no_leidos === 1 ? 'mensaje' : 'mensajes'} sin leer`, `${v.no_leidos} unread`), 'aria-label': T(`${v.no_leidos} ${v.no_leidos === 1 ? 'mensaje' : 'mensajes'} sin leer`, `${v.no_leidos} unread`) }, [icon('chat', 11), el('span', { text: String(v.no_leidos) })]) : null,
     ].filter(Boolean)),
   ].filter(Boolean));
 }
@@ -477,6 +484,7 @@ function conectarArrastre(t) {
 
 // ── Cambio de etapa (tablero y oportunidad) ──────────────────────────────────
 // Perdido pide el motivo; Cita agendada sin fecha ofrece anotarla.
+export function cambiarEtapaCRM(v, nueva, opts = {}) { return moverEtapa(v, nueva, opts); }
 async function moverEtapa(v, nueva, { anchor = null, optimista = false } = {}) {
   if (!nueva || nueva === v.etapa) return false;
   const cuerpo = { etapa: nueva };
@@ -490,14 +498,17 @@ async function moverEtapa(v, nueva, { anchor = null, optimista = false } = {}) {
     Object.assign(v, { etapa: nueva, etapa_en: new Date().toISOString().slice(0, 19).replace('T', ' ') }, cuerpo.motivo_perdida ? { motivo_perdida: cuerpo.motivo_perdida } : {});
     pintarContenido(true);
   }
+  let r = null;
   try {
-    await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, cuerpo);
+    r = await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, cuerpo);
   } catch (e) {
     if (optimista) { Object.assign(v, antes); pintarContenido(true); }
     toast(e.message, { type: 'error' });
     return false;
   }
-  toast(T(`${d.nombreDe(v)} pasó a ${etq(nueva)}`, `${d.nombreDe(v)} moved to ${etq(nueva)}`), { type: 'success' });
+  const nc = (r && r.tareas_canceladas) || 0;
+  toast(T(`${d.nombreDe(v)} pasó a ${etq(nueva)}`, `${d.nombreDe(v)} moved to ${etq(nueva)}`)
+    + (nc ? T(` · se cancelaron ${nc === 1 ? 'su tarea pendiente' : `sus ${nc} tareas pendientes`}`, ` · ${nc} pending ${nc === 1 ? 'task' : 'tasks'} cancelled`) : ''), { type: 'success' });
   if (nueva === 'cita' && !v.fecha_cita) await pedirCita(v);
   trasCambio(v.id);
   return true;
@@ -646,7 +657,7 @@ function filaTarea(t, { enOp = false } = {}) {
   const cuerpo = enOp
     ? el('div', { class: 'bj-tarea__cuerpo' }, [el('span', { class: 'bj-tarea__titulo', text: t.titulo }), meta, t.notas ? el('span', { class: 'bj-tarea__notas', text: t.notas }) : null].filter(Boolean))
     : el('button', { type: 'button', class: 'bj-tarea__cuerpo', 'aria-label': T(`Abrir la oportunidad de ${nombreDeTarea(t)}`, `Open ${nombreDeTarea(t)}’s deal`), onclick: () => abrirOportunidad(t.conv_id) }, [el('span', { class: 'bj-tarea__titulo', text: t.titulo }), meta]);
-  const menu = el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-tarea__menu', 'aria-label': T('Opciones de la tarea', 'Task options'), onclick: (e) => menuTarea(t, e.currentTarget) }, [icon('dots', 18)]);
+  const menu = el('button', { type: 'button', class: 'btn btn-ghost btn-icon bj-tarea__menu', 'aria-label': T('Opciones de la tarea', 'Task options'), onclick: (e) => menuTarea(t, e.currentTarget, { enOp }) }, [icon('dots', 18)]);
   return el('div', { class: 'bj-tarea is-' + ev, role: 'listitem' }, [check, cuerpo, menu]);
 }
 
@@ -664,7 +675,7 @@ async function marcarTarea(t, estado) {
   } catch (e) { toast(e.message, { type: 'error' }); return false; }
 }
 
-async function menuTarea(t, anchor) {
+async function menuTarea(t, anchor, { enOp = false } = {}) {
   const ctx = d.ctx();
   const pend = t.estado !== 'hecha';
   const k = await ctx.sheet.pickFrom({
@@ -673,14 +684,15 @@ async function menuTarea(t, anchor) {
       pend ? { value: 'editar', label: T('Editar o reprogramar', 'Edit or reschedule'), icon: icon('edit', 18) } : null,
       pend ? { value: 'manana', label: T('Pasarla a mañana', 'Move to tomorrow'), sub: t.vence_en ? T(`Misma hora: ${aCancun(t.vence_en).hora}`, `Same time: ${aCancun(t.vence_en).hora}`) : T('Mañana a las 10:00', 'Tomorrow at 10:00'), icon: icon('clock', 18) } : null,
       !pend ? { value: 'reabrir', label: T('Volver a pendiente', 'Back to pending'), icon: icon('refresh', 18) } : null,
-      { value: 'abrir', label: T('Ver la oportunidad', 'Open the deal'), icon: icon('briefcase', 18) },
+      // Dentro de la oportunidad ya se está viendo: ahí no se ofrece.
+      !enOp ? { value: 'abrir', label: T('Ver la oportunidad', 'Open the deal'), icon: icon('briefcase', 18) } : null,
       { value: 'borrar', label: T('Borrar tarea', 'Delete task'), icon: icon('trash', 18), color: '#ef4444' },
     ].filter(Boolean),
   });
   if (!k) return;
   const listo = () => trasCambio(t.conv_id);
   try {
-    if (k === 'editar') { editarTarea(t, listo); return; }
+    if (k === 'editar') { editarTarea(t, listo, abierta && abierta.id === t.conv_id ? abierta.asignado() : undefined); return; }
     if (k === 'abrir') { if (!(abierta && abierta.id === t.conv_id)) abrirOportunidad(t.conv_id); return; }
     if (k === 'reabrir') { if (await marcarTarea(t, 'pendiente')) listo(); return; }
     if (k === 'manana') {
@@ -712,8 +724,10 @@ function horarioSugerido() {
   return { fecha: hoyCun(), hora: String(hora + 1).padStart(2, '0') + ':00' };
 }
 
-function formTarea({ tarea = null, conv = null, alGuardar, alCancelar }) {
+function formTarea({ tarea = null, conv = null, convAsignado = undefined, alGuardar, alCancelar }) {
   const yo = d.yoMe() || {};
+  // Quién atiende al paciente: de él (o del supervisor) son sus tareas.
+  const dueno = conv ? (conv.asignado_a || null) : (convAsignado !== undefined ? convAsignado : (tarea && tarea.conv_asignado !== undefined ? tarea.conv_asignado : null));
   const sug = horarioSugerido();
   const c = tarea && tarea.vence_en ? aCancun(tarea.vence_en) : null;
   const st = {
@@ -748,8 +762,10 @@ function formTarea({ tarea = null, conv = null, alGuardar, alCancelar }) {
   }
   pintarAtajos();
   // Responsable: el supervisor (o la agencia) elige; el agente se la pone a sí mismo.
-  const agentes = d.equipoAgentes();
-  const puedeElegir = d.esSupervisor() && agentes.length;
+  // Una agente solo puede tener tareas de pacientes que ella atiende (o que
+  // nadie atiende): si el paciente ya tiene agente, la lista es ella y tú.
+  const agentes = d.equipoAgentes().filter((a) => !dueno || a.id === dueno);
+  const puedeElegir = d.esSupervisor() && agentes.some((a) => a.id !== yo.id);
   const btnResp = el('button', { type: 'button', class: 'bj-campo-etapa bj-ftarea__resp', id: 'bj-tarea-resp' + sfx, disabled: !puedeElegir });
   const pintarResp = () => { clear(btnResp); poner(btnResp, icon('user', 16), el('span', { class: 'bj-campo-etapa__txt', text: st.asignado === yo.id ? T(`Tú (${primerNombre(yo.name)})`, `You (${primerNombre(yo.name)})`) : st.asignadoNombre }), puedeElegir ? icon('down', 16) : null); };
   pintarResp();
@@ -781,7 +797,7 @@ function formTarea({ tarea = null, conv = null, alGuardar, alCancelar }) {
       campo(T('Hora (Cancún)', 'Time (Cancún)'), hora, { id: 'bj-tarea-hora' + sfx }),
     ]),
     atajos,
-    campo(T('Responsable', 'Owner'), btnResp, { id: 'bj-tarea-resp' + sfx }),
+    campo(T('Responsable', 'Owner'), btnResp, { id: 'bj-tarea-resp' + sfx, hint: d.esSupervisor() && dueno ? T('Solo quien atiende a este paciente, o tú.', 'Only whoever handles this patient, or you.') : null }),
     campo(T('Notas', 'Notes'), notas, { id: 'bj-tarea-notas' + sfx }),
     el('div', { class: 'bj-op__btns' }, [
       el('button', { type: 'button', class: 'btn btn-ghost', onclick: alCancelar }, [T('Cancelar', 'Cancel')]),
@@ -790,12 +806,12 @@ function formTarea({ tarea = null, conv = null, alGuardar, alCancelar }) {
   ]);
 }
 
-function editarTarea(t, listo) {
+function editarTarea(t, listo, convAsignado = undefined) {
   d.ctx().sheet.openSheet({
     title: T('Editar tarea', 'Edit task'), mode: 'form',
     build(body, close) {
       body.appendChild(formTarea({
-        tarea: t,
+        tarea: t, convAsignado,
         alCancelar: () => close({ force: true }),
         alGuardar: async (c) => {
           const cambios = {};
@@ -863,7 +879,6 @@ export async function abrirOportunidad(convId) {
       moneda: v.moneda || 'MXN',
       motivo: v.motivo_perdida || '',
       notas: v.notas || '',
-      seguimiento: v.seguimiento || '',
       plan: { items: (plan.items || []).map((i) => ({ id: i.id || rid(), tratamiento: i.tratamiento || '', detalle: i.detalle || '', precio: i.precio != null ? String(i.precio) : '', estado: i.estado || 'propuesto' })), notas: plan.notas || '' },
     };
   };
@@ -891,7 +906,7 @@ export async function abrirOportunidad(convId) {
     },
   });
   inst.el.classList.add('sheet--op');
-  abierta = { id: v.id, recargar };
+  abierta = { id: v.id, recargar, asignado: () => v.asignado_a || null };
 
   // Salir de la hoja hacia otra cosa (chat): con cambios, pregunta primero.
   async function salirY(fn) {
@@ -974,7 +989,8 @@ export async function abrirOportunidad(convId) {
   function botonResponsable() {
     const agentes = d.equipoAgentes();
     if (d.esAgente()) {
-      if (v.asignado_a) return el('span', { class: 'bj-asignado is-mio' }, [icon('user', 12), el('span', { text: T('Tuyo', 'Yours') })]);
+      // Texto, no pastilla: no hay nada que tocar (lo que parece botón tiene que hacer algo).
+      if (v.asignado_a) return el('span', { class: 'bj-op__tuyo' }, [icon('user', 14), el('span', { text: T('Lo atiendes tú', 'You handle this patient') })]);
       return el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
         try { await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/asignar`, { user_id: d.yoMe().id }); toast(T('Listo: este paciente ya es tuyo.', 'Done: this patient is yours now.'), { type: 'success' }); trasCambio(v.id); }
         catch (e) { toast(e.message, { type: 'error' }); }
@@ -1095,8 +1111,9 @@ export async function abrirOportunidad(convId) {
           el('p', { class: 'field__hint muted', id: 'bj-op-valor-hint', text: conPlan ? T('Se calcula solo con los precios del plan de tratamiento (sin lo rechazado).', 'Calculated from the treatment plan prices (declined items excluded).') : T('Si armas el plan de tratamiento con precios, el valor se calcula solo.', 'Build the treatment plan with prices and the value is calculated for you.') }),
         ]),
         perdido ? campo(T('Motivo de pérdida', 'Lost reason'), motivo, { id: 'bj-op-motivo', ancho: true }) : null,
-        campo(T('Dar seguimiento el', 'Follow up on'), inp('seguimiento', { type: 'date' }), { id: 'bj-op-seguimiento', hint: T('Ese día te llega un aviso al teléfono.', 'You get a phone alert that day.') }),
-        campo(T('Notas', 'Notes'), notas, { id: 'bj-op-notas', ancho: true }),
+        // El siguiente paso se agenda como TAREA (con hora, responsable y aviso);
+        // la vieja fecha suelta de "seguimiento" ya no se pide aquí.
+        campo(T('Notas del paciente', 'Patient notes'), notas, { id: 'bj-op-notas', ancho: true, hint: T('Lo que todo el equipo debe saber de este paciente. Lo del día a día va en Comentarios, en el historial.', 'What the whole team should know about this patient. Day-to-day updates go in Comments, in the history.') }),
       ].filter(Boolean)),
       el('div', { class: 'bj-op__meta' }, [
         el('span', { class: 'muted', text: `${d.CANAL_TXT[v.canal] || v.canal} · ${v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : 'ID ' + v.contacto_id)}` }),
@@ -1188,12 +1205,17 @@ export async function abrirOportunidad(convId) {
       title: T('Agregar tratamiento', 'Add treatment'), anchor,
       options: [
         { value: '__otro', label: T('Escribir otro tratamiento', 'Type another treatment'), icon: icon('edit', 18) },
-        ...cat.lista.filter((c) => !usados.has(c.nombre.toLowerCase())).map((c) => ({ value: c.nombre, label: c.nombre, sub: c.precio != null ? fmtDinero(c.precio, bor.moneda) : T('Sin precio de lista', 'No list price') })),
+        // Los precios de lista están en pesos: en una oportunidad en dólares se
+        // muestran como referencia y el precio se escribe a mano.
+        ...cat.lista.filter((c) => !usados.has(c.nombre.toLowerCase())).map((c) => ({
+          value: c.nombre, label: c.nombre,
+          sub: c.precio == null ? T('Sin precio de lista', 'No list price') : (bor.moneda === 'USD' ? T(`Lista: ${fmtDinero(c.precio, 'MXN')} MXN (escribe el precio en dólares)`, `List: ${fmtDinero(c.precio, 'MXN')} MXN (type the USD price)`) : fmtDinero(c.precio, 'MXN')),
+        })),
       ],
     });
     if (!k) return;
     const c = cat.lista.find((x) => x.nombre === k);
-    const it = { id: rid(), tratamiento: k === '__otro' ? '' : k, detalle: '', precio: c && c.precio != null ? String(c.precio) : '', estado: 'propuesto' };
+    const it = { id: rid(), tratamiento: k === '__otro' ? '' : k, detalle: '', precio: c && c.precio != null && bor.moneda !== 'USD' ? String(c.precio) : '', estado: 'propuesto' };
     bor.plan.items.push(it);
     pintarPlan(); refrescarTotales(); pintarTabs(); pintarPie();
     setTimeout(() => {
@@ -1366,7 +1388,6 @@ export async function abrirOportunidad(convId) {
     }
     if (cambio('motivo')) cuerpo.motivo_perdida = bor.motivo.trim();
     if (cambio('notas')) cuerpo.notas = bor.notas;
-    if (cambio('seguimiento')) cuerpo.seguimiento = bor.seguimiento || '';
     if (cambio('plan') || (cambio('moneda') && bor.plan.items.length)) {
       cuerpo.plan_tratamiento = {
         items: bor.plan.items.filter((i) => i.tratamiento.trim()).map((i) => ({ id: i.id, tratamiento: i.tratamiento.trim(), detalle: i.detalle.trim(), precio: numero(i.precio), estado: i.estado })),

@@ -7,17 +7,17 @@
 // arrastran entre celdas (motor ui/dnd.js).
 // ============================================================================
 
-import { el, statusBadge } from '../api.js?v=202610151626';
-import { T } from '../shell/i18n.js?v=202610151626';
+import { el, statusBadge } from '../api.js?v=202610151653';
+import { T } from '../shell/i18n.js?v=202610151653';
 import {
   fmtYMD, startOfMonth, monthMatrix, sameMonth, todayYMD,
   dayLong, statusInfo, clientDotEl, DOW_SHORT,
-} from './data.js?v=202610151626';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202610151626';
-import { openQuickCreate } from './quickcreate.js?v=202610151626';
+} from './data.js?v=202610151653';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202610151653';
+import { openQuickCreate } from './quickcreate.js?v=202610151653';
 // Vianey (2026-09-11): al tocar una pieza en la Cuadricula tiene que salir el
 // MISMO panel de guion que en el Calendario, no el editor a pantalla partida.
-import { abrirGuion } from '../lib/guion-drawer.js?v=202610151626';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202610151653';
 
 const MAX_PILLS = 3;
 

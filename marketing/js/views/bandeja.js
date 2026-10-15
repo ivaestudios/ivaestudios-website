@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151626';
-import { toast } from '../shell/toast.js?v=202610151626';
-import { icon, iconMarca } from '../shell/icons.js?v=202610151626';
-import { T, isEN } from '../shell/i18n.js?v=202610151626';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento } from './bandeja-crm.js?v=202610151626';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610151653';
+import { toast } from '../shell/toast.js?v=202610151653';
+import { icon, iconMarca } from '../shell/icons.js?v=202610151653';
+import { T, isEN } from '../shell/i18n.js?v=202610151653';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610151653';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -46,6 +46,7 @@ let estadoCom = 'pendientes';  // 'pendientes' | 'todos'
 let asignado = '';             // '' | 'yo' | 'sin'
 let porSeguir = false;         // la persona lleva días sin contestar
 let sinResponder = false;      // el último mensaje es de la persona
+let verArchivadas = false;     // conversaciones archivadas (para recuperarlas)
 let periodo = 30;              // días del dashboard
 let desempeno = null;
 let llamadasPanel = null;      // { llamadas, totales, linea } del periodo (supervisor)
@@ -168,6 +169,7 @@ async function cargarLista({ silencioso = false } = {}) {
       if (asignado) qs.set('asignado', asignado);
       if (porSeguir) qs.set('por_seguir', '1');
       if (sinResponder) qs.set('sin_responder', '1');
+      if (verArchivadas) qs.set('archivadas', '1');
       if (busqueda) qs.set('q', busqueda);
       const r = await api.get(`/bandeja/conversaciones?${qs}`);
       convs = r.conversaciones || [];
@@ -395,6 +397,8 @@ const VISTAS = [
   ['por_seguir', 'refresh', () => T('Por seguir', 'Follow up')],
   ['mios', 'user', () => T('Míos', 'Mine')],
   ['sin_asignar', 'users', () => T('Sin asignar', 'Unassigned')],
+  // Lo archivado se puede ver y recuperar (antes archivar era sin regreso).
+  ['archivadas', 'archive', () => T('Archivadas', 'Archived')],
 ];
 function vistaActual() {
   if (soloSinLeer) return 'sin_leer';
@@ -402,6 +406,7 @@ function vistaActual() {
   if (porSeguir) return 'por_seguir';
   if (asignado === 'yo') return 'mios';
   if (asignado === 'sin') return 'sin_asignar';
+  if (verArchivadas) return 'archivadas';
   return '';
 }
 function ponerVista(k) {
@@ -409,6 +414,7 @@ function ponerVista(k) {
   sinResponder = k === 'sin_responder';
   porSeguir = k === 'por_seguir';
   asignado = k === 'mios' ? 'yo' : (k === 'sin_asignar' ? 'sin' : '');
+  verArchivadas = k === 'archivadas';
 }
 // Botón de menú: etiqueta chica arriba, valor elegido abajo. Lleno = filtrando.
 function menuFiltro({ titulo, hoja = '', valor, activo, opciones, alElegir }) {
@@ -441,6 +447,7 @@ function filtrosMensajes() {
         sin_responder: T('El último mensaje es de la persona', 'The last message is from the person'),
         por_seguir: r && r.por_seguir ? T(`${r.por_seguir} llevan días sin contestar`, `${r.por_seguir} have gone quiet for days`) : T('Llevan días sin contestar', 'Gone quiet for days'),
         mios: T('Los que atiendes tú', 'The ones you handle'),
+        archivadas: T('Para verlas o recuperarlas', 'To view or restore them'),
         sin_asignar: r && r.sin_asignar ? T(`${r.sin_asignar} sin agente`, `${r.sin_asignar} without an agent`) : T('Sin agente', 'Without an agent'),
       };
       return VISTAS.filter(([k]) => hayEquipo || (k !== 'mios' && k !== 'sin_asignar'))
@@ -489,7 +496,7 @@ function listaConvs() {
       nada ? T('Conecta una red primero', 'Connect a network first') : T('Sin conversaciones', 'No conversations'),
       nada
         ? T('Conecta Instagram o Facebook en Conexiones y los mensajes de esta marca aparecerán aquí.', 'Connect Instagram or Facebook in Connections and this brand’s messages will show up here.')
-        : (soloSinLeer || canal || etapa || busqueda || asignado || porSeguir || sinResponder
+        : (soloSinLeer || canal || etapa || busqueda || asignado || porSeguir || sinResponder || verArchivadas
           ? T('Nada con esos filtros.', 'Nothing matches those filters.')
           : T('Cuando alguien escriba a esta marca por Instagram, Messenger o WhatsApp, aparece aquí y te avisamos.', 'When someone messages this brand on Instagram, Messenger or WhatsApp it shows up here and we notify you.')));
   }
@@ -569,7 +576,8 @@ function chat() {
         v.username && v.nombre ? el('span', { class: 'muted bj-chat__user', text: '@' + v.username }) : null,
         el('button', { type: 'button', class: 'bj-etapa', 'aria-label': T('Cambiar etapa', 'Change stage'), onclick: async (e) => {
           const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
-          if (nueva && nueva !== v.etapa) { await cambiarEtapa(v, nueva); pintarCuerpo(); }
+          // Mismo camino que el embudo: Perdido pide el motivo y Cita la fecha.
+          if (nueva && nueva !== v.etapa) await cambiarEtapaCRM(v, nueva, { anchor: e.currentTarget });
         } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }), icon('down', 13)]),
         botonAsignado(v),
       ].filter(Boolean)),
@@ -1271,15 +1279,6 @@ async function sugerirConv(v, ta, btn) {
   } finally { delete btn.dataset.loading; }
 }
 
-async function cambiarEtapa(v, nueva) {
-  try {
-    await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, { etapa: nueva });
-    v.etapa = nueva;
-    const enLista = convs.find((x) => x.id === v.id);
-    if (enLista) enLista.etapa = nueva;
-    toast(T(`Etapa: ${ETAPA_TXT[nueva]()}`, `Stage: ${ETAPA_TXT[nueva]()}`), { type: 'success' });
-  } catch (e) { toast(e.message, { type: 'error' }); }
-}
 
 // ── Comentarios ──────────────────────────────────────────────────────────────
 function filtrosComentarios() {
@@ -1963,7 +1962,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610151626';
+  link.href = '/marketing/css/bandeja.css?v=202610151653';
   document.head.appendChild(link);
 }
 
@@ -2000,7 +1999,7 @@ export default {
     cuerpoEl = el('div', { class: 'bj-cuerpo' });
     rootEl = el('div', { class: 'bj-root' }, [headEl, segEl, cuerpoEl]);
     host.appendChild(rootEl);
-    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; desempeno = null; infoPlantilla.clear(); reiniciarCRM(); arrancar(); }));
+    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; verArchivadas = false; desempeno = null; infoPlantilla.clear(); reiniciarCRM(); arrancar(); }));
     arrancar();
     programarRefresco();
   },

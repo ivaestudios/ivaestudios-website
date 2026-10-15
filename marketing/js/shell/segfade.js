@@ -34,7 +34,9 @@ function adoptar(seg) {
   if (VISTOS.has(seg)) return;
   VISTOS.add(seg);
   seg.addEventListener('scroll', () => medir(seg), { passive: true });
-  try { new ResizeObserver(() => medir(seg)).observe(seg); } catch { /* navegador viejo */ }
+  // Medir en el siguiente cuadro: medir dentro del aviso del observador hacía
+  // que el navegador reportara "ResizeObserver loop" al abrir una hoja.
+  try { new ResizeObserver(() => requestAnimationFrame(() => medir(seg))).observe(seg); } catch { /* navegador viejo */ }
   // Las fuentes propias llegan despues del primer pintado y cambian el ancho.
   medir(seg);
   try { document.fonts?.ready?.then(() => medir(seg)); } catch { /* noop */ }

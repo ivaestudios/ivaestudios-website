@@ -328,6 +328,16 @@ async function siguienteAgente(env, clientId, excluir = null) {
 }
 export async function asignar(env, c, convId, agente, { tipo = 'asignacion', dato = null } = {}) {
   await env.DB.prepare("UPDATE mkt_conversaciones SET asignado_a = ?, asignado_en = datetime('now') WHERE id = ?").bind(agente.id, convId).run();
+  // Las tareas pendientes que tenía otra AGENTE se van con el paciente: si no,
+  // le quedan tareas de un paciente que ya no puede abrir (las del supervisor
+  // o de la agencia se quedan con ellos).
+  try {
+    await env.DB.prepare(
+      `UPDATE mkt_bandeja_tareas SET asignado_a = ?, asignado_nombre = ?
+        WHERE conv_id = ? AND estado = 'pendiente' AND asignado_a IS NOT NULL AND asignado_a <> ?
+          AND asignado_a IN (SELECT id FROM mkt_users WHERE bandeja_rol = 'agente')`
+    ).bind(agente.id, agente.name, convId, agente.id).run();
+  } catch { /* antes de la migración 044 */ }
   await registrarEvento(env, { clientId: c.id, convId, userId: agente.id, userNombre: agente.name, tipo, dato });
 }
 // Al entrar un mensaje: si el chat no tiene agente (o el suyo ya no está activo)
@@ -1366,7 +1376,7 @@ function tareaPublica(t) {
     id: t.id, conv_id: t.conv_id, titulo: t.titulo, tipo: t.tipo, vence_en: t.vence_en, estado: t.estado, notas: t.notas || null,
     asignado_a: t.asignado_a, asignado_nombre: t.asignado_nombre, creado_por: t.creado_por, creado_por_nombre: t.creado_por_nombre,
     creado: t.creado, hecha_en: t.hecha_en, hecha_por_nombre: t.hecha_por_nombre,
-    ...(t.conv_nombre !== undefined ? { conv_nombre: t.conv_nombre, conv_username: t.conv_username, conv_canal: t.conv_canal, conv_contacto: t.conv_contacto, conv_etapa: t.conv_etapa } : {}),
+    ...(t.conv_nombre !== undefined ? { conv_nombre: t.conv_nombre, conv_username: t.conv_username, conv_canal: t.conv_canal, conv_contacto: t.conv_contacto, conv_etapa: t.conv_etapa, conv_asignado: t.conv_asignado || null } : {}),
   };
 }
 // Hora de Cancún (UTC-5 todo el año) para los textos de los avisos.
@@ -1406,11 +1416,16 @@ export async function handleBandeja(request, env, session, url, parts) {
   const prohibido = () => json({ error: 'No tienes permiso para esto.' }, 403);
   // Quién puede quedar a cargo de una tarea: el agente solo se la pone a sí
   // mismo; el supervisor y la agencia, a cualquiera del equipo o a sí mismos.
-  const responsableTarea = async (uid, clientId) => {
+  // Y una agente solo puede tener tareas de un paciente que ella atiende (o
+  // que nadie atiende): si no, no podría abrirlo.
+  const responsableTarea = async (uid, clientId, conv) => {
     if (!uid || uid === yo) return { id: yo, nombre: session.name };
     if (esAgente) return { error: 'Solo puedes crear tareas para ti.', status: 403 };
     const u = (await equipoDeMarca(env, clientId)).find((x) => x.id === uid);
     if (!u) return { error: 'Esa persona no pertenece al equipo de esta marca.' };
+    if (u.bandeja_rol === 'agente' && conv && conv.asignado_a && conv.asignado_a !== u.id) {
+      return { error: `${u.name} no atiende a este paciente. Asígnaselo primero o deja la tarea a quien lo atiende.` };
+    }
     return { id: u.id, nombre: u.name };
   };
 
@@ -1439,8 +1454,8 @@ export async function handleBandeja(request, env, session, url, parts) {
       const finHoy = new Date(Date.parse(hoyCun + 'T23:59:59Z') + 5 * 3600e3).toISOString().slice(0, 19).replace('T', ' ');
       const x = await env.DB.prepare(
         `SELECT COUNT(*) AS n FROM mkt_bandeja_tareas t JOIN mkt_conversaciones v ON v.id = t.conv_id
-          WHERE t.client_id = ? AND t.estado = 'pendiente' AND v.archivado = 0 AND t.vence_en IS NOT NULL AND t.vence_en <= ?${esAgente ? ' AND t.asignado_a = ?' : ''}`
-      ).bind(c.id, finHoy, ...(esAgente ? [yo] : [])).first();
+          WHERE t.client_id = ? AND t.estado = 'pendiente' AND v.archivado = 0 AND t.vence_en IS NOT NULL AND t.vence_en <= ?${esAgente ? ' AND (t.asignado_a = ? OR v.asignado_a = ?)' : ''}`
+      ).bind(c.id, finHoy, ...(esAgente ? [yo, yo] : [])).first();
       tareasHoy = Number(x && x.n) || 0;
     } catch { tareasHoy = 0; }
     let estado = null;
@@ -1542,7 +1557,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         // Llamadas con la línea (grabadas o no). Sin la tabla (antes de la migración 043) no hay.
         env.DB.prepare("SELECT * FROM mkt_llamadas WHERE conv_id = ? AND estado NOT IN ('iniciando') AND (twilio_sid IS NOT NULL OR direccion = 'entrante') ORDER BY creado ASC LIMIT 100").bind(conv.id).all().catch(() => ({ results: [] })),
         // Tareas de la oportunidad: pendientes primero (la que vence antes arriba).
-        env.DB.prepare("SELECT * FROM mkt_bandeja_tareas WHERE conv_id = ? ORDER BY (estado = 'hecha'), (vence_en IS NULL), vence_en, creado LIMIT 100").bind(conv.id).all().catch(() => ({ results: [] })),
+        env.DB.prepare("SELECT * FROM mkt_bandeja_tareas WHERE conv_id = ? AND estado <> 'cancelada' ORDER BY (estado = 'hecha'), (vence_en IS NULL), vence_en, creado LIMIT 100").bind(conv.id).all().catch(() => ({ results: [] })),
       ]);
       // Abrir la oportunidad desde el embudo NO es leer el chat (?marcar=0).
       const marcar = qp('marcar') !== '0';
@@ -1621,11 +1636,23 @@ export async function handleBandeja(request, env, session, url, parts) {
       await env.DB.prepare(`UPDATE mkt_conversaciones SET ${sets.join(', ')} WHERE id = ?`).bind(...binds).run();
       const ev = (tipo, dato) => registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo, dato });
       if (etapaNueva) await ev('etapa', { de: conv.etapa, a: etapaNueva, ...(etapaNueva === 'perdido' && b.motivo_perdida ? { motivo: String(b.motivo_perdida).trim().slice(0, 300) } : {}) });
+      // Perdido: sus tareas pendientes ya no tienen caso (si no, seguirían
+      // llegando avisos de "Ya toca llamar…" de alguien que ya se perdió).
+      let canceladas = 0;
+      if (etapaNueva === 'perdido') {
+        try {
+          const r = await env.DB.prepare(
+            "UPDATE mkt_bandeja_tareas SET estado = 'cancelada', hecha_en = datetime('now'), hecha_por_nombre = ? WHERE conv_id = ? AND estado = 'pendiente'"
+          ).bind(session.name, conv.id).run();
+          canceladas = Number(r && r.meta && r.meta.changes) || 0;
+        } catch { canceladas = 0; }
+        if (canceladas) await ev('tarea', { accion: 'canceladas', n: canceladas });
+      }
       if (planNuevo !== undefined && JSON.stringify(leerPlan(conv.plan_tratamiento)) !== JSON.stringify(planNuevo)) {
         await ev('plan', { n: planNuevo ? planNuevo.items.length : 0, total: totalPlan(planNuevo), moneda: b.moneda || conv.moneda || 'MXN' });
       }
       if (citaCambio) await ev('cita', citaCambio);
-      return json({ ok: true, valor_estimado: valor !== undefined ? valor : conv.valor_estimado });
+      return json({ ok: true, valor_estimado: valor !== undefined ? valor : conv.valor_estimado, tareas_canceladas: canceladas });
     }
 
     // Comentario en el historial ("pasó a la clínica, se le dio el presupuesto impreso").
@@ -1646,7 +1673,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       const tipo = TIPOS_TAREA.includes(b.tipo) ? b.tipo : 'seguimiento';
       const vence = b.vence_en ? fechaUtc(b.vence_en) : null;
       if (b.vence_en && !vence) return json({ error: 'La fecha límite lleva fecha y hora.' }, 400);
-      let resp = await responsableTarea(b.asignado_a || conv.asignado_a || yo, conv.client_id);
+      let resp = await responsableTarea(b.asignado_a || conv.asignado_a || yo, conv.client_id, conv);
       // Si el agente del chat ya no está en el equipo, la tarea queda para quien la crea.
       if (resp.error && !b.asignado_a) resp = { id: yo, nombre: session.name };
       if (resp.error) return json({ error: resp.error }, resp.status || 400);
@@ -1807,6 +1834,7 @@ export async function handleBandeja(request, env, session, url, parts) {
                 v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.origen, v.created_at,
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_array_length(v.plan_tratamiento, '$.items') ELSE 0 END AS plan_n,
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente') AS tareas_pend,
+                (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente' AND t.vence_en IS NOT NULL AND t.vence_en < datetime('now')) AS tareas_vencidas,
                 (SELECT t.id || '|' || t.tipo || '|' || COALESCE(t.vence_en, '') || '|' || t.titulo FROM mkt_bandeja_tareas t
                   WHERE t.conv_id = v.id AND t.estado = 'pendiente' ORDER BY (t.vence_en IS NULL), t.vence_en, t.creado LIMIT 1) AS proxima
            FROM mkt_conversaciones v LEFT JOIN mkt_users u ON u.id = v.asignado_a
@@ -1841,7 +1869,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     let filas = [];
     try {
       filas = (await env.DB.prepare(
-        `SELECT t.*, v.nombre AS conv_nombre, v.username AS conv_username, v.canal AS conv_canal, v.contacto_id AS conv_contacto, v.etapa AS conv_etapa
+        `SELECT t.*, v.nombre AS conv_nombre, v.username AS conv_username, v.canal AS conv_canal, v.contacto_id AS conv_contacto, v.etapa AS conv_etapa, v.asignado_a AS conv_asignado
            FROM mkt_bandeja_tareas t JOIN mkt_conversaciones v ON v.id = t.conv_id
           WHERE ${where.join(' AND ')}
           ORDER BY ${hechas ? 't.hecha_en DESC' : '(t.vence_en IS NULL), t.vence_en, t.creado'} LIMIT 300`
@@ -1892,7 +1920,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     }
     let avisarA = null;
     if (b.asignado_a !== undefined) {
-      const resp = await responsableTarea(b.asignado_a, t.client_id);
+      const resp = await responsableTarea(b.asignado_a, t.client_id, await convDeMiWs(env, ws, t.conv_id));
       if (resp.error) return json({ error: resp.error }, resp.status || 400);
       if (resp.id !== t.asignado_a) {
         sets.push('asignado_a = ?', 'asignado_nombre = ?'); binds.push(resp.id, resp.nombre);

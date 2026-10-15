@@ -827,7 +827,8 @@ video.bj-adj { max-height: 320px; width: 100%; }
    Solo donde el contenedor no recorta (overflow visible). */
 @media (max-width: 899px) {
   .bj-canal, .bj-etapa, .bj-asignado, .bj-call__resbtn, .bj-call__quien, .bj-play__btn, .bj-seg button, .bj-filtros .bj-filtro, .bj-res .bj-filtro,
-  .bj-chat__head .btn-icon, .bj-plantilla .bj-plantilla__seg button { position: relative; }
+  .bj-chat__head .btn-icon, .bj-plantilla .bj-plantilla__seg button, .bj-dispo { position: relative; }
+  .bj-dispo::before,
   .bj-canal::before, .bj-etapa::before, .bj-asignado::before, .bj-call__resbtn::before, .bj-call__quien::before, .bj-play__btn::before,
   .bj-seg button::before, .bj-filtros .bj-filtro::before, .bj-res .bj-filtro::before,
   .bj-chat__head .btn-icon::before, .bj-plantilla .bj-plantilla__seg button::before {
@@ -896,6 +897,8 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-emb__kpi-n { font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .bj-emb__kpi-lbl { font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--text-dim); }
 .bj-emb__kpi.is-mal .bj-emb__kpi-n { color: var(--crm-rojo); }
+button.bj-emb__kpi { position: relative; padding-right: 58px; }
+.bj-emb__kpi-ver { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 700; color: var(--text-dim); }
 @media (min-width: 700px) { .bj-emb__kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 /* Barra de etapas del teléfono (salta entre columnas) */
@@ -975,7 +978,8 @@ button.bj-emb__kpi:focus-visible { outline: none; box-shadow: var(--ring); }
 .bj-card__cita.is-pasada { color: var(--text-mute); }
 .bj-card__motivo { font-size: 12px; line-height: 1.35; color: var(--text-dim); font-style: italic; overflow-wrap: anywhere; }
 .bj-card__pie { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.5px; color: var(--text-mute); }
-.bj-card__n { flex: none; display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 11px; font-weight: 800; }
+/* Mensajes sin leer: globito + número (antes un número suelto que no decía qué era). */
+.bj-card__n { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .bj-emb__nota { margin: 0; font-size: 12px; line-height: 1.45; }
 .bj-emb__vacio { display: grid; justify-items: center; gap: 8px; padding: 36px 16px; text-align: center; color: var(--text-dim); }
 .bj-emb__vacio p { margin: 0; max-width: 46ch; line-height: 1.45; }
@@ -1041,6 +1045,7 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-op__valor-n.is-vacio { font-size: 15px; font-weight: 700; color: var(--text-mute); }
 .bj-op__acciones { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
 .bj-op__acciones .btn { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.bj-op__tuyo { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; font-size: 13px; font-weight: 700; color: var(--text-dim); }
 
 /* Barra de etapas: flechas como en un CRM de ventas; la actual va llena. */
 /* Teléfono: la barra a todo el ancho; abajo la etapa actual y "Perdido".
