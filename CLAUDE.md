@@ -217,8 +217,10 @@ or external account access. Listed in priority order:
 
 ### Lower priority (Vianey may want to act on these)
 
-- `AggregateRating` — RESOLVED (2026-06-05): the real GBP rating is **5.0 / 47
-  reviews**, set on the #organization node site-wide. (Was a placeholder 5.0/42.)
+- `AggregateRating` y nodos `Review` — RETIRADOS de todo el JSON-LD (2026-10-16).
+  Son reseñas autoasignadas: Google no las muestra y Bing las trata como marcado
+  engañoso (el dominio estaba castigado en Bing). NO volver a ponerlos; las
+  estrellas reales salen de la ficha de Google, no del sitio.
 - No street address in `Organization` schema yet (waiting on #2 above).
 - Separate Google Business Profile for IVAE Marketing (sub-brand).
 - Pricing blocks on `cancun.html` + `riviera-maya.html` (placeholder).
