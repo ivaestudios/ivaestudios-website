@@ -91,7 +91,10 @@ async function liJson(url, init, contexto = '') {
   if (!res.ok) {
     const base = data.message || data.error_description || data.error || data.raw || `HTTP ${res.status}`;
     let msg;
-    if (res.status === 401) msg = 'LinkedIn ya no acepta el permiso de esta marca (LinkedIn lo da por 60 días). Reconéctala desde Conexiones.';
+    // Al CONECTAR, un 401 del intercambio no es un permiso vencido: LinkedIn
+    // contesta 401 a cualquier código caducado, usado o que no le cuadra.
+    if (contexto === 'accessToken') msg = 'LinkedIn no terminó la conexión (el intento caducó o ya se había usado). Vuelve a tocar "Conectar LinkedIn". Detalle: ' + base;
+    else if (res.status === 401) msg = 'LinkedIn ya no acepta el permiso de esta marca (LinkedIn lo da por 60 días). Reconéctala desde Conexiones.';
     else if (res.status === 403) msg = 'LinkedIn no dejó publicar: la persona que conectó debe ser administradora de la página, y para publicar como PÁGINA la app necesita el permiso de LinkedIn aprobado (Community Management API). Detalle: ' + base;
     else if (res.status === 429) msg = 'LinkedIn frenó por límite de llamadas (150 por persona al día). Reintentar más tarde.';
     else msg = `LinkedIn respondió ${res.status}${contexto ? ' en ' + contexto : ''}: ${base}`;
