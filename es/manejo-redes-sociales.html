@@ -1990,6 +1990,19 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 .reel-play{transition:opacity .35s ease}
 .reel-slot.is-playing .reel-play{opacity:0}
 
+/* Industrias como índice editorial (16-oct-2026) */
+#industrias .container{max-width:1100px!important}
+.ind-list{margin-top:2.4rem;border-top:1px solid rgba(255,255,255,.09);text-align:left}
+.ind-row{display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1.25fr) 24px;gap:32px;align-items:center;padding:26px 10px;border-bottom:1px solid rgba(255,255,255,.09);text-decoration:none;color:inherit;transition:background .3s ease}
+.ind-row:hover,.ind-row:focus-visible{background:rgba(226,77,160,.06)}
+.ind-row:focus-visible{outline:2px solid #F5A8D3;outline-offset:-2px}
+.ind-num{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.2em;color:#F5A8D3}
+.ind-row h3{margin:0;font-size:clamp(18px,1.55vw,21px);font-weight:600;line-height:1.3;color:#f0eee9;text-wrap:balance}
+.ind-row p{margin:0;font-size:15px;line-height:1.65;color:rgba(240,238,233,.62)}
+.ind-arrow{font-size:20px;line-height:1;color:rgba(245,168,211,.7);transition:transform .3s ease}
+.ind-row:hover .ind-arrow{transform:translateX(5px)}
+@media(max-width:768px){.ind-row{grid-template-columns:34px minmax(0,1fr) 18px;gap:6px 14px;padding:22px 4px;align-items:start}.ind-row h3{grid-column:2}.ind-row p{grid-column:2;grid-row:2;font-size:14px}.ind-arrow{grid-column:3;grid-row:1}.ind-num{padding-top:5px}}
+
 /* Pase profesional (16-oct-2026): sin íconos flotantes y muro de marcas */
 .floating-icons{display:none!important}
 .client-wall{display:grid;grid-template-columns:repeat(4,1fr);margin:44px auto 0;max-width:1040px;border-top:1px solid rgba(255,255,255,.08);border-left:1px solid rgba(255,255,255,.08)}
@@ -2045,7 +2058,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     </div>
     <div class="hero-visual rv d2">
       <div class="hero-mockup">
-        <video class="mockup-video" autoplay muted loop playsinline preload="auto" poster="/videos/marketing/showreel.3228d2ef.jpg" aria-label="Reel con trabajo real de IVAE Marketing para sus marcas"><source src="/videos/marketing/showreel.dec34430.mp4" type="video/mp4"></video>
+        <video class="mockup-video" autoplay muted loop playsinline preload="auto" poster="/videos/marketing/showreel.95f51bf2.jpg" aria-label="Reel con trabajo real de IVAE Marketing para sus marcas"><source src="/videos/marketing/showreel.c2a65f44.mp4" type="video/mp4"></video>
       </div>
     </div>
   </div>
@@ -2389,51 +2402,16 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     <h2 class="section-title rv d1">Industrias que <span class="gradient-text">Atendemos</span></h2>
     <p class="section-subtitle rv d2">Nuestra agencia de redes sociales en Cancún trabaja con los principales sectores del mercado turístico y de lujo de Quintana Roo.</p>
     <p class="rv d3" style="font-size:17px; color:rgba(240,238,233,0.7); line-height:1.8; margin-top:2rem;">
-      Nuestra agencia de redes sociales en Cancún trabaja de la mano con los principales sectores del mercado turístico y de lujo de Quintana Roo. Cada industria tiene su propia página de servicio con estrategia, contenido y reportes hechos a la medida:
+      Cada industria tiene su propia página de servicio con estrategia, contenido y reportes hechos a la medida:
     </p>
-    <div class="bento-grid" style="margin-top:2rem;text-align:left;">
-      <a href="/es/redes-sociales-hoteles-lujo-mexico" class="glass bento-card rv d1" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Redes Sociales para Hoteles de Lujo en México</h3>
-        <p>Manejo editorial de Instagram, TikTok y Facebook para hoteles boutique y resorts en Cancún, la Zona Hotelera, Playa Mujeres y la Riviera Maya.</p>
-        <div class="bento-tags"><span class="bento-tag">Hoteles</span><span class="bento-tag">Resorts</span></div>
-      </a>
-      <a href="/es/redes-sociales-restaurantes-cancun" class="glass bento-card rv d2" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Redes Sociales para Restaurantes en Cancún</h3>
-        <p>Reels, storytelling de menú y community management para restaurantes premium y bares de autor en Cancún, Playa del Carmen y Tulum.</p>
-        <div class="bento-tags"><span class="bento-tag">Restaurantes</span><span class="bento-tag">Bares</span></div>
-      </a>
-      <a href="/es/redes-sociales-spa-wellness-mexico" class="glass bento-card rv d3" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Redes Sociales para Spa y Wellness en México</h3>
-        <p>Contenido editorial para spas, clínicas de bienestar, medicina estética y dermatología en Cancún y la Riviera Maya.</p>
-        <div class="bento-tags"><span class="bento-tag">Spa</span><span class="bento-tag">Wellness</span></div>
-      </a>
-      <a href="/es/redes-sociales-clinica-dental-mexico" class="glass bento-card rv d1" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Redes Sociales para Clínicas Dentales en México</h3>
-        <p>Contenido que genera confianza para clínicas dentales y odontología estética con pacientes internacionales de turismo médico en Cancún y México.</p>
-        <div class="bento-tags"><span class="bento-tag">Dental</span><span class="bento-tag">Turismo médico</span></div>
-      </a>
-      <a href="/es/manejo-instagram-cancun" class="glass bento-card rv d2" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Manejo de Instagram en Cancún</h3>
-        <p>Crecimiento de Instagram, Reels y community management diario para marcas de hospitalidad y lujo en Cancún.</p>
-        <div class="bento-tags"><span class="bento-tag">Instagram</span><span class="bento-tag">Cancún</span></div>
-      </a>
-      <a href="/es/agencia-tiktok-hoteles-mexico" class="glass bento-card rv d3" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Agencia de TikTok para Hoteles en México</h3>
-        <p>Estrategia y producción de TikTok de formato corto para hoteles y resorts de lujo en Cancún, la Riviera Maya y todo México.</p>
-        <div class="bento-tags"><span class="bento-tag">TikTok</span><span class="bento-tag">Hoteles</span></div>
-      </a>
-      <a href="/es/redes-sociales-ciudad-de-mexico" class="glass bento-card rv d1" style="text-decoration:none;color:inherit;">
-        <div class="card-light-reflection"></div>
-        <h3>Manejo de Redes Sociales en Ciudad de México</h3>
-        <p>Manejo editorial de redes para marcas de hospitalidad, restaurantes y lifestyle en Ciudad de México (CDMX) y todo México.</p>
-        <div class="bento-tags"><span class="bento-tag">Ciudad de México</span><span class="bento-tag">CDMX</span></div>
-      </a>
+    <div class="ind-list">
+      <a href="/es/redes-sociales-hoteles-lujo-mexico" class="ind-row rv"><span class="ind-num">01</span><h3>Redes Sociales para Hoteles de Lujo en México</h3><p>Manejo editorial de Instagram, TikTok y Facebook para hoteles boutique y resorts en Cancún, la Zona Hotelera, Playa Mujeres y la Riviera Maya.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/redes-sociales-restaurantes-cancun" class="ind-row rv"><span class="ind-num">02</span><h3>Redes Sociales para Restaurantes en Cancún</h3><p>Reels, storytelling de menú y community management para restaurantes premium y bares de autor en Cancún, Playa del Carmen y Tulum.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/redes-sociales-spa-wellness-mexico" class="ind-row rv"><span class="ind-num">03</span><h3>Redes Sociales para Spa y Wellness en México</h3><p>Contenido editorial para spas, clínicas de bienestar, medicina estética y dermatología en Cancún y la Riviera Maya.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/redes-sociales-clinica-dental-mexico" class="ind-row rv"><span class="ind-num">04</span><h3>Redes Sociales para Clínicas Dentales en México</h3><p>Contenido que genera confianza para clínicas dentales y odontología estética con pacientes internacionales de turismo médico en Cancún y México.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/manejo-instagram-cancun" class="ind-row rv"><span class="ind-num">05</span><h3>Manejo de Instagram en Cancún</h3><p>Crecimiento de Instagram, Reels y community management diario para marcas de hospitalidad y lujo en Cancún.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/agencia-tiktok-hoteles-mexico" class="ind-row rv"><span class="ind-num">06</span><h3>Agencia de TikTok para Hoteles en México</h3><p>Estrategia y producción de TikTok de formato corto para hoteles y resorts de lujo en Cancún, la Riviera Maya y todo México.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="/es/redes-sociales-ciudad-de-mexico" class="ind-row rv"><span class="ind-num">07</span><h3>Manejo de Redes Sociales en Ciudad de México</h3><p>Manejo editorial de redes para marcas de hospitalidad, restaurantes y lifestyle en Ciudad de México (CDMX) y todo México.</p><span class="ind-arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <p class="rv d3" style="font-size:16px; color:rgba(240,238,233,0.6); line-height:1.8; margin-top:1.5rem;">
       También atendemos desarrollos inmobiliarios, yates y charters privados, salones y barberías, y proveedores del sector de bodas destino. Entendemos la temporalidad del mercado, la competencia en la Zona Hotelera y cómo hablarle a un público internacional sin perder la esencia local.
@@ -2455,10 +2433,10 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <p class="section-subtitle rv d2">Reels verticales producidos en casa para nuestras marcas, hechos para las plataformas donde ya están sus clientes. Tócalos para pausarlos.</p>
     </div>
     <div class="reels-strip">
-      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Reel de bienestar de Regeneris Therapy"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-01.fb7a90a8.jpg" aria-hidden="true"><source src="/videos/marketing/reel-01.e1c2eff8.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Bienestar<small>Regeneris Therapy</small></div></div>
-      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Pianista de Divina Start Productions"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-02.584ec5fe.jpg" aria-hidden="true"><source src="/videos/marketing/reel-02.0538caa5.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Música en vivo<small>Divina Start</small></div></div>
-      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Reel de Smile Now Dental & Facial Care"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-03.87986d1c.jpg" aria-hidden="true"><source src="/videos/marketing/reel-03.13622acc.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Clínica<small>Smile Now</small></div></div>
-      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Cantante de Divina Start Productions"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-04.384d6bb6.jpg" aria-hidden="true"><source src="/videos/marketing/reel-04.b04dc447.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Cantante<small>Divina Start</small></div></div>
+      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Los nuevos espacios de Regeneris Therapy"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-01.f0852da6.jpg" aria-hidden="true"><source src="/videos/marketing/reel-01.aea2574c.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Espacios<small>Regeneris Therapy</small></div></div>
+      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Agenda de diciembre de Divina Start Productions"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-02.53f2889a.jpg" aria-hidden="true"><source src="/videos/marketing/reel-02.32e3f601.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Agenda de diciembre<small>Divina Start</small></div></div>
+      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Primera visita a Smile Now Dental & Facial Care"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-03.daf7ce27.jpg" aria-hidden="true"><source src="/videos/marketing/reel-03.d8337343.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Primera visita<small>Smile Now</small></div></div>
+      <div class="reel-slot rv" role="button" tabindex="0" aria-label="Reproducir o pausar el reel: Cantante en vivo de Divina Start Productions"><video class="reel-img reel-vid" muted loop playsinline preload="none" poster="/videos/marketing/reel-04.2a7c5a2b.jpg" aria-hidden="true"><source src="/videos/marketing/reel-04.7fa22bf9.mp4" type="video/mp4"></video><span class="reel-play"><span><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></span><div class="reel-cap">Música en vivo<small>Divina Start</small></div></div>
     </div>
   </div>
 </section>
