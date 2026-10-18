@@ -84,7 +84,11 @@ export async function handleYtLogin(request, env, session, url) {
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
   const nonce = rnd();
-  await kvSet(env, `yt_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now() }));
+  // Con la app en inglés (?lang=en) la pantalla de permiso de Google también
+  // sale en inglés (hl=en): la verificación OAuth de Google exige verla así en
+  // el video de demostración. El idioma viaja en el state hasta el callback.
+  const en = url.searchParams.get('lang') === 'en';
+  await kvSet(env, `yt_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now(), l: en ? 'en' : '' }));
   const p = new URLSearchParams({
     client_id: env.YT_CLIENT_ID,
     redirect_uri: ytRedirectUri(request),
@@ -95,6 +99,7 @@ export async function handleYtLogin(request, env, session, url) {
     include_granted_scopes: 'true',
     state: nonce,
   });
+  if (en) p.set('hl', 'en');
   return Response.redirect(`${YT_AUTH}?${p}`, 302);
 }
 
@@ -110,6 +115,8 @@ export async function handleYtCallback(request, env, url) {
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
   if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
+  const en = st.l === 'en';
+  const volver = en ? '/marketing/app?lang=en#/meses' : back;
   try {
     const t = await (await fetch(YT_TOKEN, {
       method: 'POST',
@@ -142,6 +149,9 @@ export async function handleYtCallback(request, env, url) {
        updated_at = datetime('now') WHERE id = ?`
     ).bind(canalId, canalTitulo, t.access_token, t.refresh_token, Number(t.expires_in) || 3600, st.c).run();
     const auditada = await ytAuditada(env);
+    if (en) {
+      return html(`<h1>✅ YouTube connected</h1><p>This brand is now linked to the channel <b>${esc(canalTitulo || canalId)}</b>. Pieces marked "also on YouTube" will be uploaded there${auditada ? '' : ' <b>as private</b>'}.</p><a href="${volver}">Back to the app</a>`);
+    }
     return html(`<h1>✅ YouTube conectado</h1><p>La marca quedó ligada al canal <b>${esc(canalTitulo || canalId)}</b>. Las piezas con "también en YouTube" se subirán ahí${auditada ? '' : ' <b>en privado</b>, listas para hacerlas públicas con un clic desde YouTube Studio (mientras el proyecto pasa la revisión de YouTube)'}.</p><a href="${back}">Volver a la app</a>`);
   } catch (e) {
     return html(`<h1>No se pudo conectar</h1><p>${esc((e && e.message) || 'Error desconocido')}</p><a href="${back}">Volver a la app</a>`, 500);
