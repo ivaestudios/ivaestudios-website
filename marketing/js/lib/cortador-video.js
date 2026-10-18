@@ -11,6 +11,9 @@
 // Lo que cuida:
 //  · Un carrusel puede venir en VARIOS archivos ("X" + "X (2)"): se juntan y
 //    los slides se numeran de corrido.
+//  · O en UN archivo con las partes una DESPUÉS de otra (así exporta Canva un
+//    diseño de varias páginas): 1-5 los primeros segundos y 6-7 + huecos
+//    después. Cada parte es un TRAMO de la página y sus slides van de corrido.
 //  · Los HUECOS (slides en blanco que rellenan el export) se detectan y se saltan.
 //  · Cada slide se recorta a su animación real, pero NUNCA baja de MIN_SEG:
 //    Instagram rechaza videos de menos de 3 segundos.
@@ -82,12 +85,13 @@ export function zoomSrc(baseX, baseY, w, h, zPct) {
   return { sx: baseX + (w - zw) / 2, sy: baseY + (h - zh) / 2, sw: zw, sh: zh };
 }
 
-// Reproduce el video 0→(fin o pausa) llamando onFrame(meta) en cada cuadro.
+// Reproduce el video desde→(fin o pausa) llamando onFrame(meta) en cada cuadro.
 // meta.mediaTime = tiempo REAL del cuadro en la línea del video (no del reloj):
 // clave para que el corte con WebCodecs salga a velocidad correcta en cualquier
 // compu. onFrame puede pausar el video para terminar antes (recorte por slide).
 // sigueVivo() = false detiene la pasada (el usuario quitó la tira, se salió…).
-export function playThrough(v, onFrame, sigueVivo = () => true) {
+// `desde` > 0 arranca en un tramo posterior (la 2ª parte de un export de Canva).
+export function playThrough(v, onFrame, sigueVivo = () => true, desde = 0) {
   return new Promise((resolve) => {
     let done = false;
     const finish = () => { if (done) return; done = true; try { v.pause(); } catch { /* noop */ } resolve(); };
@@ -111,52 +115,78 @@ export function playThrough(v, onFrame, sigueVivo = () => true) {
         }, 1000 / 30);
       }).catch(() => { if (iv) clearInterval(iv); finish(); });
     };
-    // Regresa al inicio y ESPERA a que el cuadro esté decodificado antes de
-    // grabar: si arrancamos durante el reposicionamiento, el primer cuadro sale
-    // NEGRO. Con esto el primer cuadro grabado ya es contenido real.
-    if (v.currentTime <= 0.02 && v.readyState >= 2) { begin(); return; }
+    // Regresa al inicio (o al arranque del tramo) y ESPERA a que el cuadro esté
+    // decodificado antes de grabar: si arrancamos durante el reposicionamiento,
+    // el primer cuadro sale NEGRO. Con esto el primer cuadro grabado ya es
+    // contenido real. El milisegundo extra cae DENTRO del primer cuadro del
+    // tramo, no en el último de la parte anterior.
+    if (Math.abs(v.currentTime - desde) <= 0.02 && v.readyState >= 2) { begin(); return; }
     let seeked = false;
     const onSeeked = () => { if (seeked) return; seeked = true; v.removeEventListener('seeked', onSeeked); begin(); };
     v.addEventListener('seeked', onSeeked);
-    try { v.currentTime = 0; } catch { onSeeked(); }
+    try { v.currentTime = desde > 0 ? desde + 0.001 : 0; } catch { onSeeked(); }
     setTimeout(onSeeked, 700); // salvavidas si 'seeked' no dispara
   });
 }
 
-// Mide UNA página: la reproduce una vez (muda) y, cuadro a cuadro, anota por
-// slide (1) cuándo fue su ÚLTIMO cambio, para recortar la cola congelada, y
-// (2) cuánto CONTENIDO llegó a tener (energía de bordes). Un slide que nunca
-// muestra bordes es un HUECO del export: se marca y el corte lo salta, así el
-// carrusel de 6 que venía en 5 + 1 no sale con cuatro videos en blanco.
-// pg = { video, dur, cols, rows }; deja pg.durations[] y pg.blancos[].
+// Umbrales, medidos sobre el export REAL de REGENERIS (18-oct-2026, 5400×1350,
+// slides 1-5 durante 2.3 s y luego 6-7 + 3 huecos durante 5 s):
+//  · CAMBIO: movimiento normal de un slide (zoom, texto que entra) da 1-22.
+//  · CORTE: el salto de PARTE mueve TODOS los slides en el mismo cuadro, con
+//    diferencias de 97 a 128. Un corte DENTRO de un slide (cambia la persona)
+//    también llega a ~100, pero en UNO solo: nunca en todos a la vez.
+//  · BLANCO: <0.4 % de pixeles con borde = no hay nada en ese slide.
+const CAMBIO = 10, CORTE = 40, BLANCO = 0.004;
+// Un tramo más corto que esto es un parpadeo de la animación, no una parte.
+const TRAMO_MIN = 0.4;
+
+// Mide UNA página: la reproduce una vez (muda) y guarda, cuadro a cuadro y por
+// slide, cuánto cambió y cuánto CONTENIDO tiene (energía de bordes). Con eso:
+//  (1) busca los SALTOS DE PARTE (ver buscarCortes) y parte la página en tramos;
+//  (2) por tramo y slide, cuándo fue su ÚLTIMO cambio, para recortar la cola
+//      congelada;
+//  (3) los HUECOS: un slide sin bordes en todo su tramo es relleno del export;
+//      se marca y el corte lo salta, así el carrusel de 6 que venía en 5 + 1 no
+//      sale con cuatro videos en blanco.
+// pg = { video, dur, cols, rows }; deja pg.tramos[], pg.durations[] y
+// pg.blancos[] (tramo por tramo: el slide `idx` del tramo `j` es j*n + idx) y
+// pg.cortesDudosos[] (saltos que hay que preguntar, ver aceptarCortesDudosos).
 export function analizarPagina(pg, sigueVivo = () => true, onProg = null) {
   const v = pg.video;
   const cols2 = pg.cols, rows2 = pg.rows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
-  const DW = 32, DH = 40, CHANGE = 10, BORDE = 14;
+  const DW = 32, DH = 40, BORDE = 14;
   const mc = document.createElement('canvas'); mc.width = DW; mc.height = DH;
   const mg = mc.getContext('2d', { willReadFrequently: true });
+  // FOTO del cuadro entero, UNA por muestra (a 4× la rejilla de medida): todos
+  // los slides se miden sobre el MISMO instante. Leyéndolos directo del <video>
+  // uno por uno, el video seguía corriendo entre slide y slide cuando la compu
+  // decodifica lento, y el salto de parte salía "a pedazos" en dos muestras.
+  const FW = DW * 4, FH = DH * 4;
+  const fc = document.createElement('canvas'); fc.width = cols2 * FW; fc.height = rows2 * FH;
+  const fg = fc.getContext('2d');
   const prev = new Array(n).fill(null);
-  const lastChange = new Array(n).fill(0);
-  const anyChange = new Array(n).fill(false);
-  const maxBordes = new Array(n).fill(0);
+  const tiempos = [], difs = [], bords = [];
   // Se muestrea el INTERIOR del slide (10 % / 6 % de orilla fuera): el vecino
   // sangra unos px al cortar y ese filo no es contenido.
-  const mx = sw * 0.10, my = sh * 0.06;
+  const mx = FW * 0.10, my = FH * 0.06;
   const lum = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
 
-  const sample = () => {
-    const t = v.currentTime;
+  const sample = (meta) => {
+    // El tiempo REAL del cuadro (no el del reloj): el corte busca el arranque
+    // de cada tramo con este mismo número.
+    const t = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
+    fg.drawImage(v, 0, 0, cols2 * sw, rows2 * sh, 0, 0, fc.width, fc.height);
+    const fd = new Float32Array(n), fb = new Float32Array(n);
     for (let idx = 0; idx < n; idx++) {
       const c = idx % cols2, r = Math.floor(idx / cols2);
-      mg.drawImage(v, c * sw + mx, r * sh + my, sw - 2 * mx, sh - 2 * my, 0, 0, DW, DH);
+      mg.drawImage(fc, c * FW + mx, r * FH + my, FW - 2 * mx, FH - 2 * my, 0, 0, DW, DH);
       const data = mg.getImageData(0, 0, DW, DH).data;
       const p = prev[idx];
       if (p) {
         let diff = 0;
         for (let k = 0; k < data.length; k += 4) diff += Math.abs(data[k] - p[k]) + Math.abs(data[k + 1] - p[k + 1]) + Math.abs(data[k + 2] - p[k + 2]);
-        diff /= (DW * DH * 3);
-        if (diff > CHANGE) { lastChange[idx] = t; anyChange[idx] = true; }
+        fd[idx] = diff / (DW * DH * 3);
       }
       let bordes = 0, tot = 0;
       for (let y = 0; y < DH - 1; y++) {
@@ -166,36 +196,155 @@ export function analizarPagina(pg, sigueVivo = () => true, onProg = null) {
           tot++;
         }
       }
-      maxBordes[idx] = Math.max(maxBordes[idx], bordes / tot);
+      fb[idx] = bordes / tot;
       prev[idx] = data;
     }
+    tiempos.push(t); difs.push(fd); bords.push(fb);
     if (onProg) onProg(pg.dur ? Math.min(1, t / pg.dur) : 0);
   };
 
   return playThrough(v, sample, sigueVivo).then(() => {
     if (!sigueVivo()) return;
-    pg.durations = lastChange.map((lc, idx) => {
-      // Sin cambios = slide estático: dura lo que la página. Con cambios: hasta
-      // el último + 0.2 s de aire. Y nunca menos de MIN_SEG (Instagram).
-      const real = anyChange[idx] ? Math.min(pg.dur || (lc + 0.2), lc + 0.2) : (pg.dur || MIN_SEG);
-      return Math.max(MIN_SEG, real);
-    });
-    // <0.4 % de pixeles con borde en TODA la reproducción = nunca hubo nada.
-    pg.blancos = maxBordes.map((b) => b < 0.004);
+    pg.medida = { tiempos, difs, bords, n };
+    const { seguros, dudosos } = buscarCortes(pg.medida);
+    pg.cortesSeguros = seguros;
+    pg.cortesDudosos = dudosos;
+    armarTramos(pg, seguros);
   });
 }
 
-// Slides REALES (sin huecos) de una lista de páginas, en orden, con su página
-// y su índice dentro de ella.
+// ¿Dónde empieza una PARTE nueva? En el cuadro donde los slides que tenían
+// contenido cambian TODOS a la vez (ninguno se queda quieto) y la mayoría
+// (60 %, mínimo 2) da un SALTO: cambio fuerte que no venía de antes ni sigue
+// después — así el movimiento rápido de un video, medido con cuadros salteados
+// cuando la compu decodifica lento, no se confunde con un corte. Además tiene
+// que quedar contenido en alguno (un fundido final a blanco no es parte nueva)
+// y ningún tramo puede ser un parpadeo.
+//  · SEGURO: además, algún slide que tenía contenido queda en BLANCO todo el
+//    tramo siguiente. Es la firma del export de Canva: la última parte trae
+//    menos slides y rellena con huecos (7 = 5 + 2 y 3 huecos).
+//  · DUDOSO: todos cambian pero ninguno queda en blanco. Puede ser otra parte
+//    completa (10 = 5 + 5) o un video panorámico que cruza toda la tira y
+//    cambia de escena: eso solo lo sabe quien lo diseñó, así que se PREGUNTA.
+// Devuelve índices de cuadro (el primero de cada parte nueva).
+function buscarCortes({ tiempos, difs, bords, n }) {
+  const F = tiempos.length;
+  if (n < 2 || F < 3) return { seguros: [], dudosos: [] };
+  const cand = [];
+  for (let f = 1; f < F; f++) {
+    let conAntes = 0, semovieron = 0, saltaron = 0, conDespues = 0;
+    for (let s = 0; s < n; s++) {
+      if (bords[f][s] >= BLANCO) conDespues++;
+      if (bords[f - 1][s] < BLANCO) continue;
+      conAntes++;
+      const d = difs[f][s];
+      if (d > CAMBIO) semovieron++;
+      const vecino = Math.max(f > 1 ? difs[f - 1][s] : 0, f + 1 < F ? difs[f + 1][s] : 0);
+      if (d > CORTE && d > 2.5 * vecino) saltaron++;
+    }
+    if (conAntes >= 2 && semovieron === conAntes && saltaron >= Math.max(2, Math.ceil(0.6 * conAntes)) && conDespues >= 1) cand.push(f);
+  }
+  const fin = tiempos[F - 1] + 1 / 30;
+  const cortes = [];
+  for (let i = 0; i < cand.length; i++) {
+    const f = cand[i];
+    const ini = cortes.length ? tiempos[cortes[cortes.length - 1]] : tiempos[0];
+    const sig = i + 1 < cand.length ? tiempos[cand[i + 1]] : fin;
+    if (tiempos[f] - ini >= TRAMO_MIN && sig - tiempos[f] >= TRAMO_MIN) cortes.push(f);
+  }
+  const seguros = [], dudosos = [];
+  cortes.forEach((f, i) => {
+    const a0 = i ? cortes[i - 1] : 0, b1 = i + 1 < cortes.length ? cortes[i + 1] : F;
+    let seVacia = false;
+    for (let s = 0; s < n && !seVacia; s++) {
+      let antes = 0, despues = 0;
+      for (let k = a0; k < f; k++) antes = Math.max(antes, bords[k][s]);
+      for (let k = f; k < b1; k++) despues = Math.max(despues, bords[k][s]);
+      if (antes >= BLANCO && despues < BLANCO) seVacia = true;
+    }
+    (seVacia ? seguros : dudosos).push(f);
+  });
+  return { seguros, dudosos };
+}
+
+// Parte la página en tramos por los cortes dados (índices de cuadro) y calcula,
+// por tramo y slide, duración real y si es hueco. Con 0 cortes queda UN tramo y
+// el resultado es exactamente el de siempre.
+function armarTramos(pg, cortes) {
+  const { tiempos, difs, bords, n } = pg.medida;
+  const F = tiempos.length;
+  const bordesF = [0, ...cortes, F];
+  pg.tramos = []; pg.durations = []; pg.blancos = [];
+  for (let j = 0; j + 1 < bordesF.length; j++) {
+    const fa = bordesF[j], fb = bordesF[j + 1];
+    const ini = j ? tiempos[fa] : 0;
+    const ultimo = fb === F;
+    // El último tramo dura lo que el video; los demás, hasta el siguiente.
+    const largo = (ultimo ? (pg.dur || (F ? tiempos[F - 1] + 1 / 30 : MIN_SEG)) : tiempos[fb]) - ini;
+    pg.tramos.push({ ini, fin: ultimo ? Infinity : tiempos[fb], largo });
+    for (let s = 0; s < n; s++) {
+      let lc = null, maxB = 0;
+      for (let f = fa; f < fb; f++) {
+        maxB = Math.max(maxB, bords[f][s]);
+        // El cuadro que ABRE el tramo se compara con la parte anterior: ese
+        // salto no es movimiento del slide.
+        if (f > fa && difs[f][s] > CAMBIO) lc = tiempos[f];
+      }
+      // Sin cambios = slide estático: dura lo que su tramo. Con cambios: hasta
+      // el último + 0.2 s de aire. Y nunca menos de MIN_SEG (Instagram).
+      const real = lc !== null ? Math.min(largo, lc - ini + 0.2) : (largo > 0 ? largo : MIN_SEG);
+      pg.durations.push(Math.max(MIN_SEG, real));
+      pg.blancos.push(maxB < BLANCO);
+    }
+  }
+}
+
+// Si quien sube confirma que los saltos dudosos SÍ son partes del carrusel
+// (p. ej. 10 slides = 5 + 5), se rehacen los tramos con ellos. No vuelve a
+// reproducir: usa la medida guardada.
+export function aceptarCortesDudosos(pg) {
+  if (!pg.medida || !(pg.cortesDudosos && pg.cortesDudosos.length)) return;
+  const todos = [...(pg.cortesSeguros || []), ...pg.cortesDudosos].sort((a, b) => a - b);
+  armarTramos(pg, todos);
+  pg.cortesSeguros = todos;
+  pg.cortesDudosos = [];
+}
+
+// Para la pregunta: en qué segundo salta, en cuántas partes quedaría y cuántos
+// slides saldrían si se aceptan los saltos dudosos (sin tocar la página).
+export function resumenDudoso(pg) {
+  if (!pg.medida || !(pg.cortesDudosos && pg.cortesDudosos.length)) return null;
+  const todos = [...(pg.cortesSeguros || []), ...pg.cortesDudosos].sort((a, b) => a - b);
+  const prueba = { medida: pg.medida, dur: pg.dur };
+  armarTramos(prueba, todos);
+  return {
+    segundo: pg.medida.tiempos[pg.cortesDudosos[0]],
+    partes: prueba.tramos.length,
+    slides: prueba.blancos.filter((b) => !b).length,
+  };
+}
+
+// Slides REALES (sin huecos) de una lista de páginas, en orden: página por
+// página y, dentro de cada una, tramo por tramo. Cada uno trae su página, su
+// posición en la tira (idx), su lugar en durations/blancos (k) y el tramo de
+// tiempo donde vive (ini/fin).
 export function slidesRealesDe(paginas) {
   const out = [];
   for (const pg of paginas) {
     const n = pg.cols * pg.rows;
-    for (let idx = 0; idx < n; idx++) if (!(pg.blancos && pg.blancos[idx])) out.push({ pg, idx });
+    const tramos = (pg.tramos && pg.tramos.length) ? pg.tramos : [{ ini: 0, fin: Infinity }];
+    tramos.forEach((tr, j) => {
+      for (let idx = 0; idx < n; idx++) {
+        const k = j * n + idx;
+        if (!(pg.blancos && pg.blancos[k])) out.push({ pg, idx, k, ini: tr.ini, fin: tr.fin });
+      }
+    });
   }
   return out;
 }
 export const huecosDe = (paginas) => paginas.reduce((a, pg) => a + (pg.blancos || []).filter(Boolean).length, 0);
+// Cuántas partes de más (tramos después del primero) trae la tira.
+export const partesExtraDe = (paginas) => paginas.reduce((a, pg) => a + Math.max(0, ((pg.tramos && pg.tramos.length) || 1) - 1), 0);
 
 // ── Audio ────────────────────────────────────────────────────────────────────
 // Decodifica el audio de la tira UNA vez (rápido, no en tiempo real). Devuelve
@@ -276,7 +425,7 @@ async function encodeSilentAudio(dur, muxer, sr, ch) {
 export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => true, onProgress = null }) {
   const reales = slidesRealesDe(paginas).slice(0, MAX_SLIDES);
   if (!reales.length) return [];
-  const { Muxer, ArrayBufferTarget } = await import('../../vendor/mp4-muxer.mjs?v=202610151857');
+  const { Muxer, ArrayBufferTarget } = await import('../../vendor/mp4-muxer.mjs?v=202610180029');
 
   // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño (Main → Baseline;
   // High solo de último recurso: daba error al compartir en algunos teléfonos).
@@ -295,7 +444,7 @@ export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => t
 
   const out = [];
   let k = 0;
-  for (const { pg, idx } of reales) {
+  for (const { pg, idx, k: pos, ini, fin } of reales) {
     if (!sigueVivo()) return null;
     const v = pg.video;
     const cols2 = pg.cols, rows2 = pg.rows;
@@ -314,7 +463,9 @@ export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => t
     const aCh = hasAudio ? Math.max(1, audioBuf.numberOfChannels) : 2;
 
     const c = idx % cols2, r = Math.floor(idx / cols2);
-    const dur = Math.max(MIN_SEG, pg.durations[idx] || MIN_SEG);
+    const dur = Math.max(MIN_SEG, pg.durations[pos] || MIN_SEG);
+    // El tramo donde vive el slide: los cuadros de OTRA parte no entran.
+    const desde = ini || 0, hasta = (typeof fin === 'number') ? fin : Infinity;
     const cv = document.createElement('canvas'); cv.width = sw2; cv.height = sh2;
     const cx = cv.getContext('2d');
     const muxerCfg = { target: new ArrayBufferTarget(), video: { codec: 'avc', width: sw2, height: sh2 }, fastStart: 'in-memory' };
@@ -341,23 +492,26 @@ export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => t
     // eslint-disable-next-line no-await-in-loop
     await playThrough(v, (meta) => {
       const mt = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
-      if (mt > dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
+      // Un cuadro de la parte ANTERIOR que quedó tras el salto: no es de este slide.
+      if (mt < desde - 0.004) return;
+      // Ya empezó la parte SIGUIENTE, o el slide ya duró lo suyo: aquí acaba.
+      if (mt >= hasta - 0.004 || mt > desde + dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
       if (t0 === null) t0 = mt;
       const fidx = Math.round((mt - t0) * FPS);
-      if (fidx <= lastIdx) { if (onProgress) onProgress((kk + Math.min(1, mt / dur)) / reales.length); return; }
+      if (fidx <= lastIdx) { if (onProgress) onProgress((kk + Math.min(1, (mt - desde) / dur)) / reales.length); return; }
       lastIdx = fidx;
       const z = zoomSrc(c * sw, r * sh, sw, sh, zoom);
       cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw2, sh2);
       try { meter(fidx); } catch (e) { encErr = e; try { v.pause(); } catch { /* noop */ } }
-      if (onProgress) onProgress((kk + Math.min(1, mt / dur)) / reales.length);
-    }, sigueVivo);
+      if (onProgress) onProgress((kk + Math.min(1, (mt - desde) / dur)) / reales.length);
+    }, sigueVivo, desde);
     if (!sigueVivo()) { try { encoder.close(); } catch { /* noop */ } return null; }
 
     if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
     if (!frames) throw new Error('no se capturó ningún cuadro');
     // Sostener el ÚLTIMO cuadro hasta completar la duración: pasa cuando la
-    // página entera dura menos de MIN_SEG (Instagram pide 3 s) o cuando el
-    // navegador dejó de entregar cuadros antes de tiempo.
+    // página (o su tramo) dura menos de MIN_SEG (Instagram pide 3 s) o cuando
+    // el navegador dejó de entregar cuadros antes de tiempo.
     const quiero = Math.round(dur * FPS);
     try { while (lastIdx + 1 < quiero) { lastIdx += 1; meter(lastIdx); } } catch (e) { encErr = e; }
     if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
@@ -381,8 +535,9 @@ export async function cortarWebCodecs({ paginas, zoom = 100, sigueVivo = () => t
 
 // ── La tira de cuadros (poster) ──────────────────────────────────────────────
 // Un JPEG con los slides REALES en fila, tomados al `punto` (0..1) de cada
-// página — tarde a propósito (0.85): en una tira animada los slides de la
-// derecha aparecen después, y un cuadro del arranque saldría medio en blanco.
+// página (o de cada tramo, si la página trae partes una tras otra) — tarde a
+// propósito (0.85): en una tira animada los slides de la derecha aparecen
+// después, y un cuadro del arranque saldría medio en blanco.
 // Es lo que el visor, el PDF y la IA leen como "la tira" del carrusel.
 function buscar(v, t) {
   return new Promise((res) => {
@@ -396,13 +551,6 @@ function buscar(v, t) {
 export async function cuadroDeSlides(paginas, punto = 0.85, alto = 900) {
   const reales = slidesRealesDe(paginas).slice(0, MAX_SLIDES);
   if (!reales.length) return null;
-  const hechas = new Set();
-  for (const { pg } of reales) {
-    if (hechas.has(pg)) continue;
-    hechas.add(pg);
-    // eslint-disable-next-line no-await-in-loop
-    await buscar(pg.video, (pg.dur || 1) * punto);
-  }
   const pg0 = reales[0].pg;
   const sw0 = Math.floor(pg0.video.videoWidth / pg0.cols), sh0 = Math.floor(pg0.video.videoHeight / pg0.rows);
   if (!sw0 || !sh0) return null;
@@ -410,11 +558,23 @@ export async function cuadroDeSlides(paginas, punto = 0.85, alto = 900) {
   const cw = Math.round(sw0 * k), ch = Math.round(sh0 * k);
   const cv = document.createElement('canvas'); cv.width = cw * reales.length; cv.height = ch;
   const cx = cv.getContext('2d');
-  reales.forEach(({ pg, idx }, i) => {
+  // Los slides vienen página por página y tramo por tramo: cada vez que cambia
+  // el tramo se busca SU momento y se pintan sus slides antes de seguir (dos
+  // tramos de una página comparten el mismo <video>).
+  let enCurso = null;
+  for (let i = 0; i < reales.length; i++) {
+    const { pg, idx, ini = 0, fin = Infinity } = reales[i];
+    const clave = `${paginas.indexOf(pg)}|${ini}`;
+    if (clave !== enCurso) {
+      enCurso = clave;
+      const hasta = Number.isFinite(fin) ? fin : (pg.dur || ini + 1);
+      // eslint-disable-next-line no-await-in-loop
+      await buscar(pg.video, ini + Math.max(0, hasta - ini) * punto);
+    }
     const sw = Math.floor(pg.video.videoWidth / pg.cols), sh = Math.floor(pg.video.videoHeight / pg.rows);
     const c = idx % pg.cols, r = Math.floor(idx / pg.cols);
     cx.drawImage(pg.video, c * sw, r * sh, sw, sh, i * cw, 0, cw, ch);
-  });
+  }
   return new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.9));
 }
 

@@ -12,15 +12,17 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202610151857';
-import { icon } from '../shell/icons.js?v=202610151857';
-import { T } from '../shell/i18n.js?v=202610151857';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202610151857';
-import * as prefs from '../shell/prefs.js?v=202610151857';
+import { el, clear, toast } from '../api.js?v=202610180029';
+import { icon } from '../shell/icons.js?v=202610180029';
+import { T } from '../shell/i18n.js?v=202610180029';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202610180029';
+import * as prefs from '../shell/prefs.js?v=202610180029';
 import {
   esArchivoDeVideo, grupoDePaginasVideo, cargarVideo, playThrough, analizarPagina,
-  slidesRealesDe, huecosDe, zoomSrc, cortarWebCodecs, armarZip,
-} from '../lib/cortador-video.js?v=202610151857';
+  slidesRealesDe, huecosDe, partesExtraDe, zoomSrc, cortarWebCodecs, armarZip,
+  aceptarCortesDudosos, resumenDudoso,
+} from '../lib/cortador-video.js?v=202610180029';
+import { confirmar } from '../shell/sheet.js?v=202610180029';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -376,6 +378,23 @@ async function analyzeTira(t) {
     hechas += 1;
   }
   if (token !== vtoken) return;
+  // Canva exporta las partes de un diseño UNA TRAS OTRA en el mismo video. Con
+  // huecos al final el motor lo reconoce solo; si todos los slides cambian de
+  // golpe sin huecos (10 = 5 + 5, o un panorámico que cambia de escena), se
+  // pregunta.
+  for (const pg of t.paginas) {
+    const r = resumenDudoso(pg);
+    if (!r) continue;
+    // eslint-disable-next-line no-await-in-loop
+    const sonPartes = await confirmar({
+      title: T(`En "${pg.file.name}" todos los slides cambian a la vez en el segundo ${r.segundo.toFixed(1)}. ¿Son ${r.partes} partes del carrusel, una después de otra (así exporta Canva)?`,
+        `In "${pg.file.name}" every slide changes at once at second ${r.segundo.toFixed(1)}. Is it ${r.partes} parts of the carousel, one after another (the way Canva exports)?`),
+      accion: T(`Sí, son ${r.partes} partes (${r.slides} slides)`, `Yes, ${r.partes} parts (${r.slides} slides)`),
+      cancelar: T('No, es una sola animación', 'No, it is one animation'),
+    });
+    if (token !== vtoken) return;
+    if (sonPartes) aceptarCortesDudosos(pg);
+  }
   t.phase = 'listo'; t.progress = 0; render();
 }
 
@@ -439,13 +458,13 @@ async function cutTiraMediaRecorder(t) {
   const { mime, ext } = pickVideoMime();
   const out = [];
   let k = 0;
-  for (const { pg, idx } of reales) {
+  for (const { pg, idx, k: pos, ini = 0, fin = Infinity } of reales) {
     if (token !== vtoken) return;
     const v = pg.video;
     const cols2 = pg.cols, rows2 = pg.rows;
     const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
     const c = idx % cols2, r = Math.floor(idx / cols2);
-    const dur = Math.max(0.3, pg.durations[idx]);
+    const dur = Math.max(0.3, pg.durations[pos]);
     const cv = document.createElement('canvas'); cv.width = sw; cv.height = sh;
     const cx = cv.getContext('2d');
     const stream = (cv.captureStream || cv.mozCaptureStream).call(cv, 30);
@@ -474,7 +493,9 @@ async function cutTiraMediaRecorder(t) {
     // eslint-disable-next-line no-await-in-loop
     await playThrough(v, () => {
       const tt = v.currentTime;
-      if (tt <= dur + 0.05) {
+      if (tt < ini - 0.004) return;            // cuadro de la parte anterior
+      const rel = tt - ini;
+      if (rel <= dur + 0.05 && tt < fin - 0.004) {
         const z = zoomSrc(c * sw, r * sh, sw, sh, t.zoom);
         cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
         if (!started) { started = true; try { rec.start(); } catch { /* noop */ } }
@@ -483,9 +504,9 @@ async function cutTiraMediaRecorder(t) {
         try { rec.stop(); } catch { /* noop */ }
         try { v.pause(); } catch { /* noop */ }
       }
-      t.progress = (kk + (dur ? Math.min(1, tt / dur) : 1)) / reales.length;
+      t.progress = (kk + (dur ? Math.min(1, rel / dur) : 1)) / reales.length;
       updateVProgress(t);
-    }, () => token === vtoken);
+    }, () => token === vtoken, ini);
     if (started && !stopped) { try { rec.stop(); } catch { /* noop */ } }
     // eslint-disable-next-line no-await-in-loop
     out.push({ blob: started ? await done : new Blob([], { type: mime || 'video/webm' }), duration: dur });
@@ -815,7 +836,7 @@ function renderVideo() {
       el('div', { class: 'car-tira__head' }, [
         el('strong', { class: 'car-tira__name', text: t.name }),
         el('span', { class: 'car-info', text: pg0
-          ? `${reales} ${T('videos de', 'videos of')} ${sw}×${sh}px` + (huecos ? ` · ${huecos} ${huecos === 1 ? T('hueco', 'blank') : T('huecos', 'blanks')}` : '') + (t.paginas.length > 1 ? ` · ${t.paginas.length} ${T('archivos unidos', 'files merged')}` : '')
+          ? `${reales} ${T('videos de', 'videos of')} ${sw}×${sh}px` + (huecos ? ` · ${huecos} ${huecos === 1 ? T('hueco', 'blank') : T('huecos', 'blanks')}` : '') + (t.paginas.length > 1 ? ` · ${t.paginas.length} ${T('archivos unidos', 'files merged')}` : '') + (partesExtraDe(t.paginas) ? ` · ${partesExtraDe(t.paginas) + t.paginas.length} ${T('partes una tras otra', 'parts one after another')}` : '')
           : T('Leyendo…', 'Reading…') }),
         el('button', {
           class: 'car-tira__x', type: 'button',
@@ -922,6 +943,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202610151857';
+  link.href = '/marketing/css/carrusel.css?v=202610180029';
   document.head.appendChild(link);
 }

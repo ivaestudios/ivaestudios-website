@@ -6,23 +6,24 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202610151857';
-import { icon } from '../shell/icons.js?v=202610151857';
-import { T } from '../shell/i18n.js?v=202610151857';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610151857';
+import { api, el, clear, toast } from '../api.js?v=202610180029';
+import { icon } from '../shell/icons.js?v=202610180029';
+import { T } from '../shell/i18n.js?v=202610180029';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610180029';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202610151857';
+import { moderarComentario } from '../shell/moderacion.js?v=202610180029';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202610151857';
+import { errorCard } from '../ui/states.js?v=202610180029';
 import {
   tieneWebCodecs, cargarVideo, soltarPagina, analizarPagina, slidesRealesDe,
   cortarWebCodecs, cuadroDeSlides, armarZip, MAX_SLIDES,
-} from '../lib/cortador-video.js?v=202610151857';
+  aceptarCortesDudosos, resumenDudoso,
+} from '../lib/cortador-video.js?v=202610180029';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202610151857';
+} from '../lib/video-upload.js?v=202610180029';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -198,7 +199,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202610151857';
+  link.href = '/marketing/css/entregables.css?v=202610180029';
   document.head.appendChild(link);
 }
 
@@ -1364,6 +1365,25 @@ function slidesDeTira(it) {
   return pr;
 }
 
+// Un archivo cuyos slides cambian TODOS de golpe sin dejar huecos puede ser
+// otra parte del carrusel (Canva exporta las partes una tras otra) o una sola
+// animación (un video panorámico que cambia de escena). Se pregunta archivo por
+// archivo, con el segundo exacto y cuántos slides saldrían.
+async function preguntarPartesDudosas(paginas) {
+  for (const pg of paginas) {
+    const r = resumenDudoso(pg);
+    if (!r) continue;
+    // eslint-disable-next-line no-await-in-loop
+    const sonPartes = await confirmar({
+      title: T(`En "${pg.file.name}" todos los slides cambian a la vez en el segundo ${r.segundo.toFixed(1)}. ¿Son ${r.partes} partes del carrusel, una después de otra (así exporta Canva)?`,
+        `In "${pg.file.name}" every slide changes at once at second ${r.segundo.toFixed(1)}. Is it ${r.partes} parts of the carousel, one after another (the way Canva exports)?`),
+      accion: T(`Sí, son ${r.partes} partes (${r.slides} slides)`, `Yes, ${r.partes} parts (${r.slides} slides)`),
+      cancelar: T('No, es una sola animación', 'No, it is one animation'),
+    });
+    if (sonPartes) aceptarCortesDudosos(pg);
+  }
+}
+
 // ── Carrusel de VIDEO → sus N videos de slide ────────────────────────────────
 // La tira del diseñador (los slides pegados en un video ancho, a veces en dos
 // archivos "X" y "X (2)") se mide y se CORTA aquí mismo, en el navegador, con el
@@ -1407,6 +1427,11 @@ async function subirCarruselDeVideo(grupo, qinfo, existente = null) {
       await analizarPagina(pg, () => true, (p) => { uploadPct = Math.round(((hechas + p) / paginas.length) * 100); updateProgressUI(); });
       hechas += 1;
     }
+    // Canva exporta un diseño de varias partes UNA TRAS OTRA en el mismo video.
+    // Si la última parte trae huecos, el motor la reconoce solo; si todos los
+    // slides cambian de golpe sin dejar huecos (10 = 5 + 5, o un video
+    // panorámico que cambia de escena), lo decide quien lo subió.
+    await preguntarPartesDudosas(paginas);
     const reales = slidesRealesDe(paginas);
     if (!reales.length) throw new Error(T('Ese video viene en blanco: no hay slides que cortar.', 'That video is blank: there are no slides to cut.'));
     if (reales.length > MAX_SLIDES) toast(T(`El carrusel trae ${reales.length} slides y el tope de Instagram es ${MAX_SLIDES}: entran los primeros ${MAX_SLIDES}.`, `The carousel has ${reales.length} slides and Instagram's cap is ${MAX_SLIDES}: the first ${MAX_SLIDES} go in.`), 'info', 9000);
@@ -2736,10 +2761,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202610151857');
+        const mod = await import('../lib/pdf-entregables.js?v=202610180029');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610151857');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610180029');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
