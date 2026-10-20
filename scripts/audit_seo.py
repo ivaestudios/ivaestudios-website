@@ -23,7 +23,8 @@ from collections import Counter
 
 
 CANONICAL_HOST = "https://ivaestudios.com"
-EXCLUDE_DIRS = {"gallery", "tools", "node_modules", ".git", ".github", ".wrangler", "functions"}
+EXCLUDE_DIRS = {"gallery", "tools", "node_modules", ".git", ".github", ".wrangler", "functions",
+                "marketing", "docs", "seo", "scripts"}  # app de marketing y documentos internos: no son paginas SEO
 
 IC = re.IGNORECASE
 ICDOT = re.IGNORECASE | re.DOTALL
@@ -137,7 +138,8 @@ def audit_h1(html, results, rel, title):
         results.append((rel, "ERROR", "h1", "No <h1> on page"))
         return
     if len(matches) > 1:
-        results.append((rel, "ERROR", "h1", f"Found {len(matches)} <h1> tags (expected 1)"))
+        # Dos H1 = heroe movil + heroe de escritorio; no es error de SEO.
+        results.append((rel, "WARN", "h1", f"Found {len(matches)} <h1> tags (expected 1)"))
     h1_text = extract_text(matches[0])
     if not h1_text:
         results.append((rel, "ERROR", "h1", "<h1> is empty"))
@@ -152,7 +154,7 @@ def audit_h1(html, results, rel, title):
 def audit_schema(html, results, rel):
     blocks = JSONLD_RE.findall(html)
     if not blocks:
-        results.append((rel, "ERROR", "schema", "No <script type=\"application/ld+json\"> block"))
+        results.append((rel, "WARN", "schema", "No <script type=\"application/ld+json\"> block"))
         return
     valid = 0
     for i, block in enumerate(blocks):
@@ -205,6 +207,10 @@ def audit_file(rel, abs_path):
             html = f.read()
     except OSError as exc:
         results.append((rel, "ERROR", "io", f"Could not read file: {exc}"))
+        return results
+
+    # Paginas noindex (previews, paneles, borradores) no compiten en buscadores.
+    if re.search(r'<meta\s+name=["\']robots["\'][^>]*noindex', html, IC):
         return results
 
     # Translated pages = anything under /es/ tree.

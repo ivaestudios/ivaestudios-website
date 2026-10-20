@@ -2,9 +2,10 @@ name: SEO — Keyword Refresh
 
 # Pulls Google Trends MX keywords every Monday and opens a PR with edits to
 # marker-delimited regions only. Owner reviews the PR — never auto-merge.
+# APAGADO el 2026-10-20: metia palabras de moda de Google Trends MX en las
+# paginas (el publico es EE.UU. y Bing castiga el relleno) y fallaba cada lunes
+# porque Actions no puede abrir PRs. Solo se corre a mano si alguien lo decide.
 on:
-  schedule:
-    - cron: "0 14 * * 1" # Mondays 14:00 UTC (08:00 Cancún)
   workflow_dispatch: {}
 
 concurrency:
