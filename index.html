@@ -4871,7 +4871,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       bodyLines.push(message || '(a few lines about the trip)');
       const body = bodyLines.join('\n');
       const mailto = 'mailto:info@ivaestudios.com?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
-      if(window.ivaeSendInquiry) window.ivaeSendInquiry({ form, status, email, name, kind: subj, lines: bodyLines, lang: 'en', mailto });
+      if(window.ivaeSendInquiry) window.ivaeSendInquiry({ form, status, email, name, kind: 'Home' + (where ? ' · ' + where : ''), lines: bodyLines, lang: 'en', mailto });
       else window.location.href = mailto;
     });
   }
@@ -5098,7 +5098,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   var h=location.hash; if(h!=='#contact'&&h!=='#contacto') return;
   var moved=false;
   ['wheel','touchstart','keydown'].forEach(function(t){ window.addEventListener(t,function(){ moved=true; },{once:true,passive:true}); });
-  function go(){ if(moved) return; var d=document.getElementById('dossier'), m=document.getElementById('ivm-inquire'); var t=(d&&d.offsetParent)?d:m; if(t) t.scrollIntoView({block:'start'}); }
+  function go(){ if(moved) return; var d=document.getElementById('dossier'), m=document.getElementById('ivm-inquire'); var t=(d&&d.offsetParent)?d:m; if(t) t.scrollIntoView({block:'start', behavior:'instant'}); }
   setTimeout(go,60);
   /* las fotos que terminan de cargar mueven la sección: se vuelve a alinear si nadie ha tocado la página */
   window.addEventListener('load',function(){ setTimeout(go,60); });
