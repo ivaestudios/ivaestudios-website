@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610180029';
-import { toast } from '../shell/toast.js?v=202610180029';
-import { icon, iconMarca } from '../shell/icons.js?v=202610180029';
-import { T, isEN } from '../shell/i18n.js?v=202610180029';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610180029';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610201200';
+import { toast } from '../shell/toast.js?v=202610201200';
+import { icon, iconMarca } from '../shell/icons.js?v=202610201200';
+import { T, isEN } from '../shell/i18n.js?v=202610201200';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610201200';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -1377,8 +1377,65 @@ async function responderCom(k, ta, modo, btn) {
     await cargarLista({ silencioso: true });
     cargarResumen();
   } catch (e) {
-    toast(e.message, { type: 'error', ms: 9000 });
+    if (e.data && e.data.sin_permiso_meta) salidaPorLaRed(k, ta, btn, e.data.permalink || k.media_permalink);
+    else toast(e.message, { type: 'error', ms: 9000 });
   } finally { delete btn.dataset.loading; }
+}
+
+// Meta todavía no aprueba el permiso de comentarios para la app (solo funciona
+// en cuentas con rol en la app, como IVAE Studios). Antes salía un toast que
+// pedía "reconectar", y reconectar no sirve: aquí se ofrece la salida real,
+// contestar en la red con el texto ya copiado y dejarlo registrado.
+function copiarYa(texto) {
+  // Copia SÍNCRONA dentro del clic: si se espera a la promesa del portapapeles,
+  // Safari bloquea la pestaña nueva y Chrome puede perder el foco al abrirla.
+  let ok = false;
+  try {
+    const t = document.createElement('textarea');
+    t.value = texto; t.setAttribute('readonly', '');
+    t.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, t.value.length);
+    ok = document.execCommand('copy'); t.remove();
+  } catch { ok = false; }
+  if (!ok && navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(texto).catch(() => {});
+  return ok;
+}
+function salidaPorLaRed(k, ta, btn, permalink) {
+  const card = btn.closest('.bj-com');
+  if (!card) return;
+  const prev = card.querySelector('.bj-com__fuera');
+  if (prev) prev.remove();
+  const red = k.canal === 'facebook' ? 'Facebook' : 'Instagram';
+  const texto = () => (ta.value || '').trim();
+  const btnAbrir = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: () => {
+    const t = texto();
+    if (!t) { toast(T('Escribe la respuesta primero.', 'Write the reply first.'), { type: 'info' }); ta.focus(); return; }
+    copiarYa(t);
+    if (permalink) window.open(permalink, '_blank', 'noopener');
+    toast(permalink
+      ? T(`Respuesta copiada. En ${red}, pégala en el comentario y luego toca "Ya lo respondí".`, `Reply copied. On ${red}, paste it under the comment, then tap "I replied".`)
+      : T(`Respuesta copiada. Ábrela en ${red} y pégala en el comentario.`, `Reply copied. Open ${red} and paste it under the comment.`), { type: 'success', ms: 8000 });
+  } }, [icon('copy', 14), ' ' + (permalink ? T(`Copiar y abrir en ${red}`, `Copy and open in ${red}`) : T('Copiar respuesta', 'Copy reply'))]);
+  const btnHecho = el('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
+    const t = texto();
+    btnHecho.dataset.loading = 'true';
+    try {
+      await api.post(`/bandeja/comentarios/${encodeURIComponent(k.id)}/atendido`, t ? { atendido: true, respuesta: t } : { atendido: true });
+      toast(T('Listo: quedó como respondido.', 'Done: marked as answered.'), { type: 'success' });
+      await cargarLista({ silencioso: true });
+      cargarResumen();
+    } catch (err) { toast(err.message, { type: 'error' }); }
+    finally { delete btnHecho.dataset.loading; }
+  } }, [icon('check', 14), ' ' + T(`Ya lo respondí en ${red}`, `I replied on ${red}`)]);
+  const aviso = el('div', { class: 'bj-aviso bj-com__fuera', role: 'status' }, [
+    el('p', { text: T(
+      `Meta todavía no deja responder comentarios de ${red} desde la app en esta cuenta: el permiso está en revisión. Cuando lo apruebe, este botón funcionará en todas las marcas. Mientras, contéstalo en ${red}:`,
+      `Meta does not yet allow replying to ${red} comments from the app on this account: the permission is under review. Once approved, this button will work for every brand. For now, reply on ${red}:`) }),
+    el('div', { class: 'bj-com__fuera-btns' }, [btnAbrir, btnHecho]),
+  ]);
+  const acciones = card.querySelector('.bj-com__acciones');
+  if (acciones) acciones.insertBefore(aviso, acciones.firstChild); else card.appendChild(aviso);
+  aviso.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 async function sugerirCom(k, ta, btn) {
   btn.dataset.loading = 'true';
@@ -1962,7 +2019,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610180029';
+  link.href = '/marketing/css/bandeja.css?v=202610201200';
   document.head.appendChild(link);
 }
 

@@ -166,6 +166,21 @@ function resumirError(e, canal) {
   return explicarError(e, canal).msg.slice(0, 200);
 }
 
+// Responder comentarios necesita un permiso que Meta todavía no aprueba para la
+// app (instagram_business_manage_comments, en revisión desde el envío del
+// 9-oct-2026). Mientras tanto Meta SOLO lo deja usar en cuentas con un rol en la
+// app (por eso con IVAE Studios sí sale) y contesta "Application does not have
+// permission" (#10) en las de los clientes. Reconectar NO lo arregla, así que el
+// aviso no debe pedirlo: se ofrece contestar desde la red. Un token caducado
+// (#190) sí se arregla reconectando y sigue su propio camino.
+function sinPermisoComentarios(e) {
+  if (!e || e.code === 'SIN_CANAL') return false;
+  const code = String(e.code || '');
+  if (code === '190') return false;
+  return code === '10' || code === '200' || code === '3'
+    || /does not have permission|not authorized|does not have the capability/i.test(String(e.message || ''));
+}
+
 // Parte un texto largo en piezas <= lim sin cortar palabras ni emojis.
 export function partirTexto(texto, lim) {
   const chars = Array.from(String(texto || ''));
@@ -2028,6 +2043,13 @@ export async function handleBandeja(request, env, session, url, parts) {
       let r;
       try { r = await responderComentario(c, cm, texto, modo); }
       catch (e) {
+        if (sinPermisoComentarios(e)) {
+          const red = nombreCanal(cm.canal);
+          return json({
+            error: `Meta todavía no deja responder comentarios de ${red} desde la app en esta cuenta: el permiso está en revisión. Mientras, contéstalo directo en ${red}.`,
+            permiso: true, sin_permiso_meta: true, permalink: cm.media_permalink || null,
+          }, 422);
+        }
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, cm.canal);
         return json({ error: ex.msg, permiso: !!ex.permiso }, 422);
       }
@@ -2053,6 +2075,16 @@ export async function handleBandeja(request, env, session, url, parts) {
 
     if (accion === 'atendido' && method === 'POST') {
       const b = await leerJson(request);
+      // "Ya lo respondí en Instagram": se guarda el texto que se pegó allá para
+      // que el comentario quede registrado como respondido, no solo como visto.
+      const respuestaFuera = typeof b.respuesta === 'string' ? b.respuesta.trim().slice(0, 2000) : '';
+      if (b.atendido !== false && respuestaFuera) {
+        const red = nombreCanal(cm.canal);
+        await env.DB.prepare(
+          `UPDATE mkt_comentarios SET atendido = 1, respuesta = ?, respondido_en = datetime('now'), respondido_por = ? WHERE id = ?`
+        ).bind(respuestaFuera, `${session.name || 'equipo'} (en ${red})`, cm.id).run();
+        return json({ ok: true });
+      }
       await env.DB.prepare('UPDATE mkt_comentarios SET atendido = ? WHERE id = ?').bind(b.atendido === false ? 0 : 1, cm.id).run();
       return json({ ok: true });
     }
@@ -2061,7 +2093,16 @@ export async function handleBandeja(request, env, session, url, parts) {
       const b = await leerJson(request);
       const oculto = b.oculto !== false;
       try { await ocultarComentario(c, cm, oculto); }
-      catch (e) { const ex = explicarError(e, cm.canal); return json({ error: ex.msg, permiso: !!ex.permiso }, 422); }
+      catch (e) {
+        if (sinPermisoComentarios(e)) {
+          const red = nombreCanal(cm.canal);
+          return json({
+            error: `Meta todavía no deja ocultar comentarios de ${red} desde la app en esta cuenta: el permiso está en revisión. Mientras, ocúltalo directo en ${red}.`,
+            permiso: true, sin_permiso_meta: true, permalink: cm.media_permalink || null,
+          }, 422);
+        }
+        const ex = explicarError(e, cm.canal); return json({ error: ex.msg, permiso: !!ex.permiso }, 422);
+      }
       await env.DB.prepare('UPDATE mkt_comentarios SET oculto = ?, atendido = CASE WHEN ? THEN 1 ELSE atendido END WHERE id = ?').bind(oculto ? 1 : 0, oculto ? 1 : 0, cm.id).run();
       return json({ ok: true, oculto });
     }
