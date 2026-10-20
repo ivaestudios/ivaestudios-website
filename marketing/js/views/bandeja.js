@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610201200';
-import { toast } from '../shell/toast.js?v=202610201200';
-import { icon, iconMarca } from '../shell/icons.js?v=202610201200';
-import { T, isEN } from '../shell/i18n.js?v=202610201200';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610201200';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202610201206';
+import { toast } from '../shell/toast.js?v=202610201206';
+import { icon, iconMarca } from '../shell/icons.js?v=202610201206';
+import { T, isEN } from '../shell/i18n.js?v=202610201206';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202610201206';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -147,7 +147,13 @@ async function cargarResumen() {
   if (conCorreo !== conCorreoAntes && tab === 'mensajes') pintarCuerpo();
 }
 
-async function cargarLista({ silencioso = false } = {}) {
+// Borradores y avisos de los comentarios, por id: el refresco automático
+// repinta la lista entera y antes borraba la respuesta a medio escribir y el
+// aviso de "contéstalo en Instagram".
+const borradorCom = new Map();
+const fueraCom = new Map();
+
+async function cargarLista({ silencioso = false, auto = false } = {}) {
   const id = cid();
   if (!id) return;
   // El embudo (CRM) se carga y se pinta solo (bandeja-crm.js).
@@ -186,6 +192,12 @@ async function cargarLista({ silencioso = false } = {}) {
   cargandoLista = false;
   // El refresco silencioso del dashboard no repinta (no salta la pantalla).
   if (tab === 'desempeno' && silencioso) return;
+  // Tampoco el automático mientras alguien escribe o toca un comentario: los
+  // datos ya quedaron al día y se pintan en el siguiente refresco.
+  if (auto) {
+    const act = document.activeElement;
+    if (act && act.closest && act.closest('.bj-com')) return;
+  }
   pintarCuerpo();
 }
 
@@ -208,7 +220,7 @@ function programarRefresco() {
   clearInterval(timer);
   timer = setInterval(async () => {
     if (!mounted || document.hidden) return;
-    if (tab !== 'desempeno') await cargarLista({ silencioso: true });
+    if (tab !== 'desempeno') await cargarLista({ silencioso: true, auto: true });
     if (convAbierta) {
       const antes = convAbierta.mensajes.length;
       await abrirConv(convAbierta.conversacion.id, { silencioso: true });
@@ -1350,7 +1362,8 @@ function tarjetaComentario(k) {
     return card;
   }
   const ta = el('textarea', { class: 'textarea bj-ta bj-com__ta', rows: 1, placeholder: T('Escribe la respuesta…', 'Write the reply…'),
-    oninput: (e) => autoAlto(e.target) });
+    oninput: (e) => { autoAlto(e.target); borradorCom.set(k.id, e.target.value); } });
+  if (borradorCom.has(k.id)) { ta.value = borradorCom.get(k.id); requestAnimationFrame(() => autoAlto(ta)); }
   const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', onclick: () => sugerirCom(k, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
   const btnPub = el('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: () => responderCom(k, ta, 'publico', btnPub) }, [icon('send', 14), ' ' + T('Responder', 'Reply')]);
   const btnAmbos = el('button', { type: 'button', class: 'btn btn-sm', onclick: () => responderCom(k, ta, 'ambos', btnAmbos), title: T('Responde en público y además le manda un mensaje privado (Meta permite uno por comentario).', 'Replies publicly and also sends a private message (Meta allows one per comment).') }, [T('Responder + mensaje privado', 'Reply + private message')]);
@@ -1364,6 +1377,7 @@ function tarjetaComentario(k) {
     el('div', { class: 'bj-com__btns' }, [btnIA, btnPub, btnAmbos]),
     el('div', { class: 'bj-com__sec' }, [btnVisto, btnOcultar]),
   ]));
+  if (fueraCom.has(k.id)) salidaPorLaRed(k, ta, card, fueraCom.get(k.id), { scroll: false });
   return card;
 }
 
@@ -1374,6 +1388,7 @@ async function responderCom(k, ta, modo, btn) {
   try {
     const r = await api.post(`/bandeja/comentarios/${encodeURIComponent(k.id)}/responder`, { texto, modo });
     toast(r.dm ? T('Respondido en público y por mensaje.', 'Replied publicly and by DM.') : T('Respuesta publicada.', 'Reply published.'), { type: 'success' });
+    borradorCom.delete(k.id); fueraCom.delete(k.id);
     await cargarLista({ silencioso: true });
     cargarResumen();
   } catch (e) {
@@ -1400,9 +1415,10 @@ function copiarYa(texto) {
   if (!ok && navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(texto).catch(() => {});
   return ok;
 }
-function salidaPorLaRed(k, ta, btn, permalink) {
-  const card = btn.closest('.bj-com');
+function salidaPorLaRed(k, ta, desde, permalink, { scroll = true } = {}) {
+  const card = desde.classList && desde.classList.contains('bj-com') ? desde : desde.closest('.bj-com');
   if (!card) return;
+  fueraCom.set(k.id, permalink || null);
   const prev = card.querySelector('.bj-com__fuera');
   if (prev) prev.remove();
   const red = k.canal === 'facebook' ? 'Facebook' : 'Instagram';
@@ -1422,6 +1438,7 @@ function salidaPorLaRed(k, ta, btn, permalink) {
     try {
       await api.post(`/bandeja/comentarios/${encodeURIComponent(k.id)}/atendido`, t ? { atendido: true, respuesta: t } : { atendido: true });
       toast(T('Listo: quedó como respondido.', 'Done: marked as answered.'), { type: 'success' });
+      borradorCom.delete(k.id); fueraCom.delete(k.id);
       await cargarLista({ silencioso: true });
       cargarResumen();
     } catch (err) { toast(err.message, { type: 'error' }); }
@@ -1435,13 +1452,14 @@ function salidaPorLaRed(k, ta, btn, permalink) {
   ]);
   const acciones = card.querySelector('.bj-com__acciones');
   if (acciones) acciones.insertBefore(aviso, acciones.firstChild); else card.appendChild(aviso);
-  aviso.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (scroll) aviso.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 async function sugerirCom(k, ta, btn) {
   btn.dataset.loading = 'true';
   try {
     const r = await api.post(`/bandeja/comentarios/${encodeURIComponent(k.id)}/sugerir`, {});
     ta.value = r.sugerencia || '';
+    borradorCom.set(k.id, ta.value);
     autoAlto(ta);
     ta.focus();
   } catch (e) { toast(e.message, { type: 'error' }); }
@@ -1450,6 +1468,7 @@ async function sugerirCom(k, ta, btn) {
 async function marcarComentario(k, atendido) {
   try {
     await api.post(`/bandeja/comentarios/${encodeURIComponent(k.id)}/atendido`, { atendido });
+    if (atendido) { borradorCom.delete(k.id); fueraCom.delete(k.id); }
     await cargarLista({ silencioso: true });
     cargarResumen();
   } catch (e) { toast(e.message, { type: 'error' }); }
@@ -2019,7 +2038,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202610201200';
+  link.href = '/marketing/css/bandeja.css?v=202610201206';
   document.head.appendChild(link);
 }
 
