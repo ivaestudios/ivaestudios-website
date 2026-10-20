@@ -73,6 +73,8 @@ def main() -> int:
     ap.add_argument("--sitios", nargs="*", default=["sc-domain:ivaestudios.com", "sc-domain:bodasmx.com.mx"])
     ap.add_argument("--oportunidades", action="store_true",
                     help="Solo consultas en posicion 8 a 30, ordenadas por impresiones: las que estan a un empujon de la pagina 1.")
+    ap.add_argument("--semanal", action="store_true",
+                    help="Ademas: posicion por SEMANA y pagina para las consultas del filtro (ver cuando subio o bajo).")
     a = ap.parse_args()
 
     from googleapiclient.discovery import build  # type: ignore
@@ -88,6 +90,21 @@ def main() -> int:
         tabla(consultar(servicio, sitio, inicio, fin, ["query", "page"], a.pais or None), ["consulta", "página"], patron, a.tope, a.oportunidades)
         print("\n-- solo consulta --")
         tabla(consultar(servicio, sitio, inicio, fin, ["query"], a.pais or None), ["consulta"], patron, a.tope, a.oportunidades)
+        if a.semanal:
+            print("\n-- por semana y página (posición ponderada por impresiones) --")
+            agg = {}
+            for f in consultar(servicio, sitio, inicio, fin, ["query", "page", "date"], a.pais or None):
+                q, pag, dia = f["keys"]
+                if patron and not patron.search(q):
+                    continue
+                y, w, _ = dt.date.fromisoformat(dia).isocalendar()
+                k = (f"{y}-S{w:02d}", pag)
+                imp = f.get("impressions", 0)
+                t = agg.setdefault(k, [0, 0.0, 0])
+                t[0] += imp; t[1] += f.get("position", 0) * imp; t[2] += f.get("clicks", 0)
+            for (sem, pag), (imp, pp, cl) in sorted(agg.items()):
+                if imp:
+                    print(f"  | {sem} | {pag} | {round(pp / imp, 1)} | {imp} | {cl} |")
         print("\n-- países (todas las consultas) --")
         tabla(consultar(servicio, sitio, inicio, fin, ["country"]), ["país"], None, 15)
     return 0
