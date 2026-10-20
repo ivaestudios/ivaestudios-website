@@ -38,6 +38,7 @@ MARKETING_URLS = [
     "https://ivaestudios.com/social-media-dental-clinic-mexico",
     "https://ivaestudios.com/instagram-management-cancun",
     "https://ivaestudios.com/tiktok-agency-hotels-mexico",
+    "https://ivaestudios.com/political-marketing-quintana-roo",
     # Industry vertical landing pages (ES)
     "https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico",
     "https://ivaestudios.com/es/redes-sociales-restaurantes-cancun",
@@ -45,6 +46,7 @@ MARKETING_URLS = [
     "https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico",
     "https://ivaestudios.com/es/manejo-instagram-cancun",
     "https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico",
+    "https://ivaestudios.com/es/marketing-politico-quintana-roo",
     # Blog posts (IVAE Marketing focus)
     "https://ivaestudios.com/blog/hotel-instagram-strategy-mexico-2026",
     "https://ivaestudios.com/blog/restaurant-social-media-mexico-2026",

@@ -32,6 +32,7 @@
     "/social-media-spa-wellness-mexico": "/es/redes-sociales-spa-wellness-mexico",
     "/social-media-dental-clinic-mexico": "/es/redes-sociales-clinica-dental-mexico",
     "/tiktok-agency-hotels-mexico": "/es/agencia-tiktok-hoteles-mexico",
+    "/political-marketing-quintana-roo": "/es/marketing-politico-quintana-roo",
     "/instagram-management-cancun": "/es/manejo-instagram-cancun",
     "/blog/hotel-instagram-strategy-mexico-2026": "/es/blog/estrategia-instagram-hoteles-mexico-2026",
     "/blog/restaurant-social-media-mexico-2026": "/es/blog/redes-sociales-restaurantes-mexico-2026",

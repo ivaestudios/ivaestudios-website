@@ -21,7 +21,8 @@
     '/es/redes-sociales-spa-wellness-mexico': '/social-media-spa-wellness-mexico',
     '/es/redes-sociales-clinica-dental-mexico': '/social-media-dental-clinic-mexico',
     '/es/manejo-instagram-cancun': '/instagram-management-cancun',
-    '/es/agencia-tiktok-hoteles-mexico': '/tiktok-agency-hotels-mexico'
+    '/es/agencia-tiktok-hoteles-mexico': '/tiktok-agency-hotels-mexico',
+    '/es/marketing-politico-quintana-roo': '/political-marketing-quintana-roo'
   };
   var esFromEn = {};
   Object.keys(enFromEs).forEach(function (k) { esFromEn[enFromEs[k]] = k; });
@@ -65,14 +66,16 @@
     { href: '/es/redes-sociales-spa-wellness-mexico', label: 'Spa & Wellness' },
     { href: '/es/redes-sociales-clinica-dental-mexico', label: 'Clínicas Dentales' },
     { href: '/es/manejo-instagram-cancun', label: 'Instagram Cancún' },
-    { href: '/es/agencia-tiktok-hoteles-mexico', label: 'TikTok Hoteles' }
+    { href: '/es/agencia-tiktok-hoteles-mexico', label: 'TikTok Hoteles' },
+    { href: '/es/marketing-politico-quintana-roo', label: 'Marketing Político' }
   ] : [
     { href: '/social-media-luxury-hotels-mexico', label: 'Luxury Hotels' },
     { href: '/social-media-restaurants-cancun', label: 'Restaurants' },
     { href: '/social-media-spa-wellness-mexico', label: 'Spa & Wellness' },
     { href: '/social-media-dental-clinic-mexico', label: 'Dental Clinics' },
     { href: '/instagram-management-cancun', label: 'Instagram Cancún' },
-    { href: '/tiktok-agency-hotels-mexico', label: 'TikTok Hotels' }
+    { href: '/tiktok-agency-hotels-mexico', label: 'TikTok Hotels' },
+    { href: '/political-marketing-quintana-roo', label: 'Political Marketing' }
   ];
 
   var enActive = !isES ? ' class="is-active" aria-current="page"' : '';

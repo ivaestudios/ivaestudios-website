@@ -45,6 +45,7 @@
     '/es/redes-sociales-spa-wellness-mexico': '/social-media-spa-wellness-mexico',
     '/es/redes-sociales-clinica-dental-mexico': '/social-media-dental-clinic-mexico',
     '/es/agencia-tiktok-hoteles-mexico': '/tiktok-agency-hotels-mexico',
+    '/es/marketing-politico-quintana-roo': '/political-marketing-quintana-roo',
     '/es/manejo-instagram-cancun': '/instagram-management-cancun'
   };
   var esFromEn = {};
