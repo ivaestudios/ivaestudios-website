@@ -1386,7 +1386,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog</loc>
-    <lastmod>2026-10-21</lastmod>
+    <lastmod>2026-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog"/>
@@ -1590,6 +1590,27 @@
   </url>
 
   <url>
+    <loc>https://ivaestudios.com/blog/atelier-playa-mujeres-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/atelier-playa-mujeres-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/atelier-playa-mujeres-wedding-photographer</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://ivaestudios.com/blog/babymoon-photography-cancun</loc>
     <lastmod>2026-08-07</lastmod>
     <changefreq>monthly</changefreq>
@@ -1666,6 +1687,27 @@
   <url>
     <loc>https://ivaestudios.com/blog/beachfront-vs-jungle-vs-cenote-wedding-venue</loc>
     <lastmod>2026-09-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/beloved-playa-mujeres-honeymoon-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/beloved-playa-mujeres-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/beloved-playa-mujeres-vow-renewal</loc>
+    <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2736,6 +2778,13 @@
   </url>
 
   <url>
+    <loc>https://ivaestudios.com/blog/estudio-playa-mujeres-family-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://ivaestudios.com/blog/european-couples-destination-wedding-mexico-guide</loc>
     <lastmod>2026-06-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -2745,6 +2794,27 @@
   <url>
     <loc>https://ivaestudios.com/blog/european-family-luxury-vacation-photos-cancun</loc>
     <lastmod>2026-06-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/excellence-coral-playa-mujeres-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/excellence-coral-playa-mujeres-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/excellence-coral-playa-mujeres-wedding-photographer</loc>
+    <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2930,6 +3000,27 @@
   <url>
     <loc>https://ivaestudios.com/blog/father-son-photo-session-riviera-maya</loc>
     <lastmod>2026-08-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/finest-playa-mujeres-family-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/finest-playa-mujeres-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/finest-playa-mujeres-wedding-photographer</loc>
+    <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4526,6 +4617,27 @@
   </url>
 
   <url>
+    <loc>https://ivaestudios.com/blog/secrets-playa-blanca-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/secrets-playa-blanca-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/secrets-playa-blanca-wedding-photographer</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://ivaestudios.com/blog/secrets-playa-mujeres-photoshoot</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -4619,6 +4731,27 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/sls-playa-mujeres-photoshoot</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/sls-playa-mujeres-proposal</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/sls-playa-mujeres-wedding-photographer</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <url>
