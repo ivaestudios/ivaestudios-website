@@ -34,9 +34,9 @@ SCOPES = ["https://www.googleapis.com/auth/indexing"]
 
 # Cola de URLs nuevas que no cupieron en la cuota del dia (guias por hotel,
 # 21-oct-2026: mas de 500 posts nuevos y 200 envios diarios compartidos con
-# bodasmx). 110 deja sitio a los 60 de bodasmx y a los push del dia.
+# bodasmx). 140 + los 60 de bodasmx (09:20 UTC) = las 200 del dia.
 COLA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "seo", "google-queue.txt")
-COLA_MAX = 110
+COLA_MAX = 140
 USANDO_COLA = False
 
 # Default: high-priority URLs changed in the April 21 2026 deep SEO audit.
