@@ -23,6 +23,9 @@ concurrency:
   group: seo-index-urls
   cancel-in-progress: false
 
+permissions:
+  contents: write
+
 jobs:
   submit:
     name: Submit to Google Indexing API
@@ -70,4 +73,18 @@ jobs:
             if [ -z "$CAMBIADOS" ]; then echo "Sin HTML cambiado en este push: no se gasta cuota."; exit 0; fi
             echo "$CAMBIADOS" | sed 's/^/  /'
             python scripts/index_urls.py $CAMBIADOS
+          fi
+
+      - name: Guardar el avance de la cola de Google
+        # Solo en la corrida diaria o manual sin URLs: index_urls.py quita de
+        # seo/google-queue.txt las URLs que Google acepto.
+        if: github.event_name != 'push'
+        run: |
+          if ! git diff --quiet -- seo/google-queue.txt; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add seo/google-queue.txt
+            git commit -m "seo: avance de la cola de Google [skip ci]"
+            git pull --rebase -q origin main
+            git push -q origin HEAD:main
           fi

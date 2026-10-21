@@ -10,7 +10,10 @@ URLs can come from four places, in order of precedence:
   1. CLI args:            python index_urls.py https://a.com/ https://a.com/es/
   2. --source trends:     URLs listed in seo/data/latest.json (changed_pages)
   3. URLS_FILE env var:   path to a newline-delimited list of URLs
-  4. Default list:        the 21 high-priority April 2026 audit URLs
+  4. Cola:                seo/google-queue.txt, hasta COLA_MAX por corrida (la
+                          corrida diaria de las 07:15 UTC la va vaciando; las
+                          aceptadas se quitan y el workflow guarda el archivo)
+  5. Default list:        the 21 high-priority April 2026 audit URLs
 
 Quota: Google Indexing API allows 200 notifications/day per project.
 """
@@ -28,6 +31,13 @@ warnings.filterwarnings("ignore")
 # in environments where the deps aren't installed.
 
 SCOPES = ["https://www.googleapis.com/auth/indexing"]
+
+# Cola de URLs nuevas que no cupieron en la cuota del dia (guias por hotel,
+# 21-oct-2026: mas de 500 posts nuevos y 200 envios diarios compartidos con
+# bodasmx). 110 deja sitio a los 60 de bodasmx y a los push del dia.
+COLA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "seo", "google-queue.txt")
+COLA_MAX = 110
+USANDO_COLA = False
 
 # Default: high-priority URLs changed in the April 21 2026 deep SEO audit.
 DEFAULT_URLS = [
@@ -168,6 +178,15 @@ def collect_urls(use_trends: bool, positional: list[str]):
     pushed = collect_from_push_event()
     if pushed is not None:
         return pushed
+    # Cola pendiente: tiene prioridad sobre la lista por defecto mientras quede algo
+    global USANDO_COLA
+    if os.path.exists(COLA):
+        with open(COLA) as f:
+            cola = [ln.strip() for ln in f if ln.strip().startswith("http")]
+        if cola:
+            USANDO_COLA = True
+            print(f"  cola: {len(cola)} URLs pendientes, se envian {min(len(cola), COLA_MAX)}")
+            return cola[:COLA_MAX]
     # Default: dispatch manual sin input / corrida local
     return DEFAULT_URLS
 
@@ -201,6 +220,7 @@ def main():
     service = build("indexing", "v3", credentials=creds, cache_discovery=False)
 
     ok = 0
+    aceptadas = set()
     fail = 0
     quota_exceeded = 0  # 429s tracked separately — daily quota resets, not a real failure
     quota_skip = False
@@ -215,6 +235,7 @@ def main():
             ).execute()
             print(f"  OK   {url}")
             ok += 1
+            aceptadas.add(url)
         except HttpError as e:
             if e.status_code == 429:
                 print(f"  QUOTA {url} — 429 daily quota exceeded (will retry next push)")
@@ -227,6 +248,13 @@ def main():
     print(
         f"\n--- Summary: {ok} OK / {fail} FAIL / {quota_exceeded} QUOTA / {len(urls)} total ---"
     )
+    if USANDO_COLA:
+        with open(COLA) as f:
+            cola = [ln.strip() for ln in f if ln.strip().startswith("http")]
+        restantes = [u for u in cola if u not in aceptadas]
+        with open(COLA, "w") as f:
+            f.write("".join(u + "\n" for u in restantes))
+        print(f"  cola: quedan {len(restantes)}")
     # Exit nonzero only on REAL failures (auth, 4xx other than 429, 5xx).
     # 429 = daily quota — resets at midnight Pacific, retried automatically next push.
     # Don't fail the workflow when the only "errors" are quota exhaustion.
