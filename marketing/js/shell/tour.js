@@ -17,8 +17,8 @@
 // Tu cuenta → Visita guiada. router/store/prefs/closeAll llegan por
 // parámetro: shell.js importa este módulo y no puede haber ciclo.
 // ============================================================================
-import { el, esCreador } from '../api.js?v=202610262331';
-import { T } from './i18n.js?v=202610262331';
+import { el, esCreador } from '../api.js?v=202610262345';
+import { T } from './i18n.js?v=202610262345';
 
 export const TOUR_VERSION = 2;
 let activo = null;
@@ -527,7 +527,12 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
   async function mostrar(n, { porAccion = false } = {}) {
     const yo = ++turno;
     const viejo = () => cerrado || yo !== turno;
-    listo = false; root.classList.remove('tour--listo');
+    // ¿Llegó aquí porque la persona TOCÓ lo que pedía el paso anterior? Solo
+    // entonces vale la pena esperar a que abra la pieza / la hoja.
+    const tocado = porAccion;
+    // Mientras el paso se acomoda, el botón se ve "cargando" (antes se veía
+    // normal y no respondía: Vianey, 26-oct-2026, "cuando pongo siguiente se traba").
+    listo = false; root.classList.remove('tour--listo'); bNext.disabled = true;
     const dir = n >= i ? 1 : -1;
     n = Math.max(0, Math.min(pasos.length - 1, n));
     // Pasos que solo tienen sentido en cierto estado (p.ej. dentro de la pieza):
@@ -563,7 +568,9 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
       bNext.hidden = true; bNext.textContent = T('Seguir', 'Continue');
       const n0 = i; setTimeout(() => { if (!cerrado && i === n0 && p && p.accion) bNext.hidden = false; }, 7000);
     }
+    let navego = false;
     if (p.view && store.getState().view !== p.view) {
+      navego = true;
       if (typeof closeAll === 'function') { try { closeAll(); } catch { /* noop */ } }
       router.navigate(p.view, params);
       await esperar(() => store.getState().view === p.view, 3000);
@@ -578,7 +585,10 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
     }
     if (viejo()) return;
     if (p.sel) {
-      target = await esperarEl(p.sel, p.view ? 7000 : 3500);
+      // Si la vista ya estaba en pantalla, sus datos ya llegaron: lo que no
+      // está a la primera no va a aparecer (mes vacío). Solo se espera de
+      // verdad cuando se acaba de navegar.
+      target = await esperarEl(p.sel, navego ? 7000 : (p.view ? 1200 : 3500));
       if (target) {
         try { target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' }); } catch { /* noop */ }
         await new Promise((r) => setTimeout(r, 380));
@@ -591,13 +601,20 @@ export async function startTour({ router, store, prefs, closeAll, me, forzar = f
     // Paso libre: esperar a que lo abierto esté de verdad abierto antes de vigilar su
     // cierre. Si no abrió (eligió seguir sin tocar), el paso se muestra como texto normal.
     if (p.libre) {
-      libreActual = typeof p.empiezaCuando === 'function' ? await esperar(() => p.empiezaCuando(store), 3000) : true;
+      // Se espera a que abra SOLO si la persona tocó para abrirlo; si eligió
+      // "Lo hago después" no hay nada que esperar (antes eran 3 s muertos).
+      if (typeof p.empiezaCuando !== 'function') libreActual = true;
+      else {
+        let ya = false; try { ya = !!p.empiezaCuando(store); } catch { ya = false; }
+        libreActual = ya || (tocado ? await esperar(() => p.empiezaCuando(store), 3000) : false);
+      }
       // Si lo que este paso explica no se abrió (eligió "Lo hago después"), se brinca.
       if (!libreActual && p.saltarSiNoAbre && i < pasos.length - 1) { const n0 = i; p = null; mostrar(n0 + 1); return; }
       if (!libreActual) bNext.textContent = i === pasos.length - 1 ? T('Empezar', 'Start') : T('Siguiente', 'Next');
     }
     if (viejo()) return;
     colocar();
+    bNext.disabled = false;
     if (!p.accion && !p.libre) bNext.focus();
     listo = true; root.classList.add('tour--listo');
   }

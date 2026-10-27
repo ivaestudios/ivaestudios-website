@@ -1453,3 +1453,6 @@ textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
   .tour__card--arriba{top:calc(10px + env(safe-area-inset-top,0px))!important;bottom:auto!important}
   .tour__card--lado .tour__p{font-size:13px}
 }
+
+/* Visita guiada: mientras el paso se acomoda el botón se ve ocupado, no muerto. */
+.tour__next:disabled { opacity: .55; cursor: progress; }
