@@ -6,24 +6,24 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202610262345';
-import { icon } from '../shell/icons.js?v=202610262345';
-import { T } from '../shell/i18n.js?v=202610262345';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610262345';
+import { api, el, clear, toast } from '../api.js?v=202610270229';
+import { icon } from '../shell/icons.js?v=202610270229';
+import { T } from '../shell/i18n.js?v=202610270229';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202610270229';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202610262345';
+import { moderarComentario } from '../shell/moderacion.js?v=202610270229';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202610262345';
+import { errorCard } from '../ui/states.js?v=202610270229';
 import {
   tieneWebCodecs, cargarVideo, soltarPagina, analizarPagina, slidesRealesDe,
   cortarWebCodecs, cuadroDeSlides, armarZip, MAX_SLIDES,
   aceptarCortesDudosos, resumenDudoso,
-} from '../lib/cortador-video.js?v=202610262345';
+} from '../lib/cortador-video.js?v=202610270229';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202610262345';
+} from '../lib/video-upload.js?v=202610270229';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -199,7 +199,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202610262345';
+  link.href = '/marketing/css/entregables.css?v=202610270229';
   document.head.appendChild(link);
 }
 
@@ -1624,6 +1624,7 @@ const TYPE_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': '
 // SÓLO UNO a la vez: si ella prepara otro reel, el anterior se suelta — en el
 // teléfono cada archivo retenido son decenas de MB y varios tumban Safari.
 const fileCache = new Map();
+let shareEnCurso = 0; // desde cuándo (ms) se está abriendo el menú de Compartir del 2º toque
 function cacheOneFile(id, file) {
   fileCache.clear();
   dlAllCache.clear();   // "Descargar todos" guarda su propio archivo: si no se
@@ -1763,15 +1764,32 @@ async function saveVideo(it, btn) {
   const setLabel = (t) => { if (label) label.textContent = t; };
   const resetBtn = () => { if (btn) btn.classList.remove('dlv-dl--ready'); setLabel(T('Descargar', 'Download')); };
 
+  // Un menú de Compartir ya se está abriendo: con videos de 150-250 MB el
+  // iPhone tarda 10-20 s en mostrarlo y la pantalla no cambia. Los toques de
+  // más llamaban share() otra vez (InvalidStateError) y salía "no se abrió".
+  // Tope de 30 s: si iOS nunca resolviera la promesa, el botón no queda muerto.
+  if (shareEnCurso && Date.now() - shareEnCurso < 30000) return;
+
   // 2º toque (archivo ya en memoria): compartir SINCRONO -> activación fresca, no falla.
   const cached = fileCache.get(it.id);
   if (cached) {
-    try { await navigator.share({ files: [cached], title: it.title || 'Reel' }); fileCache.delete(it.id); resetBtn(); }
-    catch (e) {
-      if (e && e.name === 'AbortError') return; // canceló el menú: deja el botón armado
-      // Falló el menú: CONSERVAMOS el archivo (no lo re-bajamos) y dejamos el botón
-      // armado para reintentar con un toque (en iOS un <a download> no guardaría nada).
-      toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
+    shareEnCurso = Date.now();
+    if (btn) btn.disabled = true;
+    setLabel(T('Abriendo…', 'Opening…'));
+    try {
+      await navigator.share({ files: [cached], title: it.title || 'Reel' });
+      fileCache.delete(it.id); resetBtn();
+    } catch (e) {
+      if (e && e.name === 'AbortError') { setLabel(T('Toca para guardar', 'Tap to save')); return; } // canceló el menú: queda armado
+      // El iPhone no abrió el menú: plan B con el archivo que ya está en
+      // memoria. Safari pregunta "¿Descargar?" y lo deja en Archivos ›
+      // Descargas (probado en iPhone con 144 MB, sin depender del toque).
+      blobDownload(cached, 10 * 60 * 1000); // ella puede tardar en tocar "Descargar"
+      fileCache.delete(it.id); resetBtn();
+      toast(T('Toca «Descargar» y tu video queda en Archivos › Descargas. Desde ahí lo puedes pasar a Fotos.', 'Tap "Download" and your video goes to Files › Downloads. From there you can move it to Photos.'), 'info', 10000);
+    } finally {
+      shareEnCurso = 0;
+      if (btn) btn.disabled = false;
     }
     return;
   }
@@ -1791,7 +1809,7 @@ async function saveVideo(it, btn) {
       cacheOneFile(it.id, file);
       if (btn) btn.classList.add('dlv-dl--ready');
       setLabel(T('Toca para guardar', 'Tap to save'));
-      toast(T('Tu video ya está listo ✓ — toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'Your video is ready ✓ — tap the highlighted button again to save it to your phone.'), 'info', 8000);
+      toast(T('Tu video ya está listo ✓. Toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'Your video is ready ✓. Tap the highlighted button again to save it to your phone.'), 'info', 8000);
       return;
     }
   } catch (e) {
@@ -1811,12 +1829,14 @@ async function saveVideo(it, btn) {
 
 // Guarda un File ya descargado con el gestor del navegador (escritorio y
 // fallback móvil): enlace a un blob local -> directo a Descargas.
-function blobDownload(file) {
+// `vida`: cuánto vive el enlace. En iPhone, Safari primero pregunta
+// "¿Descargar?" y, si el enlace ya caducó cuando ella toca, no guarda nada.
+function blobDownload(file, vida = 60000) {
   const url = URL.createObjectURL(file);
   const a = document.createElement('a');
   a.href = url; a.download = file.name;
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => { try { URL.revokeObjectURL(url); } catch { /* noop */ } }, 60000);
+  setTimeout(() => { try { URL.revokeObjectURL(url); } catch { /* noop */ } }, vida);
 }
 
 // "Descargar todos" los reels del mes activo.
@@ -2761,10 +2781,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202610262345');
+        const mod = await import('../lib/pdf-entregables.js?v=202610270229');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610262345');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202610270229');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

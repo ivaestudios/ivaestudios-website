@@ -18,11 +18,11 @@
 // columnas y la pieza abierta con el video a la izquierda y el guion a la
 // derecha (css/contenido.css). Respeta las zonas seguras del iPhone.
 // ============================================================================
-import { el, clear, api, toast, fmtDate, timeAgo, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202610262345';
-import { T } from '../shell/i18n.js?v=202610262345';
-import { icon } from '../shell/icons.js?v=202610262345';
-import { openSheet } from '../shell/sheet.js?v=202610262345';
-import { pushLayer } from '../shell/router.js?v=202610262345';
+import { el, clear, api, toast, fmtDate, timeAgo, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202610270229';
+import { T } from '../shell/i18n.js?v=202610270229';
+import { icon } from '../shell/icons.js?v=202610270229';
+import { openSheet } from '../shell/sheet.js?v=202610270229';
+import { pushLayer } from '../shell/router.js?v=202610270229';
 
 const VIEW_ID = 'contenido';
 
@@ -519,7 +519,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202610262345';
+  link.href = '/marketing/css/contenido.css?v=202610270229';
   document.head.appendChild(link);
 }
 
