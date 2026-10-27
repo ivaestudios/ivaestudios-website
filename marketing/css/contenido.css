@@ -12,8 +12,8 @@
   max-width: 1280px;
   margin: 0 auto;
   padding-block: 12px 96px;
-  /* El shell ya pone el margen lateral; aquí solo el notch del teléfono acostado. */
-  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  /* El margen lateral (y el de la muesca con el teléfono acostado) lo pone #view. */
+  padding-inline: 0;
   color: var(--text, #16161E);
 }
 
