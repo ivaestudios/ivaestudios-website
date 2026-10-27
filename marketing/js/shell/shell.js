@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610201206';
-import { setRoleDefault } from './theme.js?v=202610201206';
-import { vigilarSegmentados } from './segfade.js?v=202610201206';
-import * as store from './store.js?v=202610201206';
-import * as prefs from './prefs.js?v=202610201206';
-import * as router from './router.js?v=202610201206';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610201206';
-import { toast } from './toast.js?v=202610201206';
-import { icon } from './icons.js?v=202610201206';
-import * as iconsMod from './icons.js?v=202610201206';
-import { createTopbar } from './topbar.js?v=202610201206';
-import { createBottomNav } from './bottomnav.js?v=202610201206';
-import { createSearch } from './search.js?v=202610201206';
-import { createNotifications } from './notifications.js?v=202610201206';
-import { T } from './i18n.js?v=202610201206';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202610201206';
-import * as version from './version.js?v=202610201206';
-import * as tienda from './tienda.js?v=202610201206';
-import * as pickers from '../ui/pickers.js?v=202610201206';
-import * as dnd from '../ui/dnd.js?v=202610201206';
+import { api, el, clear } from '../api.js?v=202610262318';
+import { setRoleDefault } from './theme.js?v=202610262318';
+import { vigilarSegmentados } from './segfade.js?v=202610262318';
+import * as store from './store.js?v=202610262318';
+import * as prefs from './prefs.js?v=202610262318';
+import * as router from './router.js?v=202610262318';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610262318';
+import { toast } from './toast.js?v=202610262318';
+import { icon } from './icons.js?v=202610262318';
+import * as iconsMod from './icons.js?v=202610262318';
+import { createTopbar } from './topbar.js?v=202610262318';
+import { createBottomNav } from './bottomnav.js?v=202610262318';
+import { createSearch } from './search.js?v=202610262318';
+import { createNotifications } from './notifications.js?v=202610262318';
+import { T } from './i18n.js?v=202610262318';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202610262318';
+import * as version from './version.js?v=202610262318';
+import * as tienda from './tienda.js?v=202610262318';
+import * as pickers from '../ui/pickers.js?v=202610262318';
+import * as dnd from '../ui/dnd.js?v=202610262318';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -61,6 +61,12 @@ const CLIENT_METRICS_IDS = [
   'eaa44c9940a9549f9b17223cea054e29',  // PRODUCTIONS (pedido 2026-08-26)
 ];
 const isClientRole = () => ((store.getState().me || {}).role === 'client');
+// "Mi contenido" (views/contenido.js): la vista SENCILLA del cliente, pedida
+// por Vianey el 26-oct-2026. Se prende marca por marca, como Métricas: '*' =
+// todas. MISMA lista en topbar.js — cámbialas juntas.
+const CLIENT_CONTENIDO_IDS = [];
+const clientVeContenido = () => CLIENT_CONTENIDO_IDS.includes('*')
+  || CLIENT_CONTENIDO_IDS.includes((store.getState().me || {}).client_id);
 // Conexiones en la versión CLIENTE: solo para las marcas que Vianey habilita
 // una por una (pedido 2026-08-27: "solo para Regeneris"). MISMA lista en
 // topbar.js y conexiones.js — cámbialas juntas.
@@ -77,6 +83,7 @@ const esAgenteBandeja = () => rolBandeja() === 'agente';
 const soloBandeja = () => esAgenteBandeja() || (!!rolBandeja() && !!(store.getState().me || {}).solo_crm);
 const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (!soloBandeja() && CLIENT_VIEWS.includes(view))
+  || (view === 'contenido' && !soloBandeja() && clientVeContenido())
   || (view === 'bandeja' && !!rolBandeja())
   || (view === 'metricas' && !soloBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
   || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
@@ -201,6 +208,9 @@ function updateSubhead() {
       if (b.dataset.view === 'carrusel') b.hidden = client; // herramienta de staff
       if (b.dataset.view === 'descargar') b.hidden = client; // herramienta de staff
       if (b.dataset.view === 'video-ia') b.hidden = client;  // herramienta de staff (cuesta dinero); el router ya lo rebota, pero la pestana se veia
+      // Al cliente no se le ofrece una pestaña que el router le va a rebotar
+      // (le pasaba con Feed: se veía y al tocarla regresaba a Calendario).
+      if (client && !clientCanView(b.dataset.view)) b.hidden = true;
     }
   }
   // Un seg con UNA sola pestaña no navega a nada: al agente de la Bandeja le
@@ -223,7 +233,7 @@ function buildSubhead(root) {
   // tabs del topbar no existen bajo 1024px). Una vista nueva que no se agregue
   // aquí queda invisible en el celular, que es donde Vianey trabaja: le pasó a
   // Feed el 12-sep-2026 ("¿en qué parte está?").
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'feed', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
+  const VISIBLE_CONTENT_VIEWS = ['contenido', 'meses', 'calendario', 'feed', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
   const segViews = soloBandeja() ? [] : CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
@@ -234,7 +244,10 @@ function buildSubhead(root) {
   // (agente o supervisor). Misma razón: en el teléfono este seg es la única puerta.
   if (!isClientRole() || rolBandeja()) segViews.push('bandeja');
   for (const v of segViews) {
-    const label = CONTENT_LABELS[v] || v;
+    // Para el equipo, "Mi contenido" es la vista previa de lo que ve el cliente.
+    const label = v === 'contenido'
+      ? (isClientRole() ? T('Mi contenido', 'My content') : T('Vista cliente', 'Client view'))
+      : (CONTENT_LABELS[v] || v);
     subheadSeg.appendChild(el('button', {
       type: 'button', role: 'tab', dataset: { view: v }, text: label,
       onclick: () => {
@@ -826,7 +839,10 @@ export async function boot() {
   store.loadPosts(activeClientId);
 
   // Demo del CRM: el equipo de una marca demo entra directo a la Bandeja.
-  const defaultView = soloBandeja() || ((store.getState().me || {}).bandeja_demo && rolBandeja()) ? 'bandeja' : prefs.lastContentView(activeClientId);
+  // El cliente con "Mi contenido" prendido siempre aterriza ahí: es SU pantalla.
+  const defaultView = soloBandeja() || ((store.getState().me || {}).bandeja_demo && rolBandeja()) ? 'bandeja'
+    : (isClientRole() && clientCanView('contenido')) ? 'contenido'
+      : prefs.lastContentView(activeClientId);
   router.start({ view: defaultView, params: activeClientId ? { cliente: activeClientId } : {} });
 
   store.set({ booted: true });
