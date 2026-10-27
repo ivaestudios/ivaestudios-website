@@ -18,11 +18,11 @@
 // columnas y la pieza abierta con el video a la izquierda y el guion a la
 // derecha (css/contenido.css). Respeta las zonas seguras del iPhone.
 // ============================================================================
-import { el, clear, api, toast, fmtDate, timeAgo, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202610262318';
-import { T } from '../shell/i18n.js?v=202610262318';
-import { icon } from '../shell/icons.js?v=202610262318';
-import { openSheet } from '../shell/sheet.js?v=202610262318';
-import { pushLayer } from '../shell/router.js?v=202610262318';
+import { el, clear, api, toast, fmtDate, timeAgo, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202610262324';
+import { T } from '../shell/i18n.js?v=202610262324';
+import { icon } from '../shell/icons.js?v=202610262324';
+import { openSheet } from '../shell/sheet.js?v=202610262324';
+import { pushLayer } from '../shell/router.js?v=202610262324';
 
 const VIEW_ID = 'contenido';
 
@@ -34,6 +34,7 @@ let filtro = 'todo';         // todo | revisar | aprobado | publicado
 let marcaId = null;
 const dlvCache = new Map();  // `${marca}|${mes}` → Map(post_id → entregable) | 'cargando'
 let abierta = null;          // { id, nodo, soltar }
+let porAbrir = null;         // ?pieza=<id> (de un aviso) mientras llegan las piezas
 
 // ── Datos ────────────────────────────────────────────────────────────────────
 function estado() { return ctx.store.getState(); }
@@ -183,6 +184,18 @@ function tarjeta(p, dlv) {
 }
 
 // ── Pantalla ─────────────────────────────────────────────────────────────────
+// Abre la pieza pedida por la URL en cuanto exista en la marca (las piezas
+// pueden llegar después del montaje).
+function abrirPendiente() {
+  if (!porAbrir || !rootEl) return;
+  const p = piezasDeMarca().find((x) => x.id === porAbrir);
+  if (!p) return;
+  porAbrir = null;
+  if (mesDe(p)) { mes = mesDe(p); filtro = 'todo'; }
+  render();
+  abrir(p.id);
+}
+
 function render() {
   if (!rootEl) return;
   const meses = mesesConContenido();
@@ -506,7 +519,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202610262318';
+  link.href = '/marketing/css/contenido.css?v=202610262324';
   document.head.appendChild(link);
 }
 
@@ -522,13 +535,22 @@ export default {
       const ahora = estado().activeClientId || null;
       if (ahora !== marcaId) { marcaId = ahora; mes = null; filtro = 'todo'; cerrar(); }
       render();
+      abrirPendiente();
     }));
     render();
+    porAbrir = (c.params && c.params.pieza) || null;
+    abrirPendiente();
+  },
+  onParams(params) {
+    if (params && params.pieza && (!abierta || abierta.id !== params.pieza)) {
+      porAbrir = params.pieza;
+      abrirPendiente();
+    }
   },
   unmount() {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     cerrar();
-    rootEl = null; ctx = null; mes = null; filtro = 'todo';
+    rootEl = null; ctx = null; mes = null; filtro = 'todo'; porAbrir = null;
   },
 };

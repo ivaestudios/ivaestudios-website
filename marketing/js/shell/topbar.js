@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202610262318';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610262318';
-import * as store from './store.js?v=202610262318';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610262318';
-import { toast } from './toast.js?v=202610262318';
-import { icon } from './icons.js?v=202610262318';
-import { openClientSwitcher } from './clientswitcher.js?v=202610262318';
-import { T, isEN, setLang } from './i18n.js?v=202610262318';
+import { startTour } from './tour.js?v=202610262324';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202610262324';
+import * as store from './store.js?v=202610262324';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202610262324';
+import { toast } from './toast.js?v=202610262324';
+import { icon } from './icons.js?v=202610262324';
+import { openClientSwitcher } from './clientswitcher.js?v=202610262324';
+import { T, isEN, setLang } from './i18n.js?v=202610262324';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202610262318';
-import { getTheme, setTheme } from './theme.js?v=202610262318';
-import * as version from './version.js?v=202610262318';
-import * as tienda from './tienda.js?v=202610262318';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610262318';
-import * as prefs from './prefs.js?v=202610262318';
+import { abrirBloqueados } from './moderacion.js?v=202610262324';
+import { getTheme, setTheme } from './theme.js?v=202610262324';
+import * as version from './version.js?v=202610262324';
+import * as tienda from './tienda.js?v=202610262324';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202610262324';
+import * as prefs from './prefs.js?v=202610262324';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -111,7 +111,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const CLIENT_CONEXIONES_IDS = ['demo-regeneris', '8de22da29a5def29149a8e86ae5c4096'];
   const clientSeesConexiones = isClient && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id);
   // "Mi contenido" para clientes: por marca, '*' = todas. MISMA lista en shell.js.
-  const CLIENT_CONTENIDO_IDS = [];
+  const CLIENT_CONTENIDO_IDS = ['*'];
   const clientSeesContenido = isClient && (CLIENT_CONTENIDO_IDS.includes('*') || CLIENT_CONTENIDO_IDS.includes((store.getState().me || {}).client_id));
   // Pauta es de la DUENA: el equipo tampoco la ve (el backend ya responde 403,
   // esto solo evita ofrecer una puerta que siempre se cierra).
@@ -122,7 +122,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const visibleTabs = isClient
     ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
-      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'bandeja' && rolBj === 'supervisor')))
+      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'bandeja' && rolBj === 'supervisor')))
     : DESKTOP_TABS.filter((t) => t.id !== 'pauta' || esAdmin);
   const irA = (id) => {
     const { activeClientId } = store.getState();

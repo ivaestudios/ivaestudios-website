@@ -19,32 +19,35 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202610262318';
-import { setRoleDefault } from './theme.js?v=202610262318';
-import { vigilarSegmentados } from './segfade.js?v=202610262318';
-import * as store from './store.js?v=202610262318';
-import * as prefs from './prefs.js?v=202610262318';
-import * as router from './router.js?v=202610262318';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610262318';
-import { toast } from './toast.js?v=202610262318';
-import { icon } from './icons.js?v=202610262318';
-import * as iconsMod from './icons.js?v=202610262318';
-import { createTopbar } from './topbar.js?v=202610262318';
-import { createBottomNav } from './bottomnav.js?v=202610262318';
-import { createSearch } from './search.js?v=202610262318';
-import { createNotifications } from './notifications.js?v=202610262318';
-import { T } from './i18n.js?v=202610262318';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202610262318';
-import * as version from './version.js?v=202610262318';
-import * as tienda from './tienda.js?v=202610262318';
-import * as pickers from '../ui/pickers.js?v=202610262318';
-import * as dnd from '../ui/dnd.js?v=202610262318';
+import { api, el, clear } from '../api.js?v=202610262324';
+import { setRoleDefault } from './theme.js?v=202610262324';
+import { vigilarSegmentados } from './segfade.js?v=202610262324';
+import * as store from './store.js?v=202610262324';
+import * as prefs from './prefs.js?v=202610262324';
+import * as router from './router.js?v=202610262324';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202610262324';
+import { toast } from './toast.js?v=202610262324';
+import { icon } from './icons.js?v=202610262324';
+import * as iconsMod from './icons.js?v=202610262324';
+import { createTopbar } from './topbar.js?v=202610262324';
+import { createBottomNav } from './bottomnav.js?v=202610262324';
+import { createSearch } from './search.js?v=202610262324';
+import { createNotifications } from './notifications.js?v=202610262324';
+import { T } from './i18n.js?v=202610262324';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202610262324';
+import * as version from './version.js?v=202610262324';
+import * as tienda from './tienda.js?v=202610262324';
+import * as pickers from '../ui/pickers.js?v=202610262324';
+import * as dnd from '../ui/dnd.js?v=202610262324';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // El cliente solo ve las vistas de calendario (Calendario = meses,
 // Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
-const CLIENT_VIEWS = ['meses', 'calendario', 'entregables', 'marca'];
+// 26-oct-2026: la Cuadrícula ya no es del cliente (Vianey: "menos cosas
+// irrelevantes"); su pantalla es "Mi contenido" + Calendario para quien escribe
+// notas en la tabla.
+const CLIENT_VIEWS = ['meses', 'entregables', 'marca'];
 // Métricas (con su botón de Reporte PDF) se habilita en la versión CLIENTE
 // solo para las marcas que Vianey aprueba una por una. Hoy: IVAE STUDIOS (su
 // propia marca) y REGENERIS (lo pidió el 2026-07-29). El resto no la ve.
@@ -64,7 +67,7 @@ const isClientRole = () => ((store.getState().me || {}).role === 'client');
 // "Mi contenido" (views/contenido.js): la vista SENCILLA del cliente, pedida
 // por Vianey el 26-oct-2026. Se prende marca por marca, como Métricas: '*' =
 // todas. MISMA lista en topbar.js — cámbialas juntas.
-const CLIENT_CONTENIDO_IDS = [];
+const CLIENT_CONTENIDO_IDS = ['*'];
 const clientVeContenido = () => CLIENT_CONTENIDO_IDS.includes('*')
   || CLIENT_CONTENIDO_IDS.includes((store.getState().me || {}).client_id);
 // Conexiones en la versión CLIENTE: solo para las marcas que Vianey habilita
@@ -803,8 +806,14 @@ export async function boot() {
     onBeforeMount(view, params, { paramsOnly }) {
       // El cliente solo entra a las vistas de calendario (+ editor de post via
       // deep-link). Cualquier otra vista lo regresa a su Calendario.
+      // Un aviso lleva a #/post/<id>: el cliente con "Mi contenido" abre ahí
+      // esa misma pieza, no el editor del equipo.
+      if (isClientRole() && view === 'post' && !soloBandeja() && clientCanView('contenido') && params.id) {
+        router.navigate('contenido', { ...(params.cliente ? { cliente: params.cliente } : {}), pieza: params.id });
+        return;
+      }
       if (isClientRole() && !clientCanView(view) && (view !== 'post' || soloBandeja())) {
-        router.navigate(soloBandeja() ? 'bandeja' : 'meses', params.cliente ? { cliente: params.cliente } : {});
+        router.navigate(soloBandeja() ? 'bandeja' : (clientCanView('contenido') ? 'contenido' : 'meses'), params.cliente ? { cliente: params.cliente } : {});
         return;
       }
       // Coherencia de cliente: la URL manda. La validez se calcula con el
