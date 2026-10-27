@@ -123,7 +123,7 @@
     <h3>Qué permisos pedimos y para qué</h3>
     <ul>
       <li><strong>Subir videos</strong> (<em>youtube.upload</em>): para publicar en tu canal la pieza que tú aprobaste, con el título, la descripción y las etiquetas que se definieron en la aplicación.</li>
-      <li><strong>Lectura básica</strong> (<em>youtube.readonly</em>): únicamente para leer el nombre y el identificador de tu canal, y así poder mostrarte a dónde se va a publicar antes de subir nada.</li>
+      <li><strong>Lectura básica</strong> (<em>youtube.readonly</em>): únicamente para leer el nombre y el identificador de tu canal, y así poder mostrarte a dónde se va a publicar antes de subir nada, y para confirmar el estado de los videos que nosotros subimos a petición tuya (título, privacidad, si es para niños y si YouTube ya lo procesó).</li>
     </ul>
     <p>No leemos ni guardamos tus suscriptores, tus comentarios, tu historial de reproducción, tus listas, tus ingresos ni las estadísticas de tu canal. No modificamos ni borramos videos que ya existan en tu canal.</p>
 
@@ -131,7 +131,7 @@
     <p>Los únicos datos de usuario de Google a los que accede IVAE Marketing son los que permiten los dos permisos de arriba:</p>
     <ul>
       <li><strong>Qué recibimos:</strong> el identificador y el nombre de tu canal de YouTube, y los tokens de acceso que Google entrega cuando autorizas la conexión. Cuando publicamos un video, también guardamos el identificador que YouTube le asigna, para que veas en la aplicación qué se publicó y dónde.</li>
-      <li><strong>Para qué los usamos:</strong> sólo para mostrarte a qué canal se va a publicar y para subir a ese canal los videos que tú programaste o aprobaste en la aplicación. No los usamos para nada más.</li>
+      <li><strong>Para qué los usamos:</strong> sólo para mostrarte a qué canal se va a publicar, para subir a ese canal los videos que tú programaste o aprobaste en la aplicación y para confirmarte que YouTube los recibió. No los usamos para nada más.</li>
       <li><strong>Cómo los guardamos:</strong> en la base de datos de la aplicación, alojada en Cloudflare, a la que sólo accede el servidor de la aplicación. Los tokens nunca se muestran en pantalla ni se envían a nadie más.</li>
       <li><strong>Cuánto tiempo:</strong> mientras tu canal esté conectado. Al desconectarlo revocamos el permiso en Google y borramos el identificador del canal y los tokens; si eliminas tu cuenta, esos datos se borran de inmediato junto con todo lo demás.</li>
       <li><strong>Con quién los compartimos:</strong> con nadie. No vendemos datos de usuario de Google, no los usamos para publicidad, no los transferimos a terceros y no los usamos para entrenar modelos de inteligencia artificial. Ninguna persona los lee, salvo que tú nos lo pidas por escrito para darte soporte o que la ley lo exija.</li>
@@ -229,7 +229,7 @@
       <h3>Which permissions we request, and why</h3>
       <ul>
         <li><strong>Upload videos</strong> (<em>youtube.upload</em>): to publish the piece you approved to your channel, with the title, description and tags defined in the app.</li>
-        <li><strong>Basic read</strong> (<em>youtube.readonly</em>): only to read your channel's title and id, so we can show you where a video will be published before uploading anything.</li>
+        <li><strong>Basic read</strong> (<em>youtube.readonly</em>): only to read your channel's title and id, so we can show you where a video will be published before uploading anything, and to confirm the status of the videos we uploaded at your request (title, privacy, made for kids and whether YouTube finished processing it).</li>
       </ul>
       <p>We do not read or store your subscribers, your comments, your watch history, your playlists, your revenue or your channel analytics. We never modify or delete videos that already exist on your channel.</p>
 
@@ -237,7 +237,7 @@
       <p>The only Google user data IVAE Marketing accesses is what the two permissions above allow:</p>
       <ul>
         <li><strong>What we receive:</strong> your YouTube channel's id and title, and the access tokens Google issues when you authorize the connection. When we publish a video, we also store the id YouTube assigns to it, so you can see in the app what was published and where.</li>
-        <li><strong>How we use it:</strong> only to show you which channel a video will go to, and to upload to that channel the videos you scheduled or approved in the app. We do not use it for anything else.</li>
+        <li><strong>How we use it:</strong> only to show you which channel a video will go to, to upload to that channel the videos you scheduled or approved in the app, and to confirm that YouTube received them. We do not use it for anything else.</li>
         <li><strong>How we store it:</strong> in the app's database, hosted on Cloudflare, which only the app's server can access. Tokens are never shown on screen or sent to anyone else.</li>
         <li><strong>How long we keep it:</strong> while your channel stays connected. When you disconnect it, we revoke the grant at Google and erase the channel id and the tokens; if you delete your account, that data is erased immediately along with everything else.</li>
         <li><strong>Who we share it with:</strong> no one. We do not sell Google user data, use it for advertising, transfer it to third parties, or use it to train artificial intelligence models. No person reads it, unless you ask us in writing to help with support or the law requires it.</li>
