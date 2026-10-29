@@ -89,6 +89,8 @@
       return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j && j.ok, j: j || {} }; });
     }).then(function (res) {
       if (res.ok) {
+        /* Consulta enviada: evento clave en Google Analytics (site-header.js). */
+        if (window.ivaeTrack) window.ivaeTrack('generate_lead', { form_kind: opts.kind || 'inquiry' });
         if (btn) btn.disabled = false;
         form.reset();
         if (opts.status) {

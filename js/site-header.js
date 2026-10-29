@@ -1,3 +1,118 @@
+/* Google Analytics 4: flujo "IVAE Studios" (G-PLL9HVDWGG, cuenta de Analytics
+   vianeydmphoto). Vive aqui porque site-header.js lo cargan todas las paginas de
+   fotografia; IVAE Marketing, la galeria y los paneles no lo cargan.
+   Politica de privacidad 7.2: quien entra desde Europa (zona horaria Europe/* o
+   islas atlanticas de la UE) ve un aviso y solo se mide si acepta; al resto se le
+   mide desde la primera pagina y puede apagarlo con el boton
+   [data-analytics-optout] de la politica. La eleccion queda en localStorage
+   'ivae_analytics' = 'granted' | 'denied'. 2026-10-29. */
+(function () {
+  'use strict';
+
+  var GA_ID = 'G-PLL9HVDWGG';
+  var KEY = 'ivae_analytics';
+  var host = location.hostname;
+  if (host !== 'ivaestudios.com' && host !== 'www.ivaestudios.com') return;
+  if (/^\/(gallery|admin)(\/|$)/.test(location.pathname)) return;
+
+  var isES = location.pathname === '/es' || location.pathname.indexOf('/es/') === 0;
+  var loaded = false;
+
+  function getChoice() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function setChoice(v) { try { localStorage.setItem(KEY, v); } catch (e) { /* sin almacenamiento */ } }
+
+  function inEurope() {
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      return tz.indexOf('Europe/') === 0 || /^Atlantic\/(Canary|Madeira|Azores|Reykjavik|Faroe)$/.test(tz);
+    } catch (e) { return false; }
+  }
+
+  function load() {
+    if (loaded) return;
+    loaded = true;
+    window['ga-disable-' + GA_ID] = false;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_ID, {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      cookie_expires: 34128000 /* 13 meses */
+    });
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(s);
+  }
+
+  /* Eventos propios: inquiry-send.js manda generate_lead con esto. */
+  window.ivaeTrack = function (name, params) {
+    if (loaded && window.gtag) window.gtag('event', name, params || {});
+  };
+
+  /* Clics de contacto: WhatsApp, llamada y correo. */
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var name = /wa\.me|whatsapp\.com|^whatsapp:/i.test(href) ? 'contact_whatsapp'
+      : /^tel:/i.test(href) ? 'contact_phone'
+      : /^mailto:/i.test(href) ? 'contact_email' : '';
+    if (name) window.ivaeTrack(name, { link_url: href.split('?')[0] });
+  }, true);
+
+  /* Boton de la politica de privacidad: apaga la medicion en este navegador. */
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-analytics-optout]') : null;
+    if (!b) return;
+    e.preventDefault();
+    setChoice('denied');
+    window['ga-disable-' + GA_ID] = true;
+    b.textContent = isES ? 'Listo: la analítica quedó apagada en este navegador.' : 'Done: analytics is now off in this browser.';
+  });
+
+  function banner() {
+    var t = isES
+      ? { msg: 'Usamos Google Analytics para saber qué páginas ayudan a planear una sesión. No se activa si no aceptas.', yes: 'Aceptar', no: 'Rechazar', more: 'Privacidad', href: '/es/politica-de-privacidad#cookies', label: 'Aviso de analítica' }
+      : { msg: 'We use Google Analytics to see which pages help people plan a session. Nothing runs unless you accept.', yes: 'Accept', no: 'Decline', more: 'Privacy', href: '/privacy-policy#cookies', label: 'Analytics notice' };
+    var css = document.createElement('style');
+    css.textContent =
+      '.ivae-consent{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2147483000;max-width:560px;margin:0 auto;background:#fff;color:#1f3a5a;border:1px solid rgba(31,58,90,.22);box-shadow:0 10px 30px rgba(0,0,0,.12);padding:16px 18px;font-size:14px;line-height:1.5}' +
+      '.ivae-consent p{margin:0 0 12px}.ivae-consent a{color:inherit;text-decoration:underline}' +
+      '.ivae-consent-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}' +
+      '.ivae-consent button{font:inherit;font-size:14px;min-height:44px;padding:0 20px;cursor:pointer;border:1px solid #1f3a5a}' +
+      '.ivae-consent .ivae-yes{background:#1f3a5a;color:#fff}.ivae-consent .ivae-no{background:#fff;color:#1f3a5a}' +
+      '.ivae-consent .ivae-more{margin-left:auto}';
+    document.head.appendChild(css);
+    var box = document.createElement('div');
+    box.className = 'ivae-consent';
+    box.setAttribute('role', 'region');
+    box.setAttribute('aria-label', t.label);
+    var p = document.createElement('p');
+    p.textContent = t.msg;
+    var row = document.createElement('div');
+    row.className = 'ivae-consent-row';
+    var yes = document.createElement('button');
+    yes.type = 'button'; yes.className = 'ivae-yes'; yes.textContent = t.yes;
+    var no = document.createElement('button');
+    no.type = 'button'; no.className = 'ivae-no'; no.textContent = t.no;
+    var more = document.createElement('a');
+    more.className = 'ivae-more'; more.href = t.href; more.textContent = t.more;
+    row.appendChild(yes); row.appendChild(no); row.appendChild(more);
+    box.appendChild(p); box.appendChild(row);
+    document.body.appendChild(box);
+    yes.addEventListener('click', function () { setChoice('granted'); box.remove(); load(); });
+    no.addEventListener('click', function () { setChoice('denied'); box.remove(); });
+  }
+
+  var choice = getChoice();
+  if (choice === 'denied') { window['ga-disable-' + GA_ID] = true; return; }
+  if (choice === 'granted' || !inEurope()) { load(); return; }
+  if (document.body) banner();
+  else document.addEventListener('DOMContentLoaded', banner);
+})();
+
 /* IVAE Studios — Single source of truth for the site header.
    Injects the canonical header on every page. EN + ES aware.
    Replaces any existing <header id="siteHeader"> in the DOM with this version. */
