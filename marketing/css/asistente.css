@@ -1,0 +1,63 @@
+/* ==========================================================================
+   IVAE Marketing — Asistente de IA para clientes. js/views/asistente.js
+   Un chat sencillo, grande y legible en el teléfono (390px): burbujas, chips
+   de preguntas frecuentes y una barra de escribir pegada abajo, sobre la
+   barra de navegación. Respeta las zonas seguras del iPhone.
+   ========================================================================== */
+.asis { --asis-acc: var(--client-accent, var(--brand, #C93E8C)); max-width: 820px; margin: 0 auto; padding: 8px 0 140px; color: var(--text, #16161E); }
+
+.asis-cab { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.asis-cab__ico { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 14px; background: color-mix(in srgb, var(--asis-acc) 14%, transparent); color: var(--asis-acc); }
+.asis-cab__tit { font-size: 20px; line-height: 1.2; font-weight: 700; margin: 0; letter-spacing: -.01em; }
+.asis-cab__sub { font-size: 13px; color: var(--text-dim, #52525E); margin: 2px 0 0; }
+
+/* Panel del equipo (interruptor + solicitudes) */
+.asis-staff { border: 1px solid var(--border, #E5E5EC); border-radius: 16px; background: var(--surface, #fff); padding: 12px 14px; margin-bottom: 14px; }
+.asis-staff__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.asis-staff__row + .asis-staff__row { border-top: 1px solid var(--border, #E5E5EC); margin-top: 8px; padding-top: 8px; }
+.asis-sw { position: relative; width: 50px; height: 30px; flex: none; border-radius: 999px; border: 0; cursor: pointer; background: var(--border, #D4D4DC); transition: background .18s; }
+.asis-sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .18s; }
+.asis-sw[aria-checked="true"] { background: var(--asis-acc); }
+.asis-sw[aria-checked="true"]::after { transform: translateX(20px); }
+.asis-sw:disabled { opacity: .5; cursor: default; }
+.asis-sol { display: grid; gap: 8px; margin-top: 6px; }
+.asis-sol__item { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: start; padding: 10px 12px; border-radius: 12px; background: var(--surface-2, #F6F6FA); font-size: 14px; }
+.asis-sol__meta { font-size: 12px; color: var(--text-dim, #52525E); }
+.asis-sol__txt { margin: 2px 0 0; white-space: pre-wrap; word-break: break-word; }
+.asis-sol__item.is-atendida { opacity: .6; }
+
+/* Aviso cuando está apagado */
+.asis-off { text-align: center; padding: 40px 16px; color: var(--text-dim, #52525E); }
+.asis-off h3 { margin: 12px 0 6px; color: var(--text, #16161E); }
+
+/* Hilo */
+.asis-hilo { display: flex; flex-direction: column; gap: 10px; padding: 4px 0 8px; }
+.asis-msg { max-width: 86%; padding: 11px 14px; border-radius: 18px; font-size: 15.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+.asis-msg--yo { align-self: flex-end; background: var(--asis-acc); color: #fff; border-bottom-right-radius: 6px; }
+.asis-msg--ia { align-self: flex-start; background: var(--surface, #fff); border: 1px solid var(--border, #E5E5EC); border-bottom-left-radius: 6px; }
+.asis-msg--sys { align-self: center; max-width: 100%; font-size: 13px; color: var(--text-dim, #52525E); background: transparent; padding: 4px 8px; text-align: center; }
+.asis-msg--espera { color: var(--text-dim, #52525E); font-style: italic; }
+.asis-msg__folio { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; background: color-mix(in srgb, var(--asis-acc) 12%, transparent); color: var(--asis-acc); }
+.asis-hora { font-size: 11px; color: var(--text-mute, #8A8A99); margin-top: 4px; }
+.asis-msg--yo .asis-hora { color: rgba(255,255,255,.8); text-align: right; }
+
+/* Chips de preguntas frecuentes */
+.asis-chips { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 10px; scrollbar-width: none; }
+.asis-chips::-webkit-scrollbar { display: none; }
+.asis-chip { flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border, #E5E5EC); background: var(--surface, #fff); color: var(--text, #16161E); font-size: 14px; font-weight: 600; cursor: pointer; }
+.asis-chip:active { transform: scale(.98); }
+
+/* Barra de escribir: fija abajo, sobre la bottom-nav del teléfono */
+.asis-barra {
+  position: fixed; left: 0; right: 0; z-index: calc(var(--z-nav, 40) + 1);
+  bottom: calc(var(--bn-h, 64px) + env(safe-area-inset-bottom, 0px));
+  padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
+  background: var(--surface, #fff); border-top: 1px solid var(--border, #E5E5EC);
+}
+.asis-barra__in { max-width: 820px; margin: 0 auto; display: flex; gap: 8px; align-items: flex-end; }
+.asis-barra textarea { flex: 1; min-height: 44px; max-height: 140px; resize: none; padding: 11px 14px; border-radius: 22px; border: 1px solid var(--border, #E5E5EC); background: var(--surface-2, #F6F6FA); color: var(--text, #16161E); font: inherit; font-size: 16px; line-height: 1.35; }
+.asis-barra textarea:focus { outline: 2px solid var(--asis-acc); outline-offset: 0; }
+.asis-enviar { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 0; background: var(--asis-acc); color: #fff; cursor: pointer; }
+.asis-enviar:disabled { opacity: .45; cursor: default; }
+@media (min-width: 1024px) { .asis-barra { bottom: 0; left: var(--sidebar-w, 0px); } }
+body.is-client .asis-barra { bottom: calc(var(--bn-h, 64px) + env(safe-area-inset-bottom, 0px)); }

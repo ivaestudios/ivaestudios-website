@@ -64,6 +64,8 @@ import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_lla
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, publicarEnLinkedIn } from './_linkedin.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
+// Asistente de IA para clientes (piloto 30-oct-2026): la marca sale de la sesión.
+import { handleAsistente } from './_asistente.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
@@ -793,7 +795,13 @@ async function handleMe(session, env) {
   // solo los accesos de una marca DEMO, una vez por persona. Quién ya la vio
   // vive en bandeja_cfg.tour_crm_vistos (sin migración).
   let tourCrm = false;
+  // Asistente de IA (migración 045): el cliente solo ve la pestaña si su marca lo tiene encendido.
+  let asistenteIa = false;
   if (session.role === 'client' && session.client_id) {
+    try {
+      const a = await env.DB.prepare('SELECT COALESCE(asistente_ia, 0) AS a FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
+      asistenteIa = !!(a && a.a);
+    } catch { asistenteIa = false; }
     try {
       const r = await env.DB.prepare('SELECT bandeja_cfg FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
       const cfg = r && r.bandeja_cfg ? JSON.parse(r.bandeja_cfg) : {};
@@ -816,6 +824,7 @@ async function handleMe(session, env) {
     bandeja_demo: bandejaDemo,
     marca_tema: marcaTema,
     solo_crm: soloCrm,
+    asistente_ia: asistenteIa,
     // El agente de la Bandeja no ve la visita (es del calendario, no de su trabajo),
     // ni las cuentas de la demo del CRM: no tienen calendario; ven la suya.
     tour_pendiente: tourPendiente && !bandejaDemo && !(session.role === 'client' && session.bandeja_rol === 'agente'),
@@ -5662,6 +5671,9 @@ async function route(request, env, authCtx) {
   // Version publicada de la app en las tiendas (para el aviso "actualiza la
   // app" dentro del envoltorio de iOS). Ver handleAppVersion.
   if (path === '/app-version' && method === 'GET') return handleAppVersion(env);
+
+  // ── Asistente de IA para clientes (piloto) ─────────────────────────────────
+  if (path.startsWith('/asistente/')) return handleAsistente(request, env, session, path, url, { json, notify, randomId });
 
   // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);

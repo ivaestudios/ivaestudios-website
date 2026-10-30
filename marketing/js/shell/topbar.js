@@ -52,6 +52,8 @@ const DESKTOP_TABS = [
   { id: 'descargar', label: T('Descargar', 'Download') },
   { id: 'video-ia', label: T('Video IA', 'AI video') },
   { id: 'metricas', label: T('Métricas', 'Metrics') },
+  // Asistente de IA para clientes (piloto 30-oct-2026). Staff siempre; cliente si su marca lo tiene.
+  { id: 'asistente', label: T('Asistente', 'Assistant') },
   // Solo staff: el filtro de cliente de abajo es lista blanca y no la incluye.
   { id: 'conexiones', label: T('Conexiones', 'Connections') },
   // Pauta: anuncios pagados de la CASA. Solo admin (el filtro de rol la quita
@@ -113,6 +115,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   // "Mi contenido" para clientes: por marca, '*' = todas. MISMA lista en shell.js.
   const CLIENT_CONTENIDO_IDS = ['*'];
   const clientSeesContenido = isClient && (CLIENT_CONTENIDO_IDS.includes('*') || CLIENT_CONTENIDO_IDS.includes((store.getState().me || {}).client_id));
+  const clientSeesAsistente = isClient && !!((store.getState().me || {}).asistente_ia);
   // Pauta es de la DUENA: el equipo tampoco la ve (el backend ya responde 403,
   // esto solo evita ofrecer una puerta que siempre se cierra).
   const esAdmin = ((store.getState().me || {}).role === 'admin');
@@ -122,7 +125,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const visibleTabs = isClient
     ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
-      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'bandeja' && rolBj === 'supervisor')))
+      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor')))
     : DESKTOP_TABS.filter((t) => t.id !== 'pauta' || esAdmin);
   const irA = (id) => {
     const { activeClientId } = store.getState();

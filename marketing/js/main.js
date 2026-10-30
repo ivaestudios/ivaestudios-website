@@ -104,6 +104,8 @@ lazyView({ id: 'mi-trabajo', label: T('Mi trabajo', 'My work'), icon: 'briefcase
 lazyView({ id: 'automatizaciones', label: T('Automatizaciones', 'Automations'), icon: 'zap', loader: () => import('./views/automations.js?v=202610270229') });
 // Métricas: panel de Instagram por periodo (semana/mes/3-6 meses/año/custom).
 lazyView({ id: 'metricas', label: T('Métricas', 'Metrics'), icon: 'gauge', loader: () => import('./views/metricas.js?v=202610270229') });
+// Asistente de IA para clientes (piloto 30-oct-2026): staff siempre; cliente si su marca lo tiene (me.asistente_ia).
+lazyView({ id: 'asistente', label: T('Asistente', 'Assistant'), icon: 'sparkles', loader: () => import('./views/asistente.js?v=202610270229') });
 // Bandeja: comentarios, mensajes (IG/Messenger/WhatsApp) y CRM por marca (solo staff).
 lazyView({ id: 'bandeja', label: T('Bandeja', 'Inbox'), icon: 'inbox', loader: () => import('./views/bandeja.js?v=202610270229') });
 // Conexiones: semáforo de redes por marca + botones de conectar (solo staff).

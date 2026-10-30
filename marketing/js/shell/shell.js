@@ -89,7 +89,9 @@ const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (view === 'contenido' && !soloBandeja() && clientVeContenido())
   || (view === 'bandeja' && !!rolBandeja())
   || (view === 'metricas' && !soloBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
-  || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
+  || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id))
+  // Asistente de IA (piloto): lo decide el servidor marca por marca (/auth/me.asistente_ia).
+  || (view === 'asistente' && !soloBandeja() && !!(store.getState().me || {}).asistente_ia);
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),
@@ -97,6 +99,7 @@ const CONTENT_LABELS = {
   entregables: T('Entregables', 'Deliverables'),
   marca: T('Marca', 'Brand'),
   metricas: T('Métricas', 'Metrics'),
+  asistente: T('Asistente', 'Assistant'),
   carrusel: T('Carrusel', 'Carousel'),
   descargar: T('Descargar', 'Download'),
   'video-ia': T('Video IA', 'AI video'),
@@ -201,6 +204,7 @@ function updateSubhead() {
   // queda visible ahí para poder regresar a Calendario/Cuadrícula.
   const isContent = CONTENT_VIEWS.includes(view)
     || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
+    || (view === 'asistente' && (isClientRole() ? clientCanView('asistente') : true))
     || (view === 'bandeja' && (!isClientRole() || !!rolBandeja()));
   if (isContent) {
     const client = isClientRole();
@@ -243,6 +247,8 @@ function buildSubhead(root) {
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
   // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
   if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
+  // Asistente de IA (piloto 30-oct-2026): staff siempre (para probar y encender); cliente si su marca lo tiene.
+  if (isClientRole() ? clientCanView('asistente') : true) segViews.push('asistente');
   // Bandeja (comentarios + mensajes + CRM): staff, y el equipo de la marca
   // (agente o supervisor). Misma razón: en el teléfono este seg es la única puerta.
   if (!isClientRole() || rolBandeja()) segViews.push('bandeja');
