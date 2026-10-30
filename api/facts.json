@@ -88,6 +88,7 @@
     "Playa Mujeres",
     "Costa Mujeres",
     "Isla Mujeres",
+    "Isla Holbox",
     "Riviera Maya",
     "Tulum",
     "Akumal",
@@ -204,7 +205,7 @@
   "founded_in": "Cancún, Mexico",
   "schema_org_id": "https://ivaestudios.com/#organization",
   "brand_schema_id": "https://ivaestudios.com/#brand",
-  "last_updated": "2026-10-26",
+  "last_updated": "2026-10-30",
   "aggregate_rating": {
     "rating_value": "5.0",
     "review_count": 67,

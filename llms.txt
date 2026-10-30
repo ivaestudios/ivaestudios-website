@@ -1,6 +1,6 @@
 # IVAE Studios
 
-> Fact sheet for ivaestudios.com. Last verified: 2026-10-26.
+> Fact sheet for ivaestudios.com. Last verified: 2026-10-30.
 > Machine-readable version: https://ivaestudios.com/api/facts.json
 > Full sitemap: https://ivaestudios.com/sitemap.xml
 
@@ -8,7 +8,7 @@
 
 IVAE Studios is a destination photography and cinematography studio based in
 Cancún, Mexico. It photographs weddings, families and couples across Cancún,
-the Riviera Maya, Tulum, Playa del Carmen, Isla Mujeres and Los Cabos, and
+the Riviera Maya, Tulum, Playa del Carmen, Isla Mujeres, Isla Holbox and Los Cabos, and
 travels elsewhere in Mexico and abroad on commission. The studio was founded
 in 2023 by Vianey Díaz, its creative director, who brings more than ten years
 of prior editorial experience; the "10+ years" refers to her personal track
@@ -86,6 +86,21 @@ https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit
 - Jewish weddings: /jewish-destination-wedding-photographer-mexico
 - About and reviews: /about · /destination-wedding-photographer-mexico
 - Blog (guides on permits, vendor fees, sargassum, planning): /blog and /es/blog
+
+## Destinations beyond Cancún
+
+- Isla Holbox: family, couples, proposal and small-wedding sessions; the studio travels from Cancún and
+  quotes travel (road, ferry and, for sunset sessions, a night on the island) with the date.
+  /blog/holbox-photographer · /es/blog/fotografo-en-holbox
+- Los Cabos: weddings and sessions; the studio is based in Cancún and travels to Los Cabos, with more
+  than 80 sessions photographed on the peninsula. Pages: /los-cabos-wedding-photographer · /cabo-photographer.
+  Resort guides: Viceroy, Grand Fiesta Americana, Acre, JW Marriott, Dreams, Hilton, Four Seasons Costa
+  Palmas, One&Only Palmilla, Waldorf Astoria Pedregal and Montage (/blog/los-cabos-photographer-guide).
+- Rosewood Mayakoba: private sessions for resort guests are photographed without an outside vendor
+  fee; weddings follow the resort's events team. /blog/rosewood-mayakoba-photographer ·
+  /rosewood-mayakoba-wedding-photographer
+- Travellers from Canada: /blog/new-flights-canada-cancun-tulum-winter-2026-27 ·
+  /blog/canadian-couples-cancun-wedding-guide · /blog/canadian-couples-los-cabos-wedding-guide
 
 ## Contact
 
