@@ -236,13 +236,26 @@ async function chat(request, env, session, url, deps) {
     console.error('[asistente] claude', e && e.message || e);
     respuesta = 'Ahora mismo no puedo consultar la información. Intenta de nuevo en un momento o escríbele al equipo de IVAE Marketing por WhatsApp.';
   }
-  respuesta = String(respuesta || '').trim() || 'No encontré qué responder. ¿Me lo preguntas de otra forma?';
+  respuesta = textoPlano(respuesta) || 'No encontré qué responder. ¿Me lo preguntas de otra forma?';
 
   await env.DB.prepare(
     'INSERT INTO mkt_asistente_mensajes (id, client_id, user_id, rol, texto, tokens_in, tokens_out, herramientas) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   ).bind(randomId(), marca.id, session.user_id, 'asistente', respuesta, uso.input + uso.cache_read, uso.output, ctx.herramientasUsadas.join(',') || null).run();
 
   return json({ respuesta, solicitud: ctx.solicitudCreada, uso });
+}
+
+// El chat pinta texto plano: se quita el markdown que al modelo se le escape
+// (en las pruebas puso **Octubre**) y las viñetas con guion pasan a •.
+function textoPlano(t) {
+  return String(t || '')
+    .replace(/\*\*([^*\n]+)\*\*/g, '$1')
+    .replace(/(^|[\s(])\*([^*\n]+)\*(?=$|[\s.,;:!?)])/gm, '$1$2')
+    .replace(/__([^_\n]+)__/g, '$1')
+    .replace(/^#{1,4}\s+/gm, '')
+    .replace(/^\s*[-*]\s+/gm, '• ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 // Ventana fija sobre mkt_rate_limits (misma mecánica que authRateLimit del
@@ -295,7 +308,7 @@ function construirSistema(marca, session) {
     '2. Solo afirmas lo que devuelven tus herramientas. Nunca inventes fechas, horarios, entregas, precios, métricas ni promesas. Si un dato no está, dilo tal cual ("eso no aparece en el sistema") y ofrece pasar la pregunta al equipo.',
     '3. No prometes nada en nombre del equipo: no confirmas cambios, fechas nuevas ni publicaciones. Para eso existe crear_solicitud. Antes de crearla, confirma en una línea lo que vas a pedir, salvo que la persona ya lo haya pedido de forma clara ("pide que…", "avísale al equipo que…", "quiero cambiar…"): entonces créala directo y confirma con el folio.',
     '4. Cada solicitud va al equipo de IVAE Marketing, que responde en horario de oficina de Cancún, por la app o por WhatsApp. Dilo así cuando crees una.',
-    '5. Tono: cálido, claro y breve, como una persona del equipo que conoce la cuenta. Trato de usted por defecto; si la persona escribe de tú, respóndele de tú. Responde en el idioma en que te escriben (español por defecto). Sin emojis salvo que la persona los use. Máximo 8 líneas; usa viñetas con • para listas de piezas.',
+    '5. Tono: cálido, claro y breve, como una persona del equipo que conoce la cuenta. Trato de usted por defecto; si la persona escribe de tú, respóndele de tú. Responde en el idioma en que te escriben (español por defecto). Sin emojis salvo que la persona los use. Máximo 8 líneas; usa viñetas con • para listas de piezas. Texto plano: nada de markdown (sin **negritas**, sin #, sin tablas); el chat lo muestra tal cual.',
     '6. Fechas: escribe siempre día de la semana y fecha ("viernes 7 de noviembre"). Las piezas se publican normalmente a la hora indicada en publish_time; si no hay hora, no la inventes.',
     '7. Cuando hables de en qué va una pieza, usa las palabras del cliente (en guion, en grabación, en edición, en revisión, programada, publicada), nunca la jerga interna.',
     '8. Si la persona quiere aprobar o pedir cambios en una pieza, explícale que lo puede hacer desde "Mi contenido" tocando la pieza, o créale una solicitud si lo prefiere.',
