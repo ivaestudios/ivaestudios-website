@@ -288,5 +288,16 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
 
   const nombre = `${marca.replace(/\s+/g, '-')}_Entregables_${mesLabel.replace(/\s+/g, '-')}.pdf`;
   const blob = armarYDescargar(paginas, nombre);
-  return { paginas: paginas.length, nombre, bytes: blob.size };
+  // 31/10/2026: el MISMO PDF se guarda en el servidor para que el asistente de Israel lo pueda
+  // mandar por WhatsApp ("pásame el PDF de entregables de Melisa"). Best-effort: la descarga
+  // ya ocurrió; si guardar falla, el PDF no se pierde.
+  let guardado = false;
+  try {
+    paso(T('Guardando el PDF para el asistente…', 'Saving the PDF for the assistant…'));
+    const r = await fetch(`/api/marketing/entregables/pdf?client_id=${encodeURIComponent(clientId)}&month=${encodeURIComponent(month)}`, {
+      method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/pdf' }, body: blob,
+    });
+    guardado = r.ok;
+  } catch { guardado = false; }
+  return { paginas: paginas.length, nombre, bytes: blob.size, guardado };
 }

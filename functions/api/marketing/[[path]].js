@@ -5632,6 +5632,9 @@ async function route(request, env, authCtx) {
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
   // El PROGRAMADOR: publica piezas 'programado' cuya hora ya llegó (cada 15 min).
   if (path === '/cron-publicar' && method === 'POST') return handleCronPublicar(request, env);
+  // PDF de entregables para el ASISTENTE de Israel (Worker ivae-juan): sin sesión, con la llave
+  // del conector de IA (mkt_mcp_keys). Ver handleEntregablesPdfAsistente.
+  if (path === '/entregables/pdf-asistente' && method === 'GET') return handleEntregablesPdfAsistente(request, env, url);
 
   // Everything else needs a valid session (y de paso la renueva: deslizante).
   const session = await getSession(request, env, authCtx);
@@ -5671,6 +5674,9 @@ async function route(request, env, authCtx) {
   // Version publicada de la app en las tiendas (para el aviso "actualiza la
   // app" dentro del envoltorio de iOS). Ver handleAppVersion.
   if (path === '/app-version' && method === 'GET') return handleAppVersion(env);
+  // PDF editorial de entregables del mes: el staff lo guarda al generarlo (PUT) y staff o
+  // cliente lo bajan (GET). 31/10/2026.
+  if (path === '/entregables/pdf' && (method === 'PUT' || method === 'GET')) return handleEntregablesPdf(request, env, session, url);
 
   // ── Asistente de IA para clientes (piloto) ─────────────────────────────────
   if (path.startsWith('/asistente/')) return handleAsistente(request, env, session, path, url, { json, notify, randomId });
@@ -6338,6 +6344,70 @@ async function handleDeleteManualMarca(env, clientId) {
   if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
   await env.R2_BUCKET.delete(`marketing/marca/${clientId}/manual.pdf`);
   return json({ ok: true });
+}
+
+// ── PDF de ENTREGABLES del mes (31/10/2026) ─────────────────────────────────
+// El PDF editorial lo arma el navegador (lib/pdf-entregables.js, canvas). Al generarlo, el
+// staff lo guarda aquí (R2 marketing/entregables/<clientId>/<month>.pdf); el asistente de
+// Israel lo manda por WhatsApp con la llave del conector, y el cliente lo puede bajar.
+const MES_PDF_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+function claveEntregablesPdf(clientId, month) { return `marketing/entregables/${clientId}/${month}.pdf`; }
+async function respuestaPdfEntregables(env, key, clientId, month, attach) {
+  const obj = await env.R2_BUCKET.get(key);
+  if (!obj) return json({ error: 'No hay PDF de entregables guardado para ese mes. En la app, Entregables → "PDF del mes" lo genera y lo guarda.', exists: false }, 404);
+  const cliente = await env.DB.prepare('SELECT name FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  const nombre = `${String((cliente && cliente.name) || 'marca').trim().replace(/[^\wÀ-ſ-]+/g, '-')}_Entregables_${month}.pdf`;
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Length': String(obj.size),
+      'Content-Disposition': `${attach ? 'attachment' : 'inline'}; filename="${nombre}"`,
+      'Cache-Control': 'private, no-cache',
+    },
+  });
+}
+async function handleEntregablesPdf(request, env, session, url) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const clientId = String(url.searchParams.get('client_id') || '');
+  const month = String(url.searchParams.get('month') || '');
+  if (!/^[a-zA-Z0-9_-]{3,64}$/.test(clientId) || !MES_PDF_RE.test(month)) return json({ error: 'client_id y month (AAAA-MM) requeridos' }, 400);
+  if (session.role === 'client') {
+    if (session.client_id !== clientId) return json({ error: 'Not authorized' }, 403);
+  } else {
+    const c = await env.DB.prepare("SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?").bind(clientId, session.workspace_id || 'ivae').first();
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+  }
+  const key = claveEntregablesPdf(clientId, month);
+  if (request.method === 'PUT') {
+    if (session.role === 'client') return json({ error: 'Solo el equipo guarda el PDF' }, 403);
+    const body = await request.arrayBuffer();
+    if (!body || body.byteLength < 1024) return json({ error: 'PDF vacío' }, 400);
+    if (body.byteLength > 60 * 1024 * 1024) return json({ error: 'PDF muy pesado (máx 60MB)' }, 413);
+    const magia = String.fromCharCode(...new Uint8Array(body.slice(0, 5)));
+    if (!magia.startsWith('%PDF')) return json({ error: 'Debe ser un PDF' }, 400);
+    await env.R2_BUCKET.put(key, body, {
+      httpMetadata: { contentType: 'application/pdf' },
+      customMetadata: { por: String(session.name || session.user_id || ''), cuando: new Date().toISOString() },
+    });
+    return json({ ok: true, size: body.byteLength });
+  }
+  return respuestaPdfEntregables(env, key, clientId, month, url.searchParams.get('dl') === '1');
+}
+// Sin sesión: la llave del conector de IA (mkt_mcp_keys, no revocada) identifica al asistente,
+// y solo alcanza las marcas de su propio espacio de trabajo.
+async function handleEntregablesPdfAsistente(request, env, url) {
+  const token = String(url.searchParams.get('token') || '').trim();
+  if (!token || token.length < 16) return json({ error: 'Not authenticated' }, 401);
+  const k = await env.DB.prepare("SELECT token, client_id, COALESCE(workspace_id, 'ivae') AS ws FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0").bind(token).first().catch(() => null);
+  if (!k) return json({ error: 'Not authenticated' }, 401);
+  const clientId = String(url.searchParams.get('client_id') || '');
+  const month = String(url.searchParams.get('month') || '');
+  if (!/^[a-zA-Z0-9_-]{3,64}$/.test(clientId) || !MES_PDF_RE.test(month)) return json({ error: 'client_id y month (AAAA-MM) requeridos' }, 400);
+  if (k.client_id && k.client_id !== clientId) return json({ error: 'Esa llave es de otra marca' }, 403);
+  const c = await env.DB.prepare("SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?").bind(clientId, k.ws).first();
+  if (!c) return json({ error: 'Marca no encontrada' }, 404);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  return respuestaPdfEntregables(env, claveEntregablesPdf(clientId, month), clientId, month, true);
 }
 
 // El Estudio manda cada slide terminado (JPEG 1080x1350) a la pieza: quedan
