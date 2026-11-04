@@ -319,3 +319,9 @@ html.dark .post-tldr p { color: #1a1a1a; }
   padding: 14px 4px;
   margin: -14px 0;
 }
+
+/* Portada del post: texto claro sobre la foto oscura. La pasada a base blanca
+   del 9-oct dejo aqui azul y gris, que en el telefono casi no se leian. 2026-11-04. */
+.post-hero .post-back,.post-hero .post-tag-hero,.post-hero .post-meta-bar,.post-hero .post-meta-bar a{color:#fff !important;text-shadow:0 1px 10px rgba(12,18,25,.55)}
+.post-hero .post-back:hover{color:#fff !important;opacity:.8}
+.post-hero .post-back:focus-visible{outline-color:#fff}
