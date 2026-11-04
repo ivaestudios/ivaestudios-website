@@ -5635,6 +5635,9 @@ async function route(request, env, authCtx) {
   // PDF de entregables para el ASISTENTE de Israel (Worker ivae-juan): sin sesión, con la llave
   // del conector de IA (mkt_mcp_keys). Ver handleEntregablesPdfAsistente.
   if (path === '/entregables/pdf-asistente' && method === 'GET') return handleEntregablesPdfAsistente(request, env, url);
+  // Sesión de 15 min para el ROBOT que genera el PDF editorial en un navegador sin cabeza
+  // (Worker ivae-juan + Browser Rendering), con la llave del conector de IA del espacio ivae.
+  if (path === '/entregables/pdf-sesion-robot' && method === 'POST') return handleSesionRobotPdf(env, url);
 
   // Everything else needs a valid session (y de paso la renueva: deslizante).
   const session = await getSession(request, env, authCtx);
@@ -6393,6 +6396,29 @@ async function handleEntregablesPdf(request, env, session, url) {
   }
   return respuestaPdfEntregables(env, key, clientId, month, url.searchParams.get('dl') === '1');
 }
+// Usuario 'team' de servicio ("Robot PDF") con sesión corta: el navegador sin cabeza entra a la
+// app como equipo, abre Entregables de la marca y toca "PDF del mes"; la app sube el PDF sola.
+async function handleSesionRobotPdf(env, url) {
+  const token = String(url.searchParams.get('token') || '').trim();
+  if (!token || token.length < 16) return json({ error: 'Not authenticated' }, 401);
+  const k = await env.DB.prepare("SELECT token, COALESCE(workspace_id, 'ivae') AS ws FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0").bind(token).first().catch(() => null);
+  if (!k || k.ws !== 'ivae') return json({ error: 'Not authenticated' }, 401);
+  const email = 'robot.pdf@ivaestudios.com';
+  let u = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ?').bind(email).first();
+  if (!u) {
+    const id = randomId();
+    // Contraseña imposible (no es un hash válido): este usuario solo existe para sesiones del robot.
+    await env.DB.prepare("INSERT INTO mkt_users (id, email, password, name, role, active, must_reset, email_verified, workspace_id, eula_version, eula_accepted_at, tour_visto_at) VALUES (?, ?, ?, 'Robot PDF (asistente)', 'team', 1, 0, 1, 'ivae', ?, datetime('now'), datetime('now'))")
+      .bind(id, email, 'robot-' + randomId() + randomId(), EULA_VERSION).run();
+    u = { id };
+  } else {
+    await env.DB.prepare("UPDATE mkt_users SET active = 1, eula_version = ?, eula_accepted_at = COALESCE(eula_accepted_at, datetime('now')), tour_visto_at = COALESCE(tour_visto_at, datetime('now')) WHERE id = ?").bind(EULA_VERSION, u.id).run().catch(() => {});
+  }
+  const sid = randomId();
+  await env.DB.prepare("INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime('now', '+15 minutes'))").bind(sid, u.id).run();
+  return json({ ok: true, session: sid, expira_min: 15 });
+}
+
 // Sin sesión: la llave del conector de IA (mkt_mcp_keys, no revocada) identifica al asistente,
 // y solo alcanza las marcas de su propio espacio de trabajo.
 async function handleEntregablesPdfAsistente(request, env, url) {
