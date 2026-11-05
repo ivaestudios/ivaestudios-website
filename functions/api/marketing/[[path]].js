@@ -6406,9 +6406,12 @@ async function handleSesionRobotPdf(env, url) {
   // ?como=viernes (5-nov-2026): sesión a nombre del asistente de Israel, para que lo que
   // conteste en la Bandeja (Instagram, Messenger, comentarios) quede firmado como Viernes.
   const como = String(url.searchParams.get('como') || 'pdf');
+  // ?como=juan (5-nov-2026): Juan, el bot, contesta Instagram desde la Bandeja firmando "Juan (bot)".
   const perfil = como === 'viernes'
     ? { email: 'viernes@ivaestudios.com', nombre: 'Viernes (asistente de Israel)' }
-    : { email: 'robot.pdf@ivaestudios.com', nombre: 'Robot PDF (asistente)' };
+    : como === 'juan'
+      ? { email: 'juan.bot@ivaestudios.com', nombre: 'Juan (bot)' }
+      : { email: 'robot.pdf@ivaestudios.com', nombre: 'Robot PDF (asistente)' };
   const email = perfil.email;
   let u = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ?').bind(email).first();
   if (!u) {
