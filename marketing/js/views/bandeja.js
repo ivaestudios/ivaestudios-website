@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050500';
-import { toast } from '../shell/toast.js?v=202611050500';
-import { icon, iconMarca } from '../shell/icons.js?v=202611050500';
-import { T, isEN } from '../shell/i18n.js?v=202611050500';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050500';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050510';
+import { toast } from '../shell/toast.js?v=202611050510';
+import { icon, iconMarca } from '../shell/icons.js?v=202611050510';
+import { T, isEN } from '../shell/i18n.js?v=202611050510';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050510';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -1370,6 +1370,34 @@ function fmtDia(ymd) {
   return d.toLocaleDateString(isEN ? 'en-US' : 'es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// Votos ya dados a mensajes de Juan en el chat abierto (mensaje_id → voto) y formularios abiertos.
+const votosJuan = new Map();
+const fbAbierto = new Set();
+function feedbackJuan(m) {
+  const v = convAbierta && convAbierta.conversacion;
+  if (!v) return null;
+  const voto = votosJuan.get(m.id) || null;
+  const fila = el('div', { class: 'bj-juanfb' }, [
+    el('button', { type: 'button', class: 'bj-juanfb__btn' + (voto === 'bueno' ? ' is-on' : ''), title: T('Buena respuesta', 'Good reply'), onclick: async () => {
+      try { await api.post('/bandeja/conversaciones/' + encodeURIComponent(v.id) + '/juan-feedback', { mensaje_id: m.id, voto: 'bueno' }); votosJuan.set(m.id, 'bueno'); fbAbierto.delete(m.id); pintarCuerpo(); toast(T('Anotado: buena respuesta de Juan', 'Noted: good reply by Juan')); }
+      catch (e) { toast(e.message || T('No se pudo guardar', 'Could not save'), { type: 'error' }); }
+    } }, ['👍']),
+    el('button', { type: 'button', class: 'bj-juanfb__btn' + (voto === 'malo' ? ' is-on' : ''), title: T('Corregir a Juan', 'Correct Juan'), onclick: () => { if (fbAbierto.has(m.id)) fbAbierto.delete(m.id); else fbAbierto.add(m.id); pintarCuerpo(); } }, ['👎']),
+  ]);
+  if (!fbAbierto.has(m.id)) return fila;
+  const ta = el('textarea', { class: 'bj-juanfb__ta', placeholder: T('¿Qué debió decir Juan?', 'What should Juan have said?'), rows: 3 });
+  const form = el('div', { class: 'bj-juanfb__form' }, [
+    ta,
+    el('button', { type: 'button', class: 'btn btn-primary bj-juanfb__save', onclick: async () => {
+      const correccion = ta.value.trim();
+      if (!correccion) { toast(T('Escribe qué debió decir Juan.', 'Write what Juan should have said.')); ta.focus(); return; }
+      try { await api.post('/bandeja/conversaciones/' + encodeURIComponent(v.id) + '/juan-feedback', { mensaje_id: m.id, voto: 'malo', correccion }); votosJuan.set(m.id, 'malo'); fbAbierto.delete(m.id); pintarCuerpo(); toast(T('Lección guardada: Juan la usa desde su próxima respuesta.', 'Lesson saved: Juan uses it from his next reply.')); }
+      catch (e) { toast(e.message || T('No se pudo guardar', 'Could not save'), { type: 'error' }); }
+    } }, [T('Guardar lección', 'Save lesson')]),
+  ]);
+  return el('div', {}, [fila, form]);
+}
+
 function burbuja(m) {
   const salida = m.direccion === 'out';
   const hijos = [];
@@ -1385,6 +1413,8 @@ function burbuja(m) {
   if (conPlantilla) hijos.unshift(el('span', { class: 'bj-burbuja__via', text: T('Enviado con plantilla', 'Sent with template') }));
   else if (salida && m.via === 'app') hijos.unshift(el('span', { class: 'bj-burbuja__via', text: T('Desde la app', 'From the app') }));
   if (m.texto) hijos.push(el('span', { class: 'bj-burbuja__txt', text: m.texto }));
+  // 👍/👎 a Juan (bot): así el equipo lo corrige y Juan aprende (5-nov-2026).
+  if (salida && m.autor_nombre === 'Juan (bot)' && m.id) hijos.push(feedbackJuan(m));
   const pie = [el('span', { text: horaCorta(m.creado) })];
   if (salida && m.autor_nombre && m.autor_nombre !== 'Meta') pie.unshift(el('span', { text: m.autor_nombre + ' · ' }));
   // Palomitas como WhatsApp: ✓ enviado, ✓✓ entregado, ✓✓ azul leído.
@@ -2196,7 +2226,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611050500';
+  link.href = '/marketing/css/bandeja.css?v=202611050510';
   document.head.appendChild(link);
 }
 

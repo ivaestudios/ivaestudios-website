@@ -1802,6 +1802,30 @@ export async function handleBandeja(request, env, session, url, parts) {
       }
     }
 
+    // 👍/👎 a un mensaje de Juan (bot) con corrección (5-nov-2026): es el "entrenamiento" de Juan.
+    // Se guarda en mkt_kv 'juan_lecciones' (máximo 40, las más nuevas primero); el Worker de Juan las
+    // lee en cada respuesta como "lecciones del equipo".
+    if (accion === 'juan-feedback' && method === 'POST') {
+      const b = await leerJson(request);
+      const msg = await env.DB.prepare("SELECT id, texto, autor_nombre FROM mkt_mensajes WHERE id = ? AND conv_id = ? AND direccion = 'out'").bind(String(b.mensaje_id || ''), conv.id).first();
+      if (!msg || msg.autor_nombre !== 'Juan (bot)') return json({ error: 'Ese mensaje no es de Juan.' }, 400);
+      const voto = b.voto === 'bueno' ? 'bueno' : 'malo';
+      const correccion = String(b.correccion || '').trim().slice(0, 600);
+      if (voto === 'malo' && !correccion) return json({ error: 'Escribe qué debió decir Juan.' }, 400);
+      const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_lecciones'").first().catch(() => null);
+      let lista = []; try { lista = row && row.value ? JSON.parse(row.value) : []; } catch { lista = []; }
+      lista = (Array.isArray(lista) ? lista : []).filter((l) => !(l && l.mensaje_id === msg.id));
+      lista.unshift({ mensaje_id: msg.id, conv_id: conv.id, canal: conv.canal, voto, mensaje: String(msg.texto || '').slice(0, 600), correccion: correccion || null, por: session.name || null, en: new Date().toISOString() });
+      lista = lista.slice(0, 40);
+      await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind('juan_lecciones', JSON.stringify(lista)).run();
+      return json({ ok: true, voto, total: lista.length });
+    }
+    if (accion === 'juan-feedback' && method === 'GET') {
+      const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_lecciones'").first().catch(() => null);
+      let lista = []; try { lista = row && row.value ? JSON.parse(row.value) : []; } catch { lista = []; }
+      return json({ votos: (Array.isArray(lista) ? lista : []).filter((l) => l && l.conv_id === conv.id).map((l) => ({ mensaje_id: l.mensaje_id, voto: l.voto })) });
+    }
+
     // Asignar a un agente (supervisor/staff) o tomar un chat sin dueño (agente).
     if (accion === 'asignar' && method === 'POST') {
       const b = await leerJson(request);
