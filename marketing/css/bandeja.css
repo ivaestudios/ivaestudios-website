@@ -1340,3 +1340,10 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-juanfb__form{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .bj-juanfb__ta{width:100%;min-height:60px;font:inherit;font-size:13px;border:1px solid var(--border);border-radius:10px;padding:8px;background:var(--surface);color:var(--text);resize:vertical}
 .bj-juanfb__save{align-self:flex-end;font-size:12px;padding:6px 12px}
+
+/* 5-nov-2026: un aviso de error largo en el pie de una burbuja (nowrap) estiraba la columna del
+   chat y cortaba todas las burbujas. La columna nunca crece más que el chat, y el error se parte. */
+.bj-msgs { grid-template-columns: minmax(0, 1fr); }
+.bj-burbuja { min-width: 0; }
+.bj-burbuja__pie { flex-wrap: wrap; }
+.bj-burbuja__pie .bj-burbuja__err { white-space: normal; overflow-wrap: anywhere; }
