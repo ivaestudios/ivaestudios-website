@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050510';
-import { toast } from '../shell/toast.js?v=202611050510';
-import { icon, iconMarca } from '../shell/icons.js?v=202611050510';
-import { T, isEN } from '../shell/i18n.js?v=202611050510';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050510';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050540';
+import { toast } from '../shell/toast.js?v=202611050540';
+import { icon, iconMarca } from '../shell/icons.js?v=202611050540';
+import { T, isEN } from '../shell/i18n.js?v=202611050540';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050540';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -220,8 +220,19 @@ async function abrirConv(convId, { silencioso = false } = {}) {
     const v = convs.find((x) => x.id === convId);
     if (v) v.no_leidos = 0;
     if (resumen && !silencioso) cargarResumen();
+    // 5-nov-2026 (Israel: "deberia aparecer lo mas reciente"): al abrir, el chat baja hasta el
+    // ÚLTIMO mensaje (y vuelve a bajar cuando cargan fotos y audios). En el refresco silencioso se
+    // conserva dónde estaba leyendo la persona (antes el repintado la mandaba al principio).
+    const prev = msgsEl ? { top: msgsEl.scrollTop, abajo: msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight < 80 } : null;
     pintarCuerpo();
-    if (!silencioso) requestAnimationFrame(() => bajarChat(true));
+    if (!silencioso || !prev || prev.abajo) {
+      requestAnimationFrame(() => bajarChat(true));
+      setTimeout(() => bajarChat(true), 250);
+      setTimeout(() => bajarChat(true), 900);
+      setTimeout(() => bajarChat(true), 2000);
+    } else {
+      requestAnimationFrame(() => { if (msgsEl) msgsEl.scrollTop = prev.top; });
+    }
   } catch (e) {
     if (!silencioso) toast(e.message, { type: 'error' });
   }
@@ -2226,7 +2237,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611050510';
+  link.href = '/marketing/css/bandeja.css?v=202611050540';
   document.head.appendChild(link);
 }
 

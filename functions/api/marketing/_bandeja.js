@@ -1561,7 +1561,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.ultimo_texto, v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.etapa, v.notas, v.seguimiento, v.archivado,
               v.asignado_a, v.asignado_en, u.name AS asignado_nombre, v.origen
          FROM mkt_conversaciones v LEFT JOIN mkt_users u ON u.id = v.asignado_a
-        WHERE ${where.join(' AND ')} ORDER BY (v.no_leidos > 0) DESC, v.ultimo_en DESC LIMIT 200`
+        WHERE ${where.join(' AND ')} ORDER BY v.ultimo_en DESC LIMIT 200`
     ).bind(...binds).all();
     return json({ conversaciones: r.results || [] });
   }
