@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050445';
-import { toast } from '../shell/toast.js?v=202611050445';
-import { icon, iconMarca } from '../shell/icons.js?v=202611050445';
-import { T, isEN } from '../shell/i18n.js?v=202611050445';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050445';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050500';
+import { toast } from '../shell/toast.js?v=202611050500';
+import { icon, iconMarca } from '../shell/icons.js?v=202611050500';
+import { T, isEN } from '../shell/i18n.js?v=202611050500';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050500';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -394,29 +394,104 @@ function pintarCuerpo() {
 }
 
 // ── Reservas de Juan (sesiones de fotos; antes vivían en el panel de Juan) ──────────
+// Calendario por mes (Israel, 5-nov-2026: "en Reservas tiene que haber un calendario") con
+// cada sesión en su día, ficha al tocarla, y la lista de próximas debajo.
+let reservasMes = null;        // { y, m } del mes que se muestra (hora de Cancún)
+let reservaAbierta = null;     // id de la reserva con la ficha abierta
+const TZ_CANCUN = 'America/Cancun';
+const esIngles = () => (typeof isEN === 'function' ? isEN() : !!isEN);
+const claveDia = (t) => new Date(t).toLocaleDateString('en-CA', { timeZone: TZ_CANCUN });
+function horaReserva(r) {
+  const t = r.inicio_iso ? Date.parse(r.inicio_iso) : NaN;
+  if (isNaN(t)) return r.hora || '';
+  return new Date(t).toLocaleTimeString(esIngles() ? 'en-US' : 'es-MX', { hour: 'numeric', minute: '2-digit', timeZone: TZ_CANCUN });
+}
 function panelReservas() {
   const d = reservasJuan || {};
   const lista = (d.reservas || []).slice();
-  if (!lista.length) return vacio('calendar', T('Sin reservas', 'No bookings'), T('Cuando Juan o Viernes reserven una sesión, aparece aquí con su carta.', 'When Juan or Viernes book a session, it shows up here with its letter.'));
+  const hoyKey = claveDia(Date.now());
+  if (!reservasMes) reservasMes = { y: Number(hoyKey.slice(0, 4)), m: Number(hoyKey.slice(5, 7)) - 1 };
+  const { y, m } = reservasMes;
+  const en = esIngles();
+  // Sesiones por día (solo las que tienen fecha exacta).
+  const porDia = new Map();
+  for (const r of lista) {
+    const t = r.inicio_iso ? Date.parse(r.inicio_iso) : NaN;
+    if (isNaN(t)) continue;
+    const k = claveDia(t);
+    if (!porDia.has(k)) porDia.set(k, []);
+    porDia.get(k).push(r);
+  }
+  const nombreMesRaw = new Date(Date.UTC(y, m, 1, 12)).toLocaleDateString(en ? 'en-US' : 'es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const nombreMes = nombreMesRaw.charAt(0).toUpperCase() + nombreMesRaw.slice(1);
+  const offset = (new Date(Date.UTC(y, m, 1, 12)).getUTCDay() + 6) % 7; // lunes primero
+  const dias = new Date(Date.UTC(y, m + 1, 0, 12)).getUTCDate();
+  const celdas = [];
+  for (let i = 0; i < offset; i++) celdas.push(el('div', { class: 'bj-cal__dia is-vacio' }));
+  let enElMes = 0;
+  for (let dd = 1; dd <= dias; dd++) {
+    const k = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+    const rs = (porDia.get(k) || []).slice().sort((a, b) => Date.parse(a.inicio_iso) - Date.parse(b.inicio_iso));
+    enElMes += rs.length;
+    celdas.push(el('div', { class: 'bj-cal__dia' + (k === hoyKey ? ' is-hoy' : '') + (rs.length ? ' has-res' : '') }, [
+      el('span', { class: 'bj-cal__num', text: String(dd) }),
+      ...rs.map((r) => el('button', {
+        type: 'button', class: 'bj-cal__res is-' + (r.estado || 'pendiente') + (reservaAbierta === r.id ? ' is-sel' : ''),
+        title: (r.cliente || '') + ' · ' + etiquetaReserva(r),
+        onclick: () => { reservaAbierta = reservaAbierta === r.id ? null : r.id; pintarCuerpo(); },
+      }, [el('span', { text: horaReserva(r) + ' ' + (r.cliente || '') })])),
+    ]));
+  }
+  const nav = (delta) => {
+    let nm = m + delta, ny = y;
+    if (nm < 0) { nm = 11; ny -= 1; }
+    if (nm > 11) { nm = 0; ny += 1; }
+    reservasMes = { y: ny, m: nm }; reservaAbierta = null; pintarCuerpo();
+  };
   const ahora = Date.now();
-  const esProx = (r) => r.inicio_iso && Date.parse(r.inicio_iso) >= ahora - 3600e3;
+  const esProx = (r) => r.inicio_iso && Date.parse(r.inicio_iso) >= ahora - 3600e3 && r.estado !== 'cancelado';
   const prox = lista.filter(esProx).sort((a, b) => Date.parse(a.inicio_iso) - Date.parse(b.inicio_iso));
-  const pasadas = lista.filter((r) => !esProx(r));
-  const fila = (r) => el('div', { class: 'bj-reserva' + (r.estado === 'cancelado' ? ' is-off' : '') }, [
-    el('div', { class: 'bj-reserva__cuando' }, [el('strong', { text: fechaReserva(r) }), el('span', { class: 'muted', text: r.hora || '' })]),
+  const detalle = reservaAbierta != null ? lista.find((r) => r.id === reservaAbierta) : null;
+  return el('div', { class: 'bj-reservas' }, [
+    el('div', { class: 'bj-cal__nav' }, [
+      el('button', { type: 'button', class: 'bj-cal__flecha', 'aria-label': T('Mes anterior', 'Previous month'), onclick: () => nav(-1) }, ['‹']),
+      el('h3', { class: 'bj-cal__mes', text: nombreMes + (enElMes ? ' · ' + enElMes : '') }),
+      el('button', { type: 'button', class: 'bj-cal__flecha', 'aria-label': T('Mes siguiente', 'Next month'), onclick: () => nav(1) }, ['›']),
+      el('button', { type: 'button', class: 'bj-cal__hoy', onclick: () => { reservasMes = null; reservaAbierta = null; pintarCuerpo(); } }, [T('Hoy', 'Today')]),
+    ]),
+    el('div', { class: 'bj-cal__sem' }, (en ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom']).map((s) => el('span', { text: s }))),
+    el('div', { class: 'bj-cal', role: 'grid' }, celdas),
+    detalle ? fichaReserva(detalle) : null,
+    el('p', { class: 'muted bj-empty__nota', text: T('Sesiones que reservaron Juan (el bot) o Viernes, con su carta de confirmación por correo. Última actualización: ' + (d.en ? timeAgo(d.en) : '—') + '.', 'Sessions booked by Juan (the bot) or Viernes, with their confirmation letter by email. Last update: ' + (d.en ? timeAgo(d.en) : '—') + '.') }),
+    el('h3', { text: T('Próximas', 'Upcoming') + ' (' + prox.length + ')' }),
+    ...(prox.length ? prox.slice(0, 12).map(filaReserva) : [el('p', { class: 'muted', text: T('Nada próximo.', 'Nothing upcoming.') })]),
+  ].filter(Boolean));
+}
+function filaReserva(r) {
+  return el('div', { class: 'bj-reserva' + (r.estado === 'cancelado' ? ' is-off' : ''), onclick: () => { reservaAbierta = reservaAbierta === r.id ? null : r.id; pintarCuerpo(); } }, [
+    el('div', { class: 'bj-reserva__cuando' }, [el('strong', { text: fechaReserva(r) }), el('span', { class: 'muted', text: horaReserva(r) })]),
     el('div', { class: 'bj-reserva__quien' }, [
       el('strong', { text: r.cliente || '—' }),
       el('span', { class: 'muted', text: [r.paquete, r.ubicacion, r.idioma === 'en' ? 'EN' : ''].filter(Boolean).join(' · ') }),
     ]),
     el('span', { class: 'bj-reserva__estado is-' + (r.estado || 'pendiente'), text: etiquetaReserva(r) }),
   ]);
-  return el('div', { class: 'bj-reservas' }, [
-    el('p', { class: 'muted bj-empty__nota', text: T('Sesiones que reservaron Juan (el bot) o Viernes, con su carta de confirmación por correo. Última actualización: ' + (d.en ? timeAgo(d.en) : '—') + '.', 'Sessions booked by Juan (the bot) or Viernes, with their confirmation letter by email. Last update: ' + (d.en ? timeAgo(d.en) : '—') + '.') }),
-    el('h3', { text: T('Próximas', 'Upcoming') + ' (' + prox.length + ')' }),
-    ...(prox.length ? prox.map(fila) : [el('p', { class: 'muted', text: T('Nada próximo.', 'Nothing upcoming.') })]),
-    el('h3', { text: T('Anteriores', 'Past') + ' (' + pasadas.length + ')' }),
-    ...pasadas.slice(0, 40).map(fila),
-  ]);
+}
+function fichaReserva(r) {
+  const dato = (k, v) => (v ? el('div', { class: 'bj-reserva-ficha__dato' }, [el('span', { text: k }), el('b', { text: String(v) })]) : null);
+  return el('div', { class: 'bj-reserva-ficha' }, [
+    el('strong', { text: (r.cliente || '—') + ' · ' + etiquetaReserva(r) }),
+    dato(T('Cuándo', 'When'), fechaReserva(r) + ' ' + horaReserva(r)),
+    dato(T('Colección', 'Collection'), r.paquete),
+    dato(T('Lugar', 'Place'), r.ubicacion),
+    dato(T('Duración', 'Length'), r.duracion),
+    dato(T('Para', 'For'), r.para),
+    dato(T('Correo', 'Email'), r.email),
+    dato(T('Idioma', 'Language'), r.idioma === 'en' ? 'English' : 'Español'),
+    dato(T('Reservó por', 'Booked via'), r.canal),
+    dato(T('Reserva hecha el', 'Booked on'), r.creado ? timeAgo(r.creado) : null),
+    r.error ? dato('Error', r.error) : null,
+  ].filter(Boolean));
 }
 function fechaReserva(r) {
   const t = r.inicio_iso ? Date.parse(r.inicio_iso) : NaN;
@@ -2121,7 +2196,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611050445';
+  link.href = '/marketing/css/bandeja.css?v=202611050500';
   document.head.appendChild(link);
 }
 
