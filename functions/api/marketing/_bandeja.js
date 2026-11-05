@@ -1758,6 +1758,33 @@ export async function handleBandeja(request, env, session, url, parts) {
       return json({ ok: true, mids: filas.map((f) => f.mid), plantilla: conPlantilla });
     }
 
+    // JUAN, el bot de WhatsApp de IVAE Studios, se controla DESDE la Bandeja (4-nov-2026,
+    // Israel: "el panel de Juan no debe existir, quiero que todo esté en el CRM de IVAE
+    // Marketing"). Estado: mkt_kv 'juan_bot_estado' (lo publica el Worker de Juan cada 5 min).
+    // Orden: mkt_kv 'juan_bot_cmd:<contacto>' (Juan la aplica en ≤5 min, o al instante
+    // cuando ese contacto vuelve a escribir). Solo aparece en los chats de WhatsApp de la
+    // marca cuyo número atiende Juan.
+    if (accion === 'juan') {
+      const est = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_bot_estado'").first().catch(() => null);
+      let estado = null; try { estado = est && est.value ? JSON.parse(est.value) : null; } catch { estado = null; }
+      const aplica = !!(estado && estado.client_id === conv.client_id && conv.canal === 'whatsapp');
+      if (!aplica) return json({ aplica: false });
+      const actual = (estado.contactos || {})[conv.contacto_id] || null;
+      const pend = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind('juan_bot_cmd:' + conv.contacto_id).first().catch(() => null);
+      let pendiente = null; try { pendiente = pend && pend.value ? JSON.parse(pend.value) : null; } catch { pendiente = null; }
+      if (method === 'GET') {
+        return json({ aplica: true, bot_activo: actual ? !!actual.bot_activo : true, atencion: !!(actual && actual.atencion), pendiente: pendiente ? !!pendiente.bot_activo : null, estado_en: estado.en || null });
+      }
+      if (method === 'POST') {
+        if (esAgente && conv.asignado_a && conv.asignado_a !== yo) return prohibido();
+        const b = await leerJson(request);
+        const activo = !!b.activo;
+        await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)')
+          .bind('juan_bot_cmd:' + conv.contacto_id, JSON.stringify({ bot_activo: activo ? 1 : 0, por: session.name || null, en: new Date().toISOString() })).run();
+        return json({ ok: true, bot_activo: activo, pendiente: true });
+      }
+    }
+
     // Asignar a un agente (supervisor/staff) o tomar un chat sin dueño (agente).
     if (accion === 'asignar' && method === 'POST') {
       const b = await leerJson(request);

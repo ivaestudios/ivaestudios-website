@@ -592,6 +592,7 @@ function chat() {
           if (nueva && nueva !== v.etapa) await cambiarEtapaCRM(v, nueva, { anchor: e.currentTarget });
         } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }), icon('down', 13)]),
         botonAsignado(v),
+        botonJuan(v),
       ].filter(Boolean)),
     ]),
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Llamada', 'Call'), title: T('Llamar o registrar llamada', 'Call or log a call'), onclick: () => abrirLlamada(v) }, [icon('phone', 18)]),
@@ -694,6 +695,35 @@ function chat() {
 }
 
 // Quién atiende el chat. Supervisor: elige agente. Agente: "Tomar" si no tiene dueño.
+// JUAN, el bot de WhatsApp de IVAE Studios, se pausa o se reactiva desde aquí (4-nov-2026:
+// el panel de Juan ya no existe). Solo aparece en los chats de WhatsApp donde Juan contesta;
+// el servidor dice si aplica. El cambio tarda hasta 5 min (o es inmediato si el cliente escribe).
+function botonJuan(v) {
+  if (v.canal !== 'whatsapp') return null;
+  const b = el('button', { type: 'button', class: 'bj-asignado is-libre', style: { display: 'none' }, 'aria-label': T('Juan, el bot de WhatsApp', 'Juan, the WhatsApp bot') });
+  let estado = null;
+  const activoAhora = () => (estado.pendiente != null ? estado.pendiente : estado.bot_activo);
+  const pintar = () => {
+    clear(b);
+    const activo = activoAhora();
+    b.className = 'bj-asignado' + (activo ? ' is-libre' : '');
+    b.appendChild(el('span', { text: (activo ? '🤖 ' + T('Juan contesta', 'Juan replies') : '✋ ' + T('Juan en pausa', 'Juan paused')) + (estado.pendiente != null ? ' …' : '') }));
+    b.title = activo ? T('Toca para pausar a Juan y contestar tú', 'Tap to pause Juan and reply yourself') : T('Toca para devolverle el chat a Juan', 'Tap to hand the chat back to Juan');
+    b.style.display = '';
+  };
+  api.get(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/juan`).then((r) => { if (r && r.aplica) { estado = r; pintar(); } }).catch(() => {});
+  b.onclick = async () => {
+    if (!estado) return;
+    const activo = activoAhora();
+    try {
+      await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/juan`, { activo: !activo });
+      estado.pendiente = !activo; pintar();
+      toast(!activo ? T('Juan vuelve a contestar este chat en un momento.', 'Juan will reply to this chat again shortly.') : T('Juan queda en pausa: este chat lo contesta el equipo.', 'Juan is paused: the team replies to this chat.'));
+    } catch (e) { toast(T('No se pudo cambiar a Juan: ', 'Could not change Juan: ') + (e.message || '')); }
+  };
+  return b;
+}
+
 function botonAsignado(v) {
   const agentes = equipoAgentes();
   if (!agentes.length && !v.asignado_a && !esAgente()) return null;
