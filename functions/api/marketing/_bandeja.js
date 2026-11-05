@@ -1495,7 +1495,8 @@ export async function handleBandeja(request, env, session, url, parts) {
     for (const k of Object.keys(PLANTILLAS)) {
       const d = defPlantilla(c, k);
       const p = cfg.plantillas[k];
-      const vigente = p && p.nombre === d.nombre;
+      // externa: plantilla de utilidad creada fuera de la Bandeja (misma forma); cuenta como vigente.
+      const vigente = p && (p.nombre === d.nombre || p.externa);
       plantillas[k] = esDemo(c)
         ? { titulo: d.titulo, estado: 'APPROVED', categoria: 'UTILITY', motivo: null, cuerpo: d.cuerpo, botones: d.botones }
         : { titulo: d.titulo, estado: vigente ? p.estado || null : null, categoria: vigente ? p.categoria || null : null, motivo: vigente ? p.motivo || null : null, cuerpo: (vigente && p.cuerpo) || d.cuerpo, botones: d.botones };
