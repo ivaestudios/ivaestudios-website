@@ -1783,7 +1783,8 @@ export async function handleBandeja(request, env, session, url, parts) {
     if (accion === 'juan') {
       const est = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_bot_estado'").first().catch(() => null);
       let estado = null; try { estado = est && est.value ? JSON.parse(est.value) : null; } catch { estado = null; }
-      const aplica = !!(estado && estado.client_id === conv.client_id && conv.canal === 'whatsapp');
+      // 5-nov-2026: Juan también atiende Instagram (desde la Bandeja), así que el chip aplica ahí también.
+      const aplica = !!(estado && estado.client_id === conv.client_id && (conv.canal === 'whatsapp' || conv.canal === 'instagram'));
       if (!aplica) return json({ aplica: false });
       const actual = (estado.contactos || {})[conv.contacto_id] || null;
       const pend = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind('juan_bot_cmd:' + conv.contacto_id).first().catch(() => null);
