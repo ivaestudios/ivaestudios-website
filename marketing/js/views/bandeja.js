@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050350';
-import { toast } from '../shell/toast.js?v=202611050350';
-import { icon, iconMarca } from '../shell/icons.js?v=202611050350';
-import { T, isEN } from '../shell/i18n.js?v=202611050350';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050350';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611050430';
+import { toast } from '../shell/toast.js?v=202611050430';
+import { icon, iconMarca } from '../shell/icons.js?v=202611050430';
+import { T, isEN } from '../shell/i18n.js?v=202611050430';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611050430';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -49,6 +49,7 @@ let sinResponder = false;      // el último mensaje es de la persona
 let verArchivadas = false;     // conversaciones archivadas (para recuperarlas)
 let periodo = 30;              // días del dashboard
 let desempeno = null;
+let reservasJuan = null;       // pestaña Reservas (solo la marca cuyo número atiende Juan)
 let llamadasPanel = null;      // { llamadas, totales, linea } del periodo (supervisor)
 let plantillaClave = 'seguimiento';
 const infoPlantilla = new Map(); // `${convId}:${clave}` -> { max, antes, despues, botones }
@@ -141,6 +142,14 @@ async function cargarResumen() {
   catch (e) { resumen = { error: e.message }; }
   pintarCabecera();
   if (tab === 'embudo') pintarBarraCRM();
+  // Pestaña Reservas (5-nov-2026): el servidor dice si esta marca tiene las reservas de Juan.
+  try {
+    const rj = await api.get('/bandeja/reservas?client_id=' + encodeURIComponent(id));
+    const antes = !!(reservasJuan && reservasJuan.aplica);
+    reservasJuan = rj;
+    if (antes !== !!(rj && rj.aplica)) pintarCabecera();
+    if (tab === 'reservas') pintarCuerpo();
+  } catch { /* sin reservas: la pestaña no aparece */ }
   // El filtro "Correo" depende del resumen, que llega después de pintar la
   // lista: si cambió, se vuelve a pintar el cuerpo para que aparezca.
   const conCorreo = !!(resumen && resumen.canales && resumen.canales.correo && resumen.canales.correo.conectado);
@@ -179,6 +188,8 @@ async function cargarLista({ silencioso = false, auto = false } = {}) {
       if (busqueda) qs.set('q', busqueda);
       const r = await api.get(`/bandeja/conversaciones?${qs}`);
       convs = r.conversaciones || [];
+    } else if (tab === 'reservas') {
+      reservasJuan = await api.get('/bandeja/reservas?client_id=' + encodeURIComponent(id));
     } else {
       const qs = new URLSearchParams({ client_id: id, estado: estadoCom });
       if (canal === 'instagram' || canal === 'facebook') qs.set('canal', canal);
@@ -304,6 +315,10 @@ function pintarCabecera() {
       esSupervisor() ? el('button', { type: 'button', role: 'tab', 'data-tab': 'desempeno', class: tab === 'desempeno' ? 'is-active' : '', 'aria-selected': String(tab === 'desempeno'), onclick: () => cambiarTab('desempeno') }, [
         el('span', { text: T('Desempeño', 'Performance') }),
       ]) : null,
+      // RESERVAS (5-nov-2026): las sesiones que reservan Juan o Viernes, con su carta.
+      reservasJuan && reservasJuan.aplica ? el('button', { type: 'button', role: 'tab', 'data-tab': 'reservas', class: tab === 'reservas' ? 'is-active' : '', 'aria-selected': String(tab === 'reservas'), onclick: () => cambiarTab('reservas') }, [
+        el('span', { text: T('Reservas', 'Bookings') }), (() => { const n = (reservasJuan.reservas || []).filter((r) => r.inicio_iso && Date.parse(r.inicio_iso) > Date.now() && r.estado !== 'cancelado').length; return n ? el('span', { class: 'bj-seg__n', text: String(n) }) : null; })(),
+      ].filter(Boolean)) : null,
     ].filter(Boolean));
     // Una sola pestaña no navega a nada (agente de una marca solo CRM): fuera.
     segEl.hidden = segEl.children.length < 2;
@@ -371,9 +386,46 @@ function pintarCuerpo() {
     cuerpoEl.appendChild(panelEmbudo());
   } else if (tab === 'desempeno') {
     cuerpoEl.appendChild(panelDesempeno());
+  } else if (tab === 'reservas') {
+    cuerpoEl.appendChild(panelReservas());
   } else {
     cuerpoEl.append(filtrosComentarios(), listaComentarios());
   }
+}
+
+// ── Reservas de Juan (sesiones de fotos; antes vivían en el panel de Juan) ──────────
+function panelReservas() {
+  const d = reservasJuan || {};
+  const lista = (d.reservas || []).slice();
+  if (!lista.length) return vacio('calendar', T('Sin reservas', 'No bookings'), T('Cuando Juan o Viernes reserven una sesión, aparece aquí con su carta.', 'When Juan or Viernes book a session, it shows up here with its letter.'));
+  const ahora = Date.now();
+  const esProx = (r) => r.inicio_iso && Date.parse(r.inicio_iso) >= ahora - 3600e3;
+  const prox = lista.filter(esProx).sort((a, b) => Date.parse(a.inicio_iso) - Date.parse(b.inicio_iso));
+  const pasadas = lista.filter((r) => !esProx(r));
+  const fila = (r) => el('div', { class: 'bj-reserva' + (r.estado === 'cancelado' ? ' is-off' : '') }, [
+    el('div', { class: 'bj-reserva__cuando' }, [el('strong', { text: fechaReserva(r) }), el('span', { class: 'muted', text: r.hora || '' })]),
+    el('div', { class: 'bj-reserva__quien' }, [
+      el('strong', { text: r.cliente || '—' }),
+      el('span', { class: 'muted', text: [r.paquete, r.ubicacion, r.idioma === 'en' ? 'EN' : ''].filter(Boolean).join(' · ') }),
+    ]),
+    el('span', { class: 'bj-reserva__estado is-' + (r.estado || 'pendiente'), text: etiquetaReserva(r) }),
+  ]);
+  return el('div', { class: 'bj-reservas' }, [
+    el('p', { class: 'muted bj-empty__nota', text: T('Sesiones que reservaron Juan (el bot) o Viernes, con su carta de confirmación por correo. Última actualización: ' + (d.en ? timeAgo(d.en) : '—') + '.', 'Sessions booked by Juan (the bot) or Viernes, with their confirmation letter by email. Last update: ' + (d.en ? timeAgo(d.en) : '—') + '.') }),
+    el('h3', { text: T('Próximas', 'Upcoming') + ' (' + prox.length + ')' }),
+    ...(prox.length ? prox.map(fila) : [el('p', { class: 'muted', text: T('Nada próximo.', 'Nothing upcoming.') })]),
+    el('h3', { text: T('Anteriores', 'Past') + ' (' + pasadas.length + ')' }),
+    ...pasadas.slice(0, 40).map(fila),
+  ]);
+}
+function fechaReserva(r) {
+  const t = r.inicio_iso ? Date.parse(r.inicio_iso) : NaN;
+  if (!isNaN(t)) return new Date(t).toLocaleDateString(isEN() ? 'en-US' : 'es-MX', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Cancun' });
+  return r.fecha || '—';
+}
+function etiquetaReserva(r) {
+  const m = { hecho: T('Carta enviada', 'Letter sent'), hecho_sin_carta: T('Reservada, sin carta', 'Booked, no letter'), pendiente: T('En proceso', 'In progress'), procesando: T('En proceso', 'In progress'), ocupado: T('Horario ocupado', 'Slot taken'), error: T('Error', 'Error'), cancelado: T('Cancelada', 'Cancelled') };
+  return m[r.estado] || r.estado || '';
 }
 
 function vacio(ico, titulo, texto, extra = null) {
@@ -2068,7 +2120,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611050350';
+  link.href = '/marketing/css/bandeja.css?v=202611050430';
   document.head.appendChild(link);
 }
 
@@ -2076,6 +2128,7 @@ function aplicarParams(params) {
   if (params && params.tab === 'comentarios' && !sinComentarios()) tab = 'comentarios';
   else if (params && params.tab === 'desempeno' && esSupervisor()) tab = 'desempeno';
   else if (params && params.tab === 'embudo') tab = 'embudo';
+  else if (params && params.tab === 'reservas') tab = 'reservas';
   if (params && params.op) { opPedida = params.op; tab = 'embudo'; }
   else if (params && params.tab === 'mensajes') tab = 'mensajes';
   if (params && params.seguir === '1') { porSeguir = true; tab = 'mensajes'; }

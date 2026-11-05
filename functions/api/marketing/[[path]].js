@@ -6403,13 +6403,19 @@ async function handleSesionRobotPdf(env, url) {
   if (!token || token.length < 16) return json({ error: 'Not authenticated' }, 401);
   const k = await env.DB.prepare("SELECT token, COALESCE(workspace_id, 'ivae') AS ws FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0").bind(token).first().catch(() => null);
   if (!k || k.ws !== 'ivae') return json({ error: 'Not authenticated' }, 401);
-  const email = 'robot.pdf@ivaestudios.com';
+  // ?como=viernes (5-nov-2026): sesión a nombre del asistente de Israel, para que lo que
+  // conteste en la Bandeja (Instagram, Messenger, comentarios) quede firmado como Viernes.
+  const como = String(url.searchParams.get('como') || 'pdf');
+  const perfil = como === 'viernes'
+    ? { email: 'viernes@ivaestudios.com', nombre: 'Viernes (asistente de Israel)' }
+    : { email: 'robot.pdf@ivaestudios.com', nombre: 'Robot PDF (asistente)' };
+  const email = perfil.email;
   let u = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ?').bind(email).first();
   if (!u) {
     const id = randomId();
     // Contraseña imposible (no es un hash válido): este usuario solo existe para sesiones del robot.
-    await env.DB.prepare("INSERT INTO mkt_users (id, email, password, name, role, active, must_reset, email_verified, workspace_id, eula_version, eula_accepted_at, tour_visto_at) VALUES (?, ?, ?, 'Robot PDF (asistente)', 'team', 1, 0, 1, 'ivae', ?, datetime('now'), datetime('now'))")
-      .bind(id, email, 'robot-' + randomId() + randomId(), EULA_VERSION).run();
+    await env.DB.prepare("INSERT INTO mkt_users (id, email, password, name, role, active, must_reset, email_verified, workspace_id, eula_version, eula_accepted_at, tour_visto_at) VALUES (?, ?, ?, ?, 'team', 1, 0, 1, 'ivae', ?, datetime('now'), datetime('now'))")
+      .bind(id, email, 'robot-' + randomId() + randomId(), perfil.nombre, EULA_VERSION).run();
     u = { id };
   } else {
     await env.DB.prepare("UPDATE mkt_users SET active = 1, eula_version = ?, eula_accepted_at = COALESCE(eula_accepted_at, datetime('now')), tour_visto_at = COALESCE(tour_visto_at, datetime('now')) WHERE id = ?").bind(EULA_VERSION, u.id).run().catch(() => {});

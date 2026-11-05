@@ -1075,16 +1075,17 @@ async function refrescarPlantillas(env, c) {
   } catch { return cfg.plantillas; }
   for (const clave of Object.keys(PLANTILLAS)) {
     const d = defPlantilla(c, clave);
-    const t = lista.find((x) => x.name === d.nombre && x.language === IDIOMA_PLANTILLA);
+    const ext = cfg.plantillas[clave] && cfg.plantillas[clave].externa ? cfg.plantillas[clave] : null;
+    const t = lista.find((x) => x.name === (ext ? ext.nombre : d.nombre) && x.language === IDIOMA_PLANTILLA);
     if (t) {
       const body = (t.components || []).find((k) => k.type === 'BODY');
       cfg.plantillas[clave] = {
-        ...(cfg.plantillas[clave] || {}), nombre: d.nombre, id: t.id, estado: t.status, categoria: t.category,
+        ...(cfg.plantillas[clave] || {}), nombre: t.name, id: t.id, estado: t.status, categoria: t.category,
         motivo: t.rejected_reason && t.rejected_reason !== 'NONE' ? t.rejected_reason : null,
         calidad: (t.quality_score && t.quality_score.score) || null,
         cuerpo: body ? body.text : d.cuerpo, botones: d.botones,
       };
-    } else if (cfg.plantillas[clave] && cfg.plantillas[clave].nombre !== d.nombre) {
+    } else if (cfg.plantillas[clave] && cfg.plantillas[clave].nombre !== d.nombre && !cfg.plantillas[clave].externa) {
       delete cfg.plantillas[clave]; // la marca cambió de nombre: esa plantilla ya no le corresponde
     }
   }
@@ -1137,7 +1138,8 @@ function renderPlantilla(cuerpo, params) {
 function espacioPlantilla(c, conv, autorNombre, clave) {
   const d = defPlantilla(c, clave);
   const p = cfgDe(c).plantillas[clave];
-  const cuerpo = (p && p.nombre === d.nombre && p.cuerpo) || d.cuerpo;
+  // externa: plantilla de utilidad creada fuera de la Bandeja, con la misma forma de 3 variables.
+  const cuerpo = (p && (p.nombre === d.nombre || p.externa) && p.cuerpo) || d.cuerpo;
   const p1 = primerNombre(conv.nombre) || 'de nuevo';
   const p2 = primerNombre(autorNombre) || nombreComercial(c);
   return { cuerpo, p1, p2, max: MAX_CUERPO - renderPlantilla(cuerpo, [p1, p2, '']).length - 2 };
@@ -1158,7 +1160,7 @@ async function enviarPlantillaAbierta(c, conv, texto, { clave = 'seguimiento', a
   const d = defPlantilla(c, clave);
   if (!d) throw errSinCanal('Esa plantilla no existe.');
   const p = cfgDe(c).plantillas[clave];
-  if (!p || p.nombre !== d.nombre) throw errSinCanal('Pasaron más de 24 h desde el último mensaje de la persona y esta marca todavía no tiene su plantilla abierta. Créala en Ajustes de la bandeja (WhatsApp → Plantillas).');
+  if (!p || (p.nombre !== d.nombre && !p.externa)) throw errSinCanal('Pasaron más de 24 h desde el último mensaje de la persona y esta marca todavía no tiene su plantilla abierta. Créala en Ajustes de la bandeja (WhatsApp → Plantillas).');
   const estado = String(p.estado || '');
   if (estado === 'PENDING' || estado === 'IN_APPEAL') throw errSinCanal('Meta todavía está revisando la plantilla abierta (suele tardar de minutos a unas horas). Intenta en un rato.');
   if (['REJECTED', 'DISABLED', 'PAUSED', 'ERROR'].includes(estado)) throw errSinCanal(`La plantilla abierta está ${({ REJECTED: 'rechazada', DISABLED: 'desactivada', PAUSED: 'pausada', ERROR: 'con error' })[estado]} en Meta${p.motivo ? ' (' + p.motivo + ')' : ''}. Revísala en Ajustes de la bandeja.`);
@@ -1561,6 +1563,19 @@ export async function handleBandeja(request, env, session, url, parts) {
         WHERE ${where.join(' AND ')} ORDER BY (v.no_leidos > 0) DESC, v.ultimo_en DESC LIMIT 200`
     ).bind(...binds).all();
     return json({ conversaciones: r.results || [] });
+  }
+
+  // RESERVAS de Juan (sesiones de fotos de IVAE Studios con su carta de confirmación). El Worker
+  // de Juan las publica en mkt_kv 'juan_reservas' cada 5 min (4-nov-2026: el panel de Juan
+  // desapareció y esta lista vivía ahí). Solo para la marca cuyo número atiende Juan.
+  if (sub[0] === 'reservas' && sub.length === 1 && method === 'GET') {
+    const c = await marcaOk(qp('client_id'));
+    if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    if (esAgente) return json({ aplica: false });
+    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_reservas'").first().catch(() => null);
+    let d = null; try { d = row && row.value ? JSON.parse(row.value) : null; } catch { d = null; }
+    if (!d || d.client_id !== c.id) return json({ aplica: false });
+    return json({ aplica: true, en: d.en || null, reservas: d.reservas || [] });
   }
 
   if (sub[0] === 'conversaciones' && sub.length >= 2) {
