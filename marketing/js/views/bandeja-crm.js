@@ -22,10 +22,11 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060315';
-import { toast } from '../shell/toast.js?v=202611060315';
-import { icon } from '../shell/icons.js?v=202611060315';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611060315';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060255';
+import { toast } from '../shell/toast.js?v=202611060255';
+import { icon } from '../shell/icons.js?v=202611060255';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611060255';
+import { botonCobrar } from './bandeja-pagos.js?v=202611060255';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -1108,7 +1109,8 @@ export async function abrirOportunidad(convId) {
         paso('briefcase', T('Pago', 'Payment'),
           pagos.length ? pagos.map((p) => `${fmtDinero(Math.round(p.mxn))}${p.usd ? ` (US$${p.usd})` : ''} · ${VIA_TXT[p.via] || p.via} · ${fmtDia(p.dia)}${p.que && p.via === 'stripe' ? ` · ${p.que}` : ''}`) : T('Sin registrar', 'Not recorded'),
           total > 0 ? 'hecho' : (k === 'por_cobrar' ? 'ahora' : 'falta'),
-          [boton(T('Pagó en efectivo', 'Paid in cash'), 'plus', registrarEfectivo), boton(T('Amarrar pago de Stripe', 'Link a Stripe payment'), 'link', amarrarCobro)]),
+          // "💳 Mandar link de pago" lo hace Juan por Stripe (bandeja-pagos.js, sesión de Juan).
+          [botonCobrar(v, { compacto: true }), boton(T('Pagó en efectivo', 'Paid in cash'), 'plus', registrarEfectivo), boton(T('Amarrar pago de Stripe', 'Link a Stripe payment'), 'link', amarrarCobro)].filter(Boolean)),
         paso('camera', T('Galería para elegir', 'Selection gallery'),
           g ? `${g.titulo} · ${g.publicada ? T('publicada', 'published') : T('borrador', 'draft')}${g.creada ? ' · ' + fmtDia(g.creada) : ''}` : T('Todavía sin galería', 'No gallery yet'),
           g && g.publicada ? 'hecho' : (k === 'en_proceso' ? 'ahora' : 'falta'),
