@@ -145,8 +145,9 @@ export async function handlePagos(request, env, session, path, url, deps) {
     try {
       r = await fetch(URL_JUAN + '/api/stripe/link', { method: 'POST', headers: { authorization: 'Bearer ' + tk, 'content-type': 'application/json' }, body: JSON.stringify(cuerpo) });
       j = await r.json().catch(() => ({}));
-    } catch (e) { return json({ error: 'No pude hablar con Juan para crear el link: ' + ((e && e.message) || e) }, 502); }
-    if (!r.ok || j.error) return json({ error: j.error || ('Juan respondió ' + r.status) }, r.status === 401 ? 502 : (r.status >= 400 && r.status < 600 ? r.status : 502));
+    } catch (e) { return json({ error: 'No pude hablar con Juan para crear el link: ' + ((e && e.message) || e) }, 424); }
+    // Nunca 5xx: Cloudflare reemplaza esas respuestas con su página HTML y el mensaje no llegaría a la pantalla.
+    if (!r.ok || j.error) return json({ error: j.error || ('Juan respondió ' + r.status) }, r.status >= 400 && r.status < 500 && r.status !== 401 ? r.status : 424);
     return json(j);
   }
 
