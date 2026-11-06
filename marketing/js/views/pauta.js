@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611052346';
-import { icon } from '../shell/icons.js?v=202611052346';
-import { T, isEN } from '../shell/i18n.js?v=202611052346';
+import { el, clear, toast } from '../api.js?v=202611060033';
+import { icon } from '../shell/icons.js?v=202611060033';
+import { T, isEN } from '../shell/i18n.js?v=202611060033';
 
 const VIEW_ID = 'pauta';
 
@@ -76,7 +76,14 @@ const NOMBRE_ACCION = {
   post_engagement: () => T('interacciones', 'engagements'),
 };
 
+// Una promoción de post con fecha de fin ya pasada sigue "ACTIVE" para Meta,
+// pero ya no gasta: para la dueña es "Terminada", no "Activa".
+function terminada(c) {
+  const e = String(c.effective_status || c.status || '').toUpperCase();
+  return e === 'ACTIVE' && !!c.stop_time && (Date.parse(c.stop_time) || 0) < Date.now();
+}
 function chipEstado(c) {
+  if (terminada(c)) return el('span', { class: 'pauta-chip pauta-chip--off', text: T('Terminada', 'Ended') });
   const e = String(c.effective_status || c.status || '').toUpperCase();
   const mapa = {
     ACTIVE: [T('Activa', 'Active'), 'ok'],
@@ -111,7 +118,7 @@ function tarjetaCampana(c, moneda) {
   ]);
 
   const estado = String(c.effective_status || c.status || '').toUpperCase();
-  const activa = estado === 'ACTIVE';
+  const activa = estado === 'ACTIVE' && !terminada(c);
   // ⚠️ NO llamarle `gasto`: hay una funcion `gasto()` que formatea dinero y la
   // variable la tapaba dentro de esta funcion. Solo reventaba cuando la campana
   // SI tenia numeros, que es justo cuando la tarjeta importa.
@@ -146,7 +153,8 @@ function tarjetaCampana(c, moneda) {
       activa ? T('Pausada.', 'Paused.') : T('Encendida: ya está gastando.', 'On: it is spending now.'),
     ),
   });
-  botones.push(bPrender);
+  // Una campaña terminada no se pausa ni se enciende: ya acabó.
+  if (!terminada(c)) botones.push(bPrender);
   // Borrar SOLO si nunca gastó: con gasto, el historial es lo que sirve para
   // decidir, y borrarlo lo tira a la basura. El backend lo vuelve a comprobar.
   if (!gastoNum) {
@@ -497,7 +505,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611052346';
+  link.href = '/marketing/css/pauta.css?v=202611060033';
   document.head.appendChild(link);
 }
 

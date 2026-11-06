@@ -11,10 +11,10 @@
 // los paquetes vigentes. La fuente de cada lead se deduce sola y se corrige con
 // un toque. Los correos solo se LEEN (regla de Vianey). Backend: _negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611052346';
-import { icon, iconMarca } from '../shell/icons.js?v=202611052346';
-import { T, isEN } from '../shell/i18n.js?v=202611052346';
-import { toast } from '../shell/toast.js?v=202611052346';
+import { api, el, clear } from '../api.js?v=202611060033';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060033';
+import { T, isEN } from '../shell/i18n.js?v=202611060033';
+import { toast } from '../shell/toast.js?v=202611060033';
 
 const VIEW_ID = 'administracion';
 
@@ -660,7 +660,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611052346';
+  link.href = '/marketing/css/administracion.css?v=202611060033';
   document.head.appendChild(link);
 }
 
