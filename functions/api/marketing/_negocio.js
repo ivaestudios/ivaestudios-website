@@ -171,15 +171,26 @@ function ticketReferencia(cfg) {
 // ── Fuente de un lead (deducida) ────────────────────────────────────────────
 const CORREOS_PROPIOS = /^(info@ivaestudios\.com|vianeydm07@gmail\.com|vianeydmphoto@gmail\.com|isra9158@gmail\.com)$/i;
 const TELS_PROPIOS = /(9902046514|2288570584|9987582363)$/;
-const NO_ES_LEAD = /^asunto:\s*(aceptada|rechazada|accepted|declined|invitaci|notas:)|meta policy|policy support|verification program|eligible to join|important notice/i;
+// Lo que NO es una clienta (Vianey, 6-nov-2026: "hay mensajes ahí que no son de
+// clientes"): avisos falsos de Meta, invitaciones y notas, y quien escribe para
+// OFRECER algo (alta de proveedor, "soy X de un restaurante y beach club",
+// "photography & film for your couples", colaboraciones). OJO: "day pass" y
+// "vendor fee" NO van aquí: las clientas también los preguntan (Shingo); los
+// hoteles se reconocen por su correo o su nombre.
+const NO_ES_LEAD = /^asunto:\s*(aceptada|rechazada|accepted|declined|invitaci|notas:)|meta policy|policy support|verification program|eligible to join|important (notice|message)|page admin|facebook support|account linking|community standards|violation|alta de prove|\bsoy [^.\n]{0,40} de [^.\n]{0,60}(restaurante|beach club|agencia|hotel)|for your (destination )?couples|propuesta de colaboraci|collaborat|partnership/i;
+// Quien escribe a nombre de un negocio (hotel, gerente, concierge, otro fotógrafo).
+const NOMBRE_NO_CLIENTE = /\b(hotel|resort|concierge|recepci[oó]n|front ?desk|gerente|manager|rrpp|intercontinental|presidente|photographer|fot[oó]graf[oa]|beach club|restaurante?)\b/i;
+// El spam escribe con letras "decoradas" (𝖨𝗆𝗉𝗈𝗋𝗍𝖺𝗇𝗍): se pasan a letras normales.
+const plano = (s) => String(s || '').normalize('NFKC');
 // Correos de hoteles y proveedores: casi siempre permisos o pagos, no clientes.
-const DOMINIO_PROVEEDOR = /(posadas|hyatt|hilton|marriott|iberostar|(^|\.)riu\.|barcelo|princess-hotels|rosewood|vivaresorts|sirenis|mondrian|grupolomas|trshotels|oceanhotels|houseofaia|omytransfer|palladium|karisma|hotel|resort)/i;
+const DOMINIO_PROVEEDOR = /(posadas|hyatt|hilton|marriott|iberostar|(^|\.)riu\.|barcelo|princess-hotels|rosewood|vivaresorts|sirenis|mondrian|grupolomas|trshotels|oceanhotels|houseofaia|omytransfer|palladium|karisma|liveaqua|fiestamericana|intercontinental|ihg\.com|palaceresorts|xcaret|vidanta|hotel|resort)/i;
 function origenDe(v) { try { return v.origen ? JSON.parse(v.origen) : null; } catch { return null; } }
 function fuenteAuto(v) {
   const o = origenDe(v);
   if (o && o.tipo === 'anuncio') return 'pauta';
   if (/^prueba\b/i.test(String(v.nombre || ''))) return 'no_lead';
-  if (NO_ES_LEAD.test(String(v.primer_texto || ''))) return 'no_lead';
+  if (NO_ES_LEAD.test(plano(v.primer_texto))) return 'no_lead';
+  if (NOMBRE_NO_CLIENTE.test(plano(v.nombre)) || NOMBRE_NO_CLIENTE.test(plano(v.username))) return 'no_lead';
   const contacto = String(v.contacto_id || '').toLowerCase();
   if (v.canal === 'correo') {
     if (CORREOS_PROPIOS.test(contacto) || /@google\.com$|no-?reply/.test(contacto)) return 'no_lead';
@@ -321,6 +332,16 @@ export const cfgNegocio = leerCfg;
 // Conversaciones que no son oportunidades (el propio estudio, pruebas, hoteles
 // y proveedores, avisos automáticos): fuera del tablero.
 export function noEsLead(v) { return fuenteAuto(v) === 'no_lead'; }
+// ¿Es una clienta (o alguien que quiere serlo)? Además de lo anterior, una
+// conversación que EMPEZAMOS nosotros (prospección a salones y eventos,
+// trámites con hoteles) no lo es, salvo que ya tenga sesión: a una clienta
+// también le escribimos primero (avisos de su sesión, de su galería).
+// Necesita primer_out y primer_in (el primer mensaje nuestro y el de ella).
+export function esConversacionDeClienta(v) {
+  if (noEsLead(v)) return false;
+  const nosotros = v.primer_out && v.primer_in && String(v.primer_out) < String(v.primer_in);
+  return !(nosotros && !['cita', 'cliente', 'perdido'].includes(v.etapa));
+}
 
 // Lo que NOSOTROS le escribimos dice en qué va la persona (6-nov-2026, Ann: "ya
 // dice que le enviamos su galería final, ¿por qué está en plática?").
@@ -662,10 +683,79 @@ async function resumen(env, url, deps = {}) {
     });
   }
 
+  // Lo que cuestan los anuncios, MES A MES (Vianey: "¿dónde se ve el costo por
+  // lead, cuánto me cuesta cada cliente, cuánto me cuesta la pauta?"). Seis
+  // meses hasta el elegido, para que un mes sin anuncios no deje todo en "—".
+  // Personas: conversaciones que llegaron de un anuncio (o que Vianey marcó
+  // "Anuncios"), por el mes de su primer mensaje. Clientes: sesiones con fuente
+  // anuncios por el mes en que se cerraron.
+  const mesesCosto = Array.from({ length: 6 }, (_, i) => mesesAtras(p.desde, 5 - i).slice(0, 7));
+  const [leadsAdR, clientesAdR] = await Promise.all([
+    env.DB.prepare(
+      `SELECT substr(datetime(MIN(m.creado), '-5 hours'), 1, 7) AS mes FROM mkt_conversaciones v
+         JOIN mkt_mensajes m ON m.conv_id = v.id AND m.direccion = 'in'
+        WHERE v.client_id = ? AND (v.origen LIKE '%anuncio%' OR v.id IN (SELECT conv_id FROM mkt_neg_leads WHERE fuente = 'pauta' AND conv_id IS NOT NULL))
+          AND v.id NOT IN (SELECT conv_id FROM mkt_neg_leads WHERE fuente <> 'pauta' AND conv_id IS NOT NULL)
+        GROUP BY v.id`
+    ).bind(IVAE_STUDIOS).all().catch(() => ({ results: [] })),
+    env.DB.prepare(
+      `SELECT substr(fecha, 1, 7) AS mes, SUM(COALESCE(tipo, 'sesion') = 'sesion') AS n, SUM(COALESCE(monto_mxn, 0)) AS mxn FROM mkt_neg_ventas
+        WHERE client_id = ? AND estado = 'cerrada' AND COALESCE(tipo, 'sesion') <> 'marca' AND fuente = 'pauta' AND fecha >= ? GROUP BY 1`
+    ).bind(IVAE_STUDIOS, `${mesesCosto[0]}-01`).all().catch(() => ({ results: [] })),
+  ]);
+  const manualesAd = await env.DB.prepare("SELECT substr(fecha, 1, 7) AS mes, COUNT(*) AS n FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fuente = 'pauta' GROUP BY 1")
+    .bind(IVAE_STUDIOS).all().catch(() => ({ results: [] }));
+  const costos = mesesCosto.map((mes) => {
+    const esteMes = mes === p.mes;
+    const g = esteMes ? gasto : Number(((pautaMesR.results || []).find((f) => f.mes === mes) || {}).gasto) || 0;
+    const l = esteMes ? porFuenteLeads.pauta
+      : (leadsAdR.results || []).filter((f) => f.mes === mes).length + (Number(((manualesAd.results || []).find((f) => f.mes === mes) || {}).n) || 0);
+    const fila = (clientesAdR.results || []).find((f) => f.mes === mes) || {};
+    const c = esteMes ? ventasPauta.length : Number(fila.n) || 0;
+    const ing = esteMes ? ingresosPautaMxn : Number(fila.mxn) || 0;
+    return { mes, gasto: redondo(g), leads: l, clientes: c, ingresos: redondo(ing), costo_lead: l ? redondo(g / l) : null, costo_cliente: c ? redondo(g / c) : null };
+  });
+
+  // ¿Le conviene invertir más en anuncios? (Vianey, 6-nov-2026: "necesito saber
+  // si me conviene invertir más en pauta o no"). Con los 6 meses: lo invertido
+  // contra lo que regresó. Reglas claras, sin IA:
+  //   · sin gasto                     → no hay datos: probar 2 semanas a WhatsApp
+  //   · gasto y nadie escribió        → así como están, no (buscaban likes)
+  //   · escribieron y nadie reservó   → todavía no: revisar el seguimiento
+  //   · reservaron: cada $1 regresa ≥ $3 → sí; ≥ $1 → con cuidado; < $1 → no
+  const tot = costos.reduce((s, x) => ({ gasto: s.gasto + (x.gasto || 0), leads: s.leads + x.leads, clientes: s.clientes + x.clientes, ingresos: s.ingresos + (x.ingresos || 0) }), { gasto: 0, leads: 0, clientes: 0, ingresos: 0 });
+  const retorno = tot.gasto > 0 ? tot.ingresos / tot.gasto : null;
+  const prueba = pesos((Number(cfg.presupuesto_diario) || 100) * 14);
+  let decision;
+  if (!(tot.gasto > 0)) {
+    decision = { tono: 'neutral', veredicto: 'Todavía no hay cómo saberlo', texto: `En 6 meses no corrió ningún anuncio. Para saberlo, prueba 2 semanas un anuncio que lleve directo al WhatsApp de Juan (unos ${prueba}).` };
+  } else if (!tot.leads && !tot.clientes) {
+    decision = { tono: 'alerta', veredicto: 'Así como están, no', texto: `Invertiste ${pesos(tot.gasto)} y nadie te escribió por un anuncio: buscaban likes, visitas o clics, no clientes. Antes de invertir más, prueba 2 semanas un anuncio que lleve directo al WhatsApp de Juan (unos ${prueba}).` };
+  } else if (!tot.clientes) {
+    decision = { tono: 'cuidado', veredicto: 'Todavía no', texto: `Te escribieron ${tot.leads} ${tot.leads === 1 ? 'persona' : 'personas'} (${pesos(tot.gasto / tot.leads)} cada una), pero ninguna reservó. Revisa el seguimiento de esos chats antes de subir el presupuesto.` };
+  } else if (retorno >= 3) {
+    decision = { tono: 'bien', veredicto: 'Sí, te conviene', texto: `Cada $1 que metiste regresó $${retorno.toFixed(1)}. Cada cliente te costó ${pesos(tot.gasto / tot.clientes)}. Puedes subir el presupuesto poco a poco (20% cada semana).` };
+  } else if (retorno >= 1) {
+    decision = { tono: 'cuidado', veredicto: 'Con cuidado', texto: `Recuperas lo que inviertes (cada $1 regresó $${retorno.toFixed(1)}), pero el margen es corto. Mejora el anuncio antes de subir el presupuesto.` };
+  } else {
+    decision = { tono: 'alerta', veredicto: 'Por ahora no', texto: `Cada $1 que metiste regresó solo $${retorno.toFixed(2)}: pierdes dinero. Cambia el anuncio antes de invertir más.` };
+  }
+  decision = { ...decision, gasto: redondo(tot.gasto), leads: tot.leads, clientes: tot.clientes, ingresos: redondo(tot.ingresos), retorno: retorno != null ? redondo(retorno) : null, costo_cliente: tot.clientes ? redondo(tot.gasto / tot.clientes) : null, costo_lead: tot.leads ? redondo(tot.gasto / tot.leads) : null };
+
   // Quién está esperando que le contesten (lo mismo que cuenta el Embudo).
   const noLeadsMarcados = new Set([...override.entries()].filter(([, f]) => f === 'no_lead').map(([id]) => id));
-  const esperando = todas.filter((v) => !v.archivado && v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)
-    && !['cliente', 'perdido'].includes(v.etapa) && !noLeadsMarcados.has(v.id) && fuenteAuto(v) !== 'no_lead').length;
+  // Solo clientas, de los últimos 30 días (lo de 2025 ya no espera nada) y
+  // leyendo su primer mensaje (el spam de "Meta Policy" se colaba sin él).
+  const esperandoR = await env.DB.prepare(
+    `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.origen, v.etapa,
+            (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'out') AS primer_out,
+            (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS primer_in,
+            (SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto
+       FROM mkt_conversaciones v
+      WHERE v.client_id = ? AND v.archivado = 0 AND v.ultimo_cliente_en IS NOT NULL AND v.ultimo_cliente_en >= v.ultimo_en
+        AND v.ultimo_cliente_en >= datetime('now', '-30 days') AND v.etapa NOT IN ('cliente', 'perdido')`
+  ).bind(IVAE_STUDIOS).all().catch(() => ({ results: [] }));
+  const esperando = (esperandoR.results || []).filter((v) => !noLeadsMarcados.has(v.id) && esConversacionDeClienta(v)).length;
 
   // Pendientes: reglas claras, ordenadas por lo que más importa. Título corto y
   // una línea, como la notificación de una app de banco (Vianey, 6-nov-2026:
@@ -700,6 +790,8 @@ async function resumen(env, url, deps = {}) {
     anuncios: { conectada: anuncios.conectada !== false, rango: anunciosRango, lista: listaAds, criterio: criterioAds, mejor: mejorAd ? mejorAd.ad_id : null, peor: peorAd ? peorAd.ad_id : null, gasto: redondo(gastoAds), error: anuncios.error || null },
     publicaciones: { conectado: publicaciones.conectado !== false, rango: publicacionesRango, lista: listaPubs, total: publicaciones.total || listaPubs.length, error: publicaciones.error || null },
     serie,
+    costos,
+    decision,
     esperando,
     recomendaciones: recs.slice(0, 6),
     embudo: {

@@ -496,3 +496,39 @@ button.adm-fila:hover .adm-fila__n { text-decoration: underline; text-underline-
   }
   .adm-cuerpo--publicaciones .adm-top-pub__foto { width: 150px; height: 188px; }
 }
+
+/* ── ¿Te conviene invertir más en anuncios? (Vianey, 6-nov-2026) ── */
+.adm-decision { border-width: 1px; }
+.adm-decision.is-bien { border-color: color-mix(in srgb, var(--adm-pos) 45%, var(--border)); }
+.adm-decision.is-alerta, .adm-decision.is-cuidado { border-color: color-mix(in srgb, var(--adm-falta) 45%, var(--border)); }
+.adm-decision__cab { display: flex; align-items: center; gap: 12px; }
+.adm-decision__ico { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); }
+.adm-decision.is-bien .adm-decision__ico { background: color-mix(in srgb, var(--adm-pos) 14%, var(--surface)); color: var(--adm-pos); }
+.adm-decision.is-alerta .adm-decision__ico, .adm-decision.is-cuidado .adm-decision__ico { background: color-mix(in srgb, var(--adm-falta) 14%, var(--surface)); color: var(--adm-falta); }
+.adm-decision__q { font-size: 13px; font-weight: 500; color: var(--text-dim); }
+.adm-decision__v { font-size: 22px; font-weight: 700; letter-spacing: -.02em; color: var(--text); }
+.adm-decision__p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--text); }
+.adm-decision__nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+@media (min-width: 640px) { .adm-decision__nums { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Mes a mes: la tabla se desliza en el teléfono si no cabe. */
+.adm-tabla-wrap { margin: 4px -16px 0; padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.adm-tabla--costos { min-width: 560px; }
+.adm-tabla--costos tr.is-actual td { font-weight: 700; }
+
+/* Google contra anuncios */
+.adm-canales { display: grid; gap: 12px; margin-top: 4px; }
+@media (min-width: 640px) { .adm-canales { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.adm-canal { min-width: 0; padding: 14px; border-radius: 14px; background: var(--surface-2); }
+.adm-canal__t { font-size: 14px; font-weight: 700; color: var(--text); }
+.adm-canal__nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.adm-canal__quien { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.adm-canal__quien .adm-pill { background: var(--surface); }
+
+@media (min-width: 1000px) {
+  .adm-a-decision { grid-area: decision; } .adm-a-meses { grid-area: meses; } .adm-a-canales { grid-area: canales; }
+  .adm-cuerpo--resumen { grid-template-areas: "acciones acciones" "decision decision" "saldo stats" "pendientes movs"; }
+  .adm-cuerpo--anuncios { grid-template-areas: "decision decision" "presupuesto resultado" "meses meses" "lista lista"; }
+  .adm-cuerpo--clientes { grid-template-areas: "stats stats" "canales canales" "origen leads"; }
+  .adm-tabla-wrap { margin-inline: 0; padding-inline: 0; }
+}

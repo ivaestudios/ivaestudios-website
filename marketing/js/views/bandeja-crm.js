@@ -22,11 +22,11 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060319';
-import { toast } from '../shell/toast.js?v=202611060319';
-import { icon } from '../shell/icons.js?v=202611060319';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611060319';
-import { botonCobrar } from './bandeja-pagos.js?v=202611060319';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060332';
+import { toast } from '../shell/toast.js?v=202611060332';
+import { icon } from '../shell/icons.js?v=202611060332';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611060332';
+import { botonCobrar } from './bandeja-pagos.js?v=202611060332';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -437,7 +437,11 @@ function vistaTablero() {
   // Tareas vencidas (no pacientes): el mismo número que el grupo "Vencidas" de la vista Tareas.
   const vencidas = filas.reduce((n, v) => n + (Number(v.tareas_vencidas) || 0), 0);
   const sinPaso = abiertas.filter((v) => !Number(v.tareas_pend)).length;
-  const esperandoN = abiertas.filter((v) => v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)).length;
+  // Estudio: solo lo de los últimos 30 días (lo mismo que cuenta Administración);
+  // un mensaje de hace meses ya no "espera".
+  const hace30 = new Date(Date.now() - 30 * 864e5).toISOString().replace('T', ' ').slice(0, 19);
+  const esperandoN = abiertas.filter((v) => v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)
+    && (!giroFoto() || String(v.ultimo_cliente_en) >= hace30)).length;
   // El que se puede tocar lo dice ("Ver →"); los demás son solo datos.
   const kpi = (n, lbl, tono = '', onclick = null) => el(onclick ? 'button' : 'div', {
     class: 'bj-emb__kpi' + (tono ? ' is-' + tono : ''), ...(onclick ? { type: 'button', onclick, 'aria-label': `${n} ${lbl} · ${T('ver tareas', 'see tasks')}` } : {}),

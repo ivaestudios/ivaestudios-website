@@ -29,7 +29,7 @@ import { resumenLinea, llamadaPublica } from './_llamadas-comun.js';
 // Embudo del estudio de fotos (giro 'foto'): precios de los paquetes y qué
 // conversaciones no son oportunidades. Ver sincronizarEmbudoFoto.
 import {
-  catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, TIENE_SESION, CANCELO_SESION, faseDeMensaje,
+  catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, esConversacionDeClienta, TIENE_SESION, CANCELO_SESION, faseDeMensaje,
   FASES_FOTO, IVAE_STUDIOS, leerCobros, leerLinks, clasificarCobro, pesosDeCobro, mismaPersona, tokensNombre,
 } from './_negocio.js';
 
@@ -2073,7 +2073,9 @@ export async function handleBandeja(request, env, session, url, parts) {
                 ${esFoto ? 'v.fase, v.fase_en, v.galeria_id,' : ''}
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_array_length(v.plan_tratamiento, '$.items') ELSE 0 END AS plan_n,
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_extract(v.plan_tratamiento, '$.items[0].tratamiento') ELSE NULL END AS plan_1,
-                ${esFoto ? "(SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto," : ''}
+                ${esFoto ? `(SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto,
+                  (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS primer_in,
+                  (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'out') AS primer_out,` : ''}
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente') AS tareas_pend,
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente' AND t.vence_en IS NOT NULL AND t.vence_en < datetime('now')) AS tareas_vencidas,
                 (SELECT t.id || '|' || t.tipo || '|' || COALESCE(t.vence_en, '') || '|' || t.titulo FROM mkt_bandeja_tareas t
@@ -2090,13 +2092,15 @@ export async function handleBandeja(request, env, session, url, parts) {
     // hilos donde nadie nos ha escrito (correos que solo salieron de info@).
     // Un hilo sin mensajes de la persona solo se queda si ya es una sesión (la
     // carta de confirmación salió de info@ y la reserva la puso en su etapa).
-    if (esFoto) filas = filas.filter((f) => (f.primer_texto != null || f.fecha_cita || ['cita', 'cliente'].includes(f.etapa)) && !noLeads.has(f.id) && !noEsLead(f));
+    // Y una conversación que empezamos nosotros (prospección, trámites con hoteles) no es
+    // oportunidad salvo que ya tenga sesión (esConversacionDeClienta, _negocio.js).
+    if (esFoto) filas = filas.filter((f) => (f.primer_texto != null || f.fecha_cita || ['cita', 'cliente'].includes(f.etapa)) && !noLeads.has(f.id) && esConversacionDeClienta(f));
     // Estudio: de cada clienta, sus pagos y su galería (lo que pinta la tarjeta).
     const exp = esFoto && c.id === IVAE_STUDIOS
       ? await expedientes(env, filas.filter((f) => ['cita', 'cliente'].includes(f.etapa)).map((f) => f.id)).catch(() => new Map())
       : new Map();
     const oportunidades = filas.map((f) => {
-      const { proxima, primer_texto: _pt, ...resto } = f;
+      const { proxima, primer_texto: _pt, primer_in: _pi, primer_out: _po, ...resto } = f;
       let prox = null;
       if (proxima) { const [id, tipo, vence, ...tit] = String(proxima).split('|'); prox = { id, tipo, vence_en: vence || null, titulo: tit.join('|') }; }
       const e = exp.get(f.id);
