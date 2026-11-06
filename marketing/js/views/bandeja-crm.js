@@ -22,10 +22,10 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611052342';
-import { toast } from '../shell/toast.js?v=202611052342';
-import { icon } from '../shell/icons.js?v=202611052342';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611052342';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611052346';
+import { toast } from '../shell/toast.js?v=202611052346';
+import { icon } from '../shell/icons.js?v=202611052346';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611052346';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -306,6 +306,15 @@ export function panelEmbudo() {
   pintarBarra();
   pintarContenido(true);
   return hostEl;
+}
+
+// Cuando llega la configuración de la marca (resumen) después de que el tablero
+// ya se pintó, se repinta todo: si no, el estudio se queda con "paciente" y
+// "cita" hasta el siguiente refresco (pasó en producción el 6-nov-2026).
+export function repintarCRM() {
+  if (!hostEl) return;
+  pintarBarra();
+  pintarContenido(true);
 }
 
 export function pintarBarra() {

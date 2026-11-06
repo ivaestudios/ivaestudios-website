@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611052342';
-import { toast } from '../shell/toast.js?v=202611052342';
-import { icon, iconMarca } from '../shell/icons.js?v=202611052342';
-import { T, isEN } from '../shell/i18n.js?v=202611052342';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611052342';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611052346';
+import { toast } from '../shell/toast.js?v=202611052346';
+import { icon, iconMarca } from '../shell/icons.js?v=202611052346';
+import { T, isEN } from '../shell/i18n.js?v=202611052346';
+import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611052346';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -146,7 +146,9 @@ async function cargarResumen() {
   try { resumen = await api.get(`/bandeja/resumen?client_id=${encodeURIComponent(id)}`); }
   catch (e) { resumen = { error: e.message }; }
   pintarCabecera();
-  if (tab === 'embudo') pintarBarraCRM();
+  // El resumen trae el giro de la marca (estudio o clínica): el tablero se
+  // repinta entero con las palabras correctas.
+  if (tab === 'embudo') repintarCRM();
   // Pestaña Reservas (5-nov-2026): el servidor dice si esta marca tiene las reservas de Juan.
   try {
     const rj = await api.get('/bandeja/reservas?client_id=' + encodeURIComponent(id));
@@ -2242,7 +2244,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611052342';
+  link.href = '/marketing/css/bandeja.css?v=202611052346';
   document.head.appendChild(link);
 }
 
