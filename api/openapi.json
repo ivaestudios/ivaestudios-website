@@ -1,0 +1,135 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IVAE Studios online booking",
+    "version": "1.0.0",
+    "description": "Book a family, couples, engagement or proposal photo session with IVAE Studios in Cancún and the Riviera Maya. The studio calendar is checked within minutes of a booking; when the time is free, a confirmation letter (PDF) is emailed to the client, and when it is taken the studio emails the closest free times. Sessions need no deposit and are paid at the end, by card or in cash. Weddings are arranged by video call on WhatsApp (https://wa.me/529902046514). Human booking page: https://ivaestudios.com/book",
+    "contact": { "name": "IVAE Studios", "email": "info@ivaestudios.com", "url": "https://ivaestudios.com/book" }
+  },
+  "servers": [{ "url": "https://ivaestudios.com" }],
+  "paths": {
+    "/api/availability": {
+      "get": {
+        "operationId": "getAvailability",
+        "summary": "Free start times for a date",
+        "description": "Times are Cancún time (UTC-5). This is a quick check; the booking itself gives the final confirmation.",
+        "parameters": [
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "format": "date" }, "description": "YYYY-MM-DD, from tomorrow onward" },
+          { "name": "collection", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/CollectionId" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Slots for that date",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Availability" } } }
+          },
+          "400": { "description": "Invalid date" }
+        }
+      }
+    },
+    "/api/book": {
+      "post": {
+        "operationId": "bookSession",
+        "summary": "Book a photo session",
+        "description": "Send JSON (Content-Type: application/json) or a regular form post. A repeated request for the same email and time does not create a second booking.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/BookingRequest" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/BookingRequest" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Booking received and being confirmed against the calendar", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BookingResult" } } } },
+          "200": { "description": "Booking received (or already received earlier)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BookingResult" } } } },
+          "400": { "description": "A field is missing or invalid; see error and field" },
+          "409": { "description": "That time is already booked; available_times lists the free times that day" },
+          "429": { "description": "Too many attempts; wait a minute" }
+        }
+      },
+      "get": {
+        "operationId": "getBookingStatus",
+        "summary": "Status of a booking",
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "integer" } },
+          { "name": "email", "in": "query", "required": true, "schema": { "type": "string", "format": "email" } }
+        ],
+        "responses": {
+          "200": { "description": "Status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BookingStatus" } } } },
+          "404": { "description": "Not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CollectionId": {
+        "type": "string",
+        "enum": ["the-spark", "the-glow-hour", "the-essential-flow", "the-creative-runway", "the-visual-story", "the-full-experience"],
+        "description": "the-spark: 35 min, 15 edited photos, 245 USD. the-glow-hour: 45 min, 25 photos, 325 USD. the-essential-flow (most popular): 60 min, 35 photos, 395 USD. the-creative-runway: 75 min, 50 photos, 475 USD. the-visual-story: 90 min, 70 photos, 575 USD. the-full-experience: 90 min, full edited gallery, 725 USD."
+      },
+      "BookingRequest": {
+        "type": "object",
+        "required": ["collection", "date", "time", "hotel", "name", "email", "whatsapp"],
+        "properties": {
+          "collection": { "$ref": "#/components/schemas/CollectionId" },
+          "date": { "type": "string", "format": "date", "description": "YYYY-MM-DD, from tomorrow onward" },
+          "time": { "type": "string", "enum": ["06:30", "07:00", "07:30", "17:00", "17:30"], "description": "Start time, Cancún time. 17:30 is the recommended light. 5:30 PM style values are also accepted." },
+          "hotel": { "type": "string", "description": "Hotel or place where the client is staying" },
+          "location": { "type": "string", "enum": ["resort", "beach", "advise"], "description": "resort = at the hotel; beach = a nearby public beach the studio suggests; advise = the studio recommends" },
+          "guests": { "type": "integer", "minimum": 1, "description": "Number of people; no per-person charge" },
+          "name": { "type": "string", "description": "Client full name" },
+          "email": { "type": "string", "format": "email", "description": "The confirmation letter is emailed here" },
+          "whatsapp": { "type": "string", "description": "WhatsApp or phone number with country code" },
+          "notes": { "type": "string", "maxLength": 300 },
+          "lang": { "type": "string", "enum": ["en", "es"], "description": "Language of the confirmation letter" },
+          "source": { "type": "string", "description": "Optional: the assistant or app that made the booking" }
+        }
+      },
+      "BookingResult": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "booking_id": { "type": ["integer", "null"] },
+          "status": { "type": "string", "enum": ["processing", "confirmed", "needs_review"] },
+          "message": { "type": "string" },
+          "payment": { "type": "string" },
+          "status_url": { "type": ["string", "null"] },
+          "whatsapp": { "type": "string" }
+        }
+      },
+      "BookingStatus": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "booking_id": { "type": "integer" },
+          "status": { "type": "string", "enum": ["processing", "confirmed", "unavailable", "cancelled", "needs_review"] },
+          "date": { "type": "string" },
+          "time": { "type": "string" },
+          "collection": { "type": "string" },
+          "hotel": { "type": "string" }
+        }
+      },
+      "Availability": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "date": { "type": "string" },
+          "timezone": { "type": "string" },
+          "duration_minutes": { "type": "integer" },
+          "slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": { "type": "string" },
+                "label": { "type": "string" },
+                "recommended": { "type": "boolean" },
+                "available": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

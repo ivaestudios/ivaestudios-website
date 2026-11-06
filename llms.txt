@@ -1,6 +1,6 @@
 # IVAE Studios
 
-> Fact sheet for ivaestudios.com. Last verified: 2026-10-30.
+> Fact sheet for ivaestudios.com. Last verified: 2026-11-06.
 > Machine-readable version: https://ivaestudios.com/api/facts.json
 > Full sitemap: https://ivaestudios.com/sitemap.xml
 
@@ -101,12 +101,32 @@ https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit
 - Travellers from Canada: /blog/new-flights-canada-cancun-tulum-winter-2026-27 ·
   /blog/canadian-couples-cancun-wedding-guide · /blog/canadian-couples-los-cabos-wedding-guide
 
+## How to book
+
+- Online booking page: https://ivaestudios.com/book (Spanish: https://ivaestudios.com/es/reservar).
+  Family, couples, engagement and proposal sessions in the six published collections.
+  Weddings are arranged by video call.
+- Required details: collection, date, start time, hotel or place of stay, full name,
+  email, and WhatsApp or phone with country code.
+- Start times (Cancún time, UTC-5): 6:30 AM, 7:00 AM, 7:30 AM, 5:00 PM and 5:30 PM.
+  5:30 PM is the recommended light. Online booking starts from the next day.
+- What happens: the studio calendar is checked within minutes. When the time is free,
+  a confirmation letter (PDF) is emailed to the client; when it is taken, the studio
+  emails the closest free times.
+- Payment: sessions need no deposit and are paid at the end, by card or in cash.
+  Free cancellation up to one day before. No limit on people and no per-person charge.
+- Free times for a date: GET https://ivaestudios.com/api/availability?date=YYYY-MM-DD
+- Booking by API: POST https://ivaestudios.com/api/book (JSON or form fields).
+  Specification: https://ivaestudios.com/api/openapi.json
+
 ## Contact
 
 - Calls: +52 228 857 0584 (the number on the Google Business Profile)
 - WhatsApp: +52 990 204 6514 (a separate, WhatsApp-only number)
 - Email: info@ivaestudios.com
 - Instagram: https://www.instagram.com/ivae.studios/
+- Facebook: https://www.facebook.com/ivaestudios
+- Online booking: https://ivaestudios.com/book
 
 ## Two brands, one owner
 

@@ -187,6 +187,54 @@
     "whatsapp_note": "A separate, WhatsApp-only number.",
     "google_business_profile": "https://maps.app.goo.gl/aX7jiVbLzwurMmX19"
   },
+  "booking": {
+    "online_booking_page": "https://ivaestudios.com/book",
+    "online_booking_page_es": "https://ivaestudios.com/es/reservar",
+    "bookable_online": "Family, couples, engagement and proposal photo sessions in the six published collections. Weddings are arranged by video call.",
+    "how_it_works": "Choose a collection, a date and a start time. The studio calendar is checked within minutes; when the time is free, a confirmation letter (PDF) is emailed to the client. When it is taken, the studio emails the closest free times.",
+    "collection_ids": [
+      "the-spark",
+      "the-glow-hour",
+      "the-essential-flow",
+      "the-creative-runway",
+      "the-visual-story",
+      "the-full-experience"
+    ],
+    "session_start_times": [
+      "6:30 AM",
+      "7:00 AM",
+      "7:30 AM",
+      "5:00 PM",
+      "5:30 PM"
+    ],
+    "recommended_start_time": "5:30 PM",
+    "timezone": "America/Cancun (UTC-5, no daylight saving)",
+    "earliest_online_booking": "From the next day; same-day sessions are arranged on WhatsApp.",
+    "required_details": [
+      "collection",
+      "date",
+      "time",
+      "hotel or place of stay",
+      "full name",
+      "email",
+      "WhatsApp or phone with country code"
+    ],
+    "payment": "Sessions: no deposit; paid at the end of the session, by card or in cash.",
+    "cancellation": "Sessions can be cancelled free of charge up to one day before.",
+    "group_size": "No limit on the number of people and no per-person charge.",
+    "api": {
+      "availability": "GET https://ivaestudios.com/api/availability?date=YYYY-MM-DD&collection=<collection_id>",
+      "book": "POST https://ivaestudios.com/api/book (JSON or form fields: collection, date, time, hotel, location, guests, name, email, whatsapp, notes, lang)",
+      "status": "GET https://ivaestudios.com/api/book?id=<booking_id>&email=<email>",
+      "specification": "https://ivaestudios.com/api/openapi.json"
+    },
+    "other_ways_to_book": {
+      "whatsapp": "https://wa.me/529902046514",
+      "instagram": "https://www.instagram.com/ivae.studios/",
+      "facebook": "https://www.facebook.com/ivaestudios",
+      "email": "info@ivaestudios.com"
+    }
+  },
   "proof_points": {
     "note": "Owner-confirmed figures. Figures beyond these are not substantiated by the studio.",
     "sessions_delivered": "500+",
@@ -205,7 +253,7 @@
   "founded_in": "Cancún, Mexico",
   "schema_org_id": "https://ivaestudios.com/#organization",
   "brand_schema_id": "https://ivaestudios.com/#brand",
-  "last_updated": "2026-10-30",
+  "last_updated": "2026-11-06",
   "aggregate_rating": {
     "rating_value": "5.0",
     "review_count": 67,
