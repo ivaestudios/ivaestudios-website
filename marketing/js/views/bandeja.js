@@ -27,6 +27,7 @@ import { toast } from '../shell/toast.js?v=202611060250';
 import { icon, iconMarca } from '../shell/icons.js?v=202611060250';
 import { T, isEN } from '../shell/i18n.js?v=202611060250';
 import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060250';
+import { conectarPagos, botonCobrar, fichaCobro, reiniciarPagos } from './bandeja-pagos.js?v=202611060250';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -524,6 +525,7 @@ function fichaReserva(r) {
     dato(T('Idioma', 'Language'), r.idioma === 'en' ? 'English' : 'Español'),
     dato(T('Reservó por', 'Booked via'), r.canal),
     dato(T('Reserva hecha el', 'Booked on'), r.creado ? timeAgo(r.creado) : null),
+    fichaCobro(r),
     r.error ? dato('Error', r.error) : null,
   ].filter(Boolean));
 }
@@ -755,6 +757,7 @@ function chat() {
         } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[etapaVista(v)] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[etapaVista(v)] || (() => v.etapa || ''))() }), icon('down', 13)]),
         botonAsignado(v),
         botonJuan(v),
+        botonCobrar(v),
       ].filter(Boolean)),
     ]),
     el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': T('Llamada', 'Call'), title: T('Llamar o registrar llamada', 'Call or log a call'), onclick: () => abrirLlamada(v) }, [icon('phone', 18)]),
@@ -2228,6 +2231,17 @@ function filaCopiar(label, valor) {
 // El CRM (embudo, oportunidades, tareas) vive en bandeja-crm.js; aquí se le
 // pasa lo que comparte con la Bandeja.
 function conectarDepsCRM() {
+  // 💳 Links de pago de Stripe (bandeja-pagos.js): la hoja "Cobrar" necesita la hoja, la marca y el chat.
+  conectarPagos({
+    ctx: () => ctx, cid, nombreDe,
+    ponerEnChat(v, texto) {
+      const ta = composerEl && composerEl.querySelector('textarea.bj-ta');
+      if (!ta) { copyText(texto); return; }
+      ta.value = texto; ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus();
+    },
+    alCambiarChat(convId) { abrirConv(convId, { silencioso: true }); },
+    alCambiarReservas() { reservasJuan = null; pintarCuerpo(); },
+  });
   conectarCRM({
     ctx: () => ctx,
     cid, esAgente, esSupervisor, yoMe, equipoAgentes, giroFoto,
@@ -2301,7 +2315,7 @@ export default {
     cuerpoEl = el('div', { class: 'bj-cuerpo' });
     rootEl = el('div', { class: 'bj-root' }, [headEl, segEl, cuerpoEl]);
     host.appendChild(rootEl);
-    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; verArchivadas = false; desempeno = null; infoPlantilla.clear(); reiniciarCRM(); arrancar(); }));
+    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { canal = ''; etapa = ''; busqueda = ''; asignado = ''; porSeguir = false; sinResponder = false; verArchivadas = false; desempeno = null; infoPlantilla.clear(); reiniciarCRM(); reiniciarPagos(); arrancar(); }));
     arrancar();
     programarRefresco();
   },
