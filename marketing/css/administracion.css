@@ -532,3 +532,14 @@ button.adm-fila:hover .adm-fila__n { text-decoration: underline; text-underline-
   .adm-cuerpo--clientes { grid-template-areas: "stats stats" "canales canales" "origen leads"; }
   .adm-tabla-wrap { margin-inline: 0; padding-inline: 0; }
 }
+
+/* Anuncios hasta el dinero: el camino de cada uno (personas → clientas) y la lección. */
+.adm-ad__camino { margin-top: 3px; font-size: 13px; color: var(--text-dim); }
+.adm-ad.is-mejor { margin: 0 -10px; padding: 0 10px; border-radius: 14px; background: color-mix(in srgb, var(--adm-pos) 7%, var(--surface)); }
+.adm-leccion {
+  display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 8px; padding: 10px 12px; border-radius: 12px;
+  background: var(--surface-2); font-size: 13px; line-height: 1.5; color: var(--text);
+}
+.adm-leccion svg { flex: none; margin-top: 2px; color: var(--text-dim); }
+.adm-leccion.is-bien { background: color-mix(in srgb, var(--adm-pos) 10%, var(--surface)); }
+.adm-leccion.is-bien svg { color: var(--adm-pos); }

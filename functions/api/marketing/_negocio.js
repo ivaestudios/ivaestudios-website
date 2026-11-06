@@ -630,38 +630,99 @@ async function resumen(env, url, deps = {}) {
     if ((p90.publicaciones || []).length > (pubsMes.publicaciones || []).length) { publicaciones = p90; publicacionesRango = '90'; }
   }
 
-  // De qué anuncio llegó cada lead (WhatsApp/Messenger/IG mandan el anuncio en el
-  // primer mensaje) y cuántas de esas personas reservaron.
-  const leadsPorAd = new Map();
-  for (const v of todas) { const o = origenDe(v); if (o && o.tipo === 'anuncio' && o.ad_id) leadsPorAd.set(String(o.ad_id), (leadsPorAd.get(String(o.ad_id)) || 0) + 1); }
-  const reservasPorAd = new Map();
+  // CADA ANUNCIO, HASTA EL DINERO (Vianey, 6-nov-2026: "puede haber algún lead
+  // que cueste más caro pero que nos dé más clientes"). De qué anuncio llegó
+  // cada persona (WhatsApp/Messenger/IG mandan el anuncio en su primer mensaje)
+  // y qué pasó con ella después, sin importar el mes: si se volvió clienta
+  // (etapa Cliente del Embudo, o pagó) y cuánto pagó (ingresos amarrados a su
+  // conversación + cobros de Stripe amarrados que aún no son ingreso).
+  const convsPorAd = new Map(); // ad_id → [conv]
+  for (const v of todas) {
+    const o = origenDe(v);
+    if (!o || o.tipo !== 'anuncio' || !o.ad_id) continue;
+    const k = String(o.ad_id);
+    if (!convsPorAd.has(k)) convsPorAd.set(k, []);
+    convsPorAd.get(k).push(v);
+  }
+  // Lo que pagó cada conversación: sus ingresos + los cobros de Stripe amarrados
+  // que aún no son ingreso (los de antes del corte). Lo usan los anuncios y el mes a mes.
+  const pagadoConv = new Map();
+  const pagadoDe = async (ids) => {
+    const faltan = [...new Set(ids)].filter((id) => !pagadoConv.has(id));
+    for (const id of faltan) pagadoConv.set(id, 0);
+    for (let i = 0; i < faltan.length; i += 80) {
+      const lote = faltan.slice(i, i + 80);
+      const qs = lote.map(() => '?').join(',');
+      const [vR, cR] = await Promise.all([
+        env.DB.prepare(`SELECT conv_id, SUM(COALESCE(monto_mxn, 0)) AS mxn FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND conv_id IN (${qs}) GROUP BY conv_id`)
+          .bind(IVAE_STUDIOS, ...lote).all().catch(() => ({ results: [] })),
+        env.DB.prepare(`SELECT cc.conv_id, SUM(COALESCE(cs.monto_mxn, 0)) AS mxn FROM mkt_cobros_conv cc JOIN cobros_sesion cs ON cs.id = cc.cobro_id
+                         WHERE cc.conv_id IN (${qs}) AND cs.id NOT IN (SELECT cobro_id FROM mkt_neg_ventas WHERE cobro_id IS NOT NULL) GROUP BY cc.conv_id`)
+          .bind(...lote).all().catch(() => ({ results: [] })),
+      ]);
+      for (const f of [...(vR.results || []), ...(cR.results || [])]) pagadoConv.set(f.conv_id, (pagadoConv.get(f.conv_id) || 0) + (Number(f.mxn) || 0));
+    }
+  };
+  await pagadoDe([...convsPorAd.values()].flat().map((v) => v.id));
+  // Clientas por anuncio: las de etapa Cliente o que pagaron, y las sesiones que
+  // se reconocen por correo o nombre en una conversación de ese anuncio.
+  const clientasPorAd = new Map();
+  const ponClienta = (ad, convId) => { if (!clientasPorAd.has(ad)) clientasPorAd.set(ad, new Set()); clientasPorAd.get(ad).add(convId); };
+  for (const [ad, lista] of convsPorAd) for (const v of lista) if (v.etapa === 'cliente' || (pagadoConv.get(v.id) || 0) > 0) ponClienta(ad, v.id);
   for (const s of ventas120R.results || []) {
     const correo = (String(s.notas || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0];
     const conv = (correo && porCorreo.get(correo.toLowerCase())) || porNombre.get(norm(s.cliente));
     const o = conv ? origenDe(conv) : null;
-    if (o && o.tipo === 'anuncio' && o.ad_id) reservasPorAd.set(String(o.ad_id), (reservasPorAd.get(String(o.ad_id)) || 0) + 1);
+    if (o && o.tipo === 'anuncio' && o.ad_id) ponClienta(String(o.ad_id), conv.id);
   }
   const listaAds = (anuncios.anuncios || []).map((a) => {
-    const leadsAd = leadsPorAd.get(String(a.ad_id)) || 0;
-    const resAd = reservasPorAd.get(String(a.ad_id)) || 0;
-    return { ...a, leads: leadsAd, reservas: resAd, costo_lead: leadsAd ? redondo(a.gasto / leadsAd) : null, costo_reserva: resAd ? redondo(a.gasto / resAd) : null };
+    const lista = convsPorAd.get(String(a.ad_id)) || [];
+    const leadsAd = lista.length;
+    const clientes = (clientasPorAd.get(String(a.ad_id)) || new Set()).size;
+    const ingresos = lista.reduce((s, v) => s + (pagadoConv.get(v.id) || 0), 0);
+    return {
+      ...a, leads: leadsAd, clientes, ingresos: redondo(ingresos),
+      conversion: leadsAd ? redondo(clientes / leadsAd) : null,
+      costo_lead: leadsAd ? redondo(a.gasto / leadsAd) : null,
+      costo_cliente: clientes ? redondo(a.gasto / clientes) : null,
+      retorno: a.gasto > 0 ? redondo(ingresos / a.gasto) : null,
+      // Nombres de antes (la pantalla vieja los usaba).
+      reservas: clientes, costo_reserva: clientes ? redondo(a.gasto / clientes) : null,
+    };
   });
-  // "El mejor" es el que trae CLIENTES (costo por lead). Si ninguno trajo, solo
-  // se dice cuál fue más barato por resultado, sin llamarlo el mejor: un clic
-  // barato que nadie convierte no es un buen anuncio.
+  // Cuál conviene: el que trae CLIENTES y dinero, no el que da personas baratas.
+  //   · si alguno ya trajo clientas → el que más regresa por cada $1 (empate:
+  //     el de menor costo por cliente);
+  //   · si solo hay personas que escribieron → por costo por persona, y se dice
+  //     que es provisional;
+  //   · si nadie escribió → solo cuál fue más barato por resultado, sin llamarlo
+  //     el mejor (un clic barato que nadie convierte no es un buen anuncio).
   const conResultado = listaAds.filter((a) => a.resultado && a.resultado.valor > 0 && a.resultado.costo != null);
   const conLeads = listaAds.filter((a) => a.leads > 0);
+  const conClientes = listaAds.filter((a) => a.clientes > 0);
   const menor = (lista, f) => lista.reduce((m, a) => (f(a) < f(m) ? a : m));
   const mayor = (lista, f) => lista.reduce((m, a) => (f(a) > f(m) ? a : m));
-  let criterioAds = null; let mejorAd = null; let peorAd = null;
-  if (conLeads.length) {
+  const valorCliente = (a) => (a.retorno || 0) * 1e6 - (a.costo_cliente || 0);
+  let criterioAds = null; let mejorAd = null; let peorAd = null; let aprendizaje = null;
+  const nom = (a) => `«${recorte(a.nombre, 36)}»`;
+  if (conClientes.length) {
+    criterioAds = 'cliente';
+    mejorAd = mayor(conClientes, valorCliente);
+    peorAd = conClientes.length > 1 ? menor(conClientes, valorCliente) : null;
+    const baratoPorPersona = conLeads.length ? menor(conLeads, (a) => a.costo_lead) : null;
+    aprendizaje = baratoPorPersona && baratoPorPersona.ad_id !== mejorAd.ad_id && (mejorAd.costo_lead || 0) > (baratoPorPersona.costo_lead || 0)
+      ? `${nom(mejorAd)} sale más caro por persona (${pesos(mejorAd.costo_lead)} contra ${pesos(baratoPorPersona.costo_lead)} de ${nom(baratoPorPersona)}), pero trae más clientes por lo que cuesta: es el que conviene. Juzga por costo por cliente, no por costo por persona.`
+      : `${nom(mejorAd)} es el que más clientes trae por lo que cuesta: ${pesos(mejorAd.costo_cliente)} por cliente${mejorAd.retorno ? ` y cada $1 regresó $${mejorAd.retorno.toFixed(1)}` : ''}.`;
+  } else if (conLeads.length) {
     criterioAds = 'lead';
     mejorAd = menor(conLeads, (a) => a.costo_lead);
     peorAd = conLeads.length > 1 ? mayor(conLeads, (a) => a.costo_lead) : null;
+    aprendizaje = 'Todavía nadie de estos anuncios se volvió clienta: por ahora solo se comparan por costo por persona, y eso es provisional. En cuanto alguien reserve, se comparan por costo por cliente, que es lo que importa: un anuncio con personas más caras puede traer más clientes.';
   } else if (conResultado.length) {
     criterioAds = 'resultado';
     mejorAd = menor(conResultado, (a) => a.resultado.costo);
     peorAd = conResultado.length > 1 ? mayor(conResultado, (a) => a.resultado.costo) : null;
+    aprendizaje = 'Ninguno de estos anuncios trajo personas que escribieran (buscaban likes, visitas o clics), así que no se pueden comparar por clientes. Un anuncio que lleve al WhatsApp de Juan sí se puede seguir de la persona hasta el pago.';
   }
   const listaPubs = publicaciones.publicaciones || [];
   const mejorPub = listaPubs[0] || null;
@@ -686,13 +747,15 @@ async function resumen(env, url, deps = {}) {
   // Lo que cuestan los anuncios, MES A MES (Vianey: "¿dónde se ve el costo por
   // lead, cuánto me cuesta cada cliente, cuánto me cuesta la pauta?"). Seis
   // meses hasta el elegido, para que un mes sin anuncios no deje todo en "—".
-  // Personas: conversaciones que llegaron de un anuncio (o que Vianey marcó
-  // "Anuncios"), por el mes de su primer mensaje. Clientes: sesiones con fuente
-  // anuncios por el mes en que se cerraron.
+  // La misma regla que cada anuncio: se sigue a la PERSONA. Las de un mes son
+  // las que llegaron por anuncio ese mes (o que Vianey marcó "Anuncios"), por su
+  // primer mensaje; sus clientas, las que ya son Cliente o pagaron (aunque
+  // paguen después); y lo que pagaron. Más lo anotado a mano con fuente
+  // anuncios sin conversación (leads por fuera e ingresos sueltos).
   const mesesCosto = Array.from({ length: 6 }, (_, i) => mesesAtras(p.desde, 5 - i).slice(0, 7));
-  const [leadsAdR, clientesAdR] = await Promise.all([
+  const [leadsAdR, sueltasAdR, manualesAd] = await Promise.all([
     env.DB.prepare(
-      `SELECT substr(datetime(MIN(m.creado), '-5 hours'), 1, 7) AS mes FROM mkt_conversaciones v
+      `SELECT v.id, v.etapa, substr(datetime(MIN(m.creado), '-5 hours'), 1, 7) AS mes FROM mkt_conversaciones v
          JOIN mkt_mensajes m ON m.conv_id = v.id AND m.direccion = 'in'
         WHERE v.client_id = ? AND (v.origen LIKE '%anuncio%' OR v.id IN (SELECT conv_id FROM mkt_neg_leads WHERE fuente = 'pauta' AND conv_id IS NOT NULL))
           AND v.id NOT IN (SELECT conv_id FROM mkt_neg_leads WHERE fuente <> 'pauta' AND conv_id IS NOT NULL)
@@ -700,19 +763,21 @@ async function resumen(env, url, deps = {}) {
     ).bind(IVAE_STUDIOS).all().catch(() => ({ results: [] })),
     env.DB.prepare(
       `SELECT substr(fecha, 1, 7) AS mes, SUM(COALESCE(tipo, 'sesion') = 'sesion') AS n, SUM(COALESCE(monto_mxn, 0)) AS mxn FROM mkt_neg_ventas
-        WHERE client_id = ? AND estado = 'cerrada' AND COALESCE(tipo, 'sesion') <> 'marca' AND fuente = 'pauta' AND fecha >= ? GROUP BY 1`
+        WHERE client_id = ? AND estado = 'cerrada' AND COALESCE(tipo, 'sesion') <> 'marca' AND fuente = 'pauta' AND conv_id IS NULL AND fecha >= ? GROUP BY 1`
     ).bind(IVAE_STUDIOS, `${mesesCosto[0]}-01`).all().catch(() => ({ results: [] })),
+    env.DB.prepare("SELECT substr(fecha, 1, 7) AS mes, COUNT(*) AS n FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fuente = 'pauta' GROUP BY 1")
+      .bind(IVAE_STUDIOS).all().catch(() => ({ results: [] })),
   ]);
-  const manualesAd = await env.DB.prepare("SELECT substr(fecha, 1, 7) AS mes, COUNT(*) AS n FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fuente = 'pauta' GROUP BY 1")
-    .bind(IVAE_STUDIOS).all().catch(() => ({ results: [] }));
+  const personasAd = leadsAdR.results || [];
+  await pagadoDe(personasAd.map((f) => f.id));
   const costos = mesesCosto.map((mes) => {
-    const esteMes = mes === p.mes;
-    const g = esteMes ? gasto : Number(((pautaMesR.results || []).find((f) => f.mes === mes) || {}).gasto) || 0;
-    const l = esteMes ? porFuenteLeads.pauta
-      : (leadsAdR.results || []).filter((f) => f.mes === mes).length + (Number(((manualesAd.results || []).find((f) => f.mes === mes) || {}).n) || 0);
-    const fila = (clientesAdR.results || []).find((f) => f.mes === mes) || {};
-    const c = esteMes ? ventasPauta.length : Number(fila.n) || 0;
-    const ing = esteMes ? ingresosPautaMxn : Number(fila.mxn) || 0;
+    const g = mes === p.mes ? gasto : Number(((pautaMesR.results || []).find((f) => f.mes === mes) || {}).gasto) || 0;
+    const delMes = personasAd.filter((f) => f.mes === mes);
+    const clientas = delMes.filter((f) => f.etapa === 'cliente' || (pagadoConv.get(f.id) || 0) > 0);
+    const suelta = (sueltasAdR.results || []).find((f) => f.mes === mes) || {};
+    const l = delMes.length + (Number(((manualesAd.results || []).find((f) => f.mes === mes) || {}).n) || 0);
+    const c = clientas.length + (Number(suelta.n) || 0);
+    const ing = clientas.reduce((s, f) => s + (pagadoConv.get(f.id) || 0), 0) + (Number(suelta.mxn) || 0);
     return { mes, gasto: redondo(g), leads: l, clientes: c, ingresos: redondo(ing), costo_lead: l ? redondo(g / l) : null, costo_cliente: c ? redondo(g / c) : null };
   });
 
@@ -770,9 +835,12 @@ async function resumen(env, url, deps = {}) {
     rec(2, 'accion', `${esperando} ${esperando === 1 ? 'persona espera' : 'personas esperan'} respuesta`, 'Contéstales desde la Bandeja.', 'bandeja');
   }
   const gastoAds = listaAds.reduce((t, a) => t + a.gasto, 0);
-  if (criterioAds === 'lead') {
-    rec(3, 'bien', `Mejor anuncio: ${recorte(mejorAd.nombre, 34)}`,
-      `${pesos(mejorAd.costo_lead)} por persona que te escribió${mejorAd.reservas ? ` · ${mejorAd.reservas} ${mejorAd.reservas === 1 ? 'reserva' : 'reservas'}` : ''}.`, 'anuncios');
+  if (criterioAds === 'cliente') {
+    rec(3, 'bien', `El anuncio que conviene: ${recorte(mejorAd.nombre, 30)}`,
+      `${pesos(mejorAd.costo_cliente)} por cliente · ${mejorAd.clientes} ${mejorAd.clientes === 1 ? 'clienta' : 'clientas'} de ${mejorAd.leads}.`, 'anuncios');
+  } else if (criterioAds === 'lead') {
+    rec(3, 'accion', `Más barato por persona: ${recorte(mejorAd.nombre, 30)}`,
+      `${pesos(mejorAd.costo_lead)} por persona; aún nadie de los anuncios reservó.`, 'anuncios');
   } else if (listaAds.length) {
     rec(3, 'alerta', 'Tus anuncios no trajeron clientes',
       `${pesos(gastoAds)} gastados${anunciosRango === '90' ? ' en 90 días' : ''} y nadie escribió por ellos.`, 'anuncios');
@@ -787,7 +855,7 @@ async function resumen(env, url, deps = {}) {
 
   return {
     periodo: p,
-    anuncios: { conectada: anuncios.conectada !== false, rango: anunciosRango, lista: listaAds, criterio: criterioAds, mejor: mejorAd ? mejorAd.ad_id : null, peor: peorAd ? peorAd.ad_id : null, gasto: redondo(gastoAds), error: anuncios.error || null },
+    anuncios: { conectada: anuncios.conectada !== false, rango: anunciosRango, lista: listaAds, criterio: criterioAds, mejor: mejorAd ? mejorAd.ad_id : null, peor: peorAd ? peorAd.ad_id : null, aprendizaje, gasto: redondo(gastoAds), error: anuncios.error || null },
     publicaciones: { conectado: publicaciones.conectado !== false, rango: publicacionesRango, lista: listaPubs, total: publicaciones.total || listaPubs.length, error: publicaciones.error || null },
     serie,
     costos,

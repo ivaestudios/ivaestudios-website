@@ -14,10 +14,10 @@
 // listas desplegables. Cinco pestañas; el mes de arriba manda en todas.
 // Backend: functions/api/marketing/_negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611060332';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060332';
-import { T, isEN } from '../shell/i18n.js?v=202611060332';
-import { toast } from '../shell/toast.js?v=202611060332';
+import { api, el, clear } from '../api.js?v=202611060341';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060341';
+import { T, isEN } from '../shell/i18n.js?v=202611060341';
+import { toast } from '../shell/toast.js?v=202611060341';
 
 const VIEW_ID = 'administracion';
 const IVAE_STUDIOS_ID = '6ae5dd2381faa430d9e6966470b29602';
@@ -341,14 +341,17 @@ function statsMes(d) {
   const k = d.kpis;
   const ticket = k.ticket_mxn != null ? k.ticket_mxn : k.ticket_hist_mxn;
   const gasto = Number(k.gasto) || 0;
+  // Del mismo cálculo que el mes a mes y cada anuncio (se sigue a la persona
+  // del anuncio hasta su pago): los números nunca se contradicen.
+  const cm = (d.costos || []).find((x) => x.mes === d.periodo.mes) || {};
   return el('section', { class: 'adm-stats' }, [
     stat(T('Gastado en anuncios', 'Spent on ads'), mxn(gasto),
       d.periodo.es_actual ? T(`de ${mxn(k.presupuesto_mes)} del mes`, `of ${mxn(k.presupuesto_mes)} this month`) : T('En el mes', 'In the month')),
-    stat(T('Costo por lead', 'Cost per lead'), k.costo_lead_pauta != null ? mxn(k.costo_lead_pauta) : '—',
-      k.costo_lead_pauta != null ? T(`${num(k.leads.pauta)} te escribieron por anuncios`, `${num(k.leads.pauta)} wrote from ads`)
+    stat(T('Costo por lead', 'Cost per lead'), cm.costo_lead != null ? mxn(cm.costo_lead) : '—',
+      cm.costo_lead != null ? T(`${num(cm.leads)} te escribieron por anuncios`, `${num(cm.leads)} wrote from ads`)
         : (gasto > 0 ? T('Nadie escribió por un anuncio', 'Nobody wrote from an ad') : T('No hubo anuncios este mes', 'No ads this month'))),
-    stat(T('Costo por cliente', 'Cost per client'), k.costo_sesion_pauta != null ? mxn(k.costo_sesion_pauta) : '—',
-      k.costo_sesion_pauta != null ? T(`${num(k.ventas.pauta)} reservaron por anuncios`, `${num(k.ventas.pauta)} booked from ads`)
+    stat(T('Costo por cliente', 'Cost per client'), cm.costo_cliente != null ? mxn(cm.costo_cliente) : '—',
+      cm.costo_cliente != null ? T(`${num(cm.clientes)} se volvieron clientes`, `${num(cm.clientes)} became clients`)
         : (gasto > 0 ? T('Nadie reservó por un anuncio', 'Nobody booked from an ad') : T('No hubo anuncios este mes', 'No ads this month'))),
     stat(T('Ticket promedio', 'Average ticket'), ticket != null ? mxn(ticket) : '—',
       k.ticket_mxn != null ? T(`${num(k.sesiones_con_monto)} ${k.sesiones_con_monto === 1 ? 'sesión' : 'sesiones'}`, `${num(k.sesiones_con_monto)} sessions`) : T('Últimos 12 meses', 'Last 12 months')),
@@ -667,27 +670,38 @@ function listaAnuncios(d) {
     return tarjeta(titulo, null, [nadaAqui(a.error ? T('Meta no respondió. Intenta en un rato.', "Meta didn't answer. Try again later.") : T('No hubo anuncios con gasto.', 'No ads with spend.'))]);
   }
   const unidad = (x) => (x.resultado ? (SINGULARES[x.resultado.nombre] || x.resultado.nombre) : '');
-  // A la derecha, el número que decide: costo por persona que escribió; si nadie
-  // escribió, lo que costó cada resultado que buscaba el anuncio.
+  // A la derecha, el número que decide (Vianey: "puede haber algún lead que
+  // cueste más caro pero que nos dé más clientes"): el costo por CLIENTE; si
+  // nadie reservó, el costo por persona; si nadie escribió, lo que costó cada
+  // resultado que buscaba el anuncio.
   const principal = (x) => {
-    if (x.leads > 0) return [mxn(x.costo_lead), T('por lead', 'per lead')];
+    if (x.clientes > 0) return [mxn(x.costo_cliente), T('por cliente', 'per client')];
+    if (x.leads > 0) return [mxn(x.costo_lead), T('por persona', 'per lead')];
     if (x.resultado && x.resultado.costo != null) return [mxn(x.resultado.costo), T(`por ${unidad(x)}`, `per ${unidad(x)}`)];
     return [mxn(x.gasto), T('gastado', 'spent')];
   };
+  // Primero el que conviene: por lo que regresa y su costo por cliente; luego por persona; luego por gasto.
+  const orden = lista.slice().sort((p, q) => ((q.retorno || 0) - (p.retorno || 0)) || ((q.clientes > 0) - (p.clientes > 0))
+    || ((p.costo_cliente ?? Infinity) - (q.costo_cliente ?? Infinity)) || ((p.costo_lead ?? Infinity) - (q.costo_lead ?? Infinity)) || (q.gasto - p.gasto));
+  const etiquetaMejor = { cliente: T('El que conviene', 'Best value'), lead: T('Más barato por persona', 'Cheapest per lead'), resultado: T('Más barato', 'Cheapest') }[a.criterio] || '';
   return tarjeta(titulo, null, [
-    a.criterio !== 'lead' ? el('p', { class: 'adm-pie adm-pie--arriba', text: T('Ninguno trajo clientes todavía.', 'None brought clients yet.') }) : null,
-    el('div', { class: 'adm-ads' }, lista.map((x) => {
+    a.aprendizaje ? el('div', { class: 'adm-leccion' + (a.criterio === 'cliente' ? ' is-bien' : '') }, [icon(a.criterio === 'cliente' ? 'check' : 'info', 16), el('span', { text: a.aprendizaje })]) : null,
+    el('div', { class: 'adm-ads' }, orden.map((x) => {
       const [valor, etiqueta] = principal(x);
       const esMejor = x.ad_id === a.mejor;
-      return el('details', { class: 'adm-ad' }, [
+      const camino = x.leads
+        ? T(`${num(x.leads)} te escribieron → ${num(x.clientes)} ${x.clientes === 1 ? 'clienta' : 'clientas'} (${Math.round((x.conversion || 0) * 100)}%)`, `${num(x.leads)} wrote → ${num(x.clientes)} clients (${Math.round((x.conversion || 0) * 100)}%)`)
+        : T(`Gastó ${mxn(x.gasto)} · nadie escribió`, `Spent ${mxn(x.gasto)} · nobody wrote`);
+      return el('details', { class: 'adm-ad' + (esMejor && a.criterio === 'cliente' ? ' is-mejor' : '') }, [
         el('summary', {}, [
           x.foto ? el('img', { class: 'adm-ad__foto', src: x.foto, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }) : el('span', { class: 'adm-ad__foto' }, [icon('spark', 18)]),
           el('div', { class: 'adm-fila__main' }, [
             el('div', { class: 'adm-fila__n adm-fila__n--2', text: x.nombre }),
+            el('div', { class: 'adm-ad__camino', text: camino }),
             el('div', { class: 'adm-ad__sub' }, [
               pill((ESTADO_AD[x.estado] || ESTADO_AD.terminado)(), x.estado === 'activo' ? 'ok' : null),
-              esMejor ? pill(a.criterio === 'lead' ? T('El mejor', 'Best') : T('Más barato', 'Cheapest'), 'brand') : null,
-              x.ad_id === a.peor ? pill(T('El más caro', 'Priciest'), 'warn') : null,
+              esMejor && etiquetaMejor ? pill(etiquetaMejor, a.criterio === 'cliente' ? 'ok' : 'brand') : null,
+              x.ad_id === a.peor ? pill(a.criterio === 'cliente' ? T('El que menos conviene', 'Worst value') : T('El más caro', 'Priciest'), 'warn') : null,
             ]),
           ]),
           el('div', { class: 'adm-fila__der' }, [el('div', { class: 'adm-monto-fila', text: valor }), el('div', { class: 'adm-fila__f', text: etiqueta })]),
@@ -695,11 +709,11 @@ function listaAnuncios(d) {
         ]),
         el('div', { class: 'adm-ad__datos' }, [
           dato(mxn(x.gasto), T('Gastó', 'Spent')),
-          dato(num(x.alcance), T('Lo vieron', 'Reached')),
-          dato(num(x.clics), T('Clics', 'Clicks')),
-          dato(x.resultado ? num(x.resultado.valor) : '—', x.resultado ? x.resultado.nombre : T('Resultados', 'Results')),
           dato(num(x.leads), T('Te escribieron', 'Wrote to you')),
-          dato(x.reservas ? `${num(x.reservas)} · ${mxn(x.costo_reserva)}` : '0', T('Reservaron', 'Booked')),
+          dato(x.costo_lead != null ? mxn(x.costo_lead) : '—', T('Por persona', 'Per lead')),
+          dato(x.leads ? `${num(x.clientes)} · ${Math.round((x.conversion || 0) * 100)}%` : num(x.clientes), T('Se volvieron clientes', 'Became clients')),
+          dato(x.costo_cliente != null ? mxn(x.costo_cliente) : '—', T('Por cliente', 'Per client')),
+          dato(x.retorno != null && x.ingresos ? `${mxn(x.ingresos)} · $${Number(x.retorno).toLocaleString(LOC, { maximumFractionDigits: 1 })}` : '—', T('Te pagaron · por cada $1', 'Paid you · per $1')),
         ]),
         x.resultado && x.resultado.tipo === 'post_engagement'
           ? el('p', { class: 'adm-pie adm-ad__nota', text: T('Este anuncio buscaba likes, no clientes.', 'This ad went after likes, not clients.') }) : null,
@@ -1292,7 +1306,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611060332';
+  link.href = '/marketing/css/administracion.css?v=202611060341';
   document.head.appendChild(link);
 }
 
