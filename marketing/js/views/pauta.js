@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611060250';
-import { icon } from '../shell/icons.js?v=202611060250';
-import { T, isEN } from '../shell/i18n.js?v=202611060250';
+import { el, clear, toast } from '../api.js?v=202611060315';
+import { icon } from '../shell/icons.js?v=202611060315';
+import { T, isEN } from '../shell/i18n.js?v=202611060315';
 
 const VIEW_ID = 'pauta';
 
@@ -505,7 +505,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611060250';
+  link.href = '/marketing/css/pauta.css?v=202611060315';
   document.head.appendChild(link);
 }
 
