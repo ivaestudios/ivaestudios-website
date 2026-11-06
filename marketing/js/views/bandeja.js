@@ -22,12 +22,12 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060341';
-import { toast } from '../shell/toast.js?v=202611060341';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060341';
-import { T, isEN } from '../shell/i18n.js?v=202611060341';
-import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060341';
-import { conectarPagos, botonCobrar, fichaCobro, reiniciarPagos } from './bandeja-pagos.js?v=202611060341';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060405';
+import { toast } from '../shell/toast.js?v=202611060405';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060405';
+import { T, isEN } from '../shell/i18n.js?v=202611060405';
+import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060405';
+import { conectarPagos, botonCobrar, fichaCobro, reiniciarPagos } from './bandeja-pagos.js?v=202611060405';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -2235,12 +2235,18 @@ function conectarDepsCRM() {
   conectarPagos({
     ctx: () => ctx, cid, nombreDe,
     ponerEnChat(v, texto) {
-      const ta = composerEl && composerEl.querySelector('textarea.bj-ta');
-      if (!ta) { copyText(texto); return; }
-      ta.value = texto; ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus();
+      // Solo en el composer de ESE chat (desde el Embudo u otro chat, composerEl sería de otra persona).
+      const enEseChat = tab === 'mensajes' && convAbierta && convAbierta.conversacion && convAbierta.conversacion.id === v.id && composerEl && composerEl.isConnected;
+      const ta = enEseChat ? composerEl.querySelector('textarea.bj-ta') : null;
+      if (ta) { ta.value = texto; ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus(); return; }
+      // Si no: queda como borrador de su chat y se abre ese chat.
+      borradores.set(v.id, texto);
+      tab = 'mensajes';
+      try { ctx.router.navigate(VIEW_ID, { cliente: cid() }); } catch { /* sin router */ }
+      pintarCabecera(); pintarCuerpo(); cargarLista(); abrirConv(v.id);
     },
-    alCambiarChat(convId) { abrirConv(convId, { silencioso: true }); },
-    alCambiarReservas() { reservasJuan = null; pintarCuerpo(); },
+    alCambiarChat(convId) { if (tab === 'mensajes' && convAbierta && convAbierta.conversacion && convAbierta.conversacion.id === convId) abrirConv(convId, { silencioso: true }); },
+    alCambiarReservas() { cargarLista({ silencioso: true }); },
   });
   conectarCRM({
     ctx: () => ctx,
@@ -2277,7 +2283,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611060341';
+  link.href = '/marketing/css/bandeja.css?v=202611060405';
   document.head.appendChild(link);
 }
 

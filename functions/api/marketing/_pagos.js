@@ -21,7 +21,7 @@
 //   POST /pagos/link                crea el link (conv_id y/o reserva_id opcionales)
 // ============================================================================
 import { marcaDeMiWs, convDeMiWs, cfgDe, leerJson } from './_bandeja.js';
-import { catalogoFoto, precioPaqueteFoto } from './_negocio.js';
+import { catalogoFoto, precioPaqueteFoto, IVAE_STUDIOS } from './_negocio.js';
 
 const URL_JUAN = 'https://ivae-juan.vianeydm07.workers.dev';
 const sinTabla = (e) => /no such table/i.test(String((e && e.message) || e));
@@ -72,9 +72,10 @@ export async function handlePagos(request, env, session, path, url, deps) {
   const esAgente = esCliente && session.bandeja_rol === 'agente';
   const sub = path.slice('/pagos'.length).split('/').filter(Boolean);
   const qp = (k) => url.searchParams.get(k) || '';
-  // Solo el estudio de fotos (bandeja_cfg.giro = 'foto') cobra sesiones con Stripe.
+  // Solo IVAE STUDIOS (los cobros de cobros_sesion, el catálogo y la llave de Juan son suyos):
+  // otra marca del workspace con giro 'foto' no debe ver ni crear nada aquí.
   const marcaOk = async (clientId) => {
-    if (!clientId || (esCliente && clientId !== session.client_id)) return null;
+    if (!clientId || clientId !== IVAE_STUDIOS || (esCliente && clientId !== session.client_id)) return null;
     const c = await marcaDeMiWs(env, ws, clientId);
     return c && cfgDe(c).giro === 'foto' ? c : null;
   };
@@ -90,14 +91,16 @@ export async function handlePagos(request, env, session, path, url, deps) {
     const c = await marcaOk(qp('client_id'));
     if (!c) return json({ aplica: false });
     const [links, cobros, stripe, cat, efectivo] = await Promise.all([
-      env.DB.prepare('SELECT id, url, monto, moneda, concepto, tipo, cliente, correo, telefono, conv_id, canal, contacto_id, reserva_id, paquete, origen, creado_por, estado, pagado_en, pago_id, created_at FROM mkt_pago_links WHERE client_id = ? ORDER BY created_at DESC LIMIT 80').bind(c.id).all().catch(() => ({ results: [] })),
+      env.DB.prepare('SELECT id, url, monto, moneda, concepto, tipo, cliente, correo, conv_id, canal, reserva_id, paquete, origen, estado, pagado_en, created_at FROM mkt_pago_links WHERE client_id = ? ORDER BY created_at DESC LIMIT 80').bind(c.id).all().catch(() => ({ results: [] })),
       cobrosRecientes(env).catch(() => []),
       estadoStripe(env),
       catalogoFoto(env).catch(() => null),
       // Pagos en efectivo o transferencia registrados en Administración (botón de la oportunidad o Viernes).
       env.DB.prepare("SELECT id, fecha, fecha_sesion, cliente, precio, monto_mxn, tipo, forma_pago, conv_id, reserva_id, creado_por FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND forma_pago IN ('efectivo', 'bbva', 'otro') AND fecha >= date('now', '-120 days') ORDER BY fecha DESC LIMIT 80").bind(c.id).all().catch(() => ({ results: [] })),
     ]);
-    return json({ aplica: true, stripe, links: links.results || [], cobros, catalogo: cat && cat.items ? cat.items : [], efectivo: efectivo.results || [] });
+    // Al navegador no van teléfonos (la ficha compara por correo, reserva y link).
+    const cobrosPlanos = cobros.map(({ telefono, ...c }) => c);
+    return json({ aplica: true, stripe, links: links.results || [], cobros: cobrosPlanos, catalogo: cat && cat.items ? cat.items : [], efectivo: efectivo.results || [] });
   }
 
   if (sub[0] === 'precio' && sub.length === 1 && method === 'GET') {
@@ -131,12 +134,13 @@ export async function handlePagos(request, env, session, path, url, deps) {
     const monto = Number(b.monto);
     if (!(monto > 0)) return json({ error: 'Escribe el monto.' }, 400);
     const tk = await tokenPuente(env);
-    if (!tk) return json({ error: 'Juan todavía no publicó su llave puente; espera un minuto e inténtalo de nuevo.' }, 503);
+    if (!tk) return json({ error: 'Juan todavía no publicó su llave puente; espera un minuto e inténtalo de nuevo.' }, 424);
     const cuerpo = {
       monto, moneda: String(b.moneda || 'usd').toLowerCase(), concepto: String(b.concepto || '').slice(0, 250), tipo: String(b.tipo || 'sesion'),
       cliente: String(b.cliente || (conv && conv.nombre) || '').slice(0, 120), correo: String(b.correo || (conv && conv.correo) || '').trim(),
       idioma: b.idioma === 'es' ? 'es' : 'en', paquete: String(b.paquete || '').slice(0, 80),
-      reserva_id: b.reserva_id != null && String(b.reserva_id) !== '' ? String(b.reserva_id) : '',
+      // Como lo guarda el resto del sistema (ventas de Juan y el Embudo): 'juan:<id de la reserva>'.
+      reserva_id: b.reserva_id != null && String(b.reserva_id) !== '' ? 'juan:' + String(b.reserva_id).replace(/^juan:/, '') : '',
       telefono: String(b.telefono || (conv && conv.canal === 'whatsapp' ? conv.contacto_id : '') || ''),
       conv_id: conv ? conv.id : '', canal: conv ? conv.canal : '', contacto_id: conv ? String(conv.contacto_id || '') : '',
       origen: 'crm', creado_por: (session && session.name) || null,
@@ -147,7 +151,8 @@ export async function handlePagos(request, env, session, path, url, deps) {
       j = await r.json().catch(() => ({}));
     } catch (e) { return json({ error: 'No pude hablar con Juan para crear el link: ' + ((e && e.message) || e) }, 424); }
     // Nunca 5xx: Cloudflare reemplaza esas respuestas con su página HTML y el mensaje no llegaría a la pantalla.
-    if (!r.ok || j.error) return json({ error: j.error || ('Juan respondió ' + r.status) }, r.status >= 400 && r.status < 500 && r.status !== 401 ? r.status : 424);
+    if (r.status === 401) return json({ error: 'Juan no aceptó la llave puente de la Bandeja (se renueva sola en unos minutos; si sigue, avísale a Israel).' }, 424);
+    if (!r.ok || j.error) return json({ error: j.error || ('Juan respondió ' + r.status) }, r.status >= 400 && r.status < 500 ? r.status : 424);
     return json(j);
   }
 

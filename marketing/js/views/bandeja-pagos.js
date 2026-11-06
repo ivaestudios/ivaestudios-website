@@ -18,10 +18,10 @@
 // fichaCobro(r) en la ficha de la reserva. Estilos: inyectados aquí (sin tocar
 // bandeja.css).
 // ============================================================================
-import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611060341';
-import { toast } from '../shell/toast.js?v=202611060341';
-import { icon } from '../shell/icons.js?v=202611060341';
-import { T } from '../shell/i18n.js?v=202611060341';
+import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611060405';
+import { toast } from '../shell/toast.js?v=202611060405';
+import { icon } from '../shell/icons.js?v=202611060405';
+import { T } from '../shell/i18n.js?v=202611060405';
 
 let d = null;        // deps que pone bandeja.js: ctx(), cid(), nombreDe(v), ponerEnChat(v, texto), alCambiarChat(id), alCambiarReservas()
 let estado = null;   // { client_id, en, aplica, stripe, links, cobros, catalogo }
@@ -35,9 +35,12 @@ function fmt(monto, moneda) {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 }) + ' ' + String(moneda || 'usd').toUpperCase();
 }
 function copiar(texto) {
-  try { const r = copyText(texto); if (r && r.then) r.then(() => toast(T('Copiado.', 'Copied.'), { type: 'success' })).catch(() => toast(T('No se pudo copiar.', 'Could not copy.'), { type: 'error' })); else toast(T('Copiado.', 'Copied.'), { type: 'success' }); }
-  catch { toast(T('No se pudo copiar.', 'Could not copy.'), { type: 'error' }); }
+  const avisar = (ok) => toast(ok ? T('Copiado.', 'Copied.') : T('No se pudo copiar: selecciona el texto y cópialo a mano.', 'Could not copy: select the text and copy it by hand.'), { type: ok ? 'success' : 'error' });
+  try { const r = copyText(texto); if (r && r.then) r.then((ok) => avisar(ok !== false)).catch(() => avisar(false)); else avisar(r !== false); }
+  catch { avisar(false); }
 }
+const iso = (t) => { const s = String(t || ''); return /^\d{4}-\d{2}-\d{2} /.test(s) ? s.replace(' ', 'T') + 'Z' : s; };
+const lower = (s) => String(s || '').trim().toLowerCase();
 
 async function cargarEstado(clientId, { forzar = false } = {}) {
   if (!clientId) return null;
@@ -45,7 +48,8 @@ async function cargarEstado(clientId, { forzar = false } = {}) {
   if (!forzar && cargando && cargando.id === clientId) return cargando.p;
   const p = api.get('/pagos/estado?client_id=' + encodeURIComponent(clientId))
     .then((r) => { estado = { client_id: clientId, en: Date.now(), ...(r || { aplica: false }) }; return estado; })
-    .catch(() => { estado = { client_id: clientId, en: Date.now(), aplica: false }; return estado; })
+    // Un fallo no se recuerda 60 s: se reintenta en 10 s (si no, el botón se esconde y la hoja miente).
+    .catch(() => { estado = { client_id: clientId, en: Date.now() - 50e3, aplica: false, error: true }; return estado; })
     .finally(() => { cargando = null; });
   cargando = { id: clientId, p };
   return p;
@@ -55,6 +59,7 @@ export async function cargarPagos(clientId) { return cargarEstado(clientId, { fo
 // ── Botón "💳 Cobrar" (cabecera del chat; compacto para el paso "Pago" del flujo) ──
 export function botonCobrar(v, { compacto = false } = {}) {
   if (!d || !v) return null;
+  estilos();
   const cid = v.client_id || (d.cid && d.cid());
   const b = el('button', {
     type: 'button', class: compacto ? 'btn btn-ghost btn-sm bj-cobrar' : 'bj-asignado is-libre bj-cobrar', style: { display: 'none' },
@@ -66,16 +71,24 @@ export function botonCobrar(v, { compacto = false } = {}) {
 }
 
 // ── Estado del cobro de una reserva (pestaña Reservas) ──
+// Qué cobro es de ESTA reserva: primero la reserva exacta ('juan:<id>'); por correo o nombre solo si
+// es de la sesión (no propina ni upgrade) y cerca de la fecha de la sesión (±10 días), con monto parecido.
+// Si hay duda, mejor "sin cobrar" que marcar pagada una reserva con el pago de otra persona.
 function cobroDeReserva(r, e) {
-  const rid = String(r.id);
-  const correo = String(r.email || '').toLowerCase();
-  const links = (e.links || []).filter((l) => String(l.reserva_id || '') === rid || (correo && String(l.correo || '').toLowerCase() === correo));
-  const link = links[0] || null;
-  const cobro = (e.cobros || []).find((c) => (link && c.link_id && c.link_id === link.id) || (correo && String(c.correo || '').toLowerCase() === correo)) || null;
+  const rid = 'juan:' + String(r.id);
+  const correo = lower(r.email);
+  const tSes = r.inicio_iso ? Date.parse(r.inicio_iso) : NaN;
+  const cerca = (t) => (isNaN(tSes) || isNaN(t)) ? !isNaN(t) : Math.abs(t - tSes) <= 10 * 86400e3;
+  const esDeReserva = (x) => String(x.reserva_id || '') === rid || String(x.reserva_id || '') === String(r.id);
+  const link = (e.links || []).find(esDeReserva)
+    || (correo ? (e.links || []).find((l) => lower(l.correo) === correo && (l.tipo || 'sesion') === 'sesion' && cerca(Date.parse(iso(l.created_at)))) : null) || null;
+  const esperado = (link && Number(link.monto)) || null;
+  const cobro = (e.cobros || []).find((c) => link && c.link_id && c.link_id === link.id)
+    || (correo ? (e.cobros || []).find((c) => lower(c.correo) === correo && cerca(Date.parse(c.fecha)) && (!esperado || Number(c.monto) >= esperado * 0.6)) : null) || null;
   if (cobro) return { estado: 'pagado', monto: cobro.monto, moneda: cobro.moneda, fecha: cobro.fecha, via: 'stripe' };
-  // Efectivo o transferencia (Administración): por la reserva o por el nombre.
-  const nom = String(r.cliente || '').trim().toLowerCase();
-  const manual = (e.efectivo || []).find((m) => String(m.reserva_id || '') === 'juan:' + rid || (nom.length > 3 && String(m.cliente || '').trim().toLowerCase() === nom)) || null;
+  // Efectivo o transferencia (Administración): por la reserva, o mismo nombre completo cerca de la fecha.
+  const nom = lower(r.cliente);
+  const manual = (e.efectivo || []).find((m) => esDeReserva(m) || (nom.length > 3 && lower(m.cliente) === nom && (m.tipo || 'sesion') === 'sesion' && cerca(Date.parse((m.fecha_sesion || m.fecha) + 'T12:00:00Z')))) || null;
   if (manual) return { estado: 'pagado', monto: manual.precio || manual.monto_mxn, moneda: manual.precio ? 'usd' : 'mxn', fecha: manual.fecha ? manual.fecha + 'T12:00:00Z' : null, via: manual.forma_pago === 'bbva' ? 'transferencia' : manual.forma_pago };
   if (link && link.estado === 'pagado') return { estado: 'pagado', monto: link.monto, moneda: link.moneda, fecha: link.pagado_en };
   if (link && link.estado === 'pendiente') return { estado: 'link', monto: link.monto, moneda: link.moneda, url: link.url, creado: link.created_at };
@@ -118,7 +131,9 @@ export async function hojaCobro({ v = null, reserva = null } = {}) {
     cliente: (reserva && reserva.cliente) || (v && (d.nombreDe ? d.nombreDe(v) : v.nombre)) || '',
     correo: (reserva && reserva.email) || (v && v.correo) || '',
     paquete: (reserva && reserva.paquete) || '',
-    monto: (reserva && (precioDe(reserva.paquete) || reserva.precio_usd)) || (v && Number(v.valor_estimado) > 0 ? Number(v.valor_estimado) : ''),
+    monto: (reserva && precioDe(reserva.paquete)) || (v && Number(v.valor_estimado) > 0 ? Number(v.valor_estimado) : ''),
+    // La oportunidad guarda su valor en su moneda (NULL = pesos): no proponer pesos como dólares.
+    moneda: reserva ? 'usd' : (v && Number(v.valor_estimado) > 0 ? (lower(v.moneda || 'MXN') === 'usd' ? 'usd' : 'mxn') : 'usd'),
     idioma: reserva && reserva.idioma === 'es' ? 'es' : 'en',
     telefono: (reserva && reserva.cliente_wa) || (v && v.canal === 'whatsapp' ? v.contacto_id : '') || '',
   };
@@ -132,6 +147,7 @@ export async function hojaCobro({ v = null, reserva = null } = {}) {
       const inCorreo = el('input', { class: 'input', type: 'email', value: ini.correo, placeholder: 'correo@…' });
       const inMonto = el('input', { class: 'input', type: 'number', min: '1', step: '0.01', inputmode: 'decimal', value: ini.monto === '' || ini.monto == null ? '' : String(ini.monto), placeholder: '465' });
       const selMoneda = el('select', { class: 'input' }, [el('option', { value: 'usd', text: 'USD' }), el('option', { value: 'mxn', text: 'MXN' })]);
+      selMoneda.value = ini.moneda;
       const selTipo = el('select', { class: 'input' }, [['sesion', T('Sesión', 'Session')], ['upgrade', 'Upgrade'], ['propina', T('Propina', 'Tip')], ['otro', T('Otro', 'Other')]].map(([k, t]) => el('option', { value: k, text: t })));
       const inPaquete = el('input', { class: 'input', type: 'text', value: ini.paquete, placeholder: T('Colección (opcional)', 'Collection (optional)'), list: 'bj-cobro-paquetes' });
       const dl = el('datalist', { id: 'bj-cobro-paquetes' }, ((e && e.catalogo) || []).map((x) => el('option', { value: x.nombre })));
@@ -169,7 +185,7 @@ export async function hojaCobro({ v = null, reserva = null } = {}) {
           });
           form.hidden = true; btn.hidden = true;
           mostrarResultado(res, r, { v, close });
-          if (estado && estado.client_id === cid) estado.links = [{ id: r.id, url: r.url, monto: r.monto, moneda: r.moneda, concepto: r.concepto, tipo: r.tipo, cliente: r.cliente, correo: r.correo, conv_id: v ? v.id : null, reserva_id: reserva ? String(reserva.id) : null, estado: 'pendiente', created_at: new Date().toISOString() }, ...(estado.links || [])];
+          if (estado && estado.client_id === cid) estado.links = [{ id: r.id, url: r.url, monto: r.monto, moneda: r.moneda, concepto: r.concepto, tipo: r.tipo, cliente: r.cliente, correo: r.correo, conv_id: v ? v.id : null, reserva_id: reserva ? 'juan:' + String(reserva.id) : null, estado: 'pendiente', created_at: new Date().toISOString() }, ...(estado.links || [])];
           if (v && d.alCambiarChat) d.alCambiarChat(v.id);
           if (reserva && d.alCambiarReservas) d.alCambiarReservas();
         } catch (err) {
