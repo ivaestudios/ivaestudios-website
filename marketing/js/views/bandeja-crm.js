@@ -22,14 +22,47 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611052322';
-import { toast } from '../shell/toast.js?v=202611052322';
-import { icon } from '../shell/icons.js?v=202611052322';
-import { T, isEN } from '../shell/i18n.js?v=202611052322';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611052342';
+import { toast } from '../shell/toast.js?v=202611052342';
+import { icon } from '../shell/icons.js?v=202611052342';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611052342';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
 let d = null;
+
+// ── Vocabulario del estudio de fotos (6-nov-2026) ────────────────────────────
+// El CRM nació para una clínica dental (paciente, cita, plan de tratamiento).
+// Cuando la marca es un estudio (bandeja_cfg.giro = 'foto', IVAE STUDIOS) los
+// mismos textos se dicen como se habla aquí: cliente, sesión, cotización y
+// paquetes. Se aplica a la salida de T(), así ningún texto se queda atrás.
+const VOCAB_FOTO_ES = [
+  [/del plan de tratamiento/g, 'de la cotización'], [/El plan de tratamiento/g, 'La cotización'], [/el plan de tratamiento/g, 'la cotización'],
+  [/Planes de tratamiento/g, 'Cotizaciones'], [/planes de tratamiento/g, 'cotizaciones'], [/Plan de tratamiento/g, 'Cotización'], [/plan de tratamiento/g, 'cotización'],
+  [/\btratamientos\b/g, 'paquetes'], [/\bTratamientos\b/g, 'Paquetes'], [/\btratamiento\b/g, 'paquete'], [/\bTratamiento\b/g, 'Paquete'],
+  [/\bpacientes\b/g, 'clientes'], [/\bPacientes\b/g, 'Clientes'], [/\bpaciente\b/g, 'cliente'], [/\bPaciente\b/g, 'Cliente'],
+  [/\bcitas\b/g, 'sesiones'], [/\bCitas\b/g, 'Sesiones'], [/\bcita\b/g, 'sesión'], [/\bCita\b/g, 'Sesión'],
+  [/de la clínica/g, 'del estudio'], [/la clínica/g, 'el estudio'], [/\bclínica\b/g, 'estudio'],
+  // "plan" a secas (la pestaña, "Valor del plan", "Notas del plan") también es la cotización.
+  [/del plan\b/g, 'de la cotización'], [/DEL PLAN\b/g, 'DE LA COTIZACIÓN'], [/un plan\b/g, 'una cotización'], [/el plan\b/g, 'la cotización'],
+  [/\bPlan\b/g, 'Cotización'], [/\bplan\b/g, 'cotización'],
+];
+const VOCAB_FOTO_EN = [
+  [/Treatment plans/g, 'Quotes'], [/treatment plans/g, 'quotes'], [/Treatment plan/g, 'Quote'], [/treatment plan/g, 'quote'],
+  [/\btreatments\b/g, 'packages'], [/\bTreatments\b/g, 'Packages'], [/\btreatment\b/g, 'package'], [/\bTreatment\b/g, 'Package'],
+  [/\bpatients\b/g, 'clients'], [/\bPatients\b/g, 'Clients'], [/\bpatient\b/g, 'client'], [/\bPatient\b/g, 'Client'],
+  [/\bappointments\b/g, 'sessions'], [/\bAppointments\b/g, 'Sessions'], [/\bappointment\b/g, 'session'], [/\bAppointment\b/g, 'Session'],
+  [/\bvisits\b/g, 'sessions'], [/\bVisits\b/g, 'Sessions'], [/\bvisit\b/g, 'session'], [/\bVisit\b/g, 'Session'],
+  [/\bclinic\b/g, 'studio'],
+  [/\bPlan\b/g, 'Quote'], [/\bplan\b/g, 'quote'], [/\bPLAN\b/g, 'QUOTE'],
+];
+const giroFoto = () => !!(d && d.giroFoto && d.giroFoto());
+function vocabFoto(s) {
+  let t = String(s);
+  for (const [re, rep] of (isEN ? VOCAB_FOTO_EN : VOCAB_FOTO_ES)) t = t.replace(re, rep);
+  return t;
+}
+const T = (es, en) => { const t = T0(es, en); return giroFoto() ? vocabFoto(t) : t; };
 export function conectarCRM(deps) { d = deps; }
 
 // ── Estado del embudo ────────────────────────────────────────────────────────
@@ -147,14 +180,25 @@ const PARTIDAS = [
   ['rechazado', () => T('Rechazado', 'Declined'), '#c0352b'],
 ];
 const PARTIDA = Object.fromEntries(PARTIDAS.map(([k, txt, color]) => [k, { txt, color }]));
-const MOTIVOS = [
-  () => T('El precio', 'The price'),
-  () => T('Eligió otra clínica', 'Chose another clinic'),
-  () => T('Dejó de contestar', 'Stopped replying'),
-  () => T('Solo pedía informes', 'Only asking for info'),
-  () => T('No es candidato al tratamiento', 'Not a candidate for the treatment'),
-  () => T('Lo dejó para más adelante', 'Postponed it'),
+const MOTIVOS_CLINICA = [
+  () => T0('El precio', 'The price'),
+  () => T0('Eligió otra clínica', 'Chose another clinic'),
+  () => T0('Dejó de contestar', 'Stopped replying'),
+  () => T0('Solo pedía informes', 'Only asking for info'),
+  () => T0('No es candidato al tratamiento', 'Not a candidate for the treatment'),
+  () => T0('Lo dejó para más adelante', 'Postponed it'),
 ];
+// Por qué se pierde una sesión de fotos (no una consulta dental).
+const MOTIVOS_FOTO = [
+  () => T0('El precio', 'The price'),
+  () => T0('Eligió a otro fotógrafo', 'Chose another photographer'),
+  () => T0('Dejó de contestar', 'Stopped replying'),
+  () => T0('Solo pedía informes', 'Only asking for info'),
+  () => T0('Cambió su viaje o sus fechas', 'Changed their trip or dates'),
+  () => T0('Canceló la sesión', 'Cancelled the session'),
+  () => T0('Lo dejó para más adelante', 'Postponed it'),
+];
+const motivos = () => (giroFoto() ? MOTIVOS_FOTO : MOTIVOS_CLINICA);
 const ABIERTAS = ['nuevo', 'platica', 'cotizado', 'cita'];
 const etq = (k) => (d.ETAPA_TXT[k] ? d.ETAPA_TXT[k]() : (k || ''));
 const primerNombre = (s) => String(s || '').trim().split(/\s+/)[0] || '';
@@ -329,6 +373,9 @@ function pintarContenido(forzar = false) {
 }
 
 function vistaTablero() {
+  // El buscador se arma antes de que llegue la configuración de la marca: aquí
+  // ya se sabe si es estudio (cliente) o clínica (paciente).
+  if (buscarEl) { const i = buscarEl.querySelector('input'); if (i) i.placeholder = T('Buscar paciente', 'Search patient'); }
   if (errorEmbudo && !filas) return [el('div', { class: 'bj-emb__vacio' }, [icon('warning', 26), el('p', { text: errorEmbudo })])];
   if (filas === null) return [el('div', { class: 'bj-cargando' }, [el('span', { class: 'spinner' })])];
   const porEtapa = Object.fromEntries(d.ETAPAS.map((k) => [k, []]));
@@ -345,6 +392,7 @@ function vistaTablero() {
   // Tareas vencidas (no pacientes): el mismo número que el grupo "Vencidas" de la vista Tareas.
   const vencidas = filas.reduce((n, v) => n + (Number(v.tareas_vencidas) || 0), 0);
   const sinPaso = abiertas.filter((v) => !Number(v.tareas_pend)).length;
+  const esperandoN = abiertas.filter((v) => v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)).length;
   // El que se puede tocar lo dice ("Ver →"); los demás son solo datos.
   const kpi = (n, lbl, tono = '', onclick = null) => el(onclick ? 'button' : 'div', {
     class: 'bj-emb__kpi' + (tono ? ' is-' + tono : ''), ...(onclick ? { type: 'button', onclick, 'aria-label': `${n} ${lbl} · ${T('ver tareas', 'see tasks')}` } : {}),
@@ -356,10 +404,13 @@ function vistaTablero() {
   const kpis = el('div', { class: 'bj-emb__kpis' }, [
     kpi(String(abiertas.length), abiertas.length === 1 ? T('oportunidad abierta', 'open deal') : T('oportunidades abiertas', 'open deals')),
     kpi(fmtTotales(abiertas) || '$0', T('en juego', 'in play'), 'valor'),
-    kpi(String(citas), T('citas en 7 días', 'visits in 7 days')),
+    kpi(String(citas), citas === 1 ? T('cita en 7 días', 'visit in 7 days') : T('citas en 7 días', 'visits in 7 days')),
     vencidas
       ? kpi(String(vencidas), vencidas === 1 ? T('tarea vencida', 'overdue task') : T('tareas vencidas', 'overdue tasks'), 'mal', () => cambiarVista('tareas'))
-      : kpi(String(sinPaso), T('sin siguiente paso', 'without a next step'), sinPaso ? 'aviso' : ''),
+      : (giroFoto()
+        // Estudio: lo urgente es quién está esperando que le contesten.
+        ? kpi(String(esperandoN), T('esperando respuesta', 'waiting for a reply'), esperandoN ? 'aviso' : '')
+        : kpi(String(sinPaso), T('sin siguiente paso', 'without a next step'), sinPaso ? 'aviso' : '')),
   ]);
 
   // Teléfono: barra de etapas para saltar entre columnas.
@@ -406,8 +457,16 @@ function tarjeta(v) {
   const meta = [
     v.asignado_nombre && !d.esAgente() ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: primerNombre(v.asignado_nombre) })]) : null,
     !v.asignado_a && (d.esAgente() || d.equipoAgentes().length) ? el('span', { class: 'bj-card__dato' }, [icon('user', 12), el('span', { text: T('Sin asignar', 'Unassigned') })]) : null,
-    nPlan ? el('span', { class: 'bj-card__dato' }, [icon('activity', 12), el('span', { text: nPlan === 1 ? T('1 tratamiento', '1 treatment') : T(`${nPlan} tratamientos`, `${nPlan} treatments`) })]) : null,
+    // Con una sola partida se dice cuál ("The Essential Flow"), que es lo que importa.
+    nPlan ? el('span', { class: 'bj-card__dato' }, [icon('activity', 12), el('span', { text: nPlan === 1 && v.plan_1 ? String(v.plan_1) : (nPlan === 1 ? T('1 tratamiento', '1 treatment') : T(`${nPlan} tratamientos`, `${nPlan} treatments`)) })]) : null,
   ].filter(Boolean);
+  // Estudio: nadie agenda "siguientes pasos" a mano (Juan atiende), así que en
+  // vez de regañar con "Sin siguiente paso", la tarjeta dice si la persona
+  // está esperando respuesta. Si ya se le contestó, no dice nada.
+  const esperando = !!(v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en));
+  const sinTarea = giroFoto()
+    ? (viva && esperando ? el('span', { class: 'bj-card__tarea is-hoy' }, [icon('chat', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Esperando respuesta', 'Waiting for a reply') })]) : null)
+    : (viva ? el('span', { class: 'bj-card__tarea is-falta' }, [icon('warning', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Sin siguiente paso', 'No next step') })]) : null);
   return el('button', {
     type: 'button', class: 'bj-card' + (ev === 'vencida' && viva ? ' is-vencida' : ''), 'data-id': v.id,
     'aria-label': `${nom} · ${d.CANAL_TXT[v.canal] || v.canal} · ${etq(v.etapa)}${v.valor_estimado != null ? ' · ' + fmtDinero(v.valor_estimado, v.moneda) : ''}`,
@@ -425,7 +484,7 @@ function tarjeta(v) {
       icon((TIPO[prox.tipo] || TIPO.seguimiento).ico, 13),
       el('span', { class: 'bj-card__tarea-txt', text: prox.titulo }),
       prox.vence_en ? el('span', { class: 'bj-card__vence', text: ev === 'vencida' ? T('Venció ', 'Overdue ') + fmtVence(prox.vence_en) : fmtVence(prox.vence_en) }) : null,
-    ].filter(Boolean)) : (viva ? el('span', { class: 'bj-card__tarea is-falta' }, [icon('warning', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Sin siguiente paso', 'No next step') })]) : null),
+    ].filter(Boolean)) : sinTarea,
     v.fecha_cita && v.etapa !== 'perdido' ? el('span', { class: 'bj-card__cita' + (citaPasada(v.fecha_cita) ? ' is-pasada' : '') }, [icon('calendar', 13), el('span', { text: T('Cita: ', 'Visit: ') + fmtCita(v.fecha_cita) })]) : null,
     v.etapa === 'perdido' && v.motivo_perdida ? el('span', { class: 'bj-card__motivo', text: v.motivo_perdida }) : null,
     el('span', { class: 'bj-card__pie' }, [
@@ -518,7 +577,7 @@ function pedirMotivo(anchor) {
   return d.ctx().sheet.pickFrom({
     title: T('¿Por qué se perdió?', 'Why was it lost?'), anchor,
     options: [
-      ...MOTIVOS.map((f) => ({ value: f(), label: f() })),
+      ...motivos().map((f) => ({ value: f(), label: f() })),
       { value: '__otro', label: T('Otro motivo…', 'Another reason…'), icon: icon('edit', 18) },
     ],
   }).then((m) => {
@@ -876,7 +935,7 @@ export async function abrirOportunidad(convId) {
       correo: v.correo || '',
       citaFecha: cf || '', citaHora: fmtHora(ch),
       valor: v.valor_estimado != null ? String(v.valor_estimado) : '',
-      moneda: v.moneda || 'MXN',
+      moneda: v.moneda || ((d.resumen() || {}).cfg || {}).moneda || 'MXN',
       motivo: v.motivo_perdida || '',
       notas: v.notas || '',
       plan: { items: (plan.items || []).map((i) => ({ id: i.id || rid(), tratamiento: i.tratamiento || '', detalle: i.detalle || '', precio: i.precio != null ? String(i.precio) : '', estado: i.estado || 'propuesto' })), notas: plan.notas || '' },
@@ -1083,7 +1142,7 @@ export async function abrirOportunidad(convId) {
     const perdido = v.etapa === 'perdido';
     const motivo = perdido ? el('div', { class: 'bj-op__motivo' }, [
       inp('motivo', { placeholder: T('Por qué no se cerró', 'Why it did not close'), maxlength: '300' }),
-      el('div', { class: 'bj-op__chips' }, MOTIVOS.map((f) => el('button', { type: 'button', class: 'bj-ftarea__atajo' + (bor.motivo === f() ? ' is-on' : ''), onclick: () => { bor.motivo = f(); pintarDatos(); pintarPie(); } }, [f()]))),
+      el('div', { class: 'bj-op__chips' }, motivos().map((f) => el('button', { type: 'button', class: 'bj-ftarea__atajo' + (bor.motivo === f() ? ' is-on' : ''), onclick: () => { bor.motivo = f(); pintarDatos(); pintarPie(); } }, [f()]))),
     ]) : null;
     poner(refs.datos, 
       tituloSec(T('Datos del paciente', 'Patient details'), 'user'),
@@ -1215,7 +1274,9 @@ export async function abrirOportunidad(convId) {
     });
     if (!k) return;
     const c = cat.lista.find((x) => x.nombre === k);
-    const it = { id: rid(), tratamiento: k === '__otro' ? '' : k, detalle: '', precio: c && c.precio != null && bor.moneda !== 'USD' ? String(c.precio) : '', estado: 'propuesto' };
+    // El precio del catálogo solo se copia si está en la misma moneda que la oportunidad.
+    const monedaCat = (catalogo && catalogo.moneda) || 'MXN';
+    const it = { id: rid(), tratamiento: k === '__otro' ? '' : k, detalle: '', precio: c && c.precio != null && bor.moneda === monedaCat ? String(c.precio) : '', estado: 'propuesto' };
     bor.plan.items.push(it);
     pintarPlan(); refrescarTotales(); pintarTabs(); pintarPie();
     setTimeout(() => {

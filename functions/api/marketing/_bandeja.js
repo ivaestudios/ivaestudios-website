@@ -26,6 +26,9 @@
 // ============================================================================
 import { repartirPush } from './_push.js';
 import { resumenLinea, llamadaPublica } from './_llamadas-comun.js';
+// Embudo del estudio de fotos (giro 'foto'): precios de los paquetes y qué
+// conversaciones no son oportunidades. Ver sincronizarEmbudoFoto.
+import { catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead } from './_negocio.js';
 
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
@@ -274,7 +277,11 @@ export async function avisarStaff(env, c, aviso) {
 // reparten parejo entre los agentes, cada agente recibe el aviso de SUS chats
 // y el dueño ve un dashboard con quién contesta, cuánto tarda y cuántas citas.
 // Un agente o supervisor es un acceso de CLIENTE de la marca con bandeja_rol.
-const CFG_BASE = { reparto: true, reasignar_min: 0, dias_seguimiento: 3, avisar_agencia: false, nombre_comercial: '' };
+// giro (6-nov-2026): '' = como nació (clínica: paciente, cita, plan de
+// tratamiento); 'foto' = estudio de fotos (cliente, sesión, cotización con
+// paquetes en USD y etapas que avanzan solas con Juan). moneda = la de las
+// oportunidades nuevas.
+const CFG_BASE = { reparto: true, reasignar_min: 0, dias_seguimiento: 3, avisar_agencia: false, nombre_comercial: '', giro: '', moneda: 'MXN' };
 export function cfgDe(c) {
   let x = {};
   try { x = c && c.bandeja_cfg ? JSON.parse(c.bandeja_cfg) : {}; } catch { x = {}; }
@@ -1530,7 +1537,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       // Línea para llamadas grabadas (Twilio) de la marca.
       llamadas: resumenLinea(c),
       equipo: equipo.filter((u) => u.bandeja_rol === 'agente').map((u) => ({ id: u.id, nombre: u.name, disponible: !!u.disponible })),
-      cfg: { reparto: cfg.reparto !== false, reasignar_min: Number(cfg.reasignar_min) || 0, dias_seguimiento: diasSeg, nombre_comercial: nombreComercial(c), avisar_agencia: !!cfg.avisar_agencia },
+      cfg: { reparto: cfg.reparto !== false, reasignar_min: Number(cfg.reasignar_min) || 0, dias_seguimiento: diasSeg, nombre_comercial: nombreComercial(c), avisar_agencia: !!cfg.avisar_agencia, giro: cfg.giro === 'foto' ? 'foto' : '', moneda: MONEDAS.includes(cfg.moneda) ? cfg.moneda : 'MXN' },
       plantillas,
     });
   }
@@ -1908,9 +1915,21 @@ export async function handleBandeja(request, env, session, url, parts) {
   if (sub[0] === 'embudo' && method === 'GET') {
     const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
+    const esFoto = cfgDe(c).giro === 'foto';
+    // Estudio de fotos: antes de pintar, las etapas se ponen al día con Juan
+    // (reservas, colecciones mandadas, sesiones que ya pasaron).
+    if (esFoto) await sincronizarEmbudoFoto(env, c).catch((e) => console.error('[embudo foto]', e && e.message));
     const where = ['v.client_id = ?', 'v.archivado = 0',
       "(v.etapa NOT IN ('cliente', 'perdido') OR COALESCE(v.etapa_en, v.updated_at, v.created_at) >= datetime('now', '-90 days'))"];
     const binds = [c.id];
+    // Lo que la dueña marcó como "No es lead" en Administración no es una oportunidad.
+    let noLeads = new Set();
+    if (esFoto) {
+      try {
+        const r = await env.DB.prepare("SELECT conv_id FROM mkt_neg_leads WHERE client_id = ? AND fuente = 'no_lead' AND conv_id IS NOT NULL").bind(c.id).all();
+        noLeads = new Set((r.results || []).map((x) => x.conv_id));
+      } catch { noLeads = new Set(); }
+    }
     if (esAgente) { where.push('(v.asignado_a = ? OR v.asignado_a IS NULL)'); binds.push(yo); }
     const asig = qp('asignado');
     if (asig === 'yo') { where.push('v.asignado_a = ?'); binds.push(yo); }
@@ -1927,6 +1946,8 @@ export async function handleBandeja(request, env, session, url, parts) {
                 v.valor_estimado, v.moneda, v.fecha_cita, v.motivo_perdida, v.asignado_a, u.name AS asignado_nombre,
                 v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.origen, v.created_at,
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_array_length(v.plan_tratamiento, '$.items') ELSE 0 END AS plan_n,
+                CASE WHEN json_valid(v.plan_tratamiento) THEN json_extract(v.plan_tratamiento, '$.items[0].tratamiento') ELSE NULL END AS plan_1,
+                ${esFoto ? "(SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto," : ''}
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente') AS tareas_pend,
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente' AND t.vence_en IS NOT NULL AND t.vence_en < datetime('now')) AS tareas_vencidas,
                 (SELECT t.id || '|' || t.tipo || '|' || COALESCE(t.vence_en, '') || '|' || t.titulo FROM mkt_bandeja_tareas t
@@ -1938,8 +1959,14 @@ export async function handleBandeja(request, env, session, url, parts) {
       console.error('[bandeja embudo]', e && e.message);
       return json({ error: 'El embudo todavía no está listo para esta marca.' }, 503);
     }
+    // Estudio: fuera el propio estudio, las pruebas, hoteles y proveedores
+    // (no son oportunidades; siguen en Mensajes), lo marcado "No es lead" y los
+    // hilos donde nadie nos ha escrito (correos que solo salieron de info@).
+    // Un hilo sin mensajes de la persona solo se queda si ya es una sesión (la
+    // carta de confirmación salió de info@ y la reserva la puso en su etapa).
+    if (esFoto) filas = filas.filter((f) => (f.primer_texto != null || f.fecha_cita || ['cita', 'cliente'].includes(f.etapa)) && !noLeads.has(f.id) && !noEsLead(f));
     const oportunidades = filas.map((f) => {
-      const { proxima, ...resto } = f;
+      const { proxima, primer_texto: _pt, ...resto } = f;
       let prox = null;
       if (proxima) { const [id, tipo, vence, ...tit] = String(proxima).split('|'); prox = { id, tipo, vence_en: vence || null, titulo: tit.join('|') }; }
       return { ...resto, proxima_tarea: prox };
@@ -2045,7 +2072,14 @@ export async function handleBandeja(request, env, session, url, parts) {
   if (sub[0] === 'catalogo' && method === 'GET') {
     const c = await marcaOk(qp('client_id'));
     if (!c) return json({ error: 'Marca no encontrada' }, 404);
-    const base = Array.isArray(cfgDe(c).catalogo) ? cfgDe(c).catalogo : [];
+    const cfgCat = cfgDe(c);
+    let base = Array.isArray(cfgCat.catalogo) ? cfgCat.catalogo : [];
+    let moneda = MONEDAS.includes(cfgCat.moneda) ? cfgCat.moneda : 'MXN';
+    // Estudio de fotos: la lista es la de "Paquetes vigentes" de Administración
+    // (colecciones y reels, en USD); se edita allá, no aquí.
+    if (cfgCat.giro === 'foto') {
+      try { const cat = await catalogoFoto(env); base = cat.items; moneda = cat.moneda; } catch { /* se queda lo que haya */ }
+    }
     const vistos = new Map();
     for (const x of base) { const n = String(x.nombre || '').trim(); if (n && !vistos.has(n.toLowerCase())) vistos.set(n.toLowerCase(), { nombre: n, precio: x.precio ?? null, propio: true }); }
     try {
@@ -2059,7 +2093,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         if (n && !vistos.has(n.toLowerCase())) vistos.set(n.toLowerCase(), { nombre: n, precio: f.p ?? null, propio: false });
       }
     } catch { /* sin planes todavía */ }
-    return json({ catalogo: [...vistos.values()], editable: esSupervisor });
+    return json({ catalogo: [...vistos.values()], editable: esSupervisor && cfgCat.giro !== 'foto', moneda });
   }
   if (sub[0] === 'catalogo' && method === 'POST') {
     if (!esSupervisor) return prohibido();
@@ -2270,6 +2304,8 @@ export async function handleBandeja(request, env, session, url, parts) {
     if (b.dias_seguimiento !== undefined) cfg.dias_seguimiento = Math.max(1, Math.min(60, Math.round(Number(b.dias_seguimiento) || 3)));
     if (b.avisar_agencia !== undefined) cfg.avisar_agencia = !!b.avisar_agencia;
     if (b.nombre_comercial !== undefined) cfg.nombre_comercial = String(b.nombre_comercial || '').trim().slice(0, 60);
+    if (b.giro !== undefined) cfg.giro = b.giro === 'foto' ? 'foto' : '';
+    if (b.moneda !== undefined && MONEDAS.includes(b.moneda)) cfg.moneda = b.moneda;
     await guardarCfg(env, c.id, cfg);
     return json({ ok: true });
   }
@@ -2664,4 +2700,191 @@ export async function avisarSeguimientos(env) {
     }
   } catch (e) { console.error('[bandeja por seguir]', e && e.message); }
   return n;
+}
+
+// ============================================================================
+// EMBUDO DEL ESTUDIO DE FOTOS (bandeja_cfg.giro = 'foto'; IVAE STUDIOS, 6-nov-2026).
+//
+// Vianey: "esto lo quiero funcionando y adaptado para nosotros al 100". En el
+// estudio nadie mueve tarjetas a mano: Juan atiende por WhatsApp, manda las
+// colecciones y agenda. Así que las etapas avanzan solas con lo que ya pasa:
+//   · alguien contestó (Juan o el equipo)              → En plática
+//   · Juan mandó las colecciones (su etapa 'cotizado') → Cotizado
+//   · Juan confirmó la sesión (reserva hecha)          → Sesión agendada, con la
+//                                                        fecha, el paquete y el
+//                                                        valor en USD
+//   · la sesión ya pasó                                → Cliente
+//   · la reserva se canceló                            → Perdido ("Canceló la sesión")
+// Solo hacia adelante y sin tocar lo que alguien cerró a mano (Cliente o
+// Perdido), salvo que llegue una reserva nueva después. Corre al abrir el
+// Embudo (freno de 2 min) y cada 15 min desde el cron (sincronizarEmbudos).
+// ============================================================================
+const ORDEN_ETAPA = { nuevo: 0, platica: 1, cotizado: 2, cita: 3, cliente: 4, perdido: 5 };
+const AUTOR_JUAN = 'Juan (bot)';
+// Teléfonos como los guarda la Bandeja: solo dígitos y sin el 1 de los celulares de México.
+const claveTel = (s) => { const d = String(s || '').replace(/\D/g, ''); return d.length === 13 && d.startsWith('521') ? '52' + d.slice(3) : d; };
+const nombreClave = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+const esPrueba = (s) => /\bprueba\b/i.test(String(s || ''));
+
+export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
+  if (cfgDe(c).giro !== 'foto') return { ok: false, motivo: 'no es un estudio de fotos' };
+  const kvKey = 'embudo_foto_sync:' + c.id;
+  if (!forzar) {
+    const r = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(kvKey).first().catch(() => null);
+    if (r && r.value && Date.now() - (Date.parse(r.value) || 0) < 2 * 60e3) return { ok: true, saltado: true };
+  }
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind(kvKey, new Date().toISOString()).run().catch(() => {});
+
+  const [convsR, kvR, cfgNeg] = await Promise.all([
+    env.DB.prepare(
+      'SELECT id, canal, contacto_id, nombre, username, etapa, etapa_en, fecha_cita, valor_estimado, moneda, plan_tratamiento, correo, telefono FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0'
+    ).bind(c.id).all(),
+    env.DB.prepare("SELECT key, value FROM mkt_kv WHERE key IN ('juan_reservas', 'juan_bot_estado')").all(),
+    cfgNegocio(env).catch(() => null),
+  ]);
+  const convs = convsR.results || [];
+  const kv = {};
+  for (const f of kvR.results || []) { try { kv[f.key] = JSON.parse(f.value); } catch { /* valor roto: se ignora */ } }
+  const reservas = kv.juan_reservas && kv.juan_reservas.client_id === c.id ? (kv.juan_reservas.reservas || []) : [];
+  const contactosJuan = kv.juan_bot_estado && kv.juan_bot_estado.client_id === c.id ? (kv.juan_bot_estado.contactos || {}) : {};
+
+  // Para encontrar el chat de una reserva: por teléfono, por correo y, al final, por nombre.
+  const porTel = new Map(); const porCorreo = new Map(); const porNombre = new Map();
+  for (const v of convs) {
+    if (v.canal === 'whatsapp') porTel.set(claveTel(v.contacto_id), v);
+    if (v.telefono) porTel.set(claveTel(v.telefono), v);
+    if (v.canal === 'correo') porCorreo.set(String(v.contacto_id).toLowerCase(), v);
+    if (v.correo) porCorreo.set(String(v.correo).toLowerCase(), v);
+    const n = nombreClave(v.nombre);
+    if (n.length > 3) porNombre.set(n, porNombre.has(n) ? null : v); // repetido = ambiguo, no se adivina
+  }
+  const chatDeReserva = (r) => {
+    if (r.cliente_wa && porTel.get(claveTel(r.cliente_wa))) return porTel.get(claveTel(r.cliente_wa));
+    if (r.email && porCorreo.get(String(r.email).toLowerCase())) return porCorreo.get(String(r.email).toLowerCase());
+    const n = nombreClave(r.cliente);
+    if (n.length > 3 && porNombre.get(n)) return porNombre.get(n);
+    // "Sheila (Divina Start Productions)" o "Ben Love" contra "Ben": las dos primeras palabras.
+    const corto = n.split(' ').slice(0, 2).join(' ');
+    if (corto.length > 3) for (const [k, v] of porNombre) if (v && (k === corto || k.startsWith(corto + ' '))) return v;
+    return null;
+  };
+
+  const ahora = Date.now();
+  const cambios = new Map(); // conv.id → { v, sets, eventos }
+  const tocar = (v) => { if (!cambios.has(v.id)) cambios.set(v.id, { v, sets: {}, eventos: [] }); return cambios.get(v.id); };
+  const etapaDe = (v) => (cambios.has(v.id) && cambios.get(v.id).sets.etapa) || v.etapa || 'nuevo';
+  const subir = (v, destino, dato) => {
+    const actual = etapaDe(v);
+    if ((ORDEN_ETAPA[destino] ?? -1) <= (ORDEN_ETAPA[actual] ?? 0)) return false;
+    if (actual === 'perdido' || actual === 'cliente') return false; // finales: solo a mano
+    const ch = tocar(v);
+    ch.sets.etapa = destino; ch.sets.etapa_en = 'now';
+    ch.eventos.push({ tipo: 'etapa', dato: { de: actual, a: destino, ...dato } });
+    return true;
+  };
+
+  // 1) Las reservas de Juan: la sesión confirmada manda.
+  for (const r of reservas) {
+    if (!r || !['hecho', 'cancelado'].includes(r.estado) || esPrueba(r.cliente)) continue;
+    const v = chatDeReserva(r);
+    if (!v) continue;
+    const inicio = String(r.inicio_iso || '').replace('T', ' ').slice(0, 16);
+    const fechaCita = RE_FECHA_HORA.test(inicio) ? inicio : null;
+    const fin = Date.parse(r.fin_iso || r.inicio_iso || '') || 0;
+    if (r.estado === 'hecho') {
+      const pasada = !!fin && fin < ahora - 2 * 3600e3;
+      const destino = pasada ? 'cliente' : 'cita';
+      const ch = tocar(v);
+      // Un chat perdido que vuelve a agendar se reabre.
+      if (v.etapa === 'perdido' && r.creado && v.etapa_en && String(r.creado) > String(v.etapa_en)) {
+        ch.sets.etapa = destino; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = null;
+        ch.eventos.push({ tipo: 'etapa', dato: { de: 'perdido', a: destino, por: 'juan', reserva: r.id } });
+      } else subir(v, destino, { por: 'juan', reserva: r.id });
+      if (fechaCita && (v.fecha_cita || null) !== fechaCita && !(etapaDe(v) === 'cliente' && pasada && v.fecha_cita)) {
+        ch.sets.fecha_cita = fechaCita;
+        ch.eventos.push({ tipo: 'cita', dato: { de: v.fecha_cita || null, a: fechaCita, por: 'juan' } });
+      }
+      const precio = cfgNeg ? await precioPaqueteFoto(env, r.paquete, cfgNeg) : null;
+      if (precio && !(Number(v.valor_estimado) > 0)) { ch.sets.valor_estimado = precio; ch.sets.moneda = 'USD'; }
+      const plan = leerPlan(v.plan_tratamiento);
+      if (!plan || !plan.items.length) {
+        const nuevo = { items: [{ id: randomId().slice(0, 12), tratamiento: String(r.paquete || 'Sesión').slice(0, 120), detalle: [r.ubicacion, r.hotel].filter(Boolean).join(' · ').slice(0, 200) || null, precio: precio || null, estado: pasada ? 'realizado' : 'aceptado' }], notas: null };
+        ch.sets.plan_tratamiento = JSON.stringify(nuevo);
+        ch.eventos.push({ tipo: 'plan', dato: { n: 1, total: precio || 0, moneda: 'USD', por: 'juan' } });
+      }
+      if (!Object.keys(ch.sets).length) cambios.delete(v.id);
+    } else if (v.etapa === 'cita' && fechaCita && v.fecha_cita === fechaCita) {
+      const ch = tocar(v);
+      ch.sets.etapa = 'perdido'; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = 'Canceló la sesión'; ch.sets.fecha_cita = null;
+      ch.eventos.push({ tipo: 'etapa', dato: { de: 'cita', a: 'perdido', motivo: 'Canceló la sesión', por: 'juan', reserva: r.id } });
+    }
+  }
+
+  // 2) La etapa que Juan le puso al chat (contestó → plática; mandó las colecciones → cotizado).
+  for (const v of convs) {
+    if (v.canal !== 'whatsapp' && v.canal !== 'instagram') continue;
+    const j = contactosJuan[v.canal === 'instagram' ? String(v.contacto_id) : claveTel(v.contacto_id)] || contactosJuan[String(v.contacto_id)];
+    if (j && (j.etapa === 'platica' || j.etapa === 'cotizado')) subir(v, j.etapa, { por: 'juan' });
+  }
+
+  // 3) Por los mensajes: si alguien contestó ya es plática; si salieron las
+  //    colecciones, cotizado. Juan solo manda dos imágenes (colecciones y video)
+  //    y el espejo las deja como "📷 …"; por correo o a mano, el texto dice
+  //    "colecciones" / "collections" / "paquetes" / "packages".
+  const pendientes = convs.filter((v) => ['nuevo', 'platica'].includes(etapaDe(v)));
+  for (let i = 0; i < pendientes.length; i += 80) {
+    const lote = pendientes.slice(i, i + 80);
+    const r = await env.DB.prepare(
+      `SELECT conv_id,
+              SUM(CASE WHEN direccion = 'out' THEN 1 ELSE 0 END) AS salidas,
+              SUM(CASE WHEN direccion = 'out' AND (
+                    COALESCE(adjunto_url, '') LIKE '%paquetes%' OR (via = 'juan' AND texto LIKE '📷%')
+                    OR texto LIKE '%colecci%' OR texto LIKE '%collection%' OR texto LIKE '%paquetes%' OR texto LIKE '%packages%'
+                  ) THEN 1 ELSE 0 END) AS cotizo
+         FROM mkt_mensajes WHERE conv_id IN (${lote.map(() => '?').join(',')}) GROUP BY conv_id`
+    ).bind(...lote.map((v) => v.id)).all();
+    const porConv = new Map((r.results || []).map((f) => [f.conv_id, f]));
+    for (const v of lote) {
+      const f = porConv.get(v.id);
+      if (!f) continue;
+      if (Number(f.cotizo) > 0) subir(v, 'cotizado', { por: 'mensajes' });
+      else if (Number(f.salidas) > 0) subir(v, 'platica', { por: 'mensajes' });
+    }
+  }
+
+  // 4) Sesión agendada que ya pasó (6 h de margen) → Cliente.
+  for (const v of convs) {
+    if (etapaDe(v) !== 'cita') continue;
+    const ch = cambios.get(v.id);
+    const fc = ch && ch.sets.fecha_cita !== undefined ? ch.sets.fecha_cita : v.fecha_cita;
+    if (!fc) continue;
+    const t = Date.parse(String(fc).replace(' ', 'T') + ':00-05:00');
+    if (t && t < ahora - 6 * 3600e3) subir(v, 'cliente', { por: 'sesion_pasada' });
+  }
+
+  // Escribir, con su huella en el historial de cada oportunidad.
+  let n = 0;
+  for (const { v, sets, eventos } of cambios.values()) {
+    const cols = Object.keys(sets);
+    if (!cols.length) continue;
+    const frag = cols.map((k) => (k === 'etapa_en' ? "etapa_en = datetime('now')" : `${k} = ?`));
+    const binds = cols.filter((k) => k !== 'etapa_en').map((k) => sets[k]);
+    try {
+      await env.DB.prepare(`UPDATE mkt_conversaciones SET ${frag.join(', ')}, updated_at = datetime('now') WHERE id = ?`).bind(...binds, v.id).run();
+      for (const e of eventos) await registrarEvento(env, { clientId: c.id, convId: v.id, userNombre: AUTOR_JUAN, tipo: e.tipo, dato: e.dato });
+      n++;
+    } catch (e) { console.error('[embudo foto]', v.id, e && e.message); }
+  }
+  return { ok: true, revisadas: convs.length, cambiadas: n };
+}
+
+// Cron (cada 15 min): todas las marcas que son estudio de fotos.
+export async function sincronizarEmbudos(env) {
+  const r = await env.DB.prepare("SELECT * FROM mkt_clients WHERE bandeja_cfg LIKE '%\"giro\":\"foto\"%'").all().catch(() => ({ results: [] }));
+  const salida = [];
+  for (const c of r.results || []) {
+    try { salida.push({ marca: c.name, ...(await sincronizarEmbudoFoto(env, c, { forzar: true })) }); }
+    catch (e) { salida.push({ marca: c.name, error: (e && e.message) || 'fallo' }); }
+  }
+  return salida;
 }

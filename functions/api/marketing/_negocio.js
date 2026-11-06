@@ -207,6 +207,26 @@ async function sincronizarReservas(env, cfg) {
   return stmts.length;
 }
 
+// ── Para el Embudo de la Bandeja (bandeja_cfg.giro = 'foto') ────────────────
+// Una sola lista de precios para el panel y para el CRM: la de "Paquetes
+// vigentes" de Administración, más los reels.
+const REELS = [
+  { nombre: 'The Editorial Reel', precio: 295 },
+  { nombre: 'The Narrative Reel', precio: 445 },
+  { nombre: 'The Cinematic Short', precio: 695 },
+];
+export async function catalogoFoto(env) {
+  const cfg = await leerCfg(env);
+  return { moneda: 'USD', items: [...cfg.paquetes.map((p) => ({ nombre: p.nombre, precio: Number(p.precio) || null })), ...REELS] };
+}
+export async function precioPaqueteFoto(env, nombre, cfg = null) {
+  return precioDe(nombre, cfg || await leerCfg(env));
+}
+export const cfgNegocio = leerCfg;
+// Conversaciones que no son oportunidades (el propio estudio, pruebas, hoteles
+// y proveedores, avisos automáticos): fuera del tablero.
+export function noEsLead(v) { return fuenteAuto(v) === 'no_lead'; }
+
 // ── El resumen del mes ──────────────────────────────────────────────────────
 async function resumen(env, url) {
   const p = periodoDe(url.searchParams.get('mes'));

@@ -803,15 +803,20 @@ export async function pautaDelPeriodo(env, desde, hasta) {
         access_token: tok.t,
       })),
       fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
-        fields: 'id,name,objective,daily_budget,adsets.limit(10){daily_budget,status}',
+        fields: 'id,name,objective,daily_budget,stop_time,adsets.limit(10){daily_budget,status}',
         effective_status: JSON.stringify(['ACTIVE']),
-        limit: '50',
+        limit: '100',
         access_token: tok.t,
       })),
     ]);
     const fila = (ins && ins.data && ins.data[0]) || {};
     const conv = ((fila.actions || []).find((a) => a.action_type === 'onsite_conversion.messaging_conversation_started_7d') || {}).value;
-    const activas = ((camps && camps.data) || []).map((c) => {
+    // ⚠️ Meta deja en ACTIVE las promociones de post ya terminadas (55 en esta
+    // cuenta, la más vieja de 2024): lo que las distingue es que su stop_time ya
+    // pasó. Encendida = sin fecha de fin o con fin en el futuro.
+    const ahora = Date.now();
+    const vivas = ((camps && camps.data) || []).filter((c) => !c.stop_time || (Date.parse(c.stop_time) || 0) > ahora);
+    const activas = vivas.map((c) => {
       const sets = (c.adsets && c.adsets.data) || [];
       const diario = Number(c.daily_budget) || sets.filter((a) => a.status === 'ACTIVE').reduce((t, a) => t + (Number(a.daily_budget) || 0), 0);
       return { id: c.id, nombre: c.name, objetivo: c.objective, diario: diario ? diario / 100 : null };

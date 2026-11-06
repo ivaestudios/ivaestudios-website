@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611052322';
-import { toast } from '../shell/toast.js?v=202611052322';
-import { icon, iconMarca } from '../shell/icons.js?v=202611052322';
-import { T, isEN } from '../shell/i18n.js?v=202611052322';
-import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611052322';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611052342';
+import { toast } from '../shell/toast.js?v=202611052342';
+import { icon, iconMarca } from '../shell/icons.js?v=202611052342';
+import { T, isEN } from '../shell/i18n.js?v=202611052342';
+import { conectarCRM, panelEmbudo, pintarBarra as pintarBarraCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611052342';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -66,11 +66,16 @@ const borradores = new Map();  // convId -> texto del composer
 
 // ── Etiquetas ────────────────────────────────────────────────────────────────
 const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cita', 'cliente', 'perdido'];
+// Estudio de fotos (bandeja_cfg.giro = 'foto', 6-nov-2026): la marca habla de
+// clientes y sesiones, no de pacientes y citas. El CRM (bandeja-crm.js) ajusta
+// todos sus textos con esto; aquí solo los que viven en este archivo.
+const giroFoto = () => !!(resumen && !resumen.error && resumen.cfg && resumen.cfg.giro === 'foto');
+const personaTxt = () => (giroFoto() ? T('Cliente', 'Client') : personaTxt());
 const ETAPA_TXT = {
   nuevo: () => T('Nuevo', 'New'),
   platica: () => T('En plática', 'Talking'),
   cotizado: () => T('Cotizado', 'Quoted'),
-  cita: () => T('Cita agendada', 'Booked'),
+  cita: () => (giroFoto() ? T('Sesión agendada', 'Session booked') : T('Cita agendada', 'Booked')),
   cliente: () => T('Cliente', 'Customer'),
   perdido: () => T('Perdido', 'Lost'),
 };
@@ -977,7 +982,7 @@ const ESTADO_LLAMADA = {
   iniciando: () => T('Preparando la llamada…', 'Preparing the call…'),
   llamando_agente: () => T('Llamando a tu celular…', 'Calling your phone…'),
   confirmando: () => T('Contestaste: presiona cualquier tecla en tu teléfono para marcarle.', 'You answered: press any key on your phone to dial.'),
-  llamando_paciente: () => T('Marcando al paciente…', 'Dialing the patient…'),
+  llamando_paciente: () => (giroFoto() ? T('Marcando al cliente…', 'Dialing the client…') : T('Marcando al paciente…', 'Dialing the patient…')),
   en_curso: () => T('En llamada', 'On the call'),
   sonando: () => T('Sonando…', 'Ringing…'),
   terminada: () => T('Terminó', 'Ended'),
@@ -1280,7 +1285,7 @@ function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
   ])];
   if (enPanel && l.conv_id) {
     hijos.push(el('button', { type: 'button', class: 'bj-call__quien', onclick: () => { cambiarTab('mensajes'); abrirConv(l.conv_id); } }, [
-      icon('user', 12), el('span', { text: (l.conv_nombre || l.numero || T('Paciente', 'Patient')) + (l.conv_nombre && l.numero ? ` · ${l.numero}` : '') }),
+      icon('user', 12), el('span', { text: (l.conv_nombre || l.numero || personaTxt()) + (l.conv_nombre && l.numero ? ` · ${l.numero}` : '') }),
     ]));
   }
   if (l.activa) hijos.push(el('p', { class: 'bj-call__estado' }, [el('span', { class: 'bj-vivo__punto', 'aria-hidden': 'true' }), el('span', { text: ' ' + estadoLlamadaTxt(l.estado) })]));
@@ -1317,7 +1322,7 @@ function tarjetaLlamada(l, { enPanel = false, alCambiar = null } = {}) {
       hijos.push(el('details', { class: 'bj-call__trans' }, [
         el('summary', { text: T('Ver transcripción', 'Show transcript') }),
         el('div', { class: 'bj-call__turnos' }, t.turnos.map((x) => el('p', { class: 'bj-turno is-' + x.quien }, [
-          el('strong', { text: (x.quien === 'paciente' ? T('Paciente', 'Patient') : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
+          el('strong', { text: (x.quien === 'paciente' ? personaTxt() : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
           el('span', { text: x.texto }),
         ]))),
       ]));
@@ -1358,7 +1363,7 @@ async function verTranscripcion(id) {
         l.audio ? reproductor(l.audio, l.grabacion_seg || l.duracion_seg) : null,
         t.resumen ? el('p', { class: 'bj-call__resumen', text: t.resumen }) : null,
         el('div', { class: 'bj-call__turnos' }, (t.turnos || []).map((x) => el('p', { class: 'bj-turno is-' + x.quien }, [
-          el('strong', { text: (x.quien === 'paciente' ? T('Paciente', 'Patient') : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
+          el('strong', { text: (x.quien === 'paciente' ? personaTxt() : (l.user_nombre || T('Agente', 'Agent'))) + ': ' }),
           el('span', { text: x.texto }),
         ]))),
       ].filter(Boolean));
@@ -1730,7 +1735,7 @@ function panelDesempeno() {
     kpi(t.sin_respuesta_ahora, T('Esperando respuesta', 'Waiting for reply'), T('ahora mismo', 'right now'), t.sin_respuesta_ahora ? 'alerta' : ''),
     kpi(t.seguimientos, T('Seguimientos', 'Follow-ups'), T(`${t.plantillas} con plantilla`, `${t.plantillas} with template`)),
     kpi(t.llamadas, T('Llamadas', 'Calls')),
-    kpi(t.citas, T('Citas agendadas', 'Appointments'), t.leads ? T(`${pct(t.citas, t.leads)}% de los leads`, `${pct(t.citas, t.leads)}% of leads`) : null, 'bien'),
+    kpi(t.citas, giroFoto() ? T('Sesiones agendadas', 'Sessions booked') : T('Citas agendadas', 'Appointments'), t.leads ? T(`${pct(t.citas, t.leads)}% de los leads`, `${pct(t.citas, t.leads)}% of leads`) : null, 'bien'),
   ]));
   if (t.whatsapp && t.whatsapp.enviados) {
     const w = t.whatsapp;
@@ -2207,7 +2212,7 @@ function filaCopiar(label, valor) {
 function conectarDepsCRM() {
   conectarCRM({
     ctx: () => ctx,
-    cid, esAgente, esSupervisor, yoMe, equipoAgentes,
+    cid, esAgente, esSupervisor, yoMe, equipoAgentes, giroFoto,
     resumen: () => (resumen && !resumen.error ? resumen : null),
     ETAPAS, ETAPA_TXT, ETAPA_COLOR, CANAL_TXT, RESULTADO_TXT,
     icoCanal, colorDe, nombreDe, origenAnuncio, telDeConv, fmtTelUI, menuFiltro,
@@ -2237,7 +2242,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611052322';
+  link.href = '/marketing/css/bandeja.css?v=202611052342';
   document.head.appendChild(link);
 }
 
