@@ -11,10 +11,10 @@
 // los paquetes vigentes. La fuente de cada lead se deduce sola y se corrige con
 // un toque. Los correos solo se LEEN (regla de Vianey). Backend: _negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611060033';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060033';
-import { T, isEN } from '../shell/i18n.js?v=202611060033';
-import { toast } from '../shell/toast.js?v=202611060033';
+import { api, el, clear } from '../api.js?v=202611060053';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060053';
+import { T, isEN } from '../shell/i18n.js?v=202611060053';
+import { toast } from '../shell/toast.js?v=202611060053';
 
 const VIEW_ID = 'administracion';
 
@@ -135,6 +135,7 @@ function pintar() {
     () => lectura(data),
     () => seccionLeads(data),
     () => seccionVentas(data),
+    () => seccionGastos(data),
     () => seccionPaquetes(data),
   ];
   // Una sección que reviente no se lleva la pantalla entera.
@@ -230,6 +231,8 @@ function tarjetaPauta(d) {
 }
 
 // ── Los números del mes ─────────────────────────────────────────────────────
+// Como su Excel: lo que entró (sesiones y marcas), cuántas sesiones, lo que
+// deja cada una y lo que le queda; y abajo lo de la pauta.
 function numeros(d) {
   const k = d.kpis;
   const tc = Number(d.cfg.tipo_cambio) || 0;
@@ -238,23 +241,27 @@ function numeros(d) {
     el('div', { class: 'adm-kpi__k', text: etiqueta }),
     sub ? el('div', { class: 'adm-kpi__s', text: sub }) : null,
   ]);
-  const ticket = k.ticket_usd != null ? k.ticket_usd : k.ticket_ref_usd;
-  const subTicket = k.ticket_usd != null
-    ? `≈ ${mxn(k.ticket_usd * tc)} · ${T(`${k.ticket_n} ${k.ticket_n === 1 ? 'sesión' : 'sesiones'}`, `${k.ticket_n} ${k.ticket_n === 1 ? 'session' : 'sessions'}`)}`
-    : T('Referencia: 44 sesiones reales (oct-2025 a oct-2026)', 'Reference: 44 real sessions (Oct 2025 to Oct 2026)');
+  const ticketMxn = k.ticket_mxn != null ? k.ticket_mxn : k.ticket_hist_mxn;
+  const subTicket = k.ticket_mxn != null
+    ? `≈ ${usd(k.ticket_mxn / tc)} · ${T(`${k.sesiones_con_monto} ${k.sesiones_con_monto === 1 ? 'sesión' : 'sesiones'}`, `${k.sesiones_con_monto} ${k.sesiones_con_monto === 1 ? 'session' : 'sessions'}`)}`
+    : (k.ticket_hist_mxn != null
+      ? T(`Tus últimas ${k.ticket_hist_n} sesiones`, `Your last ${k.ticket_hist_n} sessions`)
+      : T('Aún sin sesiones con monto', 'No sessions with an amount yet'));
   const conv = d.pauta && d.pauta.conversaciones;
+  const queda = k.queda_mxn;
   return el('section', { class: 'adm-kpis' }, [
+    tile(mxn(k.ingresos_mxn), T('Ingresos del mes', 'Income this month'),
+      k.ingresos_mxn ? T(`Sesiones ${mxn(k.ingresos_sesiones_mxn)} · marcas ${mxn(k.ingresos_marcas_mxn)}`, `Sessions ${mxn(k.ingresos_sesiones_mxn)} · brands ${mxn(k.ingresos_marcas_mxn)}`) : T('Todavía no entra nada', 'Nothing in yet'), 'brand'),
+    tile(num(k.sesiones_n), T('Sesiones cerradas', 'Closed sessions'), k.ventas.sin_precio ? T(`${k.ventas.sin_precio} sin monto`, `${k.ventas.sin_precio} without amount`) : T(`De pauta: ${num(k.ventas.pauta)}`, `From ads: ${num(k.ventas.pauta)}`)),
+    tile(ticketMxn != null ? mxn(ticketMxn) : '—', T('Ticket por sesión', 'Ticket per session'), subTicket),
+    tile(queda != null ? mxn(queda) : '—', T('Te queda', 'You keep'), T(`Después de gastos, ofrenda y SAT`, 'After expenses, tithe and taxes'), queda != null && queda < 0 ? 'mal' : 'ok'),
     // El presupuesto es el de HOY: contra un mes pasado no dice nada.
-    tile(mxn(k.gasto), T('Gasto en pauta', 'Ad spend'), d.periodo.es_actual ? `${T('de', 'of')} ${mxn(k.presupuesto_mes)} ${T('del mes', 'this month')}` : null, 'brand'),
-    tile(num(k.leads.pauta), T('Leads de pauta', 'Leads from ads'), conv != null ? T(`Meta contó ${num(conv)} conversaciones`, `Meta counted ${num(conv)} conversations`) : null),
+    tile(mxn(k.gasto), T('Gasto en pauta', 'Ad spend'), d.periodo.es_actual ? `${T('de', 'of')} ${mxn(k.presupuesto_mes)} ${T('del mes', 'this month')}` : null),
+    tile(num(k.leads.pauta), T('Leads de pauta', 'Leads from ads'),
+      k.costo_lead_pauta != null ? T(`${mxn(k.costo_lead_pauta)} por lead`, `${mxn(k.costo_lead_pauta)} per lead`) : (conv != null ? T(`Meta contó ${num(conv)} conversaciones`, `Meta counted ${num(conv)} conversations`) : T('Aún sin leads de pauta', 'No leads from ads yet'))),
     tile(num(k.leads.seo), T('Leads de SEO', 'Leads from SEO'), T('Google y el sitio web', 'Google and the website')),
-    tile(num(k.ventas.total), T('Sesiones cerradas', 'Closed sessions'), T(`De pauta: ${num(k.ventas.pauta)}`, `From ads: ${num(k.ventas.pauta)}`)),
-    tile(k.costo_lead_pauta != null ? mxn(k.costo_lead_pauta) : '—', T('Costo por lead', 'Cost per lead'),
-      k.costo_lead_pauta != null ? T('de pauta', 'from ads') : T('Aún sin leads de pauta', 'No leads from ads yet')),
-    tile(k.costo_sesion_pauta != null ? mxn(k.costo_sesion_pauta) : '—', T('Costo por sesión cerrada', 'Cost per closed session'),
-      k.costo_sesion_pauta != null ? T('de pauta', 'from ads') : T('Aún sin sesiones de pauta', 'No sessions from ads yet')),
-    tile(ticket != null ? usd(ticket) : '—', T('Ticket promedio', 'Average ticket'), subTicket),
-    tile(usd(k.ingresos_usd), T('Ventas del mes', 'Sales this month'), k.ingresos_usd ? `≈ ${mxn(k.ingresos_usd * tc)}` : null),
+    tile(k.costo_sesion_pauta != null ? mxn(k.costo_sesion_pauta) : '—', T('Costo por sesión de pauta', 'Cost per session from ads'),
+      k.costo_sesion_pauta != null ? T(`${num(k.ventas.pauta)} ${k.ventas.pauta === 1 ? 'sesión' : 'sesiones'} de pauta`, `${num(k.ventas.pauta)} from ads`) : T('Aún sin sesiones de pauta', 'No sessions from ads yet')),
   ]);
 }
 
@@ -262,16 +269,29 @@ function numeros(d) {
 function lectura(d) {
   const k = d.kpis;
   const frases = [];
-  const ticket = k.ticket_usd != null ? k.ticket_usd : k.ticket_ref_usd;
-  if (d.periodo.es_actual && k.sesiones_para_pagar != null && ticket) {
+  if (k.ingresos_mxn > 0) {
+    frases.push(T(
+      `Este mes entraron ${mxn(k.ingresos_mxn)}: ${mxn(k.ingresos_sesiones_mxn)} de sesiones y ${mxn(k.ingresos_marcas_mxn)} de marcas.`,
+      `This month ${mxn(k.ingresos_mxn)} came in: ${mxn(k.ingresos_sesiones_mxn)} from sessions and ${mxn(k.ingresos_marcas_mxn)} from brands.`,
+    ));
+    if (k.queda_mxn != null) {
+      frases.push(k.queda_mxn >= 0
+        ? T(`Quitando gastos (${mxn(k.gastos_mxn)}), ofrenda (${mxn(k.ofrenda_mxn)}) y SAT (${mxn(k.sat_mxn)}), te quedan ${mxn(k.queda_mxn)}.`,
+          `After expenses (${mxn(k.gastos_mxn)}), tithe (${mxn(k.ofrenda_mxn)}) and taxes (${mxn(k.sat_mxn)}), you keep ${mxn(k.queda_mxn)}.`)
+        : T(`Este mes todavía faltan ${mxn(-k.queda_mxn)} para cubrir gastos, ofrenda y SAT.`,
+          `This month is still ${mxn(-k.queda_mxn)} short of covering expenses, tithe and taxes.`));
+    }
+  }
+  const ticketMxn = k.ticket_mxn != null ? k.ticket_mxn : k.ticket_hist_mxn;
+  if (d.periodo.es_actual && k.sesiones_para_pagar != null && ticketMxn) {
     frases.push(k.sesiones_para_pagar <= 1
       ? T(
-        `Con un ticket de ${usd(ticket)}, una sola sesión al mes paga los ${mxn(k.presupuesto_mes)} de pauta.`,
-        `With a ${usd(ticket)} ticket, a single session a month pays for ${mxn(k.presupuesto_mes)} of ads.`,
+        `Una sesión te deja ${mxn(ticketMxn)}: con una sola al mes pagas los ${mxn(k.presupuesto_mes)} de pauta.`,
+        `A session brings ${mxn(ticketMxn)}: a single one a month pays for ${mxn(k.presupuesto_mes)} of ads.`,
       )
       : T(
-        `Con un ticket de ${usd(ticket)}, se necesitan ${Math.ceil(k.sesiones_para_pagar)} sesiones al mes para pagar los ${mxn(k.presupuesto_mes)} de pauta.`,
-        `With a ${usd(ticket)} ticket, it takes ${Math.ceil(k.sesiones_para_pagar)} sessions a month to pay for ${mxn(k.presupuesto_mes)} of ads.`,
+        `Una sesión te deja ${mxn(ticketMxn)}: se necesitan ${Math.ceil(k.sesiones_para_pagar)} al mes para pagar los ${mxn(k.presupuesto_mes)} de pauta.`,
+        `A session brings ${mxn(ticketMxn)}: it takes ${Math.ceil(k.sesiones_para_pagar)} a month to pay for ${mxn(k.presupuesto_mes)} of ads.`,
       ));
   }
   if (k.retorno_pauta === 0) {
@@ -433,37 +453,66 @@ function nuevoLead() {
   });
 }
 
-// ── Sesiones cerradas ───────────────────────────────────────────────────────
+// ── Ingresos del mes: su control de meses ───────────────────────────────────
+// Como en su Excel: lo que pagó cada persona (sesión, upgrade, propina) y lo
+// que pagó cada empresa de marketing, con la forma de pago. Las reservas de
+// Juan entran como sesión sin monto hasta que ella anota lo que cobró.
+const TIPO_TXT = {
+  sesion: () => T('Sesión', 'Session'),
+  upgrade: () => T('Upgrade', 'Upgrade'),
+  propina: () => T('Propina', 'Tip'),
+  marca: () => T('Marca', 'Brand'),
+  otro: () => T('Otro', 'Other'),
+};
+const PAGO_TXT = { stripe: () => 'Stripe', bbva: () => 'BBVA', efectivo: () => T('Efectivo', 'Cash'), otro: () => T('Otro', 'Other') };
+const pagoTxt = (k) => (PAGO_TXT[k] ? PAGO_TXT[k]() : '');
+
+function filaIngreso(v) {
+  const esMarca = v.tipo === 'marca';
+  const sub = [
+    !esMarca && v.tipo !== 'sesion' ? TIPO_TXT[v.tipo]() : null,
+    !esMarca && v.paquete ? v.paquete : null,
+    v.forma_pago ? pagoTxt(v.forma_pago) : null,
+    !esMarca && v.fecha_sesion ? `${T('sesión', 'session')} ${diaCorto(v.fecha_sesion)}` : null,
+    v.origen === 'juan' ? T('reserva de Juan', "Juan's booking") : null,
+  ].filter(Boolean).join(' · ');
+  const monto = v.mxn > 0
+    ? el('span', { class: 'adm-fila__p', text: mxn(v.mxn) })
+    : el('span', { class: 'adm-fila__p adm-fila__p--falta', text: v.precio > 0 ? `${usd(v.precio)} · ${T('falta cobrar', 'to be paid')}` : T('Falta monto', 'Missing amount') });
+  return el('li', {}, [el('button', { class: 'adm-fila adm-fila--btn', type: 'button', onclick: () => editarVenta(v) }, [
+    el('span', { class: 'adm-fila__ico' + (esMarca ? ' adm-fila__ico--marca' : '') }, [icon(esMarca ? 'briefcase' : (v.origen === 'juan' ? 'calendar' : 'user'), 18)]),
+    el('div', { class: 'adm-fila__main' }, [
+      el('div', { class: 'adm-fila__top' }, [el('span', { class: 'adm-fila__n', text: v.cliente || v.empresa || '—' }), monto]),
+      sub ? el('div', { class: 'adm-fila__sub', text: sub }) : null,
+    ]),
+    // La fuente se pregunta en lo nuevo; al historial del Excel no se le reclama (se pone al tocar la fila).
+    !esMarca && (v.fuente || v.origen !== 'excel') ? el('span', { class: `adm-fuente adm-fuente--${v.fuente || 'falta'} adm-fuente--fija`, text: nombreFuente(v.fuente) }) : null,
+  ])]);
+}
+
 function seccionVentas(d) {
   const ventas = d.ventas || [];
-  const lista = el('ul', { class: 'adm-lista' }, ventas.map((v) => el('li', {}, [el('button', {
-    class: 'adm-fila adm-fila--btn', type: 'button', onclick: () => editarVenta(v),
-  }, [
-    el('span', { class: 'adm-fila__ico' }, [icon(v.origen === 'juan' ? 'calendar' : 'check', 18)]),
-    el('div', { class: 'adm-fila__main' }, [
-      el('div', { class: 'adm-fila__top' }, [
-        el('span', { class: 'adm-fila__n', text: v.cliente || '—' }),
-        el('span', { class: 'adm-fila__p' + (v.precio > 0 ? '' : ' adm-fila__p--falta'), text: v.precio > 0 ? usd(v.precio) : T('Falta precio', 'Missing price') }),
-      ]),
-      el('div', { class: 'adm-fila__sub', text: [
-        v.paquete || T('Sin paquete', 'No package'),
-        v.fecha_sesion ? `${T('sesión', 'session')} ${diaCorto(v.fecha_sesion)}` : null,
-        v.origen === 'juan' ? T('reserva de Juan', "Juan's booking") : null,
-      ].filter(Boolean).join(' · ') }),
-    ]),
-    el('span', { class: `adm-fuente adm-fuente--${v.fuente || 'falta'} adm-fuente--fija`, text: nombreFuente(v.fuente) }),
-  ])])));
-
+  const sesiones = ventas.filter((v) => v.tipo !== 'marca');
+  const marcas = ventas.filter((v) => v.tipo === 'marca');
+  const k = d.kpis;
+  const grupo = (titulo, lista, total) => (lista.length ? [
+    el('div', { class: 'adm-grupo' }, [el('span', { text: titulo }), el('span', { class: 'adm-grupo__t', text: total })]),
+    el('ul', { class: 'adm-lista' }, lista.map(filaIngreso)),
+  ] : []);
   return el('section', { class: 'adm-sec' }, [
     el('div', { class: 'adm-sec__head' }, [
-      el('div', { class: 'adm-sec__t', text: T(`Sesiones cerradas · ${ventas.length}`, `Closed sessions · ${ventas.length}`) }),
-      el('button', { class: 'btn btn-sm', type: 'button', onclick: () => editarVenta(null) }, [icon('plus', 16), el('span', { text: T('Sesión', 'Session') })]),
+      el('div', { class: 'adm-sec__t', text: T(`Ingresos del mes · ${mxn(k.ingresos_mxn)}`, `Income this month · ${mxn(k.ingresos_mxn)}`) }),
+      el('button', { class: 'btn btn-sm', type: 'button', onclick: () => editarVenta(null) }, [icon('plus', 16), el('span', { text: T('Ingreso', 'Income') })]),
     ]),
     el('p', { class: 'adm-nota', text: T(
-      'Las reservas de Juan entran solas. Cuenta el día en que se cerró, no el de la sesión.',
-      "Juan's bookings come in on their own. It counts the day it closed, not the session day.",
+      'Lo que te pagó cada cliente y cada marca, como en tu control de meses. Las reservas de Juan entran solas: cuando cobres, tócala y anota el monto.',
+      "What each client and brand paid you, like your monthly control. Juan's bookings come in on their own: when you get paid, tap it and enter the amount.",
     ) }),
-    ventas.length ? lista : el('p', { class: 'adm-vacio', text: T('Todavía no hay sesiones cerradas este mes.', 'No closed sessions this month yet.') }),
+    ...grupo(sesiones.length > k.sesiones_n
+      ? T(`Sesiones y extras · ${sesiones.length}`, `Sessions and extras · ${sesiones.length}`)
+      : T(`Sesiones · ${sesiones.length}`, `Sessions · ${sesiones.length}`), sesiones, mxn(k.ingresos_sesiones_mxn + (k.ingresos_otros_mxn || 0))),
+    ...grupo(T(`Marcas · ${marcas.length}`, `Brands · ${marcas.length}`), marcas, mxn(k.ingresos_marcas_mxn)),
+    !ventas.length ? el('p', { class: 'adm-vacio', text: T('Todavía no hay ingresos este mes.', 'No income this month yet.') }) : null,
     d.ocultas ? el('p', { class: 'adm-nota', text: T(
       `${d.ocultas} no ${d.ocultas === 1 ? 'cuenta' : 'cuentan'} (canceladas, pruebas o marcadas "no cuenta").`,
       `${d.ocultas} not counted (cancelled, tests or marked "doesn't count").`,
@@ -473,37 +522,96 @@ function seccionVentas(d) {
 
 function editarVenta(v) {
   const nueva = !v;
-  const paquetes = (data && data.cfg && data.cfg.paquetes) || [];
+  const cfg = (data && data.cfg) || {};
+  const paquetes = cfg.paquetes || [];
+  const empresas = cfg.empresas || [];
   ctx.sheet.openSheet({
-    title: nueva ? T('Sesión cerrada', 'Closed session') : (v.cliente || T('Sesión', 'Session')), mode: 'form',
+    title: nueva ? T('Nuevo ingreso', 'New income') : (v.cliente || v.empresa || T('Ingreso', 'Income')), mode: 'form',
     build(body, close) {
-      const cliente = el('input', { class: 'input', value: (v && v.cliente) || '', placeholder: T('Nombre del cliente', 'Client name'), maxlength: '120', autocomplete: 'off' });
-      const enCatalogo = v && v.paquete && paquetes.some((p) => p.nombre === v.paquete);
-      const paquete = el('select', { class: 'select' }, [
-        el('option', { value: '', text: T('Elige el paquete', 'Pick the package') }),
-        ...paquetes.map((p) => el('option', { value: p.nombre, text: `${p.nombre} · ${usd(p.precio)}`, selected: !!(v && v.paquete === p.nombre) })),
-        v && v.paquete && !enCatalogo ? el('option', { value: v.paquete, text: v.paquete, selected: true }) : null,
-        el('option', { value: '__otro', text: T('Otro (escribe el precio)', 'Other (type the price)') }),
-      ]);
-      const precio = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', step: '1', value: v && v.precio != null ? String(v.precio) : '', placeholder: 'USD' });
-      paquete.addEventListener('change', () => {
-        const p = paquetes.find((x) => x.nombre === paquete.value);
-        if (p) precio.value = String(p.precio);
-        if (paquete.value === '__otro') { precio.value = ''; precio.focus(); }
-      });
-      const fuente = selectFuente(v ? v.fuente : '', true);
-      const fecha = el('input', { class: 'input', type: 'date', value: (v && v.fecha) || hoyCancun() });
-      const fechaSesion = el('input', { class: 'input', type: 'date', value: (v && v.fecha_sesion) || '' });
+      const bor = {
+        tipo: (v && v.tipo) || 'sesion',
+        cliente: (v && v.tipo !== 'marca' && v.cliente) || '',
+        empresa: (v && (v.empresa || (v.tipo === 'marca' ? v.cliente : ''))) || '',
+        monto: v && v.monto_mxn != null ? String(v.monto_mxn) : '',
+        pago: (v && v.forma_pago) || '',
+        paquete: (v && v.paquete) || '',
+        precio: v && v.precio != null ? String(v.precio) : '',
+        fuente: (v && v.fuente) || '',
+        fecha: (v && v.fecha) || hoyCancun(),
+        fechaSesion: (v && v.fecha_sesion) || '',
+      };
+      const campos = el('div');
+      const tipoSel = el('select', { class: 'select' }, Object.keys(TIPO_TXT).map((t) => el('option', { value: t, text: TIPO_TXT[t](), selected: bor.tipo === t })));
+      tipoSel.addEventListener('change', () => { bor.tipo = tipoSel.value; pintarCampos(); });
+
+      function pintarCampos() {
+        clear(campos);
+        const esMarca = bor.tipo === 'marca';
+        const quien = esMarca
+          ? el('select', { class: 'select' }, [
+            el('option', { value: '', text: T('Elige la empresa', 'Pick the company') }),
+            ...empresas.map((e) => el('option', { value: e, text: e, selected: bor.empresa === e })),
+            bor.empresa && !empresas.includes(bor.empresa) ? el('option', { value: bor.empresa, text: bor.empresa, selected: true }) : null,
+          ])
+          : el('input', { class: 'input', value: bor.cliente, placeholder: T('Nombre del cliente', 'Client name'), maxlength: '120', autocomplete: 'off' });
+        quien.addEventListener('input', () => { if (esMarca) bor.empresa = quien.value; else bor.cliente = quien.value; });
+        quien.addEventListener('change', () => { if (esMarca) bor.empresa = quien.value; else bor.cliente = quien.value; });
+        const monto = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', step: '0.01', value: bor.monto, placeholder: '0' });
+        monto.addEventListener('input', () => { bor.monto = monto.value; });
+        const pago = el('select', { class: 'select' }, [
+          el('option', { value: '', text: T('¿Cómo pagó?', 'How did they pay?') }),
+          ...Object.keys(PAGO_TXT).map((p) => el('option', { value: p, text: pagoTxt(p), selected: bor.pago === p })),
+        ]);
+        pago.addEventListener('change', () => { bor.pago = pago.value; });
+        const fecha = el('input', { class: 'input', type: 'date', value: bor.fecha });
+        fecha.addEventListener('change', () => { bor.fecha = fecha.value; });
+        poner(campos,
+          campo(esMarca ? T('Empresa', 'Company') : T('Cliente', 'Client'), quien),
+          el('div', { class: 'adm-dos' }, [
+            campo(T('Monto cobrado (pesos)', 'Amount received (pesos)'), el('div', { class: 'adm-prefijo' }, [el('span', { text: '$' }), monto])),
+            campo(T('Forma de pago', 'Payment method'), pago),
+          ]),
+        );
+        if (bor.tipo === 'sesion') {
+          const enCatalogo = bor.paquete && paquetes.some((p) => p.nombre === bor.paquete);
+          const paquete = el('select', { class: 'select' }, [
+            el('option', { value: '', text: T('Sin paquete', 'No package') }),
+            ...paquetes.map((p) => el('option', { value: p.nombre, text: `${p.nombre} · ${usd(p.precio)}`, selected: bor.paquete === p.nombre })),
+            bor.paquete && !enCatalogo ? el('option', { value: bor.paquete, text: bor.paquete, selected: true }) : null,
+          ]);
+          const precio = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', step: '1', value: bor.precio, placeholder: 'USD' });
+          paquete.addEventListener('change', () => { bor.paquete = paquete.value; const p = paquetes.find((x) => x.nombre === paquete.value); if (p) { bor.precio = String(p.precio); precio.value = bor.precio; } });
+          precio.addEventListener('input', () => { bor.precio = precio.value; });
+          const fuente = selectFuente(bor.fuente, true);
+          fuente.addEventListener('change', () => { bor.fuente = fuente.value; });
+          const fechaSesion = el('input', { class: 'input', type: 'date', value: bor.fechaSesion });
+          fechaSesion.addEventListener('change', () => { bor.fechaSesion = fechaSesion.value; });
+          poner(campos,
+            el('div', { class: 'adm-dos' }, [campo(T('Paquete', 'Package'), paquete), campo(T('Precio (USD)', 'Price (USD)'), precio)]),
+            campo(T('¿De dónde llegó?', 'Where did they come from?'), fuente),
+            el('div', { class: 'adm-dos' }, [campo(T('Día que cobraste', 'Day you got paid'), fecha), campo(T('Día de la sesión', 'Session day'), fechaSesion)]),
+          );
+        } else {
+          poner(campos, campo(T('Día que cobraste', 'Day you got paid'), fecha));
+        }
+      }
+      pintarCampos();
 
       const ok = el('button', { class: 'btn btn-primary', type: 'button', text: T('Guardar', 'Save'), onclick: async () => {
-        if (!cliente.value.trim()) { cliente.focus(); return; }
+        const esMarca = bor.tipo === 'marca';
+        if (esMarca && !bor.empresa) { toast(T('Elige la empresa.', 'Pick the company.'), 'error'); return; }
+        if (!esMarca && !bor.cliente.trim()) { toast(T('Escribe el nombre.', 'Type the name.'), 'error'); return; }
         const cuerpo = {
-          cliente: cliente.value,
-          paquete: paquete.value === '__otro' ? null : (paquete.value || null),
-          precio: precio.value === '' ? null : Number(precio.value),
-          fuente: fuente.value || null,
-          fecha: fecha.value,
-          fecha_sesion: fechaSesion.value || null,
+          tipo: bor.tipo,
+          cliente: esMarca ? bor.empresa : bor.cliente,
+          empresa: esMarca ? bor.empresa : null,
+          monto_mxn: bor.monto === '' ? null : Number(bor.monto),
+          forma_pago: bor.pago || null,
+          fecha: bor.fecha,
+          paquete: bor.tipo === 'sesion' ? (bor.paquete || null) : null,
+          precio: bor.tipo === 'sesion' && bor.precio !== '' ? Number(bor.precio) : null,
+          fuente: bor.tipo === 'sesion' ? (bor.fuente || null) : null,
+          fecha_sesion: bor.tipo === 'sesion' ? (bor.fechaSesion || null) : null,
         };
         ok.disabled = true;
         try {
@@ -524,15 +632,84 @@ function editarVenta(v) {
         },
       });
 
-      poner(body, 
-        campo(T('Cliente', 'Client'), cliente),
-        el('div', { class: 'adm-dos' }, [campo(T('Paquete', 'Package'), paquete), campo(T('Precio (USD)', 'Price (USD)'), precio)]),
-        campo(T('¿De dónde llegó?', 'Where did they come from?'), fuente),
-        el('div', { class: 'adm-dos' }, [campo(T('Día que se cerró', 'Day it closed'), fecha), campo(T('Día de la sesión', 'Session day'), fechaSesion)]),
+      poner(body,
+        campo(T('Tipo', 'Type'), tipoSel),
+        campos,
         v && v.notas ? el('p', { class: 'adm-nota', text: v.notas }) : null,
         el('div', { class: 'adm-btns' }, [quitar, el('span', { class: 'adm-btns__sep' }), el('button', { class: 'btn btn-ghost', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ force: true }) }), ok]),
       );
-      if (nueva) setTimeout(() => { try { cliente.focus(); } catch { /* noop */ } }, 80);
+    },
+  });
+}
+
+// ── Lo que queda del mes: gastos fijos, ofrenda y SAT ───────────────────────
+function seccionGastos(d) {
+  const { cfg, kpis: k } = d;
+  const gastos = cfg.gastos || [];
+  const linea = (txt, valor, clase) => el('div', { class: 'adm-queda__fila' + (clase ? ` ${clase}` : '') }, [el('span', { text: txt }), el('span', { class: 'adm-queda__v', text: valor })]);
+  return el('section', { class: 'adm-sec' }, [
+    el('div', { class: 'adm-sec__head' }, [
+      el('div', { class: 'adm-sec__t', text: T('Lo que queda del mes', 'What is left this month') }),
+      el('button', { class: 'btn btn-sm', type: 'button', text: T('Editar gastos', 'Edit expenses'), onclick: editarGastos }),
+    ]),
+    el('ul', { class: 'adm-gastos' }, gastos.map((g) => el('li', {}, [el('span', { text: g.nombre }), el('span', { class: 'adm-gastos__m', text: mxn(g.monto) })]))),
+    !gastos.length ? el('p', { class: 'adm-vacio', text: T('Sin gastos fijos anotados.', 'No fixed expenses yet.') }) : null,
+    el('div', { class: 'adm-queda' }, [
+      linea(T('Ingresos', 'Income'), mxn(k.ingresos_mxn)),
+      linea(T('Gastos fijos', 'Fixed expenses'), `− ${mxn(k.gastos_mxn)}`),
+      linea(T(`Ofrenda (${num(cfg.ofrenda_pct)}%)`, `Tithe (${num(cfg.ofrenda_pct)}%)`), `− ${mxn(k.ofrenda_mxn)}`),
+      linea(T(`SAT estimado (${num(cfg.sat_pct)}%)`, `Taxes, estimate (${num(cfg.sat_pct)}%)`), `− ${mxn(k.sat_mxn)}`),
+      linea(T('Te queda', 'You keep'), mxn(k.queda_mxn), 'adm-queda__total' + (k.queda_mxn < 0 ? ' is-mal' : '')),
+    ]),
+    el('p', { class: 'adm-nota', text: T('El SAT es un estimado (RESICO): el número real lo da tu contador.', 'Taxes are an estimate (RESICO): your accountant has the real number.') }),
+  ]);
+}
+
+function editarGastos() {
+  const cfg = data.cfg;
+  const gastos = (cfg.gastos || []).map((g) => ({ ...g }));
+  ctx.sheet.openSheet({
+    title: T('Gastos fijos del mes', 'Monthly fixed expenses'), mode: 'form',
+    build(body, close) {
+      const lista = el('div');
+      const pintar = () => {
+        clear(lista);
+        for (const g of gastos) {
+          const nombre = el('input', { class: 'input', value: g.nombre, placeholder: T('Gasto', 'Expense'), maxlength: '60' });
+          nombre.addEventListener('input', () => { g.nombre = nombre.value; });
+          const monto = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', step: '1', value: String(g.monto), placeholder: '0' });
+          monto.addEventListener('input', () => { g.monto = Number(monto.value); });
+          lista.appendChild(el('div', { class: 'adm-gasto-edit' }, [
+            nombre,
+            el('div', { class: 'adm-prefijo' }, [el('span', { text: '$' }), monto]),
+            el('button', { class: 'btn btn-ghost btn-icon', type: 'button', 'aria-label': T('Quitar', 'Remove'), onclick: () => { gastos.splice(gastos.indexOf(g), 1); pintar(); } }, [icon('close', 16)]),
+          ]));
+        }
+      };
+      pintar();
+      const ofrenda = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', max: '50', step: '0.5', value: String(cfg.ofrenda_pct) });
+      const sat = el('input', { class: 'input', type: 'number', inputmode: 'decimal', min: '0', max: '35', step: '0.25', value: String(cfg.sat_pct) });
+      const ok = el('button', { class: 'btn btn-primary', type: 'button', text: T('Guardar', 'Save'), onclick: async () => {
+        ok.disabled = true;
+        try {
+          await api.post('/negocio/ajustes', { gastos: gastos.filter((g) => g.nombre && g.nombre.trim()), ofrenda_pct: Number(ofrenda.value), sat_pct: Number(sat.value) });
+          close({ force: true });
+          await recargar();
+        } catch (e) { toast(e.message, 'error'); ok.disabled = false; }
+      } });
+      poner(body,
+        lista,
+        el('button', { class: 'btn btn-sm', type: 'button', onclick: () => { gastos.push({ nombre: '', monto: 0 }); pintar(); setTimeout(() => { const ins = lista.querySelectorAll('input'); const ultimo = ins[ins.length - 2]; if (ultimo) ultimo.focus(); }, 50); } }, [icon('plus', 15), el('span', { text: T('Agregar gasto', 'Add expense') })]),
+        el('div', { class: 'adm-dos adm-pct' }, [
+          campo(T('Ofrenda (% de lo que entra)', 'Tithe (% of income)'), ofrenda),
+          campo(T('SAT estimado (%)', 'Taxes, estimate (%)'), sat),
+        ]),
+        el('div', { class: 'adm-btns' }, [
+          el('span', { class: 'adm-btns__sep' }),
+          el('button', { class: 'btn btn-ghost', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ force: true }) }),
+          ok,
+        ]),
+      );
     },
   });
 }
@@ -660,7 +837,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611060033';
+  link.href = '/marketing/css/administracion.css?v=202611060053';
   document.head.appendChild(link);
 }
 

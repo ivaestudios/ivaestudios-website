@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060033';
-import { toast } from '../shell/toast.js?v=202611060033';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060033';
-import { T, isEN } from '../shell/i18n.js?v=202611060033';
-import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060033';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060053';
+import { toast } from '../shell/toast.js?v=202611060053';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060053';
+import { T, isEN } from '../shell/i18n.js?v=202611060053';
+import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060053';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -2244,7 +2244,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611060033';
+  link.href = '/marketing/css/bandeja.css?v=202611060053';
   document.head.appendChild(link);
 }
 

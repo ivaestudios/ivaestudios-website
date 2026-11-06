@@ -48,6 +48,21 @@ const MEZCLA_44 = { spark: 15, glow: 11, essential: 12, creative: 3, visual: 2, 
 
 const FUENTES = ['pauta', 'seo', 'redes', 'recomendacion', 'hotel', 'otro'];
 const FUENTES_LEAD = [...FUENTES, 'no_lead'];
+// Control de meses (6-nov-2026, del Excel de Vianey): cada ingreso es una
+// sesión, un upgrade, una propina, una marca (las empresas de marketing) u otro.
+const TIPOS_INGRESO = ['sesion', 'upgrade', 'propina', 'marca', 'otro'];
+const FORMAS_PAGO = ['stripe', 'bbva', 'efectivo', 'otro'];
+const EMPRESAS_BASE = ['Regeneris', 'Divina Start Productions', 'Smile Now', 'Melisa', 'Adagio'];
+// Sus gastos fijos, como los anota ella (se editan en el panel).
+const GASTOS_BASE = [
+  { id: 'renta', nombre: 'Renta', monto: 6800 },
+  { id: 'internet', nombre: 'Internet', monto: 600 },
+  { id: 'luz', nombre: 'Luz (bimestral, la mitad)', monto: 875 },
+  { id: 'contador', nombre: 'Contador', monto: 500 },
+  { id: 'despensa', nombre: 'Despensa', monto: 5000 },
+  { id: 'bbva', nombre: 'Tarjeta BBVA Oro', monto: 8000 },
+  { id: 'biblia', nombre: 'Biblia e himnario', monto: 440 },
+];
 
 const CFG_BASE = {
   presupuesto_diario: 100,                                    // MXN al día
@@ -55,6 +70,10 @@ const CFG_BASE = {
   paquetes: PAQUETES_ANTERIORES,
   tipo_cambio: 18.7,                                          // MXN por USD
   tc_en: null,
+  empresas: EMPRESAS_BASE,
+  gastos: GASTOS_BASE,
+  ofrenda_pct: 10,                                            // su ofrenda: 10% de lo que entra
+  sat_pct: 1.25,                                              // RESICO: entre 1% y 1.5%
 };
 
 const soloAdmin = (session) => session && session.role === 'admin';
@@ -66,6 +85,7 @@ const diaCancunDeUtc = (s) => {
   return isNaN(t) ? null : new Date(t - 5 * 3600e3).toISOString().slice(0, 10);
 };
 const masUnDia = (ymd) => { const d = new Date(`${ymd}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
+const mesesAtras = (ymd, n) => { const d = new Date(`${ymd}T12:00:00Z`); d.setUTCMonth(d.getUTCMonth() - n); return d.toISOString().slice(0, 10); };
 function periodoDe(mesPedido) {
   const hoy = hoyCancun();
   const mes = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(mesPedido || '')) ? mesPedido : hoy.slice(0, 7);
@@ -91,6 +111,8 @@ async function leerCfg(env) {
   } catch { guardada = null; }
   const cfg = { ...CFG_BASE, ...(guardada || {}) };
   if (!Array.isArray(cfg.paquetes) || !cfg.paquetes.length) cfg.paquetes = PAQUETES_ANTERIORES;
+  if (!Array.isArray(cfg.gastos)) cfg.gastos = GASTOS_BASE;
+  if (!Array.isArray(cfg.empresas) || !cfg.empresas.length) cfg.empresas = EMPRESAS_BASE;
   return guardada ? cfg : { ...cfg, primera_vez: true };
 }
 // La primera vez que se abre el panel queda guardado el presupuesto que pidió
@@ -235,7 +257,7 @@ async function resumen(env, url) {
   await sincronizarReservas(env, cfg).catch((e) => console.error('[negocio] reservas', e && e.message));
   const [u0, u1] = rangoUtc(p.desde, p.fin);
 
-  const [convsR, todasR, overR, manualR, ventasR, juanR, pauta] = await Promise.all([
+  const [convsR, todasR, overR, manualR, ventasR, juanR, historicoR, pauta] = await Promise.all([
     // Leads del mes: conversaciones cuyo PRIMER mensaje del cliente cae en el mes.
     env.DB.prepare(
       `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.origen, v.etapa, MIN(m.creado) AS primer_in
@@ -249,6 +271,8 @@ async function resumen(env, url) {
     env.DB.prepare('SELECT * FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
     env.DB.prepare('SELECT * FROM mkt_neg_ventas WHERE client_id = ? AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
     env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_bot_estado'").first().catch(() => null),
+    // Los últimos 12 meses cerrados: la referencia del ticket cuando el mes aún no tiene sesiones.
+    env.DB.prepare("SELECT tipo, monto_mxn, precio FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND fecha >= ? AND fecha <= ?").bind(IVAE_STUDIOS, mesesAtras(p.desde, 12), p.fin).all().catch(() => ({ results: [] })),
     p.futuro ? Promise.resolve({ conectada: true, origen: 'base', gasto: 0, moneda: 'MXN', activas: [], conversaciones: null, clics: null, error: null }) : pautaDelPeriodo(env, p.desde, p.hasta),
   ]);
 
@@ -303,10 +327,16 @@ async function resumen(env, url) {
       const conv = (correo && porCorreo.get(correo.toLowerCase())) || porNombre.get(norm(v.cliente));
       if (conv) { const f = fuenteDeConv(conv); auto = f && f !== 'no_lead' ? f : null; }
     }
+    const tipo = TIPOS_INGRESO.includes(v.tipo) ? v.tipo : 'sesion';
+    // Lo que entró en pesos es lo que ella anota al cobrar. Una reserva de Juan
+    // trae el precio en USD pero todavía no es dinero en la cuenta: no suma hasta
+    // que se le pone el monto.
+    const mxn = v.monto_mxn != null ? Number(v.monto_mxn) : null;
     ventas.push({
       id: v.id, fecha: v.fecha, fecha_sesion: v.fecha_sesion, cliente: v.cliente, paquete: v.paquete,
       precio: v.precio != null ? Number(v.precio) : null, fuente: v.fuente || auto, fuente_auto: !v.fuente,
-      origen: v.reserva_id ? 'juan' : 'manual', notas: v.notas || '',
+      origen: v.reserva_id ? 'juan' : (v.creado_por === 'excel' ? 'excel' : 'manual'), notas: v.notas || '',
+      tipo, monto_mxn: v.monto_mxn != null ? Number(v.monto_mxn) : null, mxn, forma_pago: v.forma_pago || null, empresa: v.empresa || null,
     });
   }
 
@@ -316,15 +346,38 @@ async function resumen(env, url) {
   const validos = leads.filter((l) => l.fuente !== 'no_lead');
   const porFuenteLeads = Object.fromEntries(FUENTES.map((f) => [f, cuenta(validos, f)]));
   porFuenteLeads.sin_definir = validos.filter((l) => !l.fuente).length;
-  const porFuenteVentas = Object.fromEntries(FUENTES.map((f) => [f, cuenta(ventas, f)]));
-  porFuenteVentas.sin_definir = ventas.filter((v) => !v.fuente).length;
-  const conPrecio = ventas.filter((v) => v.precio > 0);
+  const sesiones = ventas.filter((v) => v.tipo === 'sesion');
+  const porFuenteVentas = Object.fromEntries(FUENTES.map((f) => [f, cuenta(sesiones, f)]));
+  porFuenteVentas.sin_definir = sesiones.filter((v) => !v.fuente).length;
+  // Control de meses: lo que entró de sesiones (con upgrades y propinas) y lo de las marcas, en pesos.
+  const suma = (lista) => lista.reduce((s, v) => s + (v.mxn > 0 ? v.mxn : 0), 0);
+  const deSesiones = ventas.filter((v) => ['sesion', 'upgrade', 'propina'].includes(v.tipo));
+  const ingresosSesiones = suma(deSesiones);
+  const ingresosMarcas = suma(ventas.filter((v) => v.tipo === 'marca'));
+  const ingresosOtros = suma(ventas.filter((v) => v.tipo === 'otro'));
+  const ingresosMxn = ingresosSesiones + ingresosMarcas + ingresosOtros;
+  const sesionesConMonto = sesiones.filter((v) => v.mxn > 0);
+  const conPrecio = sesiones.filter((v) => v.precio > 0);
   const ingresos = conPrecio.reduce((s, v) => s + v.precio, 0);
-  const ventasPauta = ventas.filter((v) => v.fuente === 'pauta');
+  const ventasPauta = sesiones.filter((v) => v.fuente === 'pauta');
   const ingresosPauta = ventasPauta.filter((v) => v.precio > 0).reduce((s, v) => s + v.precio, 0);
+  const ingresosPautaMxn = suma(ventas.filter((v) => v.fuente === 'pauta'));
   const gasto = Number(pauta.gasto) || 0;
-  const ticket = conPrecio.length ? ingresos / conPrecio.length : null;
-  const ticketRef = ticketReferencia(cfg);
+  // Ticket = lo que deja una sesión con sus upgrades, en pesos. Si el mes no
+  // tiene, la referencia son sus últimos 12 meses (o la mezcla de 44 sesiones).
+  const ticketMxn = sesionesConMonto.length ? ingresosSesiones / sesionesConMonto.length : null;
+  const ticket = ticketMxn != null ? ticketMxn / tc : null;
+  const hist = historicoR && historicoR.results ? historicoR.results : [];
+  const histSes = hist.filter((h) => (h.tipo || 'sesion') === 'sesion' && h.monto_mxn > 0).length;
+  const histMxn = hist.filter((h) => ['sesion', 'upgrade', 'propina'].includes(h.tipo || 'sesion')).reduce((s, h) => s + (h.monto_mxn > 0 ? Number(h.monto_mxn) : 0), 0);
+  const ticketHistMxn = histSes >= 3 ? histMxn / histSes : null;
+  const ticketRef = ticketHistMxn != null ? ticketHistMxn / tc : ticketReferencia(cfg);
+  const ticketBaseMxn = ticketMxn != null ? ticketMxn : (ticketHistMxn != null ? ticketHistMxn : (ticketRef ? ticketRef * tc : null));
+  // Gastos fijos, ofrenda y SAT: lo que ella resta cada mes para saber lo que le queda.
+  const gastosMxn = (cfg.gastos || []).reduce((s, g) => s + (Number(g.monto) > 0 ? Number(g.monto) : 0), 0);
+  const ofrendaMxn = ingresosMxn * ((Number(cfg.ofrenda_pct) || 0) / 100);
+  const satMxn = ingresosMxn * ((Number(cfg.sat_pct) || 0) / 100);
+  const quedaMxn = ingresosMxn - gastosMxn - ofrendaMxn - satMxn;
   const presupuestoMes = (Number(cfg.presupuesto_diario) || 0) * p.dias_mes;
   const redondo = (n) => (n == null || !isFinite(n) ? null : Math.round(n * 100) / 100);
 
@@ -333,7 +386,10 @@ async function resumen(env, url) {
 
   return {
     periodo: p,
-    cfg: { presupuesto_diario: cfg.presupuesto_diario, destino: cfg.destino, paquetes: cfg.paquetes, tipo_cambio: tc, tc_en: cfg.tc_en || null, tc_manual: !!cfg.tc_manual },
+    cfg: {
+      presupuesto_diario: cfg.presupuesto_diario, destino: cfg.destino, paquetes: cfg.paquetes, tipo_cambio: tc, tc_en: cfg.tc_en || null, tc_manual: !!cfg.tc_manual,
+      empresas: cfg.empresas, gastos: cfg.gastos, ofrenda_pct: Number(cfg.ofrenda_pct) || 0, sat_pct: Number(cfg.sat_pct) || 0,
+    },
     pauta,
     juan,
     leads,
@@ -343,17 +399,32 @@ async function resumen(env, url) {
       gasto: redondo(gasto),
       presupuesto_mes: presupuestoMes,
       leads: { total: validos.length, ...porFuenteLeads },
-      ventas: { total: ventas.length, ...porFuenteVentas, sin_precio: ventas.length - conPrecio.length },
+      ventas: { total: sesiones.length, ...porFuenteVentas, sin_precio: sesiones.length - sesionesConMonto.length },
+      // Control de meses (pesos).
+      ingresos_mxn: redondo(ingresosMxn),
+      ingresos_sesiones_mxn: redondo(ingresosSesiones),
+      ingresos_marcas_mxn: redondo(ingresosMarcas),
+      ingresos_otros_mxn: redondo(ingresosOtros),
+      sesiones_n: sesiones.length,
+      sesiones_con_monto: sesionesConMonto.length,
+      ticket_mxn: redondo(ticketMxn),
+      ticket_hist_mxn: redondo(ticketHistMxn),
+      ticket_hist_n: histSes,
+      gastos_mxn: redondo(gastosMxn),
+      ofrenda_mxn: redondo(ofrendaMxn),
+      sat_mxn: redondo(satMxn),
+      queda_mxn: redondo(quedaMxn),
+      // Lo de antes, en dólares.
       ingresos_usd: redondo(ingresos),
       ingresos_pauta_usd: redondo(ingresosPauta),
       ticket_usd: redondo(ticket),
-      ticket_n: conPrecio.length,
-      ticket_ref_usd: ticketRef,
+      ticket_n: sesionesConMonto.length,
+      ticket_ref_usd: redondo(ticketRef),
       costo_lead_pauta: porFuenteLeads.pauta ? redondo(gasto / porFuenteLeads.pauta) : null,
       costo_sesion_pauta: ventasPauta.length ? redondo(gasto / ventasPauta.length) : null,
-      retorno_pauta: gasto > 0 ? redondo((ingresosPauta * tc) / gasto) : null,
+      retorno_pauta: gasto > 0 ? redondo(ingresosPautaMxn / gasto) : null,
       conversion_pauta: porFuenteLeads.pauta ? redondo(ventasPauta.length / porFuenteLeads.pauta) : null,
-      sesiones_para_pagar: (ticket || ticketRef) ? redondo(presupuestoMes / ((ticket || ticketRef) * tc)) : null,
+      sesiones_para_pagar: ticketBaseMxn ? redondo(presupuestoMes / ticketBaseMxn) : null,
     },
   };
 }
@@ -377,6 +448,21 @@ async function ajustes(request, env) {
     nuevo.tipo_cambio = Math.round(t * 100) / 100; nuevo.tc_manual = true; nuevo.tc_en = hoyCancun();
   }
   if (body.tc_auto === true) { nuevo.tc_manual = false; nuevo.tc_en = null; }
+  // Control de meses: gastos fijos, ofrenda y SAT.
+  if (Array.isArray(body.gastos)) {
+    const lista = body.gastos.slice(0, 40).map((g, i) => ({
+      id: limpio(g.id, 30) || `g${Date.now().toString(36)}${i}`,
+      nombre: limpio(g.nombre, 60),
+      monto: Math.round(Number(g.monto) * 100) / 100,
+    })).filter((g) => g.nombre && g.monto >= 0 && g.monto < 10000000);
+    nuevo.gastos = lista;
+  }
+  if (body.ofrenda_pct != null) { const n = Number(body.ofrenda_pct); if (!(n >= 0 && n <= 50)) return { error: 'La ofrenda va de 0 a 50 por ciento.', status: 400 }; nuevo.ofrenda_pct = Math.round(n * 100) / 100; }
+  if (body.sat_pct != null) { const n = Number(body.sat_pct); if (!(n >= 0 && n <= 35)) return { error: 'El SAT va de 0 a 35 por ciento.', status: 400 }; nuevo.sat_pct = Math.round(n * 100) / 100; }
+  if (Array.isArray(body.empresas)) {
+    const lista = body.empresas.slice(0, 30).map((e) => limpio(e, 60)).filter(Boolean);
+    if (lista.length) nuevo.empresas = lista;
+  }
   if (Array.isArray(body.paquetes)) {
     const lista = body.paquetes.slice(0, 20).map((x, i) => ({
       clave: limpio(x.clave, 30) || (cfg.paquetes[i] && cfg.paquetes[i].clave) || `p${i}`,
@@ -424,6 +510,12 @@ function camposVenta(b, cfg) {
   const out = {};
   if ('cliente' in b) out.cliente = limpio(b.cliente, 120);
   if ('paquete' in b) out.paquete = limpio(b.paquete, 80);
+  // Control de meses: tipo de ingreso, lo que entró en pesos, cómo pagó y de qué empresa.
+  if ('tipo' in b) out.tipo = TIPOS_INGRESO.includes(String(b.tipo)) ? String(b.tipo) : undefined;
+  if ('monto_mxn' in b) { const n = Number(b.monto_mxn); out.monto_mxn = b.monto_mxn === null || b.monto_mxn === '' ? null : (n >= 0 && n < 10000000 ? Math.round(n * 100) / 100 : undefined); }
+  if ('forma_pago' in b) out.forma_pago = b.forma_pago === null || b.forma_pago === '' ? null : (FORMAS_PAGO.includes(String(b.forma_pago)) ? String(b.forma_pago) : undefined);
+  if ('empresa' in b) out.empresa = limpio(b.empresa, 80);
+  if (out.tipo === 'marca' && !out.cliente && out.empresa) out.cliente = out.empresa;
   if ('precio' in b) { const n = Number(b.precio); out.precio = b.precio === null || b.precio === '' ? null : (n >= 0 && n < 100000 ? Math.round(n * 100) / 100 : undefined); }
   if ('fuente' in b) out.fuente = b.fuente === null || b.fuente === '' ? null : (FUENTES.includes(String(b.fuente)) ? String(b.fuente) : undefined);
   if ('fecha' in b) out.fecha = fechaOk(b.fecha) || undefined;
@@ -440,13 +532,14 @@ async function crearVenta(request, env, session, deps) {
   const cfg = await leerCfg(env);
   const c = camposVenta(b, cfg);
   if (Object.values(c).includes(undefined)) return { error: 'Revisa los datos.', status: 400 };
-  if (!c.cliente) return { error: 'Escribe el nombre del cliente.', status: 400 };
+  if (!c.cliente) return { error: c.tipo === 'marca' ? 'Elige la empresa.' : 'Escribe el nombre del cliente.', status: 400 };
   if (c.precio == null && c.paquete) c.precio = precioDe(c.paquete, cfg);
   await env.DB.prepare(
-    `INSERT INTO mkt_neg_ventas (id, client_id, fecha, fecha_sesion, cliente, paquete, precio, fuente, estado, notas, creado_por)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'cerrada', ?, ?)`
+    `INSERT INTO mkt_neg_ventas (id, client_id, fecha, fecha_sesion, cliente, paquete, precio, fuente, estado, notas, creado_por, tipo, monto_mxn, forma_pago, empresa)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'cerrada', ?, ?, ?, ?, ?, ?)`
   ).bind(deps.randomId(), IVAE_STUDIOS, c.fecha || hoyCancun(), c.fecha_sesion || null, c.cliente, c.paquete || null,
-    c.precio != null ? c.precio : null, c.fuente || null, c.notas || null, session.name || null).run();
+    c.precio != null ? c.precio : null, c.fuente || null, c.notas || null, session.name || null,
+    c.tipo || 'sesion', c.monto_mxn != null ? c.monto_mxn : null, c.forma_pago || null, c.tipo === 'marca' ? (c.empresa || c.cliente) : null).run();
   return { ok: true };
 }
 

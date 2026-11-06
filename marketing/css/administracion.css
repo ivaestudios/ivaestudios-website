@@ -217,3 +217,31 @@
   .adm-dos { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .adm-kpi__v { font-size: var(--fs-4, 19px); }
 }
+
+/* ── Control de meses: ingresos por grupo, gastos y lo que queda ──────────── */
+.adm-grupo {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2, 8px);
+  margin-top: var(--s-4, 16px); font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
+  letter-spacing: .02em; text-transform: uppercase;
+}
+.adm-grupo + .adm-lista { margin-top: 4px; }
+.adm-grupo__t { color: var(--text); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; }
+.adm-fila__ico--marca { color: var(--brand); }
+.adm-gastos { list-style: none; margin: var(--s-3, 12px) 0 0; padding: 0; }
+.adm-gastos li { display: flex; justify-content: space-between; gap: var(--s-3, 12px); padding: 7px 0; font-size: var(--fs-2, 14px); color: var(--text); }
+.adm-gastos li + li { border-top: 1px solid var(--border); }
+.adm-gastos__m { font-weight: 700; font-variant-numeric: tabular-nums; }
+.adm-queda { margin-top: var(--s-3, 12px); padding: var(--s-3, 12px) var(--s-3, 14px); border-radius: var(--r-md, 12px); background: var(--surface-2); }
+.adm-queda__fila { display: flex; justify-content: space-between; gap: var(--s-3, 12px); padding: 4px 0; font-size: var(--fs-2, 14px); color: var(--text-dim); }
+.adm-queda__v { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.adm-queda__total { margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border); font-weight: 800; color: var(--text); }
+.adm-queda__total .adm-queda__v { font-size: var(--fs-4, 17px); color: var(--ok); }
+.adm-queda__total.is-mal .adm-queda__v { color: var(--warn); }
+.adm-kpi--ok { border-color: color-mix(in srgb, var(--ok) 35%, var(--border)); }
+.adm-kpi--mal { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); }
+.adm-gasto-edit { display: grid; grid-template-columns: minmax(0, 1fr) 9em auto; gap: var(--s-2, 8px); align-items: center; margin-bottom: var(--s-2, 8px); }
+.adm-gasto-edit .input { min-width: 0; }
+.adm-pct { margin-top: var(--s-4, 16px); }
+:root[data-theme="light"] .adm-queda__total .adm-queda__v { color: #15803d; }
+:root[data-theme="light"] .adm-queda__total.is-mal .adm-queda__v { color: #92400e; }
+@media (max-width: 380px) { .adm-gasto-edit { grid-template-columns: minmax(0, 1fr) 7em auto; } }
