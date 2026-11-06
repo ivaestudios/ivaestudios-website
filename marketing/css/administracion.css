@@ -1,0 +1,219 @@
+/* ============================================================================
+   Vista "Administración" (js/views/administracion.js). Pauta, leads, sesiones
+   cerradas y ticket promedio de IVAE STUDIOS. Todo sale de los tokens del tema
+   (claro y oscuro). Móvil primero: una columna a 390px; más aire desde 720px.
+   ========================================================================== */
+
+.adm-root { padding-bottom: var(--s-8, 32px); max-width: 980px; margin: 0 auto; }
+.adm-root > * { min-width: 0; }
+.adm-dim { color: var(--text-dim); font-weight: 600; }
+
+/* Cabecera propia: .mk-head vive en marca.css, que solo carga la vista Marca. */
+.adm-head { text-align: center; margin-bottom: var(--s-2, 8px); }
+.adm-head .mk-title { font-size: var(--fs-6, 24px); font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px; }
+.adm-head .mk-sub { color: var(--text-dim); font-size: var(--fs-3, 15px); line-height: 1.45; margin: 0 auto; max-width: 46ch; }
+
+/* Mes: ‹ Noviembre 2026 › */
+.adm-mes {
+  display: inline-flex; align-items: center; gap: var(--s-2, 8px);
+  margin-top: var(--s-3, 12px);
+  padding: 4px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface);
+}
+.adm-mes__t { min-width: 9.5em; text-align: center; font-size: var(--fs-3, 15px); font-weight: 800; color: var(--text); }
+.adm-mes__b {
+  display: grid; place-items: center; width: 40px; height: 40px;
+  border: 0; border-radius: 999px; background: transparent; color: var(--text); cursor: pointer;
+}
+.adm-mes__b:hover { background: var(--surface-2); }
+.adm-mes__b:disabled { opacity: .3; cursor: default; background: transparent; }
+
+.adm-sec__t {
+  font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
+  letter-spacing: .03em; text-transform: uppercase;
+}
+.adm-sec__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2, 8px); }
+.adm-sec__head .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; }
+.adm-nota { margin: 6px 0 0; font-size: var(--fs-1, 12px); line-height: 1.5; color: var(--text-dim); }
+
+/* ── Tarjeta de pauta ──────────────────────────────────────────────────────── */
+.adm-pauta {
+  margin-top: var(--s-4, 16px);
+  padding: var(--s-4, 16px);
+  border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--border));
+  border-radius: var(--r-lg, 16px);
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface));
+}
+/* flex-wrap: en un teléfono angosto el botón baja a su propio renglón en vez de
+   aplastar el texto ("PRESUPUEST…"). */
+.adm-pauta__fila {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s-2, 8px) var(--s-3, 12px);
+  padding-top: var(--s-3, 12px); margin-top: var(--s-3, 12px);
+  border-top: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+.adm-pauta__fila:first-of-type { border-top: 0; margin-top: var(--s-2, 8px); padding-top: 0; }
+.adm-pauta__ico {
+  flex: none; display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 10px; background: var(--surface); color: var(--brand);
+}
+.adm-pauta__txt { flex: 1 1 170px; min-width: 0; }
+.adm-pauta__k { font-size: var(--fs-0, 11px); font-weight: 800; color: var(--text-dim); letter-spacing: .02em; text-transform: uppercase; }
+.adm-pauta__v { margin-top: 2px; font-size: var(--fs-2, 14px); line-height: 1.45; color: var(--text); overflow-wrap: anywhere; }
+.adm-pauta__fila > .btn { flex: none; min-height: 36px; margin-left: auto; }
+
+.adm-chip {
+  display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+  font-size: var(--fs-0, 11px); font-weight: 800; vertical-align: 1px; white-space: nowrap;
+}
+.adm-chip--ok { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); }
+.adm-chip--warn { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); color: var(--warn); }
+
+.adm-camps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.adm-camps li { display: flex; justify-content: space-between; gap: var(--s-2, 8px); }
+.adm-camps__n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.adm-camps__d { flex: none; color: var(--text-dim); font-weight: 600; }
+
+.adm-aviso {
+  display: flex; align-items: flex-start; gap: var(--s-2, 8px);
+  margin-top: var(--s-3, 12px); padding: var(--s-3, 10px) var(--s-3, 12px);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  border-radius: var(--r-md, 12px);
+  background: color-mix(in srgb, var(--warn) 12%, var(--surface));
+  font-size: var(--fs-2, 14px); font-weight: 600; line-height: 1.45; color: var(--text);
+}
+.adm-aviso svg { flex: none; margin-top: 2px; color: var(--warn); }
+
+/* ── Números del mes ───────────────────────────────────────────────────────── */
+.adm-kpis {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3, 10px); margin-top: var(--s-4, 16px);
+}
+@media (min-width: 720px) { .adm-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.adm-kpi {
+  min-width: 0; padding: var(--s-3, 14px);
+  border: 1px solid var(--border); border-radius: var(--r-lg, 16px); background: var(--surface);
+}
+.adm-kpi--brand { border-color: color-mix(in srgb, var(--brand) 35%, var(--border)); }
+.adm-kpi__v { font-size: var(--fs-5, 22px); font-weight: 800; letter-spacing: -.01em; color: var(--text); line-height: 1.15; }
+.adm-kpi__k { margin-top: 4px; font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text); }
+.adm-kpi__s { margin-top: 2px; font-size: var(--fs-0, 11px); line-height: 1.4; color: var(--text-dim); }
+
+.adm-lectura {
+  margin-top: var(--s-3, 12px); padding: var(--s-3, 12px) var(--s-4, 16px);
+  border-left: 3px solid var(--brand); border-radius: 0 var(--r-md, 12px) var(--r-md, 12px) 0;
+  background: var(--surface);
+}
+.adm-lectura p { margin: 0; font-size: var(--fs-2, 14px); line-height: 1.5; color: var(--text); }
+.adm-lectura p + p { margin-top: 6px; }
+
+/* ── Secciones con lista (leads, sesiones, paquetes) ──────────────────────── */
+.adm-sec {
+  margin-top: var(--s-5, 20px); padding: var(--s-4, 16px);
+  border: 1px solid var(--border); border-radius: var(--r-lg, 16px); background: var(--surface);
+}
+.adm-filtros {
+  display: flex; gap: 6px; margin: var(--s-3, 12px) calc(-1 * var(--s-4, 16px)) 0; padding: 0 var(--s-4, 16px) 2px;
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.adm-filtros::-webkit-scrollbar { display: none; }
+.adm-filtro {
+  flex: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); font-size: var(--fs-1, 12px); font-weight: 700; cursor: pointer;
+}
+.adm-filtro.is-active { background: var(--brand); border-color: transparent; color: #fff; }
+.adm-filtro__n { opacity: .75; font-variant-numeric: tabular-nums; }
+
+.adm-lista { list-style: none; margin: var(--s-3, 12px) 0 0; padding: 0; }
+.adm-lista > li + li { border-top: 1px solid var(--border); }
+.adm-fila {
+  display: flex; align-items: center; gap: var(--s-3, 12px); width: 100%;
+  padding: 10px 0; text-align: left; color: var(--text); font: inherit;
+}
+.adm-fila--btn { border: 0; background: transparent; cursor: pointer; }
+.adm-fila--btn:hover .adm-fila__n { text-decoration: underline; }
+.adm-fila__ico {
+  flex: none; display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 999px; background: var(--surface-2); color: var(--text-dim);
+}
+.adm-net--whatsapp, .adm-net--whatsapp_990 { color: #25d366; }
+.adm-net--instagram { color: #e1306c; }
+.adm-net--messenger { color: #0a7cff; }
+.adm-fila__main { flex: 1; min-width: 0; }
+.adm-fila__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2, 8px); }
+.adm-fila__n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-2, 14px); font-weight: 800; }
+.adm-fila__f { flex: none; font-size: var(--fs-0, 11px); font-weight: 700; color: var(--text-dim); }
+.adm-fila__p { flex: none; font-size: var(--fs-2, 14px); font-weight: 800; font-variant-numeric: tabular-nums; }
+.adm-fila__p--falta { color: var(--warn); font-size: var(--fs-1, 12px); }
+.adm-fila__sub {
+  margin-top: 1px; font-size: var(--fs-1, 12px); color: var(--text-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* La fuente de cada lead: una pastilla que se toca. Un solo color de marca
+   (pauta), neutros para el resto y aviso solo para "¿De dónde?". */
+.adm-fuente {
+  flex: none; display: inline-flex; align-items: center; gap: 3px;
+  min-height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface-2); color: var(--text); font-size: var(--fs-0, 11px); font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.adm-fuente--fija { cursor: inherit; }
+.adm-fuente--pauta { background: color-mix(in srgb, var(--brand) 18%, var(--surface)); border-color: color-mix(in srgb, var(--brand) 40%, var(--border)); color: var(--brand); }
+.adm-fuente--seo { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); border-color: color-mix(in srgb, var(--ok) 35%, var(--border)); color: var(--ok); }
+.adm-fuente--falta { background: color-mix(in srgb, var(--warn) 14%, var(--surface)); border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); color: var(--warn); }
+.adm-fuente--off { color: var(--text-dim); text-decoration: line-through; }
+.adm-fuente--auto { border-style: dashed; }
+
+.adm-vacio { margin: var(--s-4, 16px) 0 4px; text-align: center; font-size: var(--fs-2, 14px); color: var(--text-dim); }
+.adm-mas { display: flex; justify-content: center; margin-top: var(--s-3, 12px); }
+.adm-mas .btn { min-height: 42px; padding-inline: var(--s-5, 18px); }
+
+/* Paquetes */
+.adm-paquetes { list-style: none; margin: var(--s-3, 12px) 0 0; padding: 0; }
+.adm-paquetes li { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3, 12px); padding: 9px 0; }
+.adm-paquetes li + li { border-top: 1px solid var(--border); }
+.adm-paq__n { font-size: var(--fs-2, 14px); font-weight: 800; color: var(--text); }
+.adm-paq__s { font-size: var(--fs-1, 12px); color: var(--text-dim); }
+.adm-paq__p { flex: none; font-size: var(--fs-3, 15px); font-weight: 800; font-variant-numeric: tabular-nums; }
+.adm-tc {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px var(--s-2, 8px);
+  margin-top: var(--s-3, 12px); padding-top: var(--s-3, 12px); border-top: 1px solid var(--border);
+  font-size: var(--fs-2, 14px); font-weight: 700; color: var(--text);
+}
+.adm-tc .btn { margin-left: auto; min-height: 36px; }
+
+/* ── Hojas (formularios) ───────────────────────────────────────────────────── */
+.adm-campo { margin-bottom: var(--s-3, 12px); min-width: 0; }
+.adm-campo .input, .adm-campo .select { width: 100%; min-width: 0; }
+.adm-dos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-3, 12px); }
+.adm-btns { display: flex; align-items: center; gap: var(--s-2, 8px); margin-top: var(--s-4, 16px); }
+.adm-btns__sep { flex: 1; }
+.adm-btns .btn { min-height: 44px; }
+.adm-quitar { color: var(--danger, #ef4444); }
+.adm-prefijo { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.adm-prefijo > span { flex: none; font-weight: 800; color: var(--text-dim); }
+.adm-prefijo .input { flex: 1; min-width: 0; }
+.adm-paq-edit { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3, 12px); margin-top: var(--s-3, 12px); }
+.adm-paq-edit .adm-prefijo { width: 9.5em; }
+
+.adm-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--s-2, 8px); padding: var(--s-8, 40px) var(--s-4, 16px); text-align: center; color: var(--text-dim);
+}
+.adm-empty h2 { margin: 0; font-size: var(--fs-4, 17px); font-weight: 800; color: var(--text); }
+.adm-empty p { margin: 0; max-width: 40ch; font-size: var(--fs-2, 14px); line-height: 1.5; }
+.adm-empty .btn { margin-top: var(--s-2, 8px); min-height: 44px; padding-inline: var(--s-6, 22px); }
+
+/* Tema claro (el de Vianey por defecto): el verde y el ámbar del tema oscuro no
+   se leen sobre blanco; mismos tonos que usan Entregables y Carrusel. */
+:root[data-theme="light"] .adm-fuente--seo,
+:root[data-theme="light"] .adm-chip--ok { color: #15803d; }
+:root[data-theme="light"] .adm-fuente--falta,
+:root[data-theme="light"] .adm-chip--warn,
+:root[data-theme="light"] .adm-fila__p--falta { color: #92400e; }
+.adm-tel { white-space: nowrap; }
+
+@media (max-width: 380px) {
+  .adm-dos { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .adm-kpi__v { font-size: var(--fs-4, 19px); }
+}

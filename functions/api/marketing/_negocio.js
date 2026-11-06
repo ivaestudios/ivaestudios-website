@@ -1,0 +1,478 @@
+// ============================================================================
+// IVAE Marketing — ADMINISTRACIÓN del estudio (solo admin, solo IVAE STUDIOS).
+//
+// El prefijo `_` evita que Pages Functions genere una ruta: lo importa el
+// catch-all y expone handleNegocio(). Igual que _asistente.js.
+//
+// QUÉ ES
+//   Pedido de Vianey (5-nov-2026): "un sistema de administración… checar las
+//   pautas… 100 pesos al día… redirigirlo todo al número de Juan… cuántos leads
+//   tenemos en pauta y cuántos en SEO… el costo por sesión ya cerrada, el costo
+//   de pauta y el ticket promedio… volvemos a los paquetes anteriores".
+//   Una pantalla que junta, por mes:
+//     · Pauta: gasto real en Meta (cuenta "Vianey Dm") y el presupuesto diario.
+//     · Leads: conversaciones de la Bandeja cuyo PRIMER mensaje cae en el mes,
+//       con su fuente (pauta / SEO / redes / …). Se deduce sola y Vianey la
+//       corrige con un toque; los leads que llegan por fuera (WhatsApp 990,
+//       llamadas) se anotan a mano.
+//     · Sesiones cerradas: las reservas de Juan entran solas; las demás a mano.
+//     · Costo por lead y por sesión de pauta, ticket promedio y retorno.
+//
+// ⚠️ LOS CORREOS NO SE TOCAN (Vianey, 5-nov-2026). Aquí la Bandeja solo se LEE:
+//   nada escribe en mkt_conversaciones ni en mkt_mensajes. Lo que se corrige
+//   (la fuente de un lead) vive en mkt_neg_leads, aparte.
+//
+// Tablas: migración 046_negocio.sql. Config en mkt_kv 'negocio_cfg'.
+// ============================================================================
+import { pautaDelPeriodo, fijarTopeDiario } from './_ads.js';
+
+// La única marca que tiene esto: el estudio de fotografía (dinero de la casa).
+const IVAE_STUDIOS = '6ae5dd2381faa430d9e6966470b29602';
+
+// Colecciones ANTERIORES (las del PDF "Exclusive Collections - anteriores"):
+// Vianey las regresó el 5-nov-2026. Precios en USD.
+const PAQUETES_ANTERIORES = [
+  { clave: 'spark', nombre: 'The Spark', minutos: 35, fotos: '15', precio: 245 },
+  { clave: 'glow', nombre: 'The Glow Hour', minutos: 45, fotos: '25', precio: 325 },
+  { clave: 'essential', nombre: 'The Essential Flow', minutos: 60, fotos: '35', precio: 395 },
+  { clave: 'creative', nombre: 'The Creative Runway', minutos: 75, fotos: '50', precio: 475 },
+  { clave: 'visual', nombre: 'The Visual Story', minutos: 90, fotos: '70', precio: 575 },
+  { clave: 'full', nombre: 'The Full Experience', minutos: 90, fotos: 'Galería completa', precio: 725 },
+];
+// Las colecciones que rigieron del 30-oct al 5-nov-2026: una reserva hecha con
+// esos nombres se vendió a ESE precio, así que se respeta al importarla.
+const PRECIOS_30OCT = { postcard: 295, keepsake: 375, chapter: 475, story: 545, editorial: 645, heirloom: 895 };
+// Mezcla real de 44 sesiones confirmadas (oct-2025 a oct-2026): la referencia
+// del ticket promedio mientras el mes no tenga ventas con precio.
+const MEZCLA_44 = { spark: 15, glow: 11, essential: 12, creative: 3, visual: 2, full: 1 };
+
+const FUENTES = ['pauta', 'seo', 'redes', 'recomendacion', 'hotel', 'otro'];
+const FUENTES_LEAD = [...FUENTES, 'no_lead'];
+
+const CFG_BASE = {
+  presupuesto_diario: 100,                                    // MXN al día
+  destino: { nombre: 'Juan', numero: '+52 998 758 2363' },     // todo anuncio va a WhatsApp de Juan
+  paquetes: PAQUETES_ANTERIORES,
+  tipo_cambio: 18.7,                                          // MXN por USD
+  tc_en: null,
+};
+
+const soloAdmin = (session) => session && session.role === 'admin';
+
+// ── Fechas (Cancún = UTC-5 todo el año) ─────────────────────────────────────
+const hoyCancun = () => new Date(Date.now() - 5 * 3600e3).toISOString().slice(0, 10);
+const diaCancunDeUtc = (s) => {
+  const t = Date.parse(String(s || '').replace(' ', 'T') + (String(s || '').includes('Z') ? '' : 'Z'));
+  return isNaN(t) ? null : new Date(t - 5 * 3600e3).toISOString().slice(0, 10);
+};
+const masUnDia = (ymd) => { const d = new Date(`${ymd}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
+function periodoDe(mesPedido) {
+  const hoy = hoyCancun();
+  const mes = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(mesPedido || '')) ? mesPedido : hoy.slice(0, 7);
+  const [a, m] = mes.split('-').map(Number);
+  const diasMes = new Date(Date.UTC(a, m, 0)).getUTCDate();
+  const desde = `${mes}-01`;
+  const fin = `${mes}-${String(diasMes).padStart(2, '0')}`;
+  const esActual = mes === hoy.slice(0, 7);
+  const futuro = desde > hoy;
+  const hasta = esActual ? hoy : fin;
+  const transcurridos = futuro ? 0 : (esActual ? Number(hoy.slice(8, 10)) : diasMes);
+  return { mes, desde, hasta, fin, dias_mes: diasMes, dias_transcurridos: transcurridos, es_actual: esActual, futuro };
+}
+// Rango en UTC ('AAAA-MM-DD HH:MM:SS') que cubre los días de Cancún desde..hasta.
+const rangoUtc = (desde, hasta) => [`${desde} 05:00:00`, `${masUnDia(hasta)} 05:00:00`];
+
+// ── Config ──────────────────────────────────────────────────────────────────
+async function leerCfg(env) {
+  let guardada = null;
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'negocio_cfg'").first();
+    guardada = r && r.value ? JSON.parse(r.value) : null;
+  } catch { guardada = null; }
+  const cfg = { ...CFG_BASE, ...(guardada || {}) };
+  if (!Array.isArray(cfg.paquetes) || !cfg.paquetes.length) cfg.paquetes = PAQUETES_ANTERIORES;
+  return guardada ? cfg : { ...cfg, primera_vez: true };
+}
+// La primera vez que se abre el panel queda guardado el presupuesto que pidió
+// Vianey (100 al día) y ese mismo número pasa a ser el techo de la pauta
+// automática (ads_tope_diario nacía en 500). Una sola vez.
+async function iniciarCfg(env, cfg) {
+  if (!cfg.primera_vez) return cfg;
+  const { primera_vez, ...limpia } = cfg;
+  await guardarCfg(env, limpia);
+  try { await fijarTopeDiario(env, limpia.presupuesto_diario); } catch (e) { console.error('[negocio] tope', e && e.message); }
+  return limpia;
+}
+async function guardarCfg(env, cfg) {
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind('negocio_cfg', JSON.stringify(cfg)).run();
+}
+// El tipo de cambio se refresca una vez al día (fuente gratuita, sin llave). Si
+// falla, se queda el último que hubo: nunca tumba la pantalla.
+async function refrescarTipoCambio(env, cfg) {
+  const hoy = hoyCancun();
+  if (cfg.tc_en === hoy || cfg.tc_manual) return cfg;
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(3000) });
+    const d = await r.json();
+    const mxn = Number(d && d.rates && d.rates.MXN);
+    if (d && d.result === 'success' && mxn > 5 && mxn < 60) {
+      const nuevo = { ...cfg, tipo_cambio: Math.round(mxn * 100) / 100, tc_en: hoy };
+      await guardarCfg(env, nuevo);
+      return nuevo;
+    }
+  } catch { /* sin red: se queda el último */ }
+  return cfg;
+}
+
+// ── Paquete → precio ────────────────────────────────────────────────────────
+const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/\(.*?\)/g, '').replace(/^the\s+/, '').replace(/\s+/g, ' ').trim();
+function precioDe(paquete, cfg) {
+  const n = norm(paquete);
+  if (!n) return null;
+  const exacto = cfg.paquetes.find((p) => norm(p.nombre) === n);
+  if (exacto) return Number(exacto.precio) || null;
+  if (PRECIOS_30OCT[n] != null) return PRECIOS_30OCT[n];
+  const parecido = cfg.paquetes.find((p) => p.clave && n.split(' ').includes(p.clave));
+  return parecido ? Number(parecido.precio) || null : null;
+}
+function ticketReferencia(cfg) {
+  let suma = 0; let n = 0;
+  for (const [clave, veces] of Object.entries(MEZCLA_44)) {
+    const p = cfg.paquetes.find((x) => x.clave === clave);
+    if (!p || !(Number(p.precio) > 0)) continue;
+    suma += Number(p.precio) * veces; n += veces;
+  }
+  return n ? Math.round((suma / n) * 100) / 100 : null;
+}
+
+// ── Fuente de un lead (deducida) ────────────────────────────────────────────
+const CORREOS_PROPIOS = /^(info@ivaestudios\.com|vianeydm07@gmail\.com|vianeydmphoto@gmail\.com|isra9158@gmail\.com)$/i;
+const TELS_PROPIOS = /(9902046514|2288570584|9987582363)$/;
+const NO_ES_LEAD = /^asunto:\s*(aceptada|rechazada|accepted|declined|invitaci|notas:)|meta policy|policy support|verification program|eligible to join|important notice/i;
+// Correos de hoteles y proveedores: casi siempre permisos o pagos, no clientes.
+const DOMINIO_PROVEEDOR = /(posadas|hyatt|hilton|marriott|iberostar|(^|\.)riu\.|barcelo|princess-hotels|rosewood|vivaresorts|sirenis|mondrian|grupolomas|trshotels|oceanhotels|houseofaia|omytransfer|palladium|karisma|hotel|resort)/i;
+function origenDe(v) { try { return v.origen ? JSON.parse(v.origen) : null; } catch { return null; } }
+function fuenteAuto(v) {
+  const o = origenDe(v);
+  if (o && o.tipo === 'anuncio') return 'pauta';
+  if (/^prueba\b/i.test(String(v.nombre || ''))) return 'no_lead';
+  if (NO_ES_LEAD.test(String(v.primer_texto || ''))) return 'no_lead';
+  const contacto = String(v.contacto_id || '').toLowerCase();
+  if (v.canal === 'correo') {
+    if (CORREOS_PROPIOS.test(contacto) || /@google\.com$|no-?reply/.test(contacto)) return 'no_lead';
+    if (DOMINIO_PROVEEDOR.test(contacto.split('@')[1] || '')) return 'no_lead';
+    // "Re:" o "Fwd:" de entrada = el hilo empezó antes (un cliente que ya estaba o
+    // una respuesta nuestra): no se adivina, lo dice Vianey.
+    if (/^asunto:\s*(re|rv|fw|fwd)\s*:/i.test(String(v.primer_texto || ''))) return null;
+    return 'seo';     // el correo de info@ se encuentra en el sitio y en Google
+  }
+  if (v.canal === 'whatsapp' && TELS_PROPIOS.test(contacto.replace(/\D/g, ''))) return 'no_lead';
+  if (v.canal === 'instagram' || v.canal === 'messenger') return 'redes';
+  return null;        // WhatsApp sin anuncio: no se sabe, lo dice Vianey
+}
+
+// ── Reservas de Juan → ventas ───────────────────────────────────────────────
+// Idempotente: inserta las nuevas y solo actualiza el estado y el día de la
+// sesión de las que ya estaban. Lo que Vianey corrigió (precio, fuente) no se pisa.
+async function sincronizarReservas(env, cfg) {
+  let d = null;
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_reservas'").first();
+    d = r && r.value ? JSON.parse(r.value) : null;
+  } catch { d = null; }
+  if (!d || d.client_id !== IVAE_STUDIOS || !Array.isArray(d.reservas)) return 0;
+  const stmts = [];
+  for (const r of d.reservas) {
+    if (!r || r.id == null) continue;
+    const estado = r.estado === 'hecho' ? 'cerrada' : r.estado === 'cancelado' ? 'cancelada' : null;
+    if (!estado) continue;                       // 'ocupado' = bloqueo de agenda; pendientes y errores no son venta
+    const fecha = diaCancunDeUtc(r.creado) || hoyCancun();
+    const fechaSesion = String(r.inicio_iso || '').slice(0, 10) || null;
+    const prueba = /prueba/i.test(String(r.cliente || ''));
+    stmts.push(env.DB.prepare(
+      `INSERT INTO mkt_neg_ventas (id, client_id, fecha, fecha_sesion, cliente, paquete, precio, estado, reserva_id, notas, creado_por)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'juan')
+       ON CONFLICT(reserva_id) DO UPDATE SET
+         estado = CASE WHEN mkt_neg_ventas.estado = 'no_cuenta' THEN 'no_cuenta' ELSE excluded.estado END,
+         fecha_sesion = excluded.fecha_sesion`
+    ).bind(
+      'v' + crypto.randomUUID().replace(/-/g, ''), IVAE_STUDIOS, fecha, fechaSesion,
+      String(r.cliente || '').slice(0, 120) || null, String(r.paquete || '').slice(0, 80) || null,
+      precioDe(r.paquete, cfg), prueba && estado === 'cerrada' ? 'no_cuenta' : estado,
+      'juan:' + r.id, r.email ? `Correo: ${String(r.email).slice(0, 120)}` : null,
+    ));
+  }
+  if (stmts.length) await env.DB.batch(stmts);
+  return stmts.length;
+}
+
+// ── El resumen del mes ──────────────────────────────────────────────────────
+async function resumen(env, url) {
+  const p = periodoDe(url.searchParams.get('mes'));
+  let cfg = await iniciarCfg(env, await leerCfg(env));
+  cfg = await refrescarTipoCambio(env, cfg);
+  await sincronizarReservas(env, cfg).catch((e) => console.error('[negocio] reservas', e && e.message));
+  const [u0, u1] = rangoUtc(p.desde, p.fin);
+
+  const [convsR, todasR, overR, manualR, ventasR, juanR, pauta] = await Promise.all([
+    // Leads del mes: conversaciones cuyo PRIMER mensaje del cliente cae en el mes.
+    env.DB.prepare(
+      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.origen, v.etapa, MIN(m.creado) AS primer_in
+         FROM mkt_conversaciones v JOIN mkt_mensajes m ON m.conv_id = v.id AND m.direccion = 'in'
+        WHERE v.client_id = ? GROUP BY v.id HAVING primer_in >= ? AND primer_in < ?
+        ORDER BY primer_in DESC LIMIT 400`
+    ).bind(IVAE_STUDIOS, u0, u1).all(),
+    // Todas las conversaciones (para deducir de dónde vino cada venta).
+    env.DB.prepare('SELECT id, canal, contacto_id, nombre, origen FROM mkt_conversaciones WHERE client_id = ? LIMIT 3000').bind(IVAE_STUDIOS).all(),
+    env.DB.prepare('SELECT conv_id, fuente FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NOT NULL').bind(IVAE_STUDIOS).all(),
+    env.DB.prepare('SELECT * FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
+    env.DB.prepare('SELECT * FROM mkt_neg_ventas WHERE client_id = ? AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
+    env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'juan_bot_estado'").first().catch(() => null),
+    p.futuro ? Promise.resolve({ conectada: true, origen: 'base', gasto: 0, moneda: 'MXN', activas: [], conversaciones: null, clics: null, error: null }) : pautaDelPeriodo(env, p.desde, p.hasta),
+  ]);
+
+  // Primer texto de cada lead del mes (para ver de qué se trata y deducir "no es lead").
+  const convs = convsR.results || [];
+  const primeros = new Map();
+  if (convs.length) {
+    const ids = convs.map((v) => v.id);
+    for (let i = 0; i < ids.length; i += 80) {
+      const lote = ids.slice(i, i + 80);
+      const r = await env.DB.prepare(
+        `SELECT m.conv_id, m.texto FROM mkt_mensajes m
+          WHERE m.direccion = 'in' AND m.conv_id IN (${lote.map(() => '?').join(',')})
+            AND m.creado = (SELECT MIN(x.creado) FROM mkt_mensajes x WHERE x.conv_id = m.conv_id AND x.direccion = 'in')`
+      ).bind(...lote).all();
+      for (const row of r.results || []) if (!primeros.has(row.conv_id)) primeros.set(row.conv_id, row.texto || '');
+    }
+  }
+  const override = new Map((overR.results || []).map((o) => [o.conv_id, o.fuente]));
+
+  const leads = convs.map((v) => {
+    const texto = primeros.get(v.id) || '';
+    const auto = fuenteAuto({ ...v, primer_texto: texto });
+    const o = origenDe(v);
+    return {
+      id: v.id, conv_id: v.id, manual: false, canal: v.canal,
+      nombre: v.nombre || (v.username ? '@' + v.username : v.contacto_id),
+      fecha: diaCancunDeUtc(v.primer_in), texto: String(texto).replace(/^Asunto:\s*/i, '').replace(/\s+/g, ' ').trim().slice(0, 140),
+      fuente: override.has(v.id) ? override.get(v.id) : auto, auto: !override.has(v.id),
+      anuncio: o && o.tipo === 'anuncio' ? (o.titulo || o.ad_id || 'Anuncio') : null,
+      etapa: v.etapa || null,
+    };
+  });
+  for (const l of manualR.results || []) {
+    leads.push({ id: l.id, conv_id: null, manual: true, canal: l.canal || 'otro', nombre: l.nombre || 'Sin nombre', fecha: l.fecha, texto: l.notas || '', fuente: l.fuente, auto: false, anuncio: null, etapa: null });
+  }
+  leads.sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')));
+
+  // Fuente de cada venta: la que puso Vianey o la de su conversación (por correo o por nombre).
+  const todas = todasR.results || [];
+  const porCorreo = new Map(todas.filter((v) => v.canal === 'correo').map((v) => [String(v.contacto_id).toLowerCase(), v]));
+  const porNombre = new Map();
+  for (const v of todas) { const k = norm(v.nombre); if (k && k.length > 3 && !porNombre.has(k)) porNombre.set(k, v); }
+  const fuenteDeConv = (v) => (override.has(v.id) ? override.get(v.id) : fuenteAuto(v));
+  const ventas = [];
+  let ocultas = 0;
+  for (const v of ventasR.results || []) {
+    if (v.estado !== 'cerrada') { ocultas++; continue; }
+    let auto = null;
+    if (!v.fuente) {
+      const correo = (String(v.notas || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0];
+      const conv = (correo && porCorreo.get(correo.toLowerCase())) || porNombre.get(norm(v.cliente));
+      if (conv) { const f = fuenteDeConv(conv); auto = f && f !== 'no_lead' ? f : null; }
+    }
+    ventas.push({
+      id: v.id, fecha: v.fecha, fecha_sesion: v.fecha_sesion, cliente: v.cliente, paquete: v.paquete,
+      precio: v.precio != null ? Number(v.precio) : null, fuente: v.fuente || auto, fuente_auto: !v.fuente,
+      origen: v.reserva_id ? 'juan' : 'manual', notas: v.notas || '',
+    });
+  }
+
+  // ── Números ──
+  const tc = Number(cfg.tipo_cambio) || CFG_BASE.tipo_cambio;
+  const cuenta = (lista, f) => lista.filter((x) => x.fuente === f).length;
+  const validos = leads.filter((l) => l.fuente !== 'no_lead');
+  const porFuenteLeads = Object.fromEntries(FUENTES.map((f) => [f, cuenta(validos, f)]));
+  porFuenteLeads.sin_definir = validos.filter((l) => !l.fuente).length;
+  const porFuenteVentas = Object.fromEntries(FUENTES.map((f) => [f, cuenta(ventas, f)]));
+  porFuenteVentas.sin_definir = ventas.filter((v) => !v.fuente).length;
+  const conPrecio = ventas.filter((v) => v.precio > 0);
+  const ingresos = conPrecio.reduce((s, v) => s + v.precio, 0);
+  const ventasPauta = ventas.filter((v) => v.fuente === 'pauta');
+  const ingresosPauta = ventasPauta.filter((v) => v.precio > 0).reduce((s, v) => s + v.precio, 0);
+  const gasto = Number(pauta.gasto) || 0;
+  const ticket = conPrecio.length ? ingresos / conPrecio.length : null;
+  const ticketRef = ticketReferencia(cfg);
+  const presupuestoMes = (Number(cfg.presupuesto_diario) || 0) * p.dias_mes;
+  const redondo = (n) => (n == null || !isFinite(n) ? null : Math.round(n * 100) / 100);
+
+  let juan = null;
+  try { const e = juanR && juanR.value ? JSON.parse(juanR.value) : null; juan = e ? { en: e.en || null } : null; } catch { juan = null; }
+
+  return {
+    periodo: p,
+    cfg: { presupuesto_diario: cfg.presupuesto_diario, destino: cfg.destino, paquetes: cfg.paquetes, tipo_cambio: tc, tc_en: cfg.tc_en || null, tc_manual: !!cfg.tc_manual },
+    pauta,
+    juan,
+    leads,
+    ventas,
+    ocultas,
+    kpis: {
+      gasto: redondo(gasto),
+      presupuesto_mes: presupuestoMes,
+      leads: { total: validos.length, ...porFuenteLeads },
+      ventas: { total: ventas.length, ...porFuenteVentas, sin_precio: ventas.length - conPrecio.length },
+      ingresos_usd: redondo(ingresos),
+      ingresos_pauta_usd: redondo(ingresosPauta),
+      ticket_usd: redondo(ticket),
+      ticket_n: conPrecio.length,
+      ticket_ref_usd: ticketRef,
+      costo_lead_pauta: porFuenteLeads.pauta ? redondo(gasto / porFuenteLeads.pauta) : null,
+      costo_sesion_pauta: ventasPauta.length ? redondo(gasto / ventasPauta.length) : null,
+      retorno_pauta: gasto > 0 ? redondo((ingresosPauta * tc) / gasto) : null,
+      conversion_pauta: porFuenteLeads.pauta ? redondo(ventasPauta.length / porFuenteLeads.pauta) : null,
+      sesiones_para_pagar: (ticket || ticketRef) ? redondo(presupuestoMes / ((ticket || ticketRef) * tc)) : null,
+    },
+  };
+}
+
+// ── Escrituras ──────────────────────────────────────────────────────────────
+const limpio = (s, n) => (s == null ? null : String(s).trim().slice(0, n) || null);
+const fechaOk = (s) => (/^\d{4}-\d{2}-\d{2}$/.test(String(s || '')) ? String(s) : null);
+
+async function ajustes(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const cfg = await iniciarCfg(env, await leerCfg(env));
+  const nuevo = { ...cfg };
+  if (body.presupuesto_diario != null) {
+    const n = Math.round(Number(body.presupuesto_diario));
+    if (!(n >= 50 && n <= 50000)) return { error: 'El presupuesto diario va de 50 a 50,000 pesos.', status: 400 };
+    nuevo.presupuesto_diario = n;
+  }
+  if (body.tipo_cambio != null) {
+    const t = Number(body.tipo_cambio);
+    if (!(t > 5 && t < 60)) return { error: 'Ese tipo de cambio no se ve bien.', status: 400 };
+    nuevo.tipo_cambio = Math.round(t * 100) / 100; nuevo.tc_manual = true; nuevo.tc_en = hoyCancun();
+  }
+  if (body.tc_auto === true) { nuevo.tc_manual = false; nuevo.tc_en = null; }
+  if (Array.isArray(body.paquetes)) {
+    const lista = body.paquetes.slice(0, 20).map((x, i) => ({
+      clave: limpio(x.clave, 30) || (cfg.paquetes[i] && cfg.paquetes[i].clave) || `p${i}`,
+      nombre: limpio(x.nombre, 60),
+      minutos: Number(x.minutos) || null,
+      fotos: limpio(x.fotos, 40),
+      precio: Math.round(Number(x.precio) * 100) / 100,
+    })).filter((x) => x.nombre && x.precio > 0);
+    if (!lista.length) return { error: 'Faltan los paquetes con su precio.', status: 400 };
+    nuevo.paquetes = lista;
+  }
+  await guardarCfg(env, nuevo);
+  if (body.presupuesto_diario != null && nuevo.presupuesto_diario !== cfg.presupuesto_diario) await fijarTopeDiario(env, nuevo.presupuesto_diario);
+  return { ok: true };
+}
+
+async function guardarLead(request, env, session, deps) {
+  const b = await request.json().catch(() => ({}));
+  const fuente = String(b.fuente || '');
+  if (!FUENTES_LEAD.includes(fuente)) return { error: 'Fuente no válida.', status: 400 };
+  if (b.conv_id) {
+    const v = await env.DB.prepare('SELECT id FROM mkt_conversaciones WHERE id = ? AND client_id = ?').bind(String(b.conv_id), IVAE_STUDIOS).first();
+    if (!v) return { error: 'Conversación no encontrada.', status: 404 };
+    await env.DB.prepare(
+      `INSERT INTO mkt_neg_leads (id, client_id, conv_id, fuente, creado_por) VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(conv_id) DO UPDATE SET fuente = excluded.fuente, updated_at = datetime('now')`
+    ).bind(deps.randomId(), IVAE_STUDIOS, v.id, fuente, session.name || null).run();
+    return { ok: true };
+  }
+  const nombre = limpio(b.nombre, 120);
+  if (!nombre) return { error: 'Escribe el nombre.', status: 400 };
+  await env.DB.prepare(
+    'INSERT INTO mkt_neg_leads (id, client_id, fecha, nombre, canal, fuente, notas, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(deps.randomId(), IVAE_STUDIOS, fechaOk(b.fecha) || hoyCancun(), nombre, limpio(b.canal, 30) || 'otro', fuente, limpio(b.notas, 500), session.name || null).run();
+  return { ok: true };
+}
+
+async function borrarLead(env, id) {
+  // Una fuente corregida se borra = vuelve a la deducida; un lead a mano se borra.
+  const r = await env.DB.prepare('DELETE FROM mkt_neg_leads WHERE client_id = ? AND (id = ? OR conv_id = ?)').bind(IVAE_STUDIOS, id, id).run();
+  return (r.meta && r.meta.changes) ? { ok: true } : { error: 'No encontrado.', status: 404 };
+}
+
+function camposVenta(b, cfg) {
+  const out = {};
+  if ('cliente' in b) out.cliente = limpio(b.cliente, 120);
+  if ('paquete' in b) out.paquete = limpio(b.paquete, 80);
+  if ('precio' in b) { const n = Number(b.precio); out.precio = b.precio === null || b.precio === '' ? null : (n >= 0 && n < 100000 ? Math.round(n * 100) / 100 : undefined); }
+  if ('fuente' in b) out.fuente = b.fuente === null || b.fuente === '' ? null : (FUENTES.includes(String(b.fuente)) ? String(b.fuente) : undefined);
+  if ('fecha' in b) out.fecha = fechaOk(b.fecha) || undefined;
+  if ('fecha_sesion' in b) out.fecha_sesion = b.fecha_sesion ? (fechaOk(b.fecha_sesion) || undefined) : null;
+  if ('notas' in b) out.notas = limpio(b.notas, 500);
+  if ('estado' in b) out.estado = ['cerrada', 'no_cuenta'].includes(String(b.estado)) ? String(b.estado) : undefined;
+  // Paquete nuevo sin precio escrito → el del catálogo.
+  if (out.paquete && !('precio' in b)) out.precio = precioDe(out.paquete, cfg);
+  return out;
+}
+
+async function crearVenta(request, env, session, deps) {
+  const b = await request.json().catch(() => ({}));
+  const cfg = await leerCfg(env);
+  const c = camposVenta(b, cfg);
+  if (Object.values(c).includes(undefined)) return { error: 'Revisa los datos.', status: 400 };
+  if (!c.cliente) return { error: 'Escribe el nombre del cliente.', status: 400 };
+  if (c.precio == null && c.paquete) c.precio = precioDe(c.paquete, cfg);
+  await env.DB.prepare(
+    `INSERT INTO mkt_neg_ventas (id, client_id, fecha, fecha_sesion, cliente, paquete, precio, fuente, estado, notas, creado_por)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'cerrada', ?, ?)`
+  ).bind(deps.randomId(), IVAE_STUDIOS, c.fecha || hoyCancun(), c.fecha_sesion || null, c.cliente, c.paquete || null,
+    c.precio != null ? c.precio : null, c.fuente || null, c.notas || null, session.name || null).run();
+  return { ok: true };
+}
+
+async function editarVenta(request, env, id) {
+  const b = await request.json().catch(() => ({}));
+  const cfg = await leerCfg(env);
+  const c = camposVenta(b, cfg);
+  if (Object.values(c).includes(undefined)) return { error: 'Revisa los datos.', status: 400 };
+  const claves = Object.keys(c);
+  if (!claves.length) return { error: 'Nada que cambiar.', status: 400 };
+  const r = await env.DB.prepare(
+    `UPDATE mkt_neg_ventas SET ${claves.map((k) => `${k} = ?`).join(', ')}, updated_at = datetime('now') WHERE id = ? AND client_id = ?`
+  ).bind(...claves.map((k) => c[k]), id, IVAE_STUDIOS).run();
+  return (r.meta && r.meta.changes) ? { ok: true } : { error: 'No encontrada.', status: 404 };
+}
+
+async function borrarVenta(env, id) {
+  // Las de Juan no se borran (volverían en la siguiente sincronización): quedan como "no cuenta".
+  const v = await env.DB.prepare('SELECT reserva_id FROM mkt_neg_ventas WHERE id = ? AND client_id = ?').bind(id, IVAE_STUDIOS).first();
+  if (!v) return { error: 'No encontrada.', status: 404 };
+  if (v.reserva_id) await env.DB.prepare("UPDATE mkt_neg_ventas SET estado = 'no_cuenta', updated_at = datetime('now') WHERE id = ?").bind(id).run();
+  else await env.DB.prepare('DELETE FROM mkt_neg_ventas WHERE id = ?').bind(id).run();
+  return { ok: true };
+}
+
+export async function handleNegocio(request, env, session, path, url, deps) {
+  const { json } = deps;
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const method = request.method;
+  const sub = path.slice('/negocio'.length) || '/';
+  const responder = (r) => json(r.error ? { error: r.error } : r, r.error ? (r.status || 400) : 200);
+  try {
+    if (sub === '/resumen' && method === 'GET') return json(await resumen(env, url));
+    if (sub === '/ajustes' && method === 'POST') return responder(await ajustes(request, env));
+    if (sub === '/leads' && method === 'POST') return responder(await guardarLead(request, env, session, deps));
+    let m = sub.match(/^\/leads\/([\w-]{6,80})$/);
+    if (m && method === 'DELETE') return responder(await borrarLead(env, m[1]));
+    if (sub === '/ventas' && method === 'POST') return responder(await crearVenta(request, env, session, deps));
+    m = sub.match(/^\/ventas\/([\w-]{6,80})$/);
+    if (m && method === 'PATCH') return responder(await editarVenta(request, env, m[1]));
+    if (m && method === 'DELETE') return responder(await borrarVenta(env, m[1]));
+    return json({ error: 'Not found' }, 404);
+  } catch (e) {
+    console.error('[negocio]', e && e.stack || e);
+    // Nunca 5xx: Cloudflare reemplaza el cuerpo y el motivo se pierde.
+    const sinTabla = /no such table/i.test(String(e && e.message));
+    return json({ error: sinTabla ? 'Falta crear las tablas de Administración (migración 046).' : 'No se pudo. Reintenta.' }, 422);
+  }
+}

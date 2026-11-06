@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611050605';
-import { setRoleDefault } from './theme.js?v=202611050605';
-import { vigilarSegmentados } from './segfade.js?v=202611050605';
-import * as store from './store.js?v=202611050605';
-import * as prefs from './prefs.js?v=202611050605';
-import * as router from './router.js?v=202611050605';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611050605';
-import { toast } from './toast.js?v=202611050605';
-import { icon } from './icons.js?v=202611050605';
-import * as iconsMod from './icons.js?v=202611050605';
-import { createTopbar } from './topbar.js?v=202611050605';
-import { createBottomNav } from './bottomnav.js?v=202611050605';
-import { createSearch } from './search.js?v=202611050605';
-import { createNotifications } from './notifications.js?v=202611050605';
-import { T } from './i18n.js?v=202611050605';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611050605';
-import * as version from './version.js?v=202611050605';
-import * as tienda from './tienda.js?v=202611050605';
-import * as pickers from '../ui/pickers.js?v=202611050605';
-import * as dnd from '../ui/dnd.js?v=202611050605';
+import { api, el, clear } from '../api.js?v=202611052322';
+import { setRoleDefault } from './theme.js?v=202611052322';
+import { vigilarSegmentados } from './segfade.js?v=202611052322';
+import * as store from './store.js?v=202611052322';
+import * as prefs from './prefs.js?v=202611052322';
+import * as router from './router.js?v=202611052322';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611052322';
+import { toast } from './toast.js?v=202611052322';
+import { icon } from './icons.js?v=202611052322';
+import * as iconsMod from './icons.js?v=202611052322';
+import { createTopbar } from './topbar.js?v=202611052322';
+import { createBottomNav } from './bottomnav.js?v=202611052322';
+import { createSearch } from './search.js?v=202611052322';
+import { createNotifications } from './notifications.js?v=202611052322';
+import { T } from './i18n.js?v=202611052322';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611052322';
+import * as version from './version.js?v=202611052322';
+import * as tienda from './tienda.js?v=202611052322';
+import * as pickers from '../ui/pickers.js?v=202611052322';
+import * as dnd from '../ui/dnd.js?v=202611052322';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -84,6 +84,8 @@ const esAgenteBandeja = () => rolBandeja() === 'agente';
 // Marca "solo CRM" (bandeja_cfg.solo_crm → /auth/me.solo_crm): su equipo,
 // supervisor incluido, solo entra a la Bandeja (sin calendario ni contenido).
 const soloBandeja = () => esAgenteBandeja() || (!!rolBandeja() && !!(store.getState().me || {}).solo_crm);
+// Pauta y Administración son de la dueña (el backend responde 403 a los demás).
+const esAdminShell = () => ((store.getState().me || {}).role === 'admin');
 const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (!soloBandeja() && CLIENT_VIEWS.includes(view))
   || (view === 'contenido' && !soloBandeja() && clientVeContenido())
@@ -99,6 +101,7 @@ const CONTENT_LABELS = {
   entregables: T('Entregables', 'Deliverables'),
   marca: T('Marca', 'Brand'),
   metricas: T('Métricas', 'Metrics'),
+  administracion: T('Administración', 'Administration'),
   asistente: T('Asistente', 'Assistant'),
   carrusel: T('Carrusel', 'Carousel'),
   descargar: T('Descargar', 'Download'),
@@ -205,6 +208,7 @@ function updateSubhead() {
   const isContent = CONTENT_VIEWS.includes(view)
     || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
     || (view === 'asistente' && (isClientRole() ? clientCanView('asistente') : true))
+    || (view === 'administracion' && esAdminShell())
     || (view === 'bandeja' && (!isClientRole() || !!rolBandeja()));
   if (isContent) {
     const client = isClientRole();
@@ -247,6 +251,8 @@ function buildSubhead(root) {
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
   // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
   if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
+  // Administración (5-nov-2026): solo la dueña. En el teléfono este seg es su única puerta.
+  if (esAdminShell()) segViews.push('administracion');
   // Asistente de IA (piloto 30-oct-2026): staff siempre (para probar y encender); cliente si su marca lo tiene.
   if (isClientRole() ? clientCanView('asistente') : true) segViews.push('asistente');
   // Bandeja (comentarios + mensajes + CRM): staff, y el equipo de la marca

@@ -769,6 +769,65 @@ export async function handleAdsAjustes(request, env, session) {
   return handleAdsBitacora(env, session);
 }
 
+// ── Para la vista Administración (_negocio.js) ──────────────────────────────
+// El presupuesto diario que fija la dueña ES el techo de la IA: así la pauta
+// automática nunca deja vivas campañas que sumen más que eso.
+export async function fijarTopeDiario(env, mxn) {
+  const t = Math.max(50, Math.min(50000, Math.round(Number(mxn) || 0)));
+  await kvSet(env, 'ads_tope_diario', String(t));
+  await bitacora(env, { quien: 'persona', accion: 'tope_diario', despues: `${t} MXN/día`, ok: true, motivo: 'Presupuesto diario fijado en Administración' });
+  return t;
+}
+
+// Gasto y conversaciones de un periodo (AAAA-MM-DD, hora de la cuenta) más las
+// campañas encendidas. Dos llamadas a Meta; si Meta falla, el gasto sale de
+// mkt_ads_dia (que se llena cada noche) para que la pantalla nunca quede en blanco.
+export async function pautaDelPeriodo(env, desde, hasta) {
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  const base = async (error) => {
+    let g = 0;
+    try {
+      const r = await env.DB.prepare('SELECT COALESCE(SUM(gasto), 0) AS g FROM mkt_ads_dia WHERE dia >= ? AND dia <= ?').bind(desde, hasta).first();
+      g = Number(r && r.g) || 0;
+    } catch { /* sin tabla: cero */ }
+    return { conectada: !!(cuenta && tok), origen: 'base', gasto: g, moneda: (cuenta && cuenta.currency) || 'MXN', conversaciones: null, clics: null, activas: [], error: error || null };
+  };
+  if (!cuenta || !tok) return base(null);
+  try {
+    const [ins, camps] = await Promise.all([
+      fbJson(`${FB_GRAPH}/${cuenta.id}/insights?` + new URLSearchParams({
+        level: 'account',
+        time_range: JSON.stringify({ since: desde, until: hasta }),
+        fields: 'spend,clicks,actions',
+        access_token: tok.t,
+      })),
+      fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
+        fields: 'id,name,objective,daily_budget,adsets.limit(10){daily_budget,status}',
+        effective_status: JSON.stringify(['ACTIVE']),
+        limit: '50',
+        access_token: tok.t,
+      })),
+    ]);
+    const fila = (ins && ins.data && ins.data[0]) || {};
+    const conv = ((fila.actions || []).find((a) => a.action_type === 'onsite_conversion.messaging_conversation_started_7d') || {}).value;
+    const activas = ((camps && camps.data) || []).map((c) => {
+      const sets = (c.adsets && c.adsets.data) || [];
+      const diario = Number(c.daily_budget) || sets.filter((a) => a.status === 'ACTIVE').reduce((t, a) => t + (Number(a.daily_budget) || 0), 0);
+      return { id: c.id, nombre: c.name, objetivo: c.objective, diario: diario ? diario / 100 : null };
+    });
+    return {
+      conectada: true, origen: 'meta', moneda: cuenta.currency || 'MXN',
+      gasto: Number(fila.spend) || 0,
+      clics: fila.clicks != null ? Number(fila.clicks) : null,
+      conversaciones: conv != null ? Number(conv) : null,
+      activas, error: null,
+    };
+  } catch (e) {
+    return base((e && e.message) || 'No se pudo leer Meta');
+  }
+}
+
 // ============================================================================
 // PASO 4: CREAR UNA CAMPANA.
 //

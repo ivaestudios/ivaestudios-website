@@ -66,6 +66,7 @@ import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, pu
 import { pedirCarrusel } from './_carrusel-ia.js';
 // Asistente de IA para clientes (piloto 30-oct-2026): la marca sale de la sesión.
 import { handleAsistente } from './_asistente.js';
+import { handleNegocio } from './_negocio.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
@@ -5683,6 +5684,9 @@ async function route(request, env, authCtx) {
 
   // ── Asistente de IA para clientes (piloto) ─────────────────────────────────
   if (path.startsWith('/asistente/')) return handleAsistente(request, env, session, path, url, { json, notify, randomId });
+
+  // ── Administración del estudio (pauta, leads, sesiones cerradas, ticket) ──
+  if (path.startsWith('/negocio/')) return handleNegocio(request, env, session, path, url, { json, randomId });
 
   // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);

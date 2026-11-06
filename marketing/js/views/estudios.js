@@ -18,9 +18,9 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, toast } from '../api.js?v=202611050605';
-import { icon } from '../shell/icons.js?v=202611050605';
-import { T, isEN } from '../shell/i18n.js?v=202611050605';
+import { api, el, clear, toast } from '../api.js?v=202611052322';
+import { icon } from '../shell/icons.js?v=202611052322';
+import { T, isEN } from '../shell/i18n.js?v=202611052322';
 
 const VIEW_ID = 'estudios';
 const PANEL_GALERIA = 'https://gallery.ivaestudios.com/admin/estudios.html';

@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611050605';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611050605';
-import * as store from './store.js?v=202611050605';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611050605';
-import { toast } from './toast.js?v=202611050605';
-import { icon } from './icons.js?v=202611050605';
-import { openClientSwitcher } from './clientswitcher.js?v=202611050605';
-import { T, isEN, setLang } from './i18n.js?v=202611050605';
+import { startTour } from './tour.js?v=202611052322';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611052322';
+import * as store from './store.js?v=202611052322';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611052322';
+import { toast } from './toast.js?v=202611052322';
+import { icon } from './icons.js?v=202611052322';
+import { openClientSwitcher } from './clientswitcher.js?v=202611052322';
+import { T, isEN, setLang } from './i18n.js?v=202611052322';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611050605';
-import { getTheme, setTheme } from './theme.js?v=202611050605';
-import * as version from './version.js?v=202611050605';
-import * as tienda from './tienda.js?v=202611050605';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611050605';
-import * as prefs from './prefs.js?v=202611050605';
+import { abrirBloqueados } from './moderacion.js?v=202611052322';
+import { getTheme, setTheme } from './theme.js?v=202611052322';
+import * as version from './version.js?v=202611052322';
+import * as tienda from './tienda.js?v=202611052322';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611052322';
+import * as prefs from './prefs.js?v=202611052322';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -59,6 +59,9 @@ const DESKTOP_TABS = [
   // Pauta: anuncios pagados de la CASA. Solo admin (el filtro de rol la quita
   // para equipo y cliente); es dinero de IVAE, no de una marca.
   { id: 'pauta', label: T('Pauta', 'Ads') },
+  // Administración (5-nov-2026): costo por lead y por sesión, ticket promedio.
+  // Solo admin, igual que Pauta: son los números del negocio.
+  { id: 'administracion', label: T('Administración', 'Administration') },
   // "Estudios" (el padrón de la galería) YA NO sale en el menú: Vianey el
   // 12-sep-2026, "esto de estudios no tiene nada que ver con nosotros". Es el
   // negocio de IVAE Gallery, no del marketing. La vista y su API siguen vivas:
@@ -74,7 +77,7 @@ const DESKTOP_GRUPOS = [
   { id: 'g-bandeja', label: T('Bandeja', 'Inbox'), items: ['bandeja'] },
   { id: 'g-contenido', label: T('Contenido', 'Content'), items: ['contenido', 'meses', 'calendario', 'feed', 'entregables', 'marca'] },
   { id: 'g-crear', label: T('Crear', 'Create'), items: ['carrusel', 'video-ia', 'descargar'] },
-  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'conexiones', 'pauta'] },
+  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['administracion', 'metricas', 'conexiones', 'pauta'] },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -126,7 +129,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
       : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor')))
-    : DESKTOP_TABS.filter((t) => t.id !== 'pauta' || esAdmin);
+    : DESKTOP_TABS.filter((t) => (t.id !== 'pauta' && t.id !== 'administracion') || esAdmin);
   const irA = (id) => {
     const { activeClientId } = store.getState();
     router.navigate(id, activeClientId ? { cliente: activeClientId } : {});
