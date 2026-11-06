@@ -28,7 +28,7 @@ import { repartirPush } from './_push.js';
 import { resumenLinea, llamadaPublica } from './_llamadas-comun.js';
 // Embudo del estudio de fotos (giro 'foto'): precios de los paquetes y qué
 // conversaciones no son oportunidades. Ver sincronizarEmbudoFoto.
-import { catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead } from './_negocio.js';
+import { catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, YA_FUE_SESION, TIENE_SESION, CANCELO_SESION } from './_negocio.js';
 
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
@@ -2849,6 +2849,43 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
       if (!f) continue;
       if (Number(f.cotizo) > 0) subir(v, 'cotizado', { por: 'mensajes' });
       else if (Number(f.salidas) > 0) subir(v, 'platica', { por: 'mensajes' });
+    }
+  }
+
+  // 3b) Lo que le escribimos dice en qué va (Caso Ann, 6-nov-2026: le mandamos
+  //     la galería final sin reserva de Juan y seguía en "En plática"):
+  //     · la sesión ya pasó (editando sus fotos, galería enviada)  → Cliente
+  //     · pago confirmado o aviso de su sesión                    → Sesión agendada
+  //     · le avisamos que su sesión se canceló                    → Perdido
+  //     Manda el último mensaje que diga algo. Frases en _negocio.js; el LIKE
+  //     solo filtra para no traer todos los mensajes.
+  const abiertas = convs.filter((v) => ['nuevo', 'platica', 'cotizado', 'cita'].includes(etapaDe(v)) && !noEsLead(v));
+  for (let i = 0; i < abiertas.length; i += 80) {
+    const lote = abiertas.slice(i, i + 80);
+    const r = await env.DB.prepare(
+      `SELECT conv_id, texto FROM mkt_mensajes
+        WHERE direccion = 'out' AND conv_id IN (${lote.map(() => '?').join(',')})
+          AND (texto LIKE '%galler%' OR texto LIKE '%galer%' OR texto LIKE '%editing%' OR texto LIKE '%editando%'
+               OR texto LIKE '%payment%' OR texto LIKE '%pago%' OR texto LIKE '%photo session%' OR texto LIKE '%cancel%')
+        ORDER BY creado`
+    ).bind(...lote.map((v) => v.id)).all();
+    const senal = new Map(); // conv_id → 'cliente' | 'cita' | 'perdido'
+    for (const m of r.results || []) {
+      const t = String(m.texto || '');
+      if (CANCELO_SESION.test(t)) senal.set(m.conv_id, 'perdido');
+      else if (YA_FUE_SESION.test(t)) senal.set(m.conv_id, 'cliente');
+      else if (TIENE_SESION.test(t) && senal.get(m.conv_id) !== 'cliente') senal.set(m.conv_id, 'cita');
+    }
+    for (const v of lote) {
+      const destino = senal.get(v.id);
+      if (!destino) continue;
+      if (destino !== 'perdido') { subir(v, destino, { por: 'mensajes', motivo: destino === 'cliente' ? 'galeria' : 'pago' }); continue; }
+      // Una sesión agendada (reserva de Juan) no se tumba por un aviso viejo: solo lo que aún no tenía sesión.
+      const actual = etapaDe(v);
+      if (!['nuevo', 'platica', 'cotizado'].includes(actual)) continue;
+      const ch = tocar(v);
+      ch.sets.etapa = 'perdido'; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = 'Canceló la sesión';
+      ch.eventos.push({ tipo: 'etapa', dato: { de: actual, a: 'perdido', motivo: 'Canceló la sesión', por: 'mensajes' } });
     }
   }
 

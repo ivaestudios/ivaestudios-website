@@ -249,6 +249,19 @@ export const cfgNegocio = leerCfg;
 // y proveedores, avisos automáticos): fuera del tablero.
 export function noEsLead(v) { return fuenteAuto(v) === 'no_lead'; }
 
+// Lo que NOSOTROS le escribimos dice en qué va la persona (6-nov-2026, Ann: "ya
+// dice que le enviamos su galería final, ¿por qué está en plática?").
+// · YA_FUE_SESION: solo se dice después de la sesión (editando sus fotos, su
+//   galería ya se envió, galería final, pago del upgrade) → ya es Cliente.
+// · TIENE_SESION: pago confirmado o la plantilla "about your photo session" que
+//   Israel solo manda a quien ya reservó → al menos Sesión agendada.
+// Ojo: antes de vender Juan sí habla de la galería ("galería para selección en
+// 1–3 días hábiles"); por eso aquí solo entran frases en pasado o de después.
+export const YA_FUE_SESION = /editing your photos|editando (sus|tus) fotos|final gallery|galer[ií]a final|(we'?ve|we have|we) (just )?(sent|uploaded|delivered) your (online |photo )?gallery|your gallery (has been|was) (sent|uploaded|delivered)|gallery will be ready (later )?today|ya (le |te )?(enviamos|mandamos|subimos|entregamos) (su |tu |la )?galer[ií]a|upgrade payment|pago del upgrade/i;
+export const TIENE_SESION = /about your photo session|confirmed the payment|received your payment|payment for your session|(confirmamos|recibimos) (su |tu |el )?pago/i;
+// La misma plantilla también avisa cancelaciones (Vicki y Sarah, 30-oct): esto gana.
+export const CANCELO_SESION = /(has been|was) cancel+ed|cancel+ed as requested|cancel+ed since|(fue|ha sido) cancelada|cancelamos (su |tu |la )?sesi[oó]n|se cancel[oó] (su |tu |la )?sesi[oó]n/i;
+
 // ── Publicaciones de Instagram de un periodo (Administración → Publicaciones) ─
 // Lo mismo que lee Métricas (alcance, interacciones, guardados, compartidos),
 // ordenado de la que más funcionó a la que menos. 30 min en mkt_kv: leer los
@@ -304,9 +317,13 @@ async function resumen(env, url, deps = {}) {
 
   const [convsR, todasR, overR, manualR, ventasR, juanR, historicoR, pauta] = await Promise.all([
     // Leads del mes: conversaciones cuyo PRIMER mensaje del cliente cae en el mes.
+    // primer_out: si nosotros escribimos antes, la conversación la empezamos
+    // nosotros (avisos a quien ya es cliente, como Ann) y no es un lead nuevo.
     env.DB.prepare(
-      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.origen, v.etapa, MIN(m.creado) AS primer_in
-         FROM mkt_conversaciones v JOIN mkt_mensajes m ON m.conv_id = v.id AND m.direccion = 'in'
+      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.origen, v.etapa,
+              MIN(CASE WHEN m.direccion = 'in' THEN m.creado END) AS primer_in,
+              MIN(CASE WHEN m.direccion = 'out' THEN m.creado END) AS primer_out
+         FROM mkt_conversaciones v JOIN mkt_mensajes m ON m.conv_id = v.id
         WHERE v.client_id = ? GROUP BY v.id HAVING primer_in >= ? AND primer_in < ?
         ORDER BY primer_in DESC LIMIT 400`
     ).bind(IVAE_STUDIOS, u0, u1).all(),
@@ -322,7 +339,8 @@ async function resumen(env, url, deps = {}) {
   ]);
 
   // Primer texto de cada lead del mes (para ver de qué se trata y deducir "no es lead").
-  const convs = convsR.results || [];
+  const override = new Map((overR.results || []).map((o) => [o.conv_id, o.fuente]));
+  const convs = (convsR.results || []).filter((v) => override.has(v.id) || !(v.primer_out && String(v.primer_out) < String(v.primer_in)));
   const primeros = new Map();
   if (convs.length) {
     const ids = convs.map((v) => v.id);
@@ -336,7 +354,6 @@ async function resumen(env, url, deps = {}) {
       for (const row of r.results || []) if (!primeros.has(row.conv_id)) primeros.set(row.conv_id, row.texto || '');
     }
   }
-  const override = new Map((overR.results || []).map((o) => [o.conv_id, o.fuente]));
 
   const leads = convs.map((v) => {
     const texto = primeros.get(v.id) || '';
