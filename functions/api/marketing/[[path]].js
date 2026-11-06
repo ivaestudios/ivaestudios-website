@@ -60,6 +60,7 @@ import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleF
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos } from './_bandeja.js';
+import { handlePagos } from './_pagos.js';
 import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
 import { handleLiLogin, handleLiCallback, handleLiEstado, handleLiDisconnect, publicarEnLinkedIn } from './_linkedin.js';
@@ -5688,6 +5689,8 @@ async function route(request, env, authCtx) {
   // ── Administración del estudio (pauta, leads, sesiones cerradas, ticket) ──
   // fetchIgMetricsRange va por deps (no por import): _instagram → _bandeja → _negocio haría un ciclo.
   if (path.startsWith('/negocio/')) return handleNegocio(request, env, session, path, url, { json, randomId, fetchIgMetricsRange });
+  // 💳 Links de pago de Stripe del estudio (sesión de Juan, 6-nov-2026): _pagos.js.
+  if (path.startsWith('/pagos/')) return handlePagos(request, env, session, path, url, { json });
 
   // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);
