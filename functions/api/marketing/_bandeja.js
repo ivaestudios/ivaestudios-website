@@ -38,6 +38,21 @@ import {
 const ORDEN_FASE = Object.fromEntries(FASES_FOTO.map((f, i) => [f, i]));
 const GALERIA_ADMIN = (id) => `https://gallery.ivaestudios.com/admin/gallery-edit.html?id=${encodeURIComponent(id)}`;
 const NO_ES_GALERIA_DE_CLIENTA = /portafolio|portfolio|muestra|demo|prueba|test/i;
+// Cómo entrega el estudio (Vianey, 6-nov-2026): "eliminamos las fotos y luego
+// subimos las nuevas sin marca de agua, son las finales". No marcan "entregada"
+// en IVAE Gallery: la galería está entregada cuando, después de que la clienta
+// envió su selección, la mayoría de sus fotos son nuevas (subidas después). La
+// fecha de entrega es la de la última foto final. delivered_at también cuenta.
+const SQL_FINALES = `(SELECT COUNT(*) FROM photos p WHERE p.gallery_id = g.id) AS fotos,
+  (SELECT COUNT(*) FROM photos p WHERE p.gallery_id = g.id AND g.selection_submitted_at IS NOT NULL AND p.uploaded_at > g.selection_submitted_at) AS finales,
+  (SELECT MAX(p.uploaded_at) FROM photos p WHERE p.gallery_id = g.id AND g.selection_submitted_at IS NOT NULL AND p.uploaded_at > g.selection_submitted_at) AS finales_en`;
+// Una marca de "entregada" anterior a la selección es vieja (MAROUSHKA & DAVID:
+// marcada el 10-oct, eligió el 20, finales el 5-nov): manda la más reciente.
+const entregadaEn = (g) => {
+  const finales = Number(g.finales) > 0 && Number(g.finales) >= Math.ceil(0.6 * (Number(g.fotos) || 0)) ? g.finales_en : null;
+  const marcada = g.delivered_at && (!g.selection_submitted_at || g.delivered_at >= g.selection_submitted_at) ? g.delivered_at : null;
+  return [marcada, finales].filter(Boolean).sort().pop() || null;
+};
 // Día de Cancún (UTC-5) de una hora UTC ('AAAA-MM-DD HH:MM:SS' o ISO).
 const diaCun = (iso) => { const t = Date.parse(String(iso || '').replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(String(iso || '')) ? '' : 'Z')); return isNaN(t) ? null : new Date(t - 5 * 36e5).toISOString().slice(0, 10); };
 const diasEntreYmd = (a, b) => Math.abs((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);
@@ -1742,7 +1757,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       if (conv.client_id !== IVAE_STUDIOS) return json({ aplica: false });
       const ex = (await expedientes(env, [conv.id])).get(conv.id);
       const [gals, cobs, ligas] = await Promise.all([
-        env.DB.prepare(`SELECT g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at,
+        env.DB.prepare(`SELECT g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at, ${SQL_FINALES},
                                (SELECT v.nombre FROM mkt_conversaciones v WHERE v.galeria_id = g.id AND v.id <> ? LIMIT 1) AS de_otra
                           FROM galleries g WHERE COALESCE(g.studio_id, 'ivae') = 'ivae' AND g.deleted_at IS NULL AND g.created_at >= date('now', '-120 days')
                          ORDER BY g.created_at DESC LIMIT 60`).bind(conv.id).all().catch(() => ({ results: [] })),
@@ -1754,7 +1769,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       return json({
         aplica: true, pagos: ex.pagos, galeria: ex.galeria,
         galerias: (gals.results || []).filter((g) => !NO_ES_GALERIA_DE_CLIENTA.test(g.title || '')).map((g) => ({
-          id: g.id, titulo: g.title, publicada: g.status === 'published', creada: diaCun(g.created_at), seleccion: diaCun(g.selection_submitted_at), entregada: diaCun(g.delivered_at), de_otra: g.de_otra || null,
+          id: g.id, titulo: g.title, publicada: g.status === 'published', creada: diaCun(g.created_at), seleccion: diaCun(g.selection_submitted_at), entregada: diaCun(entregadaEn(g)), de_otra: g.de_otra || null,
         })),
         cobros: cobs.slice().reverse().filter((x) => !mios.has(x.id)).slice(0, 40).map((x) => ({
           id: x.id, dia: diaCun(x.creado), nombre: x.nombre || x.email || '—', que: x.descripcion || null,
@@ -3074,7 +3089,8 @@ async function flujoClientas(env, c, convs, h) {
     env.DB.prepare('SELECT cobro_id, conv_id, manual FROM mkt_cobros_conv').all().catch(() => ({ results: [] })),
     env.DB.prepare("SELECT id, cliente, fecha, fecha_sesion, tipo, monto_mxn, forma_pago, cobro_id, conv_id, reserva_id FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND fecha >= ?")
       .bind(c.id, hace(180).slice(0, 10)).all().catch(() => ({ results: [] })),
-    env.DB.prepare("SELECT id, title, status, session_date, created_at, selection_submitted_at, delivered_at FROM galleries WHERE COALESCE(studio_id, 'ivae') = 'ivae' AND deleted_at IS NULL AND created_at >= ?")
+    env.DB.prepare(`SELECT g.id, g.title, g.status, g.session_date, g.created_at, g.selection_submitted_at, g.delivered_at, ${SQL_FINALES}
+                      FROM galleries g WHERE COALESCE(g.studio_id, 'ivae') = 'ivae' AND g.deleted_at IS NULL AND g.created_at >= ?`)
       .bind(hace(180).slice(0, 10)).all().catch(() => ({ results: [] })),
     cfgNegocio(env).catch(() => null),
   ]);
@@ -3215,7 +3231,7 @@ async function flujoClientas(env, c, convs, h) {
     if (pg.length) sube('en_proceso', 'pago');
     if (pg.some((p) => p.tipo === 'upgrade')) sube('postpro', 'upgrade');
     if (g) {
-      if (g.delivered_at) sube('entregada', 'galeria');
+      if (entregadaEn(g)) sube('entregada', 'galeria');
       else if (g.selection_submitted_at) sube('postpro', 'galeria');
       else if (g.status === 'published') sube('eligiendo', 'galeria');
       else sube('en_proceso', 'galeria');
@@ -3252,13 +3268,14 @@ async function expedientes(env, ids) {
     const [cobR, venR, galR] = await Promise.all([
       env.DB.prepare(`SELECT cc.conv_id, cs.id, cs.creado, cs.monto, cs.moneda, cs.monto_mxn, cs.descripcion FROM mkt_cobros_conv cc JOIN cobros_sesion cs ON cs.id = cc.cobro_id WHERE cc.conv_id IN (${qs}) ORDER BY cs.creado`).bind(...lote).all().catch(() => ({ results: [] })),
       env.DB.prepare(`SELECT conv_id, id, fecha, tipo, monto_mxn, forma_pago FROM mkt_neg_ventas WHERE conv_id IN (${qs}) AND cobro_id IS NULL AND estado = 'cerrada' AND monto_mxn > 0 ORDER BY fecha`).bind(...lote).all().catch(() => ({ results: [] })),
-      env.DB.prepare(`SELECT v.id AS conv_id, g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at FROM mkt_conversaciones v JOIN galleries g ON g.id = v.galeria_id WHERE v.id IN (${qs})`).bind(...lote).all().catch(() => ({ results: [] })),
+      env.DB.prepare(`SELECT v.id AS conv_id, g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at, ${SQL_FINALES}
+                        FROM mkt_conversaciones v JOIN galleries g ON g.id = v.galeria_id WHERE v.id IN (${qs})`).bind(...lote).all().catch(() => ({ results: [] })),
     ]);
     for (const f of cobR.results || []) out.get(f.conv_id).pagos.push({ via: 'stripe', id: f.id, dia: diaCun(f.creado), mxn: pesosDeCobro(f, 18.7), usd: String(f.moneda).toUpperCase() === 'USD' ? (Number(f.monto) || 0) / 100 : null, que: f.descripcion || null });
     // Sin forma de pago anotada: es lo que está en Administración (control de meses).
     for (const f of venR.results || []) out.get(f.conv_id).pagos.push({ via: f.forma_pago || 'registro', id: f.id, dia: f.fecha, mxn: Number(f.monto_mxn), usd: null, que: f.tipo || null });
     for (const f of galR.results || []) {
-      out.get(f.conv_id).galeria = { id: f.id, titulo: f.title, publicada: f.status === 'published', creada: diaCun(f.created_at), seleccion: diaCun(f.selection_submitted_at), entregada: diaCun(f.delivered_at), url: GALERIA_ADMIN(f.id) };
+      out.get(f.conv_id).galeria = { id: f.id, titulo: f.title, publicada: f.status === 'published', creada: diaCun(f.created_at), seleccion: diaCun(f.selection_submitted_at), entregada: diaCun(entregadaEn(f)), url: GALERIA_ADMIN(f.id) };
     }
   }
   return out;
