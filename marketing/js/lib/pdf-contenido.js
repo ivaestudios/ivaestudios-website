@@ -14,14 +14,14 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202611060405';
-import { slidesFromPost } from '../editor/slides.js?v=202611060405';
+import { T } from '../shell/i18n.js?v=202611060450';
+import { slidesFromPost } from '../editor/slides.js?v=202611060450';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas, pastilla,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202611060405';
+} from './pdf-lienzo.js?v=202611060450';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
@@ -198,7 +198,7 @@ function paginasGuion(opts) {
  * Genera y descarga el PDF de contenido del mes (videos con guion + inspo).
  * @param {{month:string, piezas:Array, marca:string, handle:string, onPaso?:Function}} opts
  */
-export async function generarPdfContenido({ month, piezas, marca, handle, onPaso }) {
+export async function generarPdfContenido({ month, piezas, marca, handle, clientId, onPaso }) {
   const paso = (msg) => { try { onPaso && onPaso(msg); } catch { /* noop */ } };
   await cargarFuentes();
   const mesLabel = labelDeMes(month);
@@ -301,5 +301,18 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
 
   const nombre = `${marca.replace(/\s+/g, '-')}_Contenido_${mesLabel.replace(/\s+/g, '-')}.pdf`;
   const blob = armarYDescargar(paginas, nombre);
-  return { paginas: paginas.length, nombre, bytes: blob.size };
+  // 6-nov-2026: el MISMO PDF se guarda en el servidor para que el asistente de Israel lo pueda
+  // mandar por WhatsApp ("pásame el PDF de contenido de Regeneris"), igual que el de Entregables.
+  // Best-effort: la descarga ya ocurrió; si guardar falla, el PDF no se pierde.
+  let guardado = false;
+  if (clientId) {
+    try {
+      paso(T('Guardando el PDF para el asistente…', 'Saving the PDF for the assistant…'));
+      const r = await fetch(`/api/marketing/contenido/pdf?client_id=${encodeURIComponent(clientId)}&month=${encodeURIComponent(month)}`, {
+        method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/pdf' }, body: blob,
+      });
+      guardado = r.ok;
+    } catch { guardado = false; }
+  }
+  return { paginas: paginas.length, nombre, bytes: blob.size, guardado };
 }

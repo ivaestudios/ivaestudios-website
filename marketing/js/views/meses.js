@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202611060405';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060405';
-import { T } from '../shell/i18n.js?v=202611060405';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611060405';
-import { confirmar } from '../shell/sheet.js?v=202611060405';
-import { openNewClient } from '../shell/clientswitcher.js?v=202611060405';
+} from '../api.js?v=202611060450';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060450';
+import { T } from '../shell/i18n.js?v=202611060450';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611060450';
+import { confirmar } from '../shell/sheet.js?v=202611060450';
+import { openNewClient } from '../shell/clientswitcher.js?v=202611060450';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202611060405';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611060405';
+import { errorCard } from '../ui/states.js?v=202611060450';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611060450';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611060405';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611060450';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202611060405';
+} from '../lib/video-upload.js?v=202611060450';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2017,7 +2017,7 @@ function buildPdfContenidoBtn(key, rows) {
   const { activeClientId, clients } = ctx.store.getState();
   if (!activeClientId || activeClientId === 'todos') return null;
   return el('button', {
-    class: 'meses-pdfbtn', type: 'button', disabled: pdfContenidoBusy || null,
+    class: 'meses-pdfbtn', type: 'button', disabled: pdfContenidoBusy || null, 'data-mes': key,
     'aria-label': T('Descargar el PDF de contenido del mes', 'Download the month content PDF'),
     title: T('Un PDF bonito con el guion y la inspiración de cada video del mes, para mandar por WhatsApp', 'A polished PDF with each video script and inspiration link'),
     onclick: async (e) => {
@@ -2028,8 +2028,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202611060405');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611060405');
+        const mod = await import('../lib/pdf-contenido.js?v=202611060450');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611060450');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -2037,6 +2037,7 @@ function buildPdfContenidoBtn(key, rows) {
           piezas: rows,
           marca: voz.marca,
           handle: voz.handle,
+          clientId: activeClientId,
           onPaso: (msg) => { if (label) label.textContent = msg; },
         });
         ctx.toast(`${T('PDF listo:', 'PDF ready:')} ${res.paginas} ${T('páginas', 'pages')} · ${(res.bytes / 1048576).toFixed(1)} MB`, { type: 'success' });

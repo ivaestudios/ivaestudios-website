@@ -23,9 +23,9 @@
 // publicador del backend).
 // ============================================================================
 
-import { el, api } from '../api.js?v=202611060405';
-import { T } from '../shell/i18n.js?v=202611060405';
-import { openSheet } from '../shell/sheet.js?v=202611060405';
+import { el, api } from '../api.js?v=202611060450';
+import { T } from '../shell/i18n.js?v=202611060450';
+import { openSheet } from '../shell/sheet.js?v=202611060450';
 
 // Fila de opción única (radio) con el mismo lenguaje visual de los pickers.
 function filaOpcion({ label, sub, activa, onPick, disabled = false }) {
