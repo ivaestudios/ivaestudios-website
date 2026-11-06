@@ -6629,16 +6629,21 @@ async function videoFirmadoDePieza(env, post) {
 // LA RECONCILIACIÓN (post-incidente 2026-08-16): media_publish de Meta puede
 // responder "unexpected error" Y AUN ASÍ publicar. Antes de publicar (y tras
 // cualquier error) se busca en el feed real si la pieza YA está: caption
-// igual (primeros 60 chars) + fecha >= la programada. Si está, se adopta ese
-// media id en lugar de volver a publicar — el bug que duplicó el reel 4 veces.
+// igual (primeros 60 chars) + fecha desde 30 días ANTES de la programada. Si
+// está, se adopta ese media id en lugar de volver a publicar — el bug que
+// duplicó el reel 4 veces. Los 30 días de atrás (incidente 2026-11-06): MELISA
+// subió nativo dos reels uno y dos días ANTES de su fecha en la app, y como el
+// candado solo miraba de la fecha programada en adelante, el reloj los publicó
+// otra vez.
 async function buscarYaPublicado(env, post) {
   try {
     const cap = String(post.caption || '').trim().slice(0, 60);
     if (!cap || !post.ig_user_id || !post.ig_access_token) return null;
-    const res = await fetch(`https://graph.instagram.com/v23.0/${post.ig_user_id}/media?fields=id,caption,permalink,timestamp&limit=20&access_token=${encodeURIComponent(post.ig_access_token)}`);
+    const res = await fetch(`https://graph.instagram.com/v23.0/${post.ig_user_id}/media?fields=id,caption,permalink,timestamp&limit=50&access_token=${encodeURIComponent(post.ig_access_token)}`);
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !Array.isArray(data.data)) return null;
-    const desde = `${post.publish_date}T00:00:00`;
+    const base = new Date(`${post.publish_date}T00:00:00Z`);
+    const desde = isNaN(base) ? '' : new Date(base.getTime() - 30 * 86400000).toISOString().slice(0, 19);
     const m = data.data.find((x) => String(x.caption || '').trim().startsWith(cap) && String(x.timestamp || '') >= desde);
     return m ? { mediaId: m.id, permalink: m.permalink || null } : null;
   } catch { return null; }
