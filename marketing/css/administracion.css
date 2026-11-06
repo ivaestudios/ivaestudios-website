@@ -434,3 +434,65 @@ button.adm-fila:hover .adm-fila__n { text-decoration: underline; text-underline-
   .adm-stat__v { font-size: 20px; }
   .adm-gasto-edit { grid-template-columns: minmax(0, 1fr) 7em 36px; }
 }
+
+/* ── Computadora (Vianey, 6-nov-2026: "no está adaptado para compu, solo para
+   cel"). Desde 1000px la vista usa el ancho: dos columnas por pestaña, con lo
+   principal a la izquierda y el detalle a la derecha. El teléfono no cambia. ── */
+@media (min-width: 1000px) {
+  .adm-root { max-width: 1180px; }
+  .adm-top__t { font-size: 26px; }
+  .adm-cuerpo { display: grid; gap: 16px; align-items: start; margin-top: 16px; }
+  .adm-cuerpo > * { margin-top: 0; min-width: 0; }
+  .adm-a-saldo { grid-area: saldo; } .adm-a-acciones { grid-area: acciones; } .adm-a-stats { grid-area: stats; }
+  .adm-a-pendientes { grid-area: pendientes; } .adm-a-movs { grid-area: movs; } .adm-a-entradas { grid-area: entradas; }
+  .adm-a-cuenta { grid-area: cuenta; } .adm-a-gastos { grid-area: gastos; } .adm-a-paquetes { grid-area: paquetes; }
+  .adm-a-presupuesto { grid-area: presupuesto; } .adm-a-resultado { grid-area: resultado; } .adm-a-lista { grid-area: lista; }
+  .adm-a-origen { grid-area: origen; } .adm-a-leads { grid-area: leads; } .adm-a-mejor { grid-area: mejor; } .adm-a-grid { grid-area: grid; }
+
+  /* Resumen: arriba las acciones como barra; el saldo junto a las 4 cifras; abajo pendientes y movimientos. */
+  .adm-cuerpo--resumen {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas: "acciones acciones" "saldo stats" "pendientes movs";
+  }
+  .adm-cuerpo--resumen > .adm-a-saldo, .adm-cuerpo--resumen > .adm-a-stats { align-self: stretch; }
+  .adm-cuerpo--resumen .adm-a-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+  .adm-cuerpo--resumen .adm-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  .adm-cuerpo--resumen .adm-accion {
+    flex-direction: row; gap: 10px; padding: 5px 18px 5px 5px;
+    border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
+  }
+  .adm-cuerpo--resumen .adm-accion:hover { background: var(--surface-2); }
+  .adm-cuerpo--resumen .adm-accion__ico { width: 36px; height: 36px; border: 0; background: var(--surface-2); }
+  .adm-cuerpo--resumen .adm-accion.is-primaria .adm-accion__ico { background: var(--brand); }
+  .adm-cuerpo--resumen .adm-accion__t { font-size: 14px; font-weight: 600; color: var(--text); }
+  .adm-cuerpo--resumen .adm-saldo__v { font-size: 48px; }
+
+  /* Dinero: lo que entró con su gráfica junto al estado de cuenta; movimientos a lo largo y, al lado, gastos y paquetes. */
+  .adm-cuerpo--dinero {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas: "entradas cuenta" "movs gastos" "movs paquetes";
+  }
+  .adm-cuerpo--dinero > .adm-a-entradas, .adm-cuerpo--dinero > .adm-a-cuenta { align-self: stretch; }
+  .adm-cuerpo--dinero .adm-cols { height: 220px; }
+
+  /* Anuncios: presupuesto y resultado lado a lado; la lista de anuncios a todo lo ancho. */
+  .adm-cuerpo--anuncios {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "presupuesto resultado" "lista lista";
+  }
+  .adm-cuerpo--anuncios > .adm-a-presupuesto, .adm-cuerpo--anuncios > .adm-a-resultado { align-self: stretch; }
+  .adm-cuerpo--anuncios .adm-ad__datos { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+  /* Clientes: las cifras arriba; de dónde llegan a la izquierda y la lista a la derecha. */
+  .adm-cuerpo--clientes {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas: "stats stats" "origen leads";
+  }
+
+  /* Posts: la que más gustó a la izquierda y todas a la derecha. */
+  .adm-cuerpo--publicaciones {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas: "mejor grid";
+  }
+  .adm-cuerpo--publicaciones .adm-top-pub__foto { width: 150px; height: 188px; }
+}

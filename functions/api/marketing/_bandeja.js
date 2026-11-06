@@ -39,20 +39,20 @@ const ORDEN_FASE = Object.fromEntries(FASES_FOTO.map((f, i) => [f, i]));
 const GALERIA_ADMIN = (id) => `https://gallery.ivaestudios.com/admin/gallery-edit.html?id=${encodeURIComponent(id)}`;
 const NO_ES_GALERIA_DE_CLIENTA = /portafolio|portfolio|muestra|demo|prueba|test/i;
 // Cómo entrega el estudio (Vianey, 6-nov-2026): "eliminamos las fotos y luego
-// subimos las nuevas sin marca de agua, son las finales". No marcan "entregada"
-// en IVAE Gallery: la galería está entregada cuando, después de que la clienta
-// envió su selección, la mayoría de sus fotos son nuevas (subidas después). La
-// fecha de entrega es la de la última foto final. delivered_at también cuenta.
+// subimos las nuevas sin marca de agua, son las finales… revisa las que tienen
+// marca de agua en la imagen, esas están pendientes, las otras están
+// entregadas". La marca va DENTRO de la foto (no es el ajuste de la galería) y
+// esas fotos de selección se exportan ligeras: revisadas a ojo las 19 galerías
+// del 6-nov, las 2 con marca tenían 146/147 y 99/103 fotos de menos de 3 MB, y
+// las 17 limpias, casi todas de 3 a 78 MB. Entregada = al menos el 70% de sus
+// fotos pesan 3 MB o más (finales); la fecha, la de la última final subida.
+// Ni "entregada" marcada en la galería cuenta si las fotos aún tienen marca
+// (JUST US). Si cambian cómo exportan, este umbral es lo que hay que revisar.
+const PESO_FINAL = 3000000;
 const SQL_FINALES = `(SELECT COUNT(*) FROM photos p WHERE p.gallery_id = g.id) AS fotos,
-  (SELECT COUNT(*) FROM photos p WHERE p.gallery_id = g.id AND g.selection_submitted_at IS NOT NULL AND p.uploaded_at > g.selection_submitted_at) AS finales,
-  (SELECT MAX(p.uploaded_at) FROM photos p WHERE p.gallery_id = g.id AND g.selection_submitted_at IS NOT NULL AND p.uploaded_at > g.selection_submitted_at) AS finales_en`;
-// Una marca de "entregada" anterior a la selección es vieja (MAROUSHKA & DAVID:
-// marcada el 10-oct, eligió el 20, finales el 5-nov): manda la más reciente.
-const entregadaEn = (g) => {
-  const finales = Number(g.finales) > 0 && Number(g.finales) >= Math.ceil(0.6 * (Number(g.fotos) || 0)) ? g.finales_en : null;
-  const marcada = g.delivered_at && (!g.selection_submitted_at || g.delivered_at >= g.selection_submitted_at) ? g.delivered_at : null;
-  return [marcada, finales].filter(Boolean).sort().pop() || null;
-};
+  (SELECT COUNT(*) FROM photos p WHERE p.gallery_id = g.id AND p.size_bytes >= ${PESO_FINAL}) AS finales,
+  (SELECT MAX(p.uploaded_at) FROM photos p WHERE p.gallery_id = g.id AND p.size_bytes >= ${PESO_FINAL}) AS finales_en`;
+const entregadaEn = (g) => (Number(g.fotos) > 0 && Number(g.finales) >= Math.ceil(0.7 * Number(g.fotos)) ? g.finales_en : null);
 // Día de Cancún (UTC-5) de una hora UTC ('AAAA-MM-DD HH:MM:SS' o ISO).
 const diaCun = (iso) => { const t = Date.parse(String(iso || '').replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(String(iso || '')) ? '' : 'Z')); return isNaN(t) ? null : new Date(t - 5 * 36e5).toISOString().slice(0, 10); };
 const diasEntreYmd = (a, b) => Math.abs((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);

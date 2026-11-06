@@ -14,10 +14,10 @@
 // listas desplegables. Cinco pestañas; el mes de arriba manda en todas.
 // Backend: functions/api/marketing/_negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611060335';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060335';
-import { T, isEN } from '../shell/i18n.js?v=202611060335';
-import { toast } from '../shell/toast.js?v=202611060335';
+import { api, el, clear } from '../api.js?v=202611060319';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060319';
+import { T, isEN } from '../shell/i18n.js?v=202611060319';
+import { toast } from '../shell/toast.js?v=202611060319';
 
 const VIEW_ID = 'administracion';
 const IVAE_STUDIOS_ID = '6ae5dd2381faa430d9e6966470b29602';
@@ -181,22 +181,35 @@ function irPestana(p) {
   try { rootEl.scrollIntoView({ block: 'start' }); } catch { /* noop */ }
 }
 
+// Cada sección con su lugar (área) en la computadora. En el teléfono van una
+// debajo de otra en este orden; desde 1000px, administracion.css las acomoda
+// en dos columnas por pestaña (Vianey, 6-nov-2026: "no está adaptado para
+// compu, solo para cel").
+const SECCIONES = {
+  resumen: [[saldo, 'saldo'], [accionesRapidas, 'acciones'], [statsMes, 'stats'], [pendientes, 'pendientes'], [ultimosMovimientos, 'movs']],
+  dinero: [[entradasMes, 'entradas'], [estadoDeCuenta, 'cuenta'], [movimientosMes, 'movs'], [gastosFijos, 'gastos'], [paquetes, 'paquetes']],
+  anuncios: [[presupuestoAnuncios, 'presupuesto'], [resultadoAnuncios, 'resultado'], [listaAnuncios, 'lista']],
+  clientes: [[statsClientes, 'stats'], [origenClientes, 'origen'], [seccionLeads, 'leads']],
+  publicaciones: [[mejorPublicacion, 'mejor'], [gridPublicaciones, 'grid']],
+};
 function pintar() {
   if (!rootEl || !data) return;
   clear(rootEl);
-  const porPestana = {
-    resumen: [saldo, accionesRapidas, statsMes, pendientes, ultimosMovimientos],
-    dinero: [entradasMes, estadoDeCuenta, movimientosMes, gastosFijos, paquetes],
-    anuncios: [presupuestoAnuncios, resultadoAnuncios, listaAnuncios],
-    clientes: [statsClientes, origenClientes, seccionLeads],
-    publicaciones: [mejorPublicacion, gridPublicaciones],
-  };
-  const secciones = [cabecera, barraPestanas, ...(porPestana[pestana] || porPestana.resumen)];
   // Una sección que reviente no se lleva la pantalla entera.
-  for (const s of secciones) {
-    try { const n = s(data); if (n) rootEl.appendChild(n); }
-    catch (e) { console.error('[administracion]', e); }
-  }
+  const poner1 = (host, fn, area) => {
+    try {
+      const n = fn(data);
+      if (!n) return;
+      if (area) n.classList.add('adm-a-' + area);
+      host.appendChild(n);
+    } catch (e) { console.error('[administracion]', e); }
+  };
+  poner1(rootEl, cabecera);
+  poner1(rootEl, barraPestanas);
+  const clave = SECCIONES[pestana] ? pestana : 'resumen';
+  const cuerpo = el('div', { class: `adm-cuerpo adm-cuerpo--${clave}` });
+  for (const [fn, area] of SECCIONES[clave]) poner1(cuerpo, fn, area);
+  rootEl.appendChild(cuerpo);
 }
 
 // ── Piezas ──────────────────────────────────────────────────────────────────
@@ -1197,7 +1210,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611060335';
+  link.href = '/marketing/css/administracion.css?v=202611060319';
   document.head.appendChild(link);
 }
 

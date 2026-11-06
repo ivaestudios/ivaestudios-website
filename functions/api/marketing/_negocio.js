@@ -563,13 +563,15 @@ async function resumen(env, url, deps = {}) {
   const ingresosPauta = ventasPauta.filter((v) => v.precio > 0).reduce((s, v) => s + v.precio, 0);
   const ingresosPautaMxn = suma(ventas.filter((v) => v.fuente === 'pauta'));
   const gasto = Number(pauta.gasto) || 0;
-  // Ticket = lo que deja una sesión con sus upgrades, en pesos. Si el mes no
-  // tiene, la referencia son sus últimos 12 meses (o la mezcla de 44 sesiones).
-  const ticketMxn = sesionesConMonto.length ? ingresosSesiones / sesionesConMonto.length : null;
+  // Ticket = lo que se cobra por SESIÓN, en pesos (Vianey: "si vendo 300 o
+  // 250"). Sin los upgrades: con Stripe, los de sesiones de otro mes caían aquí
+  // y una sola sesión de noviembre salía en $13,988. Si el mes no tiene, la
+  // referencia son sus últimos 12 meses (o la mezcla de 44 sesiones).
+  const ticketMxn = sesionesConMonto.length ? suma(sesionesConMonto) / sesionesConMonto.length : null;
   const ticket = ticketMxn != null ? ticketMxn / tc : null;
   const hist = historicoR && historicoR.results ? historicoR.results : [];
   const histSes = hist.filter((h) => (h.tipo || 'sesion') === 'sesion' && h.monto_mxn > 0).length;
-  const histMxn = hist.filter((h) => ['sesion', 'upgrade', 'propina'].includes(h.tipo || 'sesion')).reduce((s, h) => s + (h.monto_mxn > 0 ? Number(h.monto_mxn) : 0), 0);
+  const histMxn = hist.filter((h) => (h.tipo || 'sesion') === 'sesion').reduce((s, h) => s + (h.monto_mxn > 0 ? Number(h.monto_mxn) : 0), 0);
   const ticketHistMxn = histSes >= 3 ? histMxn / histSes : null;
   const ticketRef = ticketHistMxn != null ? ticketHistMxn / tc : ticketReferencia(cfg);
   const ticketBaseMxn = ticketMxn != null ? ticketMxn : (ticketHistMxn != null ? ticketHistMxn : (ticketRef ? ticketRef * tc : null));
