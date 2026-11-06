@@ -5686,7 +5686,8 @@ async function route(request, env, authCtx) {
   if (path.startsWith('/asistente/')) return handleAsistente(request, env, session, path, url, { json, notify, randomId });
 
   // ── Administración del estudio (pauta, leads, sesiones cerradas, ticket) ──
-  if (path.startsWith('/negocio/')) return handleNegocio(request, env, session, path, url, { json, randomId });
+  // fetchIgMetricsRange va por deps (no por import): _instagram → _bandeja → _negocio haría un ciclo.
+  if (path.startsWith('/negocio/')) return handleNegocio(request, env, session, path, url, { json, randomId, fetchIgMetricsRange });
 
   // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);

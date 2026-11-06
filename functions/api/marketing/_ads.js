@@ -799,7 +799,7 @@ export async function pautaDelPeriodo(env, desde, hasta) {
       fbJson(`${FB_GRAPH}/${cuenta.id}/insights?` + new URLSearchParams({
         level: 'account',
         time_range: JSON.stringify({ since: desde, until: hasta }),
-        fields: 'spend,clicks,actions',
+        fields: 'spend,clicks,reach,impressions,actions',
         access_token: tok.t,
       })),
       fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
@@ -825,12 +825,87 @@ export async function pautaDelPeriodo(env, desde, hasta) {
       conectada: true, origen: 'meta', moneda: cuenta.currency || 'MXN',
       gasto: Number(fila.spend) || 0,
       clics: fila.clicks != null ? Number(fila.clicks) : null,
+      alcance: fila.reach != null ? Number(fila.reach) : null,
+      impresiones: fila.impressions != null ? Number(fila.impressions) : null,
       conversaciones: conv != null ? Number(conv) : null,
       activas, error: null,
     };
   } catch (e) {
     return base((e && e.message) || 'No se pudo leer Meta');
   }
+}
+
+// Anuncio por anuncio de un periodo (Administración → Anuncios): lo que gastó,
+// a cuánta gente llegó, qué devolvió y su foto, para decidir cuál sirve. Dos
+// llamadas a Meta (insights por anuncio + los anuncios con su creativo); se
+// guarda 10 min en mkt_kv porque el Acceso limitado da pocas llamadas por hora.
+const NOMBRE_RESULTADO = {
+  'onsite_conversion.messaging_conversation_started_7d': 'mensajes',
+  lead: 'registros',
+  purchase: 'compras',
+  landing_page_view: 'visitas a la página',
+  link_click: 'clics',
+  post_engagement: 'interacciones',
+};
+export async function anunciosDelPeriodo(env, desde, hasta) {
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return { conectada: false, anuncios: [] };
+  const clave = `neg_ads:${desde}:${hasta}`;
+  const guardado = await kvJson(env, clave);
+  if (guardado && guardado.en && Date.now() - guardado.en < 10 * 60e3 && guardado.datos) return guardado.datos;
+  let datos;
+  try {
+    const [ins, ads] = await Promise.all([
+      fbJson(`${FB_GRAPH}/${cuenta.id}/insights?` + new URLSearchParams({
+        level: 'ad',
+        time_range: JSON.stringify({ since: desde, until: hasta }),
+        fields: 'ad_id,ad_name,campaign_id,campaign_name,spend,impressions,reach,clicks,ctr,actions,cost_per_action_type',
+        limit: '200',
+        access_token: tok.t,
+      })),
+      fbJson(`${FB_GRAPH}/${cuenta.id}/ads?` + new URLSearchParams({
+        fields: 'id,name,effective_status,campaign{stop_time,objective,effective_status},creative{thumbnail_url,image_url,instagram_permalink_url}',
+        limit: '200',
+        access_token: tok.t,
+      })),
+    ]);
+    const porId = new Map(((ads && ads.data) || []).map((a) => [a.id, a]));
+    const ahora = Date.now();
+    const anuncios = ((ins && ins.data) || [])
+      .map((f) => {
+        const a = porId.get(f.ad_id) || {};
+        const camp = a.campaign || {};
+        const cr = a.creative || {};
+        const res = resultadoPrincipal(f);
+        const gasto = Number(f.spend) || 0;
+        const terminada = !!camp.stop_time && (Date.parse(camp.stop_time) || 0) < ahora;
+        const est = String(a.effective_status || '').toUpperCase();
+        return {
+          ad_id: f.ad_id,
+          nombre: f.ad_name || a.name || 'Anuncio',
+          campana: f.campaign_name || null,
+          campaign_id: f.campaign_id || null,
+          estado: est === 'ACTIVE' && !terminada ? 'activo' : (est.includes('PAUSED') ? 'pausado' : 'terminado'),
+          objetivo: camp.objective || null,
+          gasto,
+          alcance: Number(f.reach) || 0,
+          impresiones: Number(f.impressions) || 0,
+          clics: Number(f.clicks) || 0,
+          ctr: f.ctr != null ? Number(f.ctr) : null,
+          resultado: res ? { tipo: res.tipo, nombre: NOMBRE_RESULTADO[res.tipo] || res.tipo, valor: res.valor, costo: res.valor ? Math.round((gasto / res.valor) * 100) / 100 : null } : null,
+          foto: cr.image_url || cr.thumbnail_url || null,
+          enlace: cr.instagram_permalink_url || null,
+        };
+      })
+      .filter((x) => x.gasto > 0)
+      .sort((x, y) => y.gasto - x.gasto);
+    datos = { conectada: true, moneda: cuenta.currency || 'MXN', anuncios, error: null };
+  } catch (e) {
+    return { conectada: true, anuncios: [], error: (e && e.message) || 'No se pudo leer Meta' };
+  }
+  await kvSet(env, clave, JSON.stringify({ en: Date.now(), datos })).catch(() => {});
+  return datos;
 }
 
 // ============================================================================

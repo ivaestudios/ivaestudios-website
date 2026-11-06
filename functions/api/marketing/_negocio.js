@@ -24,7 +24,7 @@
 //
 // Tablas: migración 046_negocio.sql. Config en mkt_kv 'negocio_cfg'.
 // ============================================================================
-import { pautaDelPeriodo, fijarTopeDiario } from './_ads.js';
+import { pautaDelPeriodo, fijarTopeDiario, anunciosDelPeriodo } from './_ads.js';
 
 // La única marca que tiene esto: el estudio de fotografía (dinero de la casa).
 const IVAE_STUDIOS = '6ae5dd2381faa430d9e6966470b29602';
@@ -249,8 +249,53 @@ export const cfgNegocio = leerCfg;
 // y proveedores, avisos automáticos): fuera del tablero.
 export function noEsLead(v) { return fuenteAuto(v) === 'no_lead'; }
 
+// ── Publicaciones de Instagram de un periodo (Administración → Publicaciones) ─
+// Lo mismo que lee Métricas (alcance, interacciones, guardados, compartidos),
+// ordenado de la que más funcionó a la que menos. 30 min en mkt_kv: leer los
+// insights de cada publicación cuesta llamadas.
+async function publicacionesDelPeriodo(env, deps, desde, hasta) {
+  const clave = `neg_ig:${desde}:${hasta}`;
+  try {
+    const r = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(clave).first();
+    const g = r && r.value ? JSON.parse(r.value) : null;
+    if (g && g.en && Date.now() - g.en < 30 * 60e3 && g.datos) return g.datos;
+  } catch { /* sin caché: se lee de Instagram */ }
+  if (!deps.fetchIgMetricsRange) return { conectado: false, publicaciones: [] };
+  let datos;
+  try {
+    const out = await deps.fetchIgMetricsRange(env, IVAE_STUDIOS, desde, hasta);
+    if (!out || !out.connected || out.error || !out.data) return { conectado: !!(out && out.connected), publicaciones: [], error: (out && out.error) || null };
+    const pubs = (out.data.posts || []).map((m) => ({
+      id: m.id,
+      texto: String(m.caption || '').slice(0, 90),
+      tipo: /REEL|VIDEO/i.test(String(m.type || '')) ? 'reel' : 'post',
+      enlace: m.permalink || null,
+      foto: m.thumb || null,
+      fecha: String(m.timestamp || '').slice(0, 10),
+      alcance: m.reach != null ? Number(m.reach) : null,
+      vistas: m.views != null ? Number(m.views) : null,
+      interacciones: m.interactions != null ? Number(m.interactions) : (Number(m.likes) || 0) + (Number(m.comments) || 0),
+      likes: Number(m.likes) || 0,
+      comentarios: Number(m.comments) || 0,
+      guardados: m.saved != null ? Number(m.saved) : null,
+      compartidos: m.shares != null ? Number(m.shares) : null,
+    }));
+    pubs.sort((a, b) => (b.interacciones - a.interacciones) || ((b.alcance || 0) - (a.alcance || 0)));
+    datos = { conectado: true, publicaciones: pubs.slice(0, 24), total: pubs.length, pendientes: out.data.pending || 0 };
+  } catch (e) {
+    return { conectado: true, publicaciones: [], error: (e && e.message) || 'No se pudo leer Instagram' };
+  }
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind(clave, JSON.stringify({ en: Date.now(), datos })).run().catch(() => {});
+  return datos;
+}
+
+// "mensajes" → "mensaje", para decir "$6 por mensaje".
+const SINGULAR = { mensajes: 'mensaje', registros: 'registro', compras: 'compra', 'visitas a la página': 'visita a la página', clics: 'clic', interacciones: 'interacción' };
+const recorte = (s, n = 48) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
+const pesos = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-MX');
+
 // ── El resumen del mes ──────────────────────────────────────────────────────
-async function resumen(env, url) {
+async function resumen(env, url, deps = {}) {
   const p = periodoDe(url.searchParams.get('mes'));
   let cfg = await iniciarCfg(env, await leerCfg(env));
   cfg = await refrescarTipoCambio(env, cfg);
@@ -266,7 +311,7 @@ async function resumen(env, url) {
         ORDER BY primer_in DESC LIMIT 400`
     ).bind(IVAE_STUDIOS, u0, u1).all(),
     // Todas las conversaciones (para deducir de dónde vino cada venta).
-    env.DB.prepare('SELECT id, canal, contacto_id, nombre, origen FROM mkt_conversaciones WHERE client_id = ? LIMIT 3000').bind(IVAE_STUDIOS).all(),
+    env.DB.prepare('SELECT id, canal, contacto_id, nombre, origen, etapa, archivado, ultimo_en, ultimo_cliente_en FROM mkt_conversaciones WHERE client_id = ? LIMIT 3000').bind(IVAE_STUDIOS).all(),
     env.DB.prepare('SELECT conv_id, fuente FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NOT NULL').bind(IVAE_STUDIOS).all(),
     env.DB.prepare('SELECT * FROM mkt_neg_leads WHERE client_id = ? AND conv_id IS NULL AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
     env.DB.prepare('SELECT * FROM mkt_neg_ventas WHERE client_id = ? AND fecha >= ? AND fecha <= ? ORDER BY fecha DESC, created_at DESC').bind(IVAE_STUDIOS, p.desde, p.fin).all(),
@@ -373,19 +418,144 @@ async function resumen(env, url) {
   const ticketHistMxn = histSes >= 3 ? histMxn / histSes : null;
   const ticketRef = ticketHistMxn != null ? ticketHistMxn / tc : ticketReferencia(cfg);
   const ticketBaseMxn = ticketMxn != null ? ticketMxn : (ticketHistMxn != null ? ticketHistMxn : (ticketRef ? ticketRef * tc : null));
-  // Gastos fijos, ofrenda y SAT: lo que ella resta cada mes para saber lo que le queda.
+  // Gastos fijos, ofrenda, SAT y lo gastado en anuncios: lo que se va del mes
+  // para saber lo que le queda.
   const gastosMxn = (cfg.gastos || []).reduce((s, g) => s + (Number(g.monto) > 0 ? Number(g.monto) : 0), 0);
   const ofrendaMxn = ingresosMxn * ((Number(cfg.ofrenda_pct) || 0) / 100);
   const satMxn = ingresosMxn * ((Number(cfg.sat_pct) || 0) / 100);
-  const quedaMxn = ingresosMxn - gastosMxn - ofrendaMxn - satMxn;
+  const quedaMxn = ingresosMxn - gastosMxn - ofrendaMxn - satMxn - gasto;
   const presupuestoMes = (Number(cfg.presupuesto_diario) || 0) * p.dias_mes;
   const redondo = (n) => (n == null || !isFinite(n) ? null : Math.round(n * 100) / 100);
 
   let juan = null;
   try { const e = juanR && juanR.value ? JSON.parse(juanR.value) : null; juan = e ? { en: e.en || null } : null; } catch { juan = null; }
 
+  // ── Para decidir: anuncios, publicaciones, mes a mes y recomendaciones ──
+  const hoy = hoyCancun();
+  const hace90 = (() => { const d = new Date(`${hoy}T12:00:00Z`); d.setUTCDate(d.getUTCDate() - 89); return d.toISOString().slice(0, 10); })();
+  const [adsMes, pubsMes, serieR, pautaMesR, ventas120R] = await Promise.all([
+    p.futuro ? Promise.resolve({ conectada: true, anuncios: [] }) : anunciosDelPeriodo(env, p.desde, p.hasta),
+    p.futuro ? Promise.resolve({ conectado: true, publicaciones: [] }) : publicacionesDelPeriodo(env, deps, p.desde, p.hasta),
+    env.DB.prepare(
+      "SELECT substr(fecha, 1, 7) AS mes, tipo, COUNT(*) AS n, SUM(COALESCE(monto_mxn, 0)) AS mxn FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND fecha >= ? AND fecha <= ? GROUP BY 1, 2"
+    ).bind(IVAE_STUDIOS, mesesAtras(p.desde, 11), p.fin).all().catch(() => ({ results: [] })),
+    env.DB.prepare('SELECT substr(dia, 1, 7) AS mes, SUM(gasto) AS gasto FROM mkt_ads_dia WHERE dia >= ? AND dia <= ? GROUP BY 1').bind(mesesAtras(p.desde, 11), p.fin).all().catch(() => ({ results: [] })),
+    env.DB.prepare("SELECT cliente, notas, fuente FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND COALESCE(tipo, 'sesion') = 'sesion' AND fecha >= ?").bind(IVAE_STUDIOS, mesesAtras(hoy, 4)).all().catch(() => ({ results: [] })),
+  ]);
+  // Si el mes no tuvo anuncios o casi no hubo publicaciones, se enseñan los
+  // últimos 90 días: siempre hay algo con qué decidir.
+  let anuncios = adsMes; let anunciosRango = 'mes';
+  if (!p.futuro && !(adsMes.anuncios || []).length) { anuncios = await anunciosDelPeriodo(env, hace90, hoy); anunciosRango = '90'; }
+  let publicaciones = pubsMes; let publicacionesRango = 'mes';
+  if (!p.futuro && (pubsMes.publicaciones || []).length < 3 && pubsMes.conectado !== false) {
+    const p90 = await publicacionesDelPeriodo(env, deps, hace90, hoy);
+    if ((p90.publicaciones || []).length > (pubsMes.publicaciones || []).length) { publicaciones = p90; publicacionesRango = '90'; }
+  }
+
+  // De qué anuncio llegó cada lead (WhatsApp/Messenger/IG mandan el anuncio en el
+  // primer mensaje) y cuántas de esas personas reservaron.
+  const leadsPorAd = new Map();
+  for (const v of todas) { const o = origenDe(v); if (o && o.tipo === 'anuncio' && o.ad_id) leadsPorAd.set(String(o.ad_id), (leadsPorAd.get(String(o.ad_id)) || 0) + 1); }
+  const reservasPorAd = new Map();
+  for (const s of ventas120R.results || []) {
+    const correo = (String(s.notas || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [])[0];
+    const conv = (correo && porCorreo.get(correo.toLowerCase())) || porNombre.get(norm(s.cliente));
+    const o = conv ? origenDe(conv) : null;
+    if (o && o.tipo === 'anuncio' && o.ad_id) reservasPorAd.set(String(o.ad_id), (reservasPorAd.get(String(o.ad_id)) || 0) + 1);
+  }
+  const listaAds = (anuncios.anuncios || []).map((a) => {
+    const leadsAd = leadsPorAd.get(String(a.ad_id)) || 0;
+    const resAd = reservasPorAd.get(String(a.ad_id)) || 0;
+    return { ...a, leads: leadsAd, reservas: resAd, costo_lead: leadsAd ? redondo(a.gasto / leadsAd) : null, costo_reserva: resAd ? redondo(a.gasto / resAd) : null };
+  });
+  // "El mejor" es el que trae CLIENTES (costo por lead). Si ninguno trajo, solo
+  // se dice cuál fue más barato por resultado, sin llamarlo el mejor: un clic
+  // barato que nadie convierte no es un buen anuncio.
+  const conResultado = listaAds.filter((a) => a.resultado && a.resultado.valor > 0 && a.resultado.costo != null);
+  const conLeads = listaAds.filter((a) => a.leads > 0);
+  const menor = (lista, f) => lista.reduce((m, a) => (f(a) < f(m) ? a : m));
+  const mayor = (lista, f) => lista.reduce((m, a) => (f(a) > f(m) ? a : m));
+  let criterioAds = null; let mejorAd = null; let peorAd = null;
+  if (conLeads.length) {
+    criterioAds = 'lead';
+    mejorAd = menor(conLeads, (a) => a.costo_lead);
+    peorAd = conLeads.length > 1 ? mayor(conLeads, (a) => a.costo_lead) : null;
+  } else if (conResultado.length) {
+    criterioAds = 'resultado';
+    mejorAd = menor(conResultado, (a) => a.resultado.costo);
+    peorAd = conResultado.length > 1 ? mayor(conResultado, (a) => a.resultado.costo) : null;
+  }
+  const listaPubs = publicaciones.publicaciones || [];
+  const mejorPub = listaPubs[0] || null;
+
+  // Mes a mes (12 meses hasta el elegido): lo que entró de sesiones y de marcas, y lo gastado en anuncios.
+  const serie = [];
+  for (let i = 11; i >= 0; i--) {
+    const mes = mesesAtras(p.desde, i).slice(0, 7);
+    const filasMes = (serieR.results || []).filter((f) => f.mes === mes);
+    const de = (tipos) => filasMes.filter((f) => tipos.includes(f.tipo || 'sesion')).reduce((s, f) => s + (Number(f.mxn) || 0), 0);
+    const gastoMes = ((pautaMesR.results || []).find((f) => f.mes === mes) || {}).gasto;
+    serie.push({
+      mes,
+      sesiones_mxn: redondo(de(['sesion', 'upgrade', 'propina'])),
+      marcas_mxn: redondo(de(['marca'])),
+      otros_mxn: redondo(de(['otro'])),
+      sesiones_n: filasMes.filter((f) => (f.tipo || 'sesion') === 'sesion').reduce((s, f) => s + (Number(f.n) || 0), 0),
+      pauta_mxn: mes === p.mes ? redondo(gasto) : redondo(Number(gastoMes) || 0),
+    });
+  }
+
+  // Quién está esperando que le contesten (lo mismo que cuenta el Embudo).
+  const noLeadsMarcados = new Set([...override.entries()].filter(([, f]) => f === 'no_lead').map(([id]) => id));
+  const esperando = todas.filter((v) => !v.archivado && v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)
+    && !['cliente', 'perdido'].includes(v.etapa) && !noLeadsMarcados.has(v.id) && fuenteAuto(v) !== 'no_lead').length;
+
+  // Recomendaciones: reglas claras, en palabras de todos los días, ordenadas por lo que más importa.
+  const recs = [];
+  const rec = (prioridad, tono, titulo, texto, ir) => recs.push({ prioridad, tono, titulo, texto, ir });
+  const presu = Number(cfg.presupuesto_diario) || 0;
+  if (p.es_actual && presu > 0 && !(pauta.activas || []).length) {
+    rec(1, 'accion', `Tu presupuesto de ${pesos(presu)} al día no se está usando`,
+      `No hay ninguna campaña encendida. Lo que más te conviene es un anuncio que mande a la gente directo al WhatsApp de Juan${mejorPub ? `, usando tu publicación que más gustó («${recorte(mejorPub.texto, 40)}»)` : ''}.`, 'anuncios');
+  }
+  if (esperando > 0) {
+    rec(2, 'accion', `${esperando} ${esperando === 1 ? 'persona espera' : 'personas esperan'} respuesta`,
+      'Contestar rápido es lo que más cierra ventas. Ábrelas en el Embudo de la Bandeja.', 'bandeja');
+  }
+  const gastoAds = listaAds.reduce((t, a) => t + a.gasto, 0);
+  const cuando = anunciosRango === '90' ? 'En los últimos 90 días' : 'Este mes';
+  if (criterioAds === 'lead') {
+    rec(3, 'bien', `Tu anuncio que más clientes trajo: «${recorte(mejorAd.nombre, 40)}»`,
+      `Cada persona que te escribió por él costó ${pesos(mejorAd.costo_lead)}${mejorAd.reservas ? ` y ${mejorAd.reservas} ${mejorAd.reservas === 1 ? 'reservó' : 'reservaron'} (${pesos(mejorAd.costo_reserva)} por reserva)` : ''}.`, 'anuncios');
+  } else if (listaAds.length) {
+    const busco = [...new Set(listaAds.map((a) => (a.resultado ? a.resultado.nombre : null)).filter(Boolean))];
+    rec(3, 'alerta', 'Tus anuncios no te han traído clientes',
+      `${cuando} gastaste ${pesos(gastoAds)} en anuncios y nadie te escribió por ellos${busco.length ? `: buscaban ${busco.length > 1 ? busco.slice(0, -1).join(', ') + ' y ' + busco[busco.length - 1] : busco[0]}` : ''}. Para conseguir clientes, el anuncio tiene que mandar a la gente al WhatsApp de Juan.`, 'anuncios');
+  }
+  if (mejorPub) {
+    rec(4, 'bien', `Tu publicación que más gustó: «${recorte(mejorPub.texto, 40)}»`,
+      `${mejorPub.interacciones.toLocaleString('es-MX')} interacciones${mejorPub.alcance ? ` y llegó a ${mejorPub.alcance.toLocaleString('es-MX')} personas` : ''}. Es la mejor candidata para convertirla en anuncio.${publicacionesRango === '90' ? ' (últimos 90 días)' : ''}`, 'publicaciones');
+  }
+  const sinMonto = sesiones.length - sesionesConMonto.length;
+  if (sinMonto > 0) rec(5, 'accion', `${sinMonto} ${sinMonto === 1 ? 'sesión sin monto' : 'sesiones sin monto'}`, 'Anota cuánto cobraste para que tus números salgan completos.', 'dinero');
+  if (porFuenteLeads.sin_definir > 0) rec(6, 'accion', `${porFuenteLeads.sin_definir} ${porFuenteLeads.sin_definir === 1 ? 'cliente nuevo sin origen' : 'clientes nuevos sin origen'}`, 'Dile al sistema de dónde llegó cada uno para saber qué te trae más clientes.', 'clientes');
+  recs.sort((a, b) => a.prioridad - b.prioridad);
+
   return {
     periodo: p,
+    anuncios: { conectada: anuncios.conectada !== false, rango: anunciosRango, lista: listaAds, criterio: criterioAds, mejor: mejorAd ? mejorAd.ad_id : null, peor: peorAd ? peorAd.ad_id : null, gasto: redondo(gastoAds), error: anuncios.error || null },
+    publicaciones: { conectado: publicaciones.conectado !== false, rango: publicacionesRango, lista: listaPubs, total: publicaciones.total || listaPubs.length, error: publicaciones.error || null },
+    serie,
+    esperando,
+    recomendaciones: recs.slice(0, 6),
+    embudo: {
+      gasto: redondo(gasto),
+      alcance: pauta.alcance != null ? Number(pauta.alcance) : null,
+      resultados_meta: pauta.conversaciones != null ? Number(pauta.conversaciones) : (pauta.clics != null ? Number(pauta.clics) : null),
+      leads: porFuenteLeads.pauta,
+      reservas: ventasPauta.length,
+      ventas_mxn: redondo(ingresosPautaMxn),
+    },
     cfg: {
       presupuesto_diario: cfg.presupuesto_diario, destino: cfg.destino, paquetes: cfg.paquetes, tipo_cambio: tc, tc_en: cfg.tc_en || null, tc_manual: !!cfg.tc_manual,
       empresas: cfg.empresas, gastos: cfg.gastos, ofrenda_pct: Number(cfg.ofrenda_pct) || 0, sat_pct: Number(cfg.sat_pct) || 0,
@@ -572,7 +742,7 @@ export async function handleNegocio(request, env, session, path, url, deps) {
   const sub = path.slice('/negocio'.length) || '/';
   const responder = (r) => json(r.error ? { error: r.error } : r, r.error ? (r.status || 400) : 200);
   try {
-    if (sub === '/resumen' && method === 'GET') return json(await resumen(env, url));
+    if (sub === '/resumen' && method === 'GET') return json(await resumen(env, url, deps));
     if (sub === '/ajustes' && method === 'POST') return responder(await ajustes(request, env));
     if (sub === '/leads' && method === 'POST') return responder(await guardarLead(request, env, session, deps));
     let m = sub.match(/^\/leads\/([\w-]{6,80})$/);
