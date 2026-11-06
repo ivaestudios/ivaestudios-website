@@ -510,35 +510,32 @@ async function resumen(env, url, deps = {}) {
   const esperando = todas.filter((v) => !v.archivado && v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en)
     && !['cliente', 'perdido'].includes(v.etapa) && !noLeadsMarcados.has(v.id) && fuenteAuto(v) !== 'no_lead').length;
 
-  // Recomendaciones: reglas claras, en palabras de todos los días, ordenadas por lo que más importa.
+  // Pendientes: reglas claras, ordenadas por lo que más importa. Título corto y
+  // una línea, como la notificación de una app de banco (Vianey, 6-nov-2026:
+  // "que se vea como aplicación de finanzas… parece 100% IA").
   const recs = [];
   const rec = (prioridad, tono, titulo, texto, ir) => recs.push({ prioridad, tono, titulo, texto, ir });
   const presu = Number(cfg.presupuesto_diario) || 0;
   if (p.es_actual && presu > 0 && !(pauta.activas || []).length) {
-    rec(1, 'accion', `Tu presupuesto de ${pesos(presu)} al día no se está usando`,
-      `No hay ninguna campaña encendida. Lo que más te conviene es un anuncio que mande a la gente directo al WhatsApp de Juan${mejorPub ? `, usando tu publicación que más gustó («${recorte(mejorPub.texto, 40)}»)` : ''}.`, 'anuncios');
+    rec(1, 'accion', 'Presupuesto de anuncios sin usar', `${pesos(presu)} al día disponibles y ningún anuncio encendido.`, 'anuncios');
   }
   if (esperando > 0) {
-    rec(2, 'accion', `${esperando} ${esperando === 1 ? 'persona espera' : 'personas esperan'} respuesta`,
-      'Contestar rápido es lo que más cierra ventas. Ábrelas en el Embudo de la Bandeja.', 'bandeja');
+    rec(2, 'accion', `${esperando} ${esperando === 1 ? 'persona espera' : 'personas esperan'} respuesta`, 'Contéstales desde la Bandeja.', 'bandeja');
   }
   const gastoAds = listaAds.reduce((t, a) => t + a.gasto, 0);
-  const cuando = anunciosRango === '90' ? 'En los últimos 90 días' : 'Este mes';
   if (criterioAds === 'lead') {
-    rec(3, 'bien', `Tu anuncio que más clientes trajo: «${recorte(mejorAd.nombre, 40)}»`,
-      `Cada persona que te escribió por él costó ${pesos(mejorAd.costo_lead)}${mejorAd.reservas ? ` y ${mejorAd.reservas} ${mejorAd.reservas === 1 ? 'reservó' : 'reservaron'} (${pesos(mejorAd.costo_reserva)} por reserva)` : ''}.`, 'anuncios');
+    rec(3, 'bien', `Mejor anuncio: ${recorte(mejorAd.nombre, 34)}`,
+      `${pesos(mejorAd.costo_lead)} por persona que te escribió${mejorAd.reservas ? ` · ${mejorAd.reservas} ${mejorAd.reservas === 1 ? 'reserva' : 'reservas'}` : ''}.`, 'anuncios');
   } else if (listaAds.length) {
-    const busco = [...new Set(listaAds.map((a) => (a.resultado ? a.resultado.nombre : null)).filter(Boolean))];
-    rec(3, 'alerta', 'Tus anuncios no te han traído clientes',
-      `${cuando} gastaste ${pesos(gastoAds)} en anuncios y nadie te escribió por ellos${busco.length ? `: buscaban ${busco.length > 1 ? busco.slice(0, -1).join(', ') + ' y ' + busco[busco.length - 1] : busco[0]}` : ''}. Para conseguir clientes, el anuncio tiene que mandar a la gente al WhatsApp de Juan.`, 'anuncios');
+    rec(3, 'alerta', 'Tus anuncios no trajeron clientes',
+      `${pesos(gastoAds)} gastados${anunciosRango === '90' ? ' en 90 días' : ''} y nadie escribió por ellos.`, 'anuncios');
   }
   if (mejorPub) {
-    rec(4, 'bien', `Tu publicación que más gustó: «${recorte(mejorPub.texto, 40)}»`,
-      `${mejorPub.interacciones.toLocaleString('es-MX')} interacciones${mejorPub.alcance ? ` y llegó a ${mejorPub.alcance.toLocaleString('es-MX')} personas` : ''}. Es la mejor candidata para convertirla en anuncio.${publicacionesRango === '90' ? ' (últimos 90 días)' : ''}`, 'publicaciones');
+    rec(4, 'bien', 'Publicación que más gustó', `«${recorte(mejorPub.texto, 32)}» · ${mejorPub.interacciones.toLocaleString('es-MX')} interacciones.`, 'publicaciones');
   }
   const sinMonto = sesiones.length - sesionesConMonto.length;
-  if (sinMonto > 0) rec(5, 'accion', `${sinMonto} ${sinMonto === 1 ? 'sesión sin monto' : 'sesiones sin monto'}`, 'Anota cuánto cobraste para que tus números salgan completos.', 'dinero');
-  if (porFuenteLeads.sin_definir > 0) rec(6, 'accion', `${porFuenteLeads.sin_definir} ${porFuenteLeads.sin_definir === 1 ? 'cliente nuevo sin origen' : 'clientes nuevos sin origen'}`, 'Dile al sistema de dónde llegó cada uno para saber qué te trae más clientes.', 'clientes');
+  if (sinMonto > 0) rec(5, 'accion', `${sinMonto} ${sinMonto === 1 ? 'sesión sin monto' : 'sesiones sin monto'}`, 'Anota cuánto cobraste.', 'dinero');
+  if (porFuenteLeads.sin_definir > 0) rec(6, 'accion', `${porFuenteLeads.sin_definir} ${porFuenteLeads.sin_definir === 1 ? 'cliente sin origen' : 'clientes sin origen'}`, 'Marca de dónde llegó cada uno.', 'clientes');
   recs.sort((a, b) => a.prioridad - b.prioridad);
 
   return {
