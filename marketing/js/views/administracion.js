@@ -14,10 +14,10 @@
 // listas desplegables. Cinco pestañas; el mes de arriba manda en todas.
 // Backend: functions/api/marketing/_negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611060142';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060142';
-import { T, isEN } from '../shell/i18n.js?v=202611060142';
-import { toast } from '../shell/toast.js?v=202611060142';
+import { api, el, clear } from '../api.js?v=202611060144';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060144';
+import { T, isEN } from '../shell/i18n.js?v=202611060144';
+import { toast } from '../shell/toast.js?v=202611060144';
 
 const VIEW_ID = 'administracion';
 const IVAE_STUDIOS_ID = '6ae5dd2381faa430d9e6966470b29602';
@@ -440,7 +440,7 @@ function estadoDeCuenta(d) {
     class: 'adm-linea' + (total ? ' is-total' : '') + (onclick ? ' is-btn' : ''), type: onclick ? 'button' : null, onclick: onclick || null,
   }, [
     el('div', { class: 'adm-linea__k' }, [el('span', { text: etiqueta }), sub ? el('span', { class: 'adm-linea__s', text: sub }) : null]),
-    el('div', { class: 'adm-linea__v' + (tono ? ` is-${tono}` : ''), text: `${signo}${mxn(Math.abs(valor))}` }),
+    el('div', { class: 'adm-linea__v' + (tono ? ` is-${tono}` : ''), text: `${Math.round(Math.abs(Number(valor) || 0)) ? signo : ''}${mxn(Math.abs(Number(valor) || 0))}` }),
     onclick ? el('span', { class: 'adm-fila__chev' }, [icon('right', 16)]) : null,
   ]);
   return tarjeta(T('Cómo va el mes', 'This month'), null, [el('div', { class: 'adm-cuenta' }, [
@@ -1196,7 +1196,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611060142';
+  link.href = '/marketing/css/administracion.css?v=202611060144';
   document.head.appendChild(link);
 }
 
