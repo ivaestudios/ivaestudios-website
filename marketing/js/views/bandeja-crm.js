@@ -22,10 +22,10 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060144';
-import { toast } from '../shell/toast.js?v=202611060144';
-import { icon } from '../shell/icons.js?v=202611060144';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611060144';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060250';
+import { toast } from '../shell/toast.js?v=202611060250';
+import { icon } from '../shell/icons.js?v=202611060250';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611060250';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -201,6 +201,37 @@ const MOTIVOS_FOTO = [
 const motivos = () => (giroFoto() ? MOTIVOS_FOTO : MOTIVOS_CLINICA);
 const ABIERTAS = ['nuevo', 'platica', 'cotizado', 'cita'];
 const etq = (k) => (d.ETAPA_TXT[k] ? d.ETAPA_TXT[k]() : (k || ''));
+// La columna de una oportunidad: en el estudio, una clienta va en su paso
+// (Por cobrar, Galería en proceso, Eligiendo fotos, Post-producción, Entregada).
+const colDe = (v) => (d.etapaVista ? d.etapaVista(v) : v.etapa);
+const esFase = (k) => !!(d.FASES_FOTO && d.FASES_FOTO.includes(k));
+// Días hábiles (lun-vie, hora de Cancún) desde una hora UTC hasta hoy: la
+// galería de selección se promete en 1 a 3 días hábiles.
+function diasHabiles(utc) {
+  const t = msUtc(utc);
+  if (isNaN(t)) return 0;
+  let n = 0;
+  let x = Date.parse(isoCun(t).slice(0, 10) + 'T12:00:00Z');
+  const fin = Date.parse(hoyCun() + 'T12:00:00Z');
+  while (x < fin) { x += 864e5; const dia = new Date(x).getUTCDay(); if (dia !== 0 && dia !== 6) n++; }
+  return n;
+}
+// Lo que dice la tarjeta del flujo de la clienta: si ya pagó, su galería y si algo se atrasó.
+function avisoFlujo(v) {
+  const k = colDe(v);
+  const dias = diasHabiles(v.fase_en);
+  if (k === 'por_cobrar') return { txt: T('Falta registrar el pago', 'Payment not recorded'), tono: 'falta', ico: 'warning' };
+  if (k === 'en_proceso' && dias > 3) return { txt: T(`Galería atrasada · ${dias} días hábiles`, `Gallery late · ${dias} business days`), tono: 'vencida', ico: 'clock' };
+  if (k === 'en_proceso') {
+    const quedan = Math.max(0, 3 - dias);
+    return { txt: quedan ? T(`Galería: ${quedan === 1 ? 'queda 1 día hábil' : `quedan ${quedan} días hábiles`}`, `Gallery: ${quedan} business ${quedan === 1 ? 'day' : 'days'} left`) : T('Galería: hoy es el último día', 'Gallery: due today'), tono: 'hoy', ico: 'clock' };
+  }
+  if (k === 'eligiendo' && dias > 5) return { txt: T(`Sin elegir hace ${dias} días hábiles`, `Not chosen for ${dias} business days`), tono: 'hoy', ico: 'chat' };
+  if (k === 'postpro' && dias > 1) return { txt: T(`Entrega pendiente · ${dias} días hábiles`, `Delivery pending · ${dias} business days`), tono: 'vencida', ico: 'clock' };
+  return null;
+}
+const sumaPagos = (v) => (v.pagos || []).reduce((s, p) => s + (Number(p.mxn) || 0), 0);
+const VIA_TXT = { stripe: 'Stripe', efectivo: T0('efectivo', 'cash'), bbva: 'BBVA', otro: T0('otro', 'other'), registro: T0('Administración', 'Administration') };
 const primerNombre = (s) => String(s || '').trim().split(/\s+/)[0] || '';
 const clonar = (x) => JSON.parse(JSON.stringify(x));
 // Campo de texto que crece con su contenido (sin barra ni texto escondido).
@@ -241,13 +272,17 @@ export function textoEvento(e) {
         : T(`${quien} agendó la cita: ${fmtCita(x.a)}`, `${quien} booked the appointment: ${fmtCita(x.a)}`);
     case 'nota':
       return T(`${quien}: ${x.texto || ''}`, `${quien}: ${x.texto || ''}`);
+    case 'pago': {
+      const que = x.tipo === 'upgrade' ? T(' del upgrade', ' for the upgrade') : (x.tipo === 'propina' ? T(' de propina', ' as a tip') : '');
+      return T(`${quien} registró un pago${que}: ${fmtDinero(Math.round(Number(x.mxn) || 0))} · ${VIA_TXT[x.via] || x.via || ''}`, `${quien} recorded a payment${que}: ${fmtDinero(Math.round(Number(x.mxn) || 0))} · ${VIA_TXT[x.via] || x.via || ''}`);
+    }
     default:
       return null;
   }
 }
 export function iconoEvento(tipo, dato) {
   if (tipo === 'tarea') return dato && dato.accion === 'hecha' ? 'check' : 'tasks';
-  return ({ etapa: 'sliders', plan: 'activity', cita: 'calendar', nota: 'edit', llamada: 'phone', asignacion: 'users', reasignacion: 'users', tomada: 'user' })[tipo] || 'info';
+  return ({ etapa: 'sliders', plan: 'activity', cita: 'calendar', nota: 'edit', llamada: 'phone', asignacion: 'users', reasignacion: 'users', tomada: 'user', pago: 'check' })[tipo] || 'info';
 }
 
 // ── Carga ────────────────────────────────────────────────────────────────────
@@ -388,7 +423,7 @@ function vistaTablero() {
   if (errorEmbudo && !filas) return [el('div', { class: 'bj-emb__vacio' }, [icon('warning', 26), el('p', { text: errorEmbudo })])];
   if (filas === null) return [el('div', { class: 'bj-cargando' }, [el('span', { class: 'spinner' })])];
   const porEtapa = Object.fromEntries(d.ETAPAS.map((k) => [k, []]));
-  for (const v of filas) (porEtapa[v.etapa] || porEtapa.nuevo).push(v);
+  for (const v of filas) (porEtapa[colDe(v)] || porEtapa.nuevo).push(v);
   // Dentro de la columna: primero lo que tiene una tarea vencida, luego lo más reciente.
   const vencida = (v) => (v.proxima_tarea && v.proxima_tarea.vence_en && estadoVence(v.proxima_tarea.vence_en) === 'vencida' ? 1 : 0);
   for (const k of d.ETAPAS) porEtapa[k].sort((a, b) => (vencida(b) - vencida(a)) || String(b.ultimo_en || '').localeCompare(String(a.ultimo_en || '')));
@@ -410,7 +445,16 @@ function vistaTablero() {
     el('span', { class: 'bj-emb__kpi-lbl', text: lbl }),
     onclick ? el('span', { class: 'bj-emb__kpi-ver' }, [el('span', { text: T('Ver', 'See') }), icon('right', 13)]) : null,
   ].filter(Boolean));
-  const kpis = el('div', { class: 'bj-emb__kpis' }, [
+  // Estudio: lo que mueve el día. Quién espera respuesta, las sesiones que
+  // vienen, lo que falta cobrar y las galerías o entregas atrasadas.
+  const porCobrar = filas.filter((v) => colDe(v) === 'por_cobrar').length;
+  const atrasadas = filas.filter((v) => esFase(colDe(v)) && (avisoFlujo(v) || {}).tono === 'vencida').length;
+  const kpis = giroFoto() ? el('div', { class: 'bj-emb__kpis' }, [
+    kpi(String(esperandoN), esperandoN === 1 ? T('espera respuesta', 'waiting for a reply') : T('esperan respuesta', 'waiting for a reply'), esperandoN ? 'aviso' : ''),
+    kpi(String(citas), citas === 1 ? T('sesión en 7 días', 'session in 7 days') : T('sesiones en 7 días', 'sessions in 7 days')),
+    kpi(String(porCobrar), T('por cobrar', 'to be paid'), porCobrar ? 'aviso' : ''),
+    kpi(String(atrasadas), atrasadas === 1 ? T('galería o entrega atrasada', 'late gallery or delivery') : T('galerías o entregas atrasadas', 'late galleries or deliveries'), atrasadas ? 'mal' : ''),
+  ]) : el('div', { class: 'bj-emb__kpis' }, [
     kpi(String(abiertas.length), abiertas.length === 1 ? T('oportunidad abierta', 'open deal') : T('oportunidades abiertas', 'open deals')),
     kpi(fmtTotales(abiertas) || '$0', T('en juego', 'in play'), 'valor'),
     kpi(String(citas), citas === 1 ? T('cita en 7 días', 'visit in 7 days') : T('citas en 7 días', 'visits in 7 days')),
@@ -473,12 +517,28 @@ function tarjeta(v) {
   // vez de regañar con "Sin siguiente paso", la tarjeta dice si la persona
   // está esperando respuesta. Si ya se le contestó, no dice nada.
   const esperando = !!(v.ultimo_cliente_en && v.ultimo_en && String(v.ultimo_cliente_en) >= String(v.ultimo_en));
+  // Estudio: lo que dice el flujo (si pagó, su galería, lo atrasado) manda sobre
+  // "esperando respuesta" cuando ya es clienta.
+  const aviso = giroFoto() && esFase(colDe(v)) ? avisoFlujo(v) : null;
   const sinTarea = giroFoto()
-    ? (viva && esperando ? el('span', { class: 'bj-card__tarea is-hoy' }, [icon('chat', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Esperando respuesta', 'Waiting for a reply') })]) : null)
+    ? (aviso ? el('span', { class: 'bj-card__tarea is-' + aviso.tono }, [icon(aviso.ico, 13), el('span', { class: 'bj-card__tarea-txt', text: aviso.txt })])
+      : (viva && esperando ? el('span', { class: 'bj-card__tarea is-hoy' }, [icon('chat', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Esperando respuesta', 'Waiting for a reply') })]) : null))
     : (viva ? el('span', { class: 'bj-card__tarea is-falta' }, [icon('warning', 13), el('span', { class: 'bj-card__tarea-txt', text: T('Sin siguiente paso', 'No next step') })]) : null);
+  if (giroFoto()) {
+    const pagado = sumaPagos(v);
+    if (pagado > 0) {
+      const vias = [...new Set((v.pagos || []).map((p) => VIA_TXT[p.via] || p.via))].join(' + ');
+      meta.push(el('span', { class: 'bj-card__dato is-pagado' }, [icon('check', 12), el('span', { text: T(`Pagó ${fmtDinero(Math.round(pagado))} · ${vias}`, `Paid ${fmtDinero(Math.round(pagado))} · ${vias}`) })]));
+    }
+    if (v.galeria) {
+      const g = v.galeria;
+      const estado = g.entregada ? T('entregada', 'delivered') : (g.seleccion ? T('ya eligió', 'chosen') : (g.publicada ? T('publicada', 'published') : T('borrador', 'draft')));
+      meta.push(el('span', { class: 'bj-card__dato' }, [icon('camera', 12), el('span', { text: `${g.titulo} · ${estado}` })]));
+    }
+  }
   return el('button', {
-    type: 'button', class: 'bj-card' + (ev === 'vencida' && viva ? ' is-vencida' : ''), 'data-id': v.id,
-    'aria-label': `${nom} · ${d.CANAL_TXT[v.canal] || v.canal} · ${etq(v.etapa)}${v.valor_estimado != null ? ' · ' + fmtDinero(v.valor_estimado, v.moneda) : ''}`,
+    type: 'button', class: 'bj-card' + (ev === 'vencida' && viva ? ' is-vencida' : '') + (aviso && aviso.tono === 'vencida' ? ' is-vencida' : ''), 'data-id': v.id,
+    'aria-label': `${nom} · ${d.CANAL_TXT[v.canal] || v.canal} · ${etq(colDe(v))}${v.valor_estimado != null ? ' · ' + fmtDinero(v.valor_estimado, v.moneda) : ''}`,
     onclick: () => { if (Date.now() - ultimoArrastre > 350) abrirOportunidad(v.id); },
   }, [
     el('span', { class: 'bj-card__top' }, [
@@ -537,7 +597,7 @@ function conectarArrastre(t) {
   dndOff = ctx.dnd.draggableList(t, '.bj-card', (item) => ({
     mode: 'move', data: { id: item.dataset.id }, scrollEl: t, dropSelector: '.bj-col',
     onStart: () => { item.classList.add('is-arrastrada'); },
-    onMove: (c) => { limpiar(); if (c.over && c.over.dataset.etapa !== (filas.find((v) => v.id === item.dataset.id) || {}).etapa) c.over.classList.add('is-over'); },
+    onMove: (c) => { limpiar(); const x = filas.find((v) => v.id === item.dataset.id); if (c.over && x && c.over.dataset.etapa !== colDe(x)) c.over.classList.add('is-over'); },
     onCancel: () => { limpiar(); item.classList.remove('is-arrastrada'); ultimoArrastre = Date.now(); },
     onDrop: async (c) => {
       limpiar();
@@ -545,7 +605,7 @@ function conectarArrastre(t) {
       ultimoArrastre = Date.now();
       const v = filas.find((x) => x.id === item.dataset.id);
       const destino = c.over && c.over.dataset.etapa;
-      if (v && destino && destino !== v.etapa) await moverEtapa(v, destino, { optimista: true });
+      if (v && destino && destino !== colDe(v)) await moverEtapa(v, destino, { optimista: true });
     },
   }));
 }
@@ -554,16 +614,18 @@ function conectarArrastre(t) {
 // Perdido pide el motivo; Cita agendada sin fecha ofrece anotarla.
 export function cambiarEtapaCRM(v, nueva, opts = {}) { return moverEtapa(v, nueva, opts); }
 async function moverEtapa(v, nueva, { anchor = null, optimista = false } = {}) {
-  if (!nueva || nueva === v.etapa) return false;
+  if (!nueva || nueva === colDe(v)) return false;
   const cuerpo = { etapa: nueva };
   if (nueva === 'perdido') {
     const m = await pedirMotivo(anchor);
     if (m === null) return false;
     cuerpo.motivo_perdida = m;
   }
-  const antes = { etapa: v.etapa, etapa_en: v.etapa_en, motivo_perdida: v.motivo_perdida };
+  const antes = { etapa: v.etapa, fase: v.fase, etapa_en: v.etapa_en, fase_en: v.fase_en, motivo_perdida: v.motivo_perdida };
   if (optimista) {
-    Object.assign(v, { etapa: nueva, etapa_en: new Date().toISOString().slice(0, 19).replace('T', ' ') }, cuerpo.motivo_perdida ? { motivo_perdida: cuerpo.motivo_perdida } : {});
+    const ahoraSql = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    // Un paso de la clienta se guarda como etapa 'cliente' + fase.
+    Object.assign(v, esFase(nueva) ? { etapa: 'cliente', fase: nueva, fase_en: ahoraSql } : { etapa: nueva, etapa_en: ahoraSql }, cuerpo.motivo_perdida ? { motivo_perdida: cuerpo.motivo_perdida } : {});
     pintarContenido(true);
   }
   let r = null;
@@ -933,6 +995,7 @@ export async function abrirOportunidad(convId) {
   let formNueva = false;
   let verHechasOp = false;
   let histTodo = false;
+  let exped = null;              // estudio: pagos, galería y opciones para amarrar (cargarExpediente)
   const refs = {};
 
   const deConv = () => {
@@ -989,6 +1052,7 @@ export async function abrirOportunidad(convId) {
   function armar() {
     clear(refs.raiz);
     refs.head = el('div', { class: 'bj-op__head' });
+    refs.flujo = el('section', { class: 'bj-op__sec bj-op__flujo', 'data-sec': 'datos', hidden: true });
     refs.etapas = el('div', { class: 'bj-op__etapas' });
     refs.tabs = el('div', { class: 'seg bj-op__tabs', role: 'tablist', 'aria-label': T('Secciones', 'Sections') });
     refs.datos = el('section', { class: 'bj-op__sec', 'data-sec': 'datos' });
@@ -999,11 +1063,134 @@ export async function abrirOportunidad(convId) {
     refs.pie.hidden = true;
     refs.raiz.append(refs.head, refs.etapas, refs.tabs,
       el('div', { class: 'bj-op__grid' }, [
-        el('div', { class: 'bj-op__col' }, [refs.datos, refs.plan]),
+        el('div', { class: 'bj-op__col' }, [refs.flujo, refs.datos, refs.plan]),
         el('div', { class: 'bj-op__col' }, [refs.tareas, refs.hist]),
       ]),
       refs.pie);
-    pintarHead(); pintarEtapas(); pintarTabs(); pintarDatos(); pintarPlan(); pintarTareasOp(); pintarHist(); pintarPie();
+    pintarHead(); pintarEtapas(); pintarTabs(); pintarFlujo(); pintarDatos(); pintarPlan(); pintarTareasOp(); pintarHist(); pintarPie();
+    cargarExpediente();
+  }
+
+  // ── Estudio: su sesión paso a paso, todo amarrado (049) ──
+  // La reserva, los pagos (Stripe o efectivo), su galería de IVAE Gallery, su
+  // selección y la entrega. Lo que el sistema no reconoció se amarra aquí a mano.
+  async function cargarExpediente() {
+    if (!giroFoto()) return;
+    try { exped = await api.get(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/expediente`); }
+    catch { exped = null; }
+    if (refs.flujo && refs.flujo.isConnected) pintarFlujo();
+  }
+  function pintarFlujo() {
+    if (!refs.flujo) return;
+    clear(refs.flujo);
+    refs.flujo.hidden = !(giroFoto() && exped && exped.aplica);
+    if (refs.flujo.hidden) return;
+    const k = colDe(v);
+    const pagos = exped.pagos || [];
+    const g = exped.galeria;
+    const total = pagos.reduce((s, p) => s + (Number(p.mxn) || 0), 0);
+    const boton = (txt, ico, onclick) => el('button', { type: 'button', class: 'btn btn-sm', onclick }, [icon(ico, 14), el('span', { text: txt })]);
+    // estado de cada paso: 'hecho' | 'ahora' | 'falta'
+    const paso = (ico, titulo, valor, estado, acciones = []) => el('li', { class: 'bj-flujo__paso is-' + estado }, [
+      el('span', { class: 'bj-flujo__ico', 'aria-hidden': 'true' }, [icon(estado === 'hecho' ? 'check' : ico, 14)]),
+      el('div', { class: 'bj-flujo__txt' }, [
+        el('span', { class: 'bj-flujo__t', text: titulo }),
+        ...(Array.isArray(valor) ? valor : [valor]).filter(Boolean).map((x) => el('span', { class: 'bj-flujo__v', text: x })),
+        acciones.length ? el('div', { class: 'bj-flujo__acc' }, acciones) : null,
+      ].filter(Boolean)),
+    ]);
+    const sesionPasada = v.fecha_cita && citaPasada(v.fecha_cita);
+    poner(refs.flujo,
+      tituloSec(T('Su sesión, paso a paso', 'Their session, step by step'), 'activity'),
+      el('ol', { class: 'bj-flujo' }, [
+        paso('calendar', T('Sesión', 'Session'), v.fecha_cita ? fmtCita(v.fecha_cita) : T('Sin fecha', 'No date'),
+          v.fecha_cita ? (sesionPasada ? 'hecho' : 'ahora') : (esFase(k) ? 'hecho' : 'falta')),
+        paso('briefcase', T('Pago', 'Payment'),
+          pagos.length ? pagos.map((p) => `${fmtDinero(Math.round(p.mxn))}${p.usd ? ` (US$${p.usd})` : ''} · ${VIA_TXT[p.via] || p.via} · ${fmtDia(p.dia)}${p.que && p.via === 'stripe' ? ` · ${p.que}` : ''}`) : T('Sin registrar', 'Not recorded'),
+          total > 0 ? 'hecho' : (k === 'por_cobrar' ? 'ahora' : 'falta'),
+          [boton(T('Pagó en efectivo', 'Paid in cash'), 'plus', registrarEfectivo), boton(T('Amarrar pago de Stripe', 'Link a Stripe payment'), 'link', amarrarCobro)]),
+        paso('camera', T('Galería para elegir', 'Selection gallery'),
+          g ? `${g.titulo} · ${g.publicada ? T('publicada', 'published') : T('borrador', 'draft')}${g.creada ? ' · ' + fmtDia(g.creada) : ''}` : T('Todavía sin galería', 'No gallery yet'),
+          g && g.publicada ? 'hecho' : (k === 'en_proceso' ? 'ahora' : 'falta'),
+          [g ? el('a', { class: 'btn btn-sm', href: g.url, target: '_blank', rel: 'noopener' }, [icon('link', 14), el('span', { text: T('Abrir galería', 'Open gallery') })]) : null,
+            boton(g ? T('Cambiar', 'Change') : T('Amarrar galería', 'Link gallery'), 'camera', amarrarGaleria)].filter(Boolean)),
+        paso('tasks', T('Su selección', 'Their selection'), g && g.seleccion ? T(`Eligió el ${fmtDia(g.seleccion)}`, `Chose on ${fmtDia(g.seleccion)}`) : null,
+          (g && g.seleccion) || ['postpro', 'entregada'].includes(k) ? 'hecho' : (k === 'eligiendo' ? 'ahora' : 'falta')),
+        paso('download', T('Entrega final', 'Final delivery'), g && g.entregada ? fmtDia(g.entregada) : null,
+          (g && g.entregada) || k === 'entregada' ? 'hecho' : (k === 'postpro' ? 'ahora' : 'falta')),
+      ]),
+    );
+  }
+  // Pagó en efectivo o por transferencia: el ingreso entra a Administración.
+  function registrarEfectivo() {
+    ctx.sheet.openSheet({
+      title: T('Registrar pago', 'Record payment'), mode: 'form',
+      build(body, close) {
+        const st = { tipo: 'sesion', forma: 'efectivo' };
+        const monto = el('input', { class: 'input', type: 'text', inputmode: 'decimal', placeholder: T('Monto en pesos', 'Amount in pesos'), 'aria-label': T('Monto en pesos', 'Amount in pesos') });
+        monto.addEventListener('input', () => { monto.value = monto.value.replace(/[^\d.]/g, ''); });
+        const seg = (ops, k) => el('div', { class: 'seg' }, ops.map(([val, txt]) => el('button', {
+          type: 'button', class: st[k] === val ? 'is-active' : '', onclick: (e) => { st[k] = val; e.currentTarget.parentElement.querySelectorAll('button').forEach((b) => b.classList.toggle('is-active', b === e.currentTarget)); },
+        }, [txt])));
+        const ok = el('button', { class: 'btn btn-primary', type: 'button', text: T('Guardar', 'Save'), onclick: async () => {
+          const n = Number(monto.value);
+          if (!(n > 0)) { monto.focus(); return; }
+          ok.disabled = true;
+          try {
+            await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/efectivo`, { monto_mxn: n, tipo: st.tipo, forma_pago: st.forma });
+            close({ force: true });
+            toast(T('Pago registrado. Ya está en Administración.', 'Payment recorded. It is in Administration.'), { type: 'success' });
+            await cargarExpediente(); trasCambio(v.id);
+          } catch (e) { toast(e.message, { type: 'error' }); ok.disabled = false; }
+        } });
+        poner(body,
+          campo(T('¿Cuánto te pagó?', 'How much?'), monto),
+          campo(T('¿De qué?', 'For what?'), seg([['sesion', T('La sesión', 'The session')], ['upgrade', T('Upgrade', 'Upgrade')], ['propina', T('Propina', 'Tip')]], 'tipo')),
+          campo(T('¿Cómo?', 'How?'), seg([['efectivo', T('Efectivo', 'Cash')], ['bbva', T('Transferencia', 'Transfer')]], 'forma')),
+          el('div', { class: 'bj-op__botones' }, [el('button', { class: 'btn btn-ghost', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ force: true }) }), ok]),
+        );
+        setTimeout(() => { try { monto.focus(); } catch { /* noop */ } }, 80);
+      },
+    });
+  }
+  async function amarrarCobro(e) {
+    const lista = (exped && exped.cobros) || [];
+    if (!lista.length) { toast(T('No hay pagos de Stripe recientes sin dueño.', 'No recent unlinked Stripe payments.'), { type: 'info' }); return; }
+    const id = await ctx.sheet.pickFrom({
+      title: T('¿Cuál pago es suyo?', 'Which payment is theirs?'), anchor: e && e.currentTarget,
+      options: lista.map((c) => ({
+        value: c.id, label: `${c.nombre} · ${c.usd ? `US$${c.usd}` : fmtDinero(Math.round(c.mxn))} · ${fmtDia(c.dia)}`,
+        sub: [c.que, c.de_otra ? T(`Ahora está con ${c.de_otra}`, `Now with ${c.de_otra}`) : null].filter(Boolean).join(' · ') || undefined,
+      })),
+    });
+    if (!id) return;
+    try {
+      await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/cobro`, { cobro_id: id });
+      toast(T('Pago amarrado.', 'Payment linked.'), { type: 'success' });
+      await cargarExpediente(); trasCambio(v.id);
+    } catch (err) { toast(err.message, { type: 'error' }); }
+  }
+  async function amarrarGaleria(e) {
+    const lista = (exped && exped.galerias) || [];
+    if (!lista.length) { toast(T('No hay galerías recientes en IVAE Gallery.', 'No recent galleries in IVAE Gallery.'), { type: 'info' }); return; }
+    const actual = exped.galeria && exped.galeria.id;
+    const id = await ctx.sheet.pickFrom({
+      title: T('¿Cuál es su galería?', 'Which is their gallery?'), anchor: e && e.currentTarget,
+      options: [
+        ...lista.map((g) => ({
+          value: g.id, label: g.titulo, current: g.id === actual,
+          sub: [fmtDia(g.creada), g.entregada ? T('entregada', 'delivered') : (g.seleccion ? T('ya eligió', 'chosen') : (g.publicada ? T('publicada', 'published') : T('borrador', 'draft'))),
+            g.de_otra ? T(`es de ${g.de_otra}`, `belongs to ${g.de_otra}`) : null].filter(Boolean).join(' · '),
+        })),
+        ...(actual ? [{ value: '__soltar', label: T('No es su galería (soltarla)', 'Not theirs (unlink)') }] : []),
+      ],
+    });
+    if (!id || id === actual) return;
+    try {
+      await api.patch(`/bandeja/conversaciones/${encodeURIComponent(v.id)}`, { galeria_id: id === '__soltar' ? null : id });
+      toast(id === '__soltar' ? T('Galería soltada.', 'Gallery unlinked.') : T('Galería amarrada.', 'Gallery linked.'), { type: 'success' });
+      await cargarExpediente(); trasCambio(v.id);
+    } catch (err) { toast(err.message, { type: 'error' }); }
   }
 
   async function recargar({ reiniciar = false } = {}) {
@@ -1021,7 +1208,8 @@ export async function abrirOportunidad(convId) {
     }
     const t = inst.el.querySelector('.sheet__title');
     if (t) t.textContent = d.nombreDe(v);
-    pintarHead(); pintarEtapas(); pintarTabs(); pintarDatos(); pintarPlan(); pintarTareasOp(); pintarHist(); pintarPie();
+    pintarHead(); pintarEtapas(); pintarTabs(); pintarFlujo(); pintarDatos(); pintarPlan(); pintarTareasOp(); pintarHist(); pintarPie();
+    cargarExpediente();
   }
 
   // ── Cabecera: quién es, de dónde llegó, cuánto vale y acciones ──
@@ -1084,14 +1272,15 @@ export async function abrirOportunidad(convId) {
   function pintarEtapas() {
     clear(refs.etapas);
     const pasos = d.ETAPAS.filter((k) => k !== 'perdido');
-    const i = pasos.indexOf(v.etapa);
+    const actual = colDe(v);
+    const i = pasos.indexOf(actual);
     const perdido = v.etapa === 'perdido';
-    const color = d.ETAPA_COLOR[v.etapa] || '#64748b';
+    const color = d.ETAPA_COLOR[actual] || '#64748b';
     poner(refs.etapas,
-      el('div', { class: 'bj-etapas' + (perdido ? ' is-perdido' : ''), role: 'group', 'aria-label': T('Etapa', 'Stage'), style: { '--e': color } }, pasos.map((k, j) => el('button', {
-        type: 'button', class: 'bj-etapas__paso' + (!perdido && j <= i ? ' is-hecho' : '') + (k === v.etapa ? ' is-actual' : ''),
+      el('div', { class: 'bj-etapas' + (perdido ? ' is-perdido' : '') + (pasos.length > 6 ? ' is-largo' : ''), role: 'group', 'aria-label': T('Etapa', 'Stage'), style: { '--e': color } }, pasos.map((k, j) => el('button', {
+        type: 'button', class: 'bj-etapas__paso' + (!perdido && j <= i ? ' is-hecho' : '') + (k === actual ? ' is-actual' : ''),
         style: { '--e': d.ETAPA_COLOR[k], '--t': `var(--et-${k}-txt)` },
-        'aria-pressed': String(k === v.etapa), 'aria-label': T(`Mover a ${etq(k)}`, `Move to ${etq(k)}`), title: etq(k),
+        'aria-pressed': String(k === actual), 'aria-label': T(`Mover a ${etq(k)}`, `Move to ${etq(k)}`), title: etq(k),
         onclick: (e) => cambiarEtapa(k, e.currentTarget),
       }, [el('span', { class: 'bj-etapas__txt', text: etq(k) })]))),
       el('button', {
@@ -1100,14 +1289,20 @@ export async function abrirOportunidad(convId) {
       }, [icon('close', 13), el('span', { text: etq('perdido') })]),
       el('p', { class: 'bj-op__etapa-txt' }, [
         el('span', { class: 'bj-etapa__punto', style: { '--e': color } }),
-        el('strong', { text: etq(v.etapa) }),
-        el('span', { class: 'muted', text: ` · ${enEtapa(v.etapa_en || v.created_at)}` }),
+        el('strong', { text: etq(actual) }),
+        el('span', { class: 'muted', text: ` · ${enEtapa((esFase(actual) && v.fase_en) || v.etapa_en || v.created_at)}` }),
         perdido && v.motivo_perdida ? el('span', { class: 'muted', text: ` · ${v.motivo_perdida}` }) : null,
       ].filter(Boolean)),
     );
+    // Barra larga (estudio): que se vea el paso actual sin tener que buscarlo.
+    requestAnimationFrame(() => {
+      const barra = refs.etapas.querySelector('.bj-etapas.is-largo');
+      const cur = barra && barra.querySelector('.is-actual');
+      if (cur) barra.scrollLeft = Math.max(0, cur.offsetLeft - 48);
+    });
   }
   async function cambiarEtapa(k, anchor) {
-    if (k === v.etapa) return;
+    if (k === colDe(v)) return;
     await moverEtapa(v, k, { anchor });
   }
 

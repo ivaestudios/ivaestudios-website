@@ -27,7 +27,7 @@
 import { pautaDelPeriodo, fijarTopeDiario, anunciosDelPeriodo } from './_ads.js';
 
 // La única marca que tiene esto: el estudio de fotografía (dinero de la casa).
-const IVAE_STUDIOS = '6ae5dd2381faa430d9e6966470b29602';
+export const IVAE_STUDIOS = '6ae5dd2381faa430d9e6966470b29602';
 
 // Colecciones ANTERIORES (las del PDF "Exclusive Collections - anteriores"):
 // Vianey las regresó el 5-nov-2026. Precios en USD.
@@ -229,6 +229,79 @@ async function sincronizarReservas(env, cfg) {
   return stmts.length;
 }
 
+// ── Cobros de Stripe → ingresos ─────────────────────────────────────────────
+// Vianey (6-nov-2026): "todo súper vinculado, incluso Stripe". Cada cobro de
+// sesión, upgrade o propina entra solo como ingreso con lo que llegó en pesos.
+// El historial hasta octubre ya vive en su control de meses (Excel): los cobros
+// cuentan desde CORTE_COBROS para no duplicar. Si ya hay un ingreso de esa
+// persona sin monto (la reserva de Juan) o con un monto parecido cerca de esa
+// fecha, el cobro se le AMARRA en vez de crear otro.
+const CORTE_COBROS = '2026-11-01';
+export const tokensNombre = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)/g, ' ')
+  .replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter((x) => x.length > 1 && !['the', 'and', 'y', 'de', 'del', 'la', 'los', 'las', 'mr', 'mrs', 'ms'].includes(x));
+// Misma persona: comparten el primer nombre o un apellido (el que paga con su
+// tarjeta suele escribir nombre y apellido; la reserva solo trae el nombre).
+export function mismaPersona(a, b) {
+  const x = tokensNombre(a); const y = tokensNombre(b);
+  if (!x.length || !y.length) return false;
+  return x[0] === y[0] || x.some((t) => t.length > 3 && y.includes(t));
+}
+const diasEntre = (a, b) => Math.abs((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);
+
+async function sincronizarCobros(env, cfg) {
+  const cobros = await leerCobros(env, `${CORTE_COBROS}T05:00:00`);
+  if (!cobros.length) return 0;
+  const ventas = (await env.DB.prepare(
+    'SELECT id, cliente, fecha, fecha_sesion, tipo, monto_mxn, cobro_id, reserva_id FROM mkt_neg_ventas WHERE client_id = ? AND fecha >= ?'
+  ).bind(IVAE_STUDIOS, mesesAtras(CORTE_COBROS, 1)).all()).results || [];
+  const usados = new Set(ventas.map((v) => v.cobro_id).filter(Boolean));
+  const links = await leerLinks(env);
+  const tc = Number(cfg.tipo_cambio) || CFG_BASE.tipo_cambio;
+  let n = 0;
+  for (const c of cobros) {
+    const lk = c.payment_link ? links.get(c.payment_link) : null;
+    if (lk) await marcarLinkPagado(env, c);
+    if (usados.has(c.id)) continue;
+    const dia = diaCancunDeUtc(c.creado);
+    if (!dia || dia < CORTE_COBROS) continue;
+    const auto = clasificarCobro(c, cfg.paquetes || []);
+    // Lo que dice el link de Juan manda (sabe si fue sesión, upgrade o propina).
+    const tipo = lk && ['sesion', 'upgrade', 'propina', 'otro'].includes(lk.tipo) ? lk.tipo : auto.tipo;
+    const paquete = (lk && lk.paquete) || auto.paquete;
+    const pesos = pesosDeCobro(c, tc);
+    const quien = c.nombre || (lk && lk.cliente) || c.email || 'Cliente de Stripe';
+    // Pareja: la reserva de ese link (exacta) o, si no, la misma persona, y solo
+    // si es UNA: con monto anotado, que el monto se parezca (±10 días); sin monto
+    // (la reserva de Juan), que el pago sea del día de su sesión (±2 días: se paga
+    // al terminar). Dos con el mismo nombre esa semana = no se adivina: el cobro
+    // entra aparte (revisión de la otra sesión, 6-nov-2026).
+    const porNombre = ventas.filter((v) => !v.cobro_id && (v.tipo || 'sesion') === tipo && mismaPersona(v.cliente, quien) && (
+      v.monto_mxn != null
+        ? diasEntre(v.fecha_sesion || v.fecha, dia) <= 10 && Math.abs(Number(v.monto_mxn) - pesos) <= Math.max(150, pesos * 0.06)
+        : !!v.fecha_sesion && diasEntre(v.fecha_sesion, dia) <= 2));
+    const pareja = (lk && lk.reserva_id && ventas.find((v) => !v.cobro_id && v.reserva_id === lk.reserva_id))
+      || (porNombre.length === 1 ? porNombre[0] : null);
+    if (pareja) {
+      await env.DB.prepare(
+        `UPDATE mkt_neg_ventas SET cobro_id = ?, forma_pago = COALESCE(forma_pago, 'stripe'),
+           fecha = CASE WHEN monto_mxn IS NULL THEN ? ELSE fecha END, monto_mxn = COALESCE(monto_mxn, ?), updated_at = datetime('now') WHERE id = ?`
+      ).bind(c.id, dia, pesos, pareja.id).run();
+      pareja.cobro_id = c.id;
+    } else {
+      await env.DB.prepare(
+        `INSERT INTO mkt_neg_ventas (id, client_id, fecha, cliente, paquete, precio, estado, notas, creado_por, tipo, monto_mxn, forma_pago, cobro_id, conv_id)
+         VALUES (?, ?, ?, ?, ?, ?, 'cerrada', ?, 'stripe', ?, ?, 'stripe', ?, ?)`
+      ).bind('v' + crypto.randomUUID().replace(/-/g, ''), IVAE_STUDIOS, dia, String(quien).slice(0, 120), paquete,
+        String(c.moneda || '').toUpperCase() === 'USD' ? (Number(c.monto) || 0) / 100 : null,
+        [`Stripe${c.descripcion ? ': ' + c.descripcion : ''}`, c.email ? `Correo: ${c.email}` : null].filter(Boolean).join(' · ').slice(0, 500),
+        tipo, pesos, c.id, (lk && lk.conv_id) || null).run();
+    }
+    usados.add(c.id);
+    n++;
+  }
+  return n;
+}
+
 // ── Para el Embudo de la Bandeja (bandeja_cfg.giro = 'foto') ────────────────
 // Una sola lista de precios para el panel y para el CRM: la de "Paquetes
 // vigentes" de Administración, más los reels.
@@ -251,16 +324,79 @@ export function noEsLead(v) { return fuenteAuto(v) === 'no_lead'; }
 
 // Lo que NOSOTROS le escribimos dice en qué va la persona (6-nov-2026, Ann: "ya
 // dice que le enviamos su galería final, ¿por qué está en plática?").
-// · YA_FUE_SESION: solo se dice después de la sesión (editando sus fotos, su
-//   galería ya se envió, galería final, pago del upgrade) → ya es Cliente.
-// · TIENE_SESION: pago confirmado o la plantilla "about your photo session" que
-//   Israel solo manda a quien ya reservó → al menos Sesión agendada.
+// El flujo del estudio (Vianey, 6-nov-2026): primer contacto → seguimiento →
+// se reserva → el DÍA de la sesión se paga (Stripe o efectivo; sin anticipo) →
+// 1 a 3 días hábiles para la galería de selección → la clienta elige →
+// post-producción de su selección (y upgrade si quiere más fotos) → entrega.
+// · FASE_POR_MENSAJE: en qué paso de cliente va, de lo más avanzado a lo menos.
+//   Pago confirmado = la sesión ya fue (se paga al terminar).
+// · YA_FUE_SESION: cualquiera de esas frases → ya es Cliente.
+// · TIENE_SESION: la plantilla "about your photo session" que Israel solo manda
+//   a quien ya reservó → al menos Sesión reservada.
 // Ojo: antes de vender Juan sí habla de la galería ("galería para selección en
 // 1–3 días hábiles"); por eso aquí solo entran frases en pasado o de después.
-export const YA_FUE_SESION = /editing your photos|editando (sus|tus) fotos|final gallery|galer[ií]a final|(we'?ve|we have|we) (just )?(sent|uploaded|delivered) your (online |photo )?gallery|your gallery (has been|was) (sent|uploaded|delivered)|gallery will be ready (later )?today|ya (le |te )?(enviamos|mandamos|subimos|entregamos) (su |tu |la )?galer[ií]a|upgrade payment|pago del upgrade/i;
-export const TIENE_SESION = /about your photo session|confirmed the payment|received your payment|payment for your session|(confirmamos|recibimos) (su |tu |el )?pago/i;
+export const FASE_POR_MENSAJE = [
+  ['entregada', /final gallery|galer[ií]a final|final (edited )?photos (are|have been) (ready|uploaded|sent)/i],
+  ['postpro', /upgrade payment|pago del upgrade|(received|got) your (photo )?selection|recibimos (su |tu )?selecci[oó]n/i],
+  ['eligiendo', /(we'?ve|we have|we) (just )?(sent|uploaded|delivered) your (online |photo )?gallery|your gallery (has been|was) (sent|uploaded|delivered)|gallery will be ready (later )?today|so you can make your selection|ya (le |te )?(enviamos|mandamos|subimos) (su |tu |la )?galer[ií]a/i],
+  ['en_proceso', /editing your photos|editando (sus|tus) fotos|confirmed the payment|received your payment|payment for your session|(confirmamos|recibimos) (su |tu |el )?pago/i],
+];
+export const YA_FUE_SESION = new RegExp(FASE_POR_MENSAJE.map(([, re]) => re.source).join('|'), 'i');
+export const TIENE_SESION = /about your photo session/i;
 // La misma plantilla también avisa cancelaciones (Vicki y Sarah, 30-oct): esto gana.
 export const CANCELO_SESION = /(has been|was) cancel+ed|cancel+ed as requested|cancel+ed since|(fue|ha sido) cancelada|cancelamos (su |tu |la )?sesi[oó]n|se cancel[oó] (su |tu |la )?sesi[oó]n/i;
+export function faseDeMensaje(texto) {
+  const t = String(texto || '');
+  for (const [fase, re] of FASE_POR_MENSAJE) if (re.test(t)) return fase;
+  return null;
+}
+
+// Los pasos de una clienta (etapa 'cliente' del Embudo; solo el estudio).
+export const FASES_FOTO = ['por_cobrar', 'en_proceso', 'eligiendo', 'postpro', 'entregada'];
+
+// ── Cobros de Stripe de las sesiones (tabla cobros_sesion, la llena la galería) ──
+// Cada cobro dice quién pagó (correo, nombre, teléfono), qué compró y lo que
+// llegó en pesos. Si la tabla aún no existe, no hay cobros (nada se rompe).
+export async function leerCobros(env, desdeIso) {
+  try {
+    const r = await env.DB.prepare(
+      'SELECT id, creado, monto, moneda, monto_mxn, neto_mxn, comision_mxn, email, nombre, telefono, descripcion, payment_link FROM cobros_sesion WHERE creado >= ? ORDER BY creado'
+    ).bind(desdeIso).all();
+    return r.results || [];
+  } catch { return []; }
+}
+// Los links de pago que crea Juan (048_pagos_stripe, sesión de Juan): cada uno
+// sabe de qué chat, de qué reserva y de qué es (sesión, upgrade, propina). Un
+// cobro que vino de uno de esos links se amarra EXACTO, sin adivinar por nombre.
+export async function leerLinks(env) {
+  try {
+    const r = await env.DB.prepare('SELECT id, conv_id, reserva_id, tipo, paquete, cliente, correo FROM mkt_pago_links').all();
+    return new Map((r.results || []).map((l) => [l.id, l]));
+  } catch { return new Map(); }
+}
+// Cuando un cobro llega por un link de Juan, el link queda pagado.
+export async function marcarLinkPagado(env, cobro) {
+  if (!cobro.payment_link) return;
+  await env.DB.prepare("UPDATE mkt_pago_links SET estado = 'pagado', pagado_en = COALESCE(pagado_en, ?), pago_id = COALESCE(pago_id, ?) WHERE id = ? AND estado <> 'pagado'")
+    .bind(cobro.creado, cobro.id, cobro.payment_link).run().catch(() => {});
+}
+// ¿Sesión, upgrade o propina? Por lo que dice que compró; el paquete si lo nombra.
+export function clasificarCobro(c, paquetes = []) {
+  const desc = String(c.descripcion || '');
+  const p = paquetes.find((x) => x.nombre && desc.toLowerCase().includes(String(x.nombre).toLowerCase().replace(/^the\s+/, '')));
+  // Así lo escriben en los links reales: "Upgrade", "Up grade", "Up-grade".
+  if (/up[\s-]?grade|extra photo|fotos? extra|additional photo/i.test(desc)) return { tipo: 'upgrade', paquete: null };
+  if (/propina|\btip\b|gratuity/i.test(desc)) return { tipo: 'propina', paquete: null };
+  // Solo el transporte (sin paquete): no es una sesión.
+  if (/^\s*(transport(ation|e)?|traslado)s?\s*$/i.test(desc)) return { tipo: 'otro', paquete: null };
+  return { tipo: 'sesion', paquete: p ? p.nombre : null };
+}
+// Lo que entró en pesos: lo que dice Stripe; si no lo dijo, el monto al tipo de cambio.
+export function pesosDeCobro(c, tc) {
+  if (c.monto_mxn != null) return Number(c.monto_mxn);
+  const n = (Number(c.monto) || 0) / 100;
+  return String(c.moneda || '').toUpperCase() === 'USD' ? Math.round(n * (Number(tc) || 18.7) * 100) / 100 : n;
+}
 
 // ── Publicaciones de Instagram de un periodo (Administración → Publicaciones) ─
 // Lo mismo que lee Métricas (alcance, interacciones, guardados, compartidos),
@@ -313,6 +449,7 @@ async function resumen(env, url, deps = {}) {
   let cfg = await iniciarCfg(env, await leerCfg(env));
   cfg = await refrescarTipoCambio(env, cfg);
   await sincronizarReservas(env, cfg).catch((e) => console.error('[negocio] reservas', e && e.message));
+  await sincronizarCobros(env, cfg).catch((e) => console.error('[negocio] cobros', e && e.message));
   const [u0, u1] = rangoUtc(p.desde, p.fin);
 
   const [convsR, todasR, overR, manualR, ventasR, juanR, historicoR, pauta] = await Promise.all([
@@ -397,7 +534,8 @@ async function resumen(env, url, deps = {}) {
     ventas.push({
       id: v.id, fecha: v.fecha, fecha_sesion: v.fecha_sesion, cliente: v.cliente, paquete: v.paquete,
       precio: v.precio != null ? Number(v.precio) : null, fuente: v.fuente || auto, fuente_auto: !v.fuente,
-      origen: v.reserva_id ? 'juan' : (v.creado_por === 'excel' ? 'excel' : 'manual'), notas: v.notas || '',
+      origen: v.reserva_id ? 'juan' : (v.creado_por === 'excel' ? 'excel' : (v.creado_por === 'stripe' ? 'stripe' : 'manual')), notas: v.notas || '',
+      stripe: !!v.cobro_id,
       tipo, monto_mxn: v.monto_mxn != null ? Number(v.monto_mxn) : null, mxn, forma_pago: v.forma_pago || null, empresa: v.empresa || null,
     });
   }

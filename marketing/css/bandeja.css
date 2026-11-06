@@ -1347,3 +1347,50 @@ button.bj-tarea__cuerpo:focus-visible { outline: none; box-shadow: var(--ring); 
 .bj-burbuja { min-width: 0; }
 .bj-burbuja__pie { flex-wrap: wrap; }
 .bj-burbuja__pie .bj-burbuja__err { white-space: normal; overflow-wrap: anywhere; }
+
+/* ============================================================================
+   ESTUDIO (049, 6-nov-2026): el flujo de la clienta, vinculado. Después de
+   "Sesión reservada" van sus pasos (Por cobrar → Galería en proceso → Eligiendo
+   fotos → Post-producción → Entregada), en la misma escala de un solo color,
+   cada vez más claros. "Su sesión, paso a paso" es la línea de tiempo de la
+   oportunidad: lo hecho lleno, lo de ahora con aro, lo que falta en gris.
+   ============================================================================ */
+body {
+  --et-por_cobrar: color-mix(in srgb, var(--et-base) 48%, #fff);
+  --et-en_proceso: color-mix(in srgb, var(--et-base) 40%, #fff);
+  --et-eligiendo:  color-mix(in srgb, var(--et-base) 32%, #fff);
+  --et-postpro:    color-mix(in srgb, var(--et-base) 24%, #fff);
+  --et-entregada:  color-mix(in srgb, var(--et-base) 16%, #fff);
+  --et-por_cobrar-txt: #1b1b1f; --et-en_proceso-txt: #1b1b1f; --et-eligiendo-txt: #1b1b1f;
+  --et-postpro-txt: #1b1b1f; --et-entregada-txt: #1b1b1f;
+}
+/* Nueve pasos no caben parejos en un teléfono: la barra se desliza y cada paso
+   dice su nombre completo. */
+.bj-etapas.is-largo { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.bj-etapas.is-largo::-webkit-scrollbar { display: none; }
+.bj-etapas.is-largo .bj-etapas__paso { flex: 0 0 auto; padding: 0 14px 0 20px; white-space: nowrap; }
+.bj-etapas.is-largo .bj-etapas__paso:first-child { padding-left: 14px; }
+.bj-card__dato.is-pagado > .ico { color: #15803d; }
+:root:not([data-theme="light"]) .bj-card__dato.is-pagado > .ico { color: #4ade80; }
+
+.bj-op__flujo[hidden] { display: none !important; }
+.bj-flujo { list-style: none; margin: 6px 0 0; padding: 0; display: grid; }
+.bj-flujo__paso { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding-bottom: 16px; }
+.bj-flujo__paso:last-child { padding-bottom: 4px; }
+.bj-flujo__paso::before { content: ''; position: absolute; left: 13px; top: 30px; bottom: 2px; width: 2px; border-radius: 2px; background: var(--border); }
+.bj-flujo__paso:last-child::before { display: none; }
+.bj-flujo__paso.is-hecho::before { background: color-mix(in srgb, var(--et-base) 45%, var(--border)); }
+.bj-flujo__ico {
+  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-mute);
+}
+.bj-flujo__paso.is-hecho .bj-flujo__ico { border-color: transparent; background: var(--et-base); color: #fff; }
+.bj-flujo__paso.is-ahora .bj-flujo__ico { border: 2px solid var(--et-base); background: var(--surface); color: var(--et-base); }
+.bj-flujo__txt { display: grid; gap: 2px; min-width: 0; padding-top: 4px; }
+.bj-flujo__t { font-size: 14px; font-weight: 700; color: var(--text); }
+.bj-flujo__paso.is-falta .bj-flujo__t { font-weight: 600; color: var(--text-dim); }
+.bj-flujo__v { font-size: 13px; line-height: 1.4; color: var(--text-dim); overflow-wrap: anywhere; }
+.bj-flujo__acc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.bj-flujo__acc .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; text-decoration: none; }
+.bj-op__botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.bj-op__botones .btn { min-height: 44px; }

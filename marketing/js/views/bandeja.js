@@ -22,11 +22,11 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060144';
-import { toast } from '../shell/toast.js?v=202611060144';
-import { icon, iconMarca } from '../shell/icons.js?v=202611060144';
-import { T, isEN } from '../shell/i18n.js?v=202611060144';
-import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060144';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611060250';
+import { toast } from '../shell/toast.js?v=202611060250';
+import { icon, iconMarca } from '../shell/icons.js?v=202611060250';
+import { T, isEN } from '../shell/i18n.js?v=202611060250';
+import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611060250';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -70,20 +70,36 @@ const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cita', 'cliente', 'perdido'];
 // clientes y sesiones, no de pacientes y citas. El CRM (bandeja-crm.js) ajusta
 // todos sus textos con esto; aquí solo los que viven en este archivo.
 const giroFoto = () => !!(resumen && !resumen.error && resumen.cfg && resumen.cfg.giro === 'foto');
-const personaTxt = () => (giroFoto() ? T('Cliente', 'Client') : personaTxt());
+const personaTxt = () => (giroFoto() ? T('Cliente', 'Client') : T('Paciente', 'Patient'));
+// El flujo del estudio (Vianey, 6-nov-2026; migración 049): después de la
+// sesión, "Cliente" se parte en los pasos de la clienta. Se guardan como etapa
+// 'cliente' + fase; en pantalla son columnas propias. La clínica no las usa.
+const FASES_FOTO = ['por_cobrar', 'en_proceso', 'eligiendo', 'postpro', 'entregada'];
+const ETAPAS_FOTO = ['nuevo', 'platica', 'cotizado', 'cita', ...FASES_FOTO, 'perdido'];
+const etapasDeLaMarca = () => (giroFoto() ? ETAPAS_FOTO : ETAPAS);
+// La columna de una conversación: en el estudio, la clienta va en su paso.
+const etapaVista = (v) => (giroFoto() && v && v.etapa === 'cliente' ? (FASES_FOTO.includes(v.fase) ? v.fase : 'por_cobrar') : (v && v.etapa));
 const ETAPA_TXT = {
   nuevo: () => T('Nuevo', 'New'),
-  platica: () => T('En plática', 'Talking'),
-  cotizado: () => T('Cotizado', 'Quoted'),
-  cita: () => (giroFoto() ? T('Sesión agendada', 'Session booked') : T('Cita agendada', 'Booked')),
+  platica: () => (giroFoto() ? T('Primer contacto', 'First contact') : T('En plática', 'Talking')),
+  cotizado: () => (giroFoto() ? T('Seguimiento', 'Follow-up') : T('Cotizado', 'Quoted')),
+  cita: () => (giroFoto() ? T('Sesión reservada', 'Session booked') : T('Cita agendada', 'Booked')),
   cliente: () => T('Cliente', 'Customer'),
   perdido: () => T('Perdido', 'Lost'),
+  por_cobrar: () => T('Por cobrar', 'To be paid'),
+  en_proceso: () => T('Galería en proceso', 'Gallery in progress'),
+  eligiendo: () => T('Eligiendo fotos', 'Choosing photos'),
+  postpro: () => T('Post-producción', 'Post-production'),
+  entregada: () => T('Entregada', 'Delivered'),
 };
 // Etapas en UN solo color: escalones del color de la marca, de claro (nuevo)
 // a lleno (cliente), y gris para perdido (bandeja.css, --et-*). Antes eran
 // azul/morado/naranja/verde... y se veía un arcoíris (15-oct-2026, Israel:
 // "hay muchos colores como raros, que se vea lo más profesional posible").
-const ETAPA_COLOR = { nuevo: 'var(--et-nuevo)', platica: 'var(--et-platica)', cotizado: 'var(--et-cotizado)', cita: 'var(--et-cita)', cliente: 'var(--et-cliente)', perdido: 'var(--et-perdido)' };
+const ETAPA_COLOR = {
+  nuevo: 'var(--et-nuevo)', platica: 'var(--et-platica)', cotizado: 'var(--et-cotizado)', cita: 'var(--et-cita)', cliente: 'var(--et-cliente)', perdido: 'var(--et-perdido)',
+  por_cobrar: 'var(--et-por_cobrar)', en_proceso: 'var(--et-en_proceso)', eligiendo: 'var(--et-eligiendo)', postpro: 'var(--et-postpro)', entregada: 'var(--et-entregada)',
+};
 const RESULTADOS_LLAMADA = [
   ['contesto', () => T('Contestó', 'Answered')],
   ['cita', () => T('Agendó cita', 'Booked')],
@@ -680,8 +696,8 @@ function listaConvs() {
         // Etapa del CRM (con su nombre, no un punto mudo), quién lo atiende y si
         // vino de un anuncio.
         el('span', { class: 'bj-conv__tags' }, [
-          el('span', { class: 'bj-tag bj-tag--etapa', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }, [
-            el('span', { class: 'bj-tag__punto' }), el('span', { text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }),
+          el('span', { class: 'bj-tag bj-tag--etapa', style: { '--e': ETAPA_COLOR[etapaVista(v)] || 'var(--text-mute)' } }, [
+            el('span', { class: 'bj-tag__punto' }), el('span', { text: (ETAPA_TXT[etapaVista(v)] || (() => v.etapa || ''))() }),
           ]),
           v.asignado_nombre && !esAgente() ? el('span', { class: 'bj-tag bj-tag--agente' }, [icon('user', 11), el('span', { text: v.asignado_nombre.split(' ')[0] })]) : null,
           !v.asignado_a && (esAgente() || equipoAgentes().length) ? el('span', { class: 'bj-tag bj-tag--libre', text: T('Sin asignar', 'Unassigned') }) : null,
@@ -733,10 +749,10 @@ function chat() {
         el('span', { class: 'bj-chat__canal' }, [chipCanal(v.canal)]),
         v.username && v.nombre ? el('span', { class: 'muted bj-chat__user', text: '@' + v.username }) : null,
         el('button', { type: 'button', class: 'bj-etapa', 'aria-label': T('Cambiar etapa', 'Change stage'), onclick: async (e) => {
-          const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: ETAPAS.map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: v.etapa === k })) });
+          const nueva = await ctx.sheet.pickFrom({ title: T('Etapa', 'Stage'), anchor: e.currentTarget, options: etapasDeLaMarca().map((k) => ({ value: k, label: ETAPA_TXT[k](), color: ETAPA_COLOR[k], current: etapaVista(v) === k })) });
           // Mismo camino que el embudo: Perdido pide el motivo y Cita la fecha.
-          if (nueva && nueva !== v.etapa) await cambiarEtapaCRM(v, nueva, { anchor: e.currentTarget });
-        } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[v.etapa] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[v.etapa] || (() => v.etapa || ''))() }), icon('down', 13)]),
+          if (nueva && nueva !== etapaVista(v)) await cambiarEtapaCRM(v, nueva, { anchor: e.currentTarget });
+        } }, [el('span', { class: 'bj-etapa__punto', style: { '--e': ETAPA_COLOR[etapaVista(v)] || 'var(--text-mute)' } }), el('span', { class: 'bj-etapa__txt', text: (ETAPA_TXT[etapaVista(v)] || (() => v.etapa || ''))() }), icon('down', 13)]),
         botonAsignado(v),
         botonJuan(v),
       ].filter(Boolean)),
@@ -2216,7 +2232,10 @@ function conectarDepsCRM() {
     ctx: () => ctx,
     cid, esAgente, esSupervisor, yoMe, equipoAgentes, giroFoto,
     resumen: () => (resumen && !resumen.error ? resumen : null),
-    ETAPAS, ETAPA_TXT, ETAPA_COLOR, CANAL_TXT, RESULTADO_TXT,
+    // Las columnas dependen de la marca (el estudio tiene los pasos de la clienta).
+    get ETAPAS() { return etapasDeLaMarca(); },
+    FASES_FOTO, etapaVista,
+    ETAPA_TXT, ETAPA_COLOR, CANAL_TXT, RESULTADO_TXT,
     icoCanal, colorDe, nombreDe, origenAnuncio, telDeConv, fmtTelUI, menuFiltro,
     textoEventoChat: textoNotaEvento,
     abrirLlamada,
@@ -2244,7 +2263,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611060144';
+  link.href = '/marketing/css/bandeja.css?v=202611060250';
   document.head.appendChild(link);
 }
 

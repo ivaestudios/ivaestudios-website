@@ -28,7 +28,20 @@ import { repartirPush } from './_push.js';
 import { resumenLinea, llamadaPublica } from './_llamadas-comun.js';
 // Embudo del estudio de fotos (giro 'foto'): precios de los paquetes y qué
 // conversaciones no son oportunidades. Ver sincronizarEmbudoFoto.
-import { catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, YA_FUE_SESION, TIENE_SESION, CANCELO_SESION } from './_negocio.js';
+import {
+  catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, TIENE_SESION, CANCELO_SESION, faseDeMensaje,
+  FASES_FOTO, IVAE_STUDIOS, leerCobros, leerLinks, clasificarCobro, pesosDeCobro, mismaPersona, tokensNombre,
+} from './_negocio.js';
+
+// El flujo de la clienta del estudio (049; ver flujoClientas). Los pasos de la
+// clienta viven en la etapa 'cliente' (FASES_FOTO en _negocio.js).
+const ORDEN_FASE = Object.fromEntries(FASES_FOTO.map((f, i) => [f, i]));
+const GALERIA_ADMIN = (id) => `https://gallery.ivaestudios.com/admin/gallery-edit.html?id=${encodeURIComponent(id)}`;
+const NO_ES_GALERIA_DE_CLIENTA = /portafolio|portfolio|muestra|demo|prueba|test/i;
+// Día de Cancún (UTC-5) de una hora UTC ('AAAA-MM-DD HH:MM:SS' o ISO).
+const diaCun = (iso) => { const t = Date.parse(String(iso || '').replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(String(iso || '')) ? '' : 'Z')); return isNaN(t) ? null : new Date(t - 5 * 36e5).toISOString().slice(0, 10); };
+const diasEntreYmd = (a, b) => Math.abs((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);
+const masDiasYmd = (ymd, n) => new Date(Date.parse(`${ymd}T12:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
 
 const GRAPH_FB = 'https://graph.facebook.com/v23.0';
 const GRAPH_IG = 'https://graph.instagram.com/v23.0';
@@ -1565,7 +1578,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     const q = qp('q').trim();
     if (q) { where.push('(v.nombre LIKE ? OR v.username LIKE ? OR v.contacto_id LIKE ? OR v.ultimo_texto LIKE ?)'); const like = `%${q}%`; binds.push(like, like, like, like); }
     const r = await env.DB.prepare(
-      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.ultimo_texto, v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.etapa, v.notas, v.seguimiento, v.archivado,
+      `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.ultimo_texto, v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.etapa, v.fase, v.notas, v.seguimiento, v.archivado,
               v.asignado_a, v.asignado_en, u.name AS asignado_nombre, v.origen
          FROM mkt_conversaciones v LEFT JOIN mkt_users u ON u.id = v.asignado_a
         WHERE ${where.join(' AND ')} ORDER BY v.ultimo_en DESC LIMIT 200`
@@ -1599,7 +1612,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         // Los eventos del CRM (etapa, tareas, plan, cita, comentarios) son el
         // historial de la oportunidad; el chat pinta solo los que le sirven.
         env.DB.prepare(
-          "SELECT tipo, user_nombre, dato, creado FROM mkt_bandeja_eventos WHERE conv_id = ? AND tipo IN ('llamada', 'asignacion', 'reasignacion', 'tomada', 'etapa', 'tarea', 'plan', 'cita', 'nota') ORDER BY creado ASC LIMIT 400"
+          "SELECT tipo, user_nombre, dato, creado FROM mkt_bandeja_eventos WHERE conv_id = ? AND tipo IN ('llamada', 'asignacion', 'reasignacion', 'tomada', 'etapa', 'tarea', 'plan', 'cita', 'nota', 'pago') ORDER BY creado ASC LIMIT 400"
         ).bind(conv.id).all(),
         conv.asignado_a ? env.DB.prepare('SELECT name FROM mkt_users WHERE id = ?').bind(conv.asignado_a).first() : null,
         // Llamadas con la línea (grabadas o no). Sin la tabla (antes de la migración 043) no hay.
@@ -1625,10 +1638,28 @@ export async function handleBandeja(request, env, session, url, parts) {
       const sets = [];
       const binds = [];
       let etapaNueva = null;
+      let faseNueva = null;      // estudio: un paso de la clienta (etapa 'cliente' + fase)
       if (b.etapa !== undefined) {
-        if (!ETAPAS.includes(b.etapa)) return json({ error: 'Etapa inválida' }, 400);
-        sets.push('etapa = ?'); binds.push(b.etapa);
-        if (b.etapa !== conv.etapa) etapaNueva = b.etapa;
+        if (FASES_FOTO.includes(b.etapa) && cfgDe(await marca(env, conv.client_id)).giro === 'foto') {
+          sets.push("etapa = 'cliente'", 'fase = ?'); binds.push(b.etapa);
+          if (b.etapa !== conv.fase || conv.etapa !== 'cliente') { faseNueva = b.etapa; sets.push("fase_en = datetime('now')"); }
+          if (conv.etapa !== 'cliente') etapaNueva = 'cliente';
+        } else {
+          if (!ETAPAS.includes(b.etapa)) return json({ error: 'Etapa inválida' }, 400);
+          sets.push('etapa = ?'); binds.push(b.etapa);
+          if (b.etapa !== conv.etapa) etapaNueva = b.etapa;
+          // Si vuelve antes de cliente, su paso de clienta ya no aplica.
+          if (b.etapa !== 'cliente' && conv.fase) sets.push('fase = NULL');
+        }
+      }
+      if (b.galeria_id !== undefined) {
+        // Su galería de IVAE Gallery, amarrada a mano (o soltada con null).
+        const gid = b.galeria_id ? String(b.galeria_id).slice(0, 64) : null;
+        if (gid) {
+          const g = await env.DB.prepare("SELECT id FROM galleries WHERE id = ? AND COALESCE(studio_id, 'ivae') = 'ivae' AND deleted_at IS NULL").bind(gid).first().catch(() => null);
+          if (!g) return json({ error: 'Esa galería no existe.' }, 400);
+        }
+        sets.push('galeria_id = ?'); binds.push(gid);
       }
       if (b.notas !== undefined) { sets.push('notas = ?'); binds.push(String(b.notas || '').slice(0, 4000) || null); }
       if (b.seguimiento !== undefined) {
@@ -1683,7 +1714,8 @@ export async function handleBandeja(request, env, session, url, parts) {
       binds.push(conv.id);
       await env.DB.prepare(`UPDATE mkt_conversaciones SET ${sets.join(', ')} WHERE id = ?`).bind(...binds).run();
       const ev = (tipo, dato) => registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo, dato });
-      if (etapaNueva) await ev('etapa', { de: conv.etapa, a: etapaNueva, ...(etapaNueva === 'perdido' && b.motivo_perdida ? { motivo: String(b.motivo_perdida).trim().slice(0, 300) } : {}) });
+      if (faseNueva) await ev('etapa', { de: conv.etapa === 'cliente' ? (conv.fase || 'cliente') : conv.etapa, a: faseNueva });
+      else if (etapaNueva) await ev('etapa', { de: conv.etapa, a: etapaNueva, ...(etapaNueva === 'perdido' && b.motivo_perdida ? { motivo: String(b.motivo_perdida).trim().slice(0, 300) } : {}) });
       // Perdido: sus tareas pendientes ya no tienen caso (si no, seguirían
       // llegando avisos de "Ya toca llamar…" de alguien que ya se perdió).
       let canceladas = 0;
@@ -1701,6 +1733,80 @@ export async function handleBandeja(request, env, session, url, parts) {
       }
       if (citaCambio) await ev('cita', citaCambio);
       return json({ ok: true, valor_estimado: valor !== undefined ? valor : conv.valor_estimado, tareas_canceladas: canceladas });
+    }
+
+    // ── El flujo de la clienta (estudio, 049) ──
+    // Lo que tiene amarrado (pagos y galería) y, para amarrar a mano, las
+    // galerías recientes de IVAE Gallery y los cobros de Stripe recientes.
+    if (accion === 'expediente' && method === 'GET') {
+      if (conv.client_id !== IVAE_STUDIOS) return json({ aplica: false });
+      const ex = (await expedientes(env, [conv.id])).get(conv.id);
+      const [gals, cobs, ligas] = await Promise.all([
+        env.DB.prepare(`SELECT g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at,
+                               (SELECT v.nombre FROM mkt_conversaciones v WHERE v.galeria_id = g.id AND v.id <> ? LIMIT 1) AS de_otra
+                          FROM galleries g WHERE COALESCE(g.studio_id, 'ivae') = 'ivae' AND g.deleted_at IS NULL AND g.created_at >= date('now', '-120 days')
+                         ORDER BY g.created_at DESC LIMIT 60`).bind(conv.id).all().catch(() => ({ results: [] })),
+        leerCobros(env, new Date(Date.now() - 120 * 864e5).toISOString()),
+        env.DB.prepare('SELECT cc.cobro_id, v.nombre FROM mkt_cobros_conv cc LEFT JOIN mkt_conversaciones v ON v.id = cc.conv_id').all().catch(() => ({ results: [] })),
+      ]);
+      const deQuien = new Map((ligas.results || []).map((l) => [l.cobro_id, l.nombre || '—']));
+      const mios = new Set(ex.pagos.filter((p) => p.via === 'stripe').map((p) => p.id));
+      return json({
+        aplica: true, pagos: ex.pagos, galeria: ex.galeria,
+        galerias: (gals.results || []).filter((g) => !NO_ES_GALERIA_DE_CLIENTA.test(g.title || '')).map((g) => ({
+          id: g.id, titulo: g.title, publicada: g.status === 'published', creada: diaCun(g.created_at), seleccion: diaCun(g.selection_submitted_at), entregada: diaCun(g.delivered_at), de_otra: g.de_otra || null,
+        })),
+        cobros: cobs.slice().reverse().filter((x) => !mios.has(x.id)).slice(0, 40).map((x) => ({
+          id: x.id, dia: diaCun(x.creado), nombre: x.nombre || x.email || '—', que: x.descripcion || null,
+          usd: String(x.moneda).toUpperCase() === 'USD' ? (Number(x.monto) || 0) / 100 : null, mxn: pesosDeCobro(x, 18.7), de_otra: deQuien.get(x.id) || null,
+        })),
+      });
+    }
+
+    // Pagó en efectivo (o por transferencia): el ingreso entra a Administración y
+    // la clienta pasa a "Galería en proceso" (o a post-producción si fue el upgrade).
+    if (accion === 'efectivo' && method === 'POST') {
+      if (conv.client_id !== IVAE_STUDIOS) return json({ error: 'Solo para el estudio.' }, 400);
+      const b = await leerJson(request);
+      const monto = Number(b.monto_mxn);
+      if (!(monto > 0 && monto < 1e7)) return json({ error: 'Escribe cuánto te pagaron.' }, 400);
+      const tipo = ['sesion', 'upgrade', 'propina'].includes(b.tipo) ? b.tipo : 'sesion';
+      const forma = ['efectivo', 'bbva', 'otro'].includes(b.forma_pago) ? b.forma_pago : 'efectivo';
+      const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(b.fecha || '')) ? b.fecha : diaCun(new Date().toISOString());
+      await env.DB.prepare(
+        `INSERT INTO mkt_neg_ventas (id, client_id, fecha, fecha_sesion, cliente, estado, creado_por, tipo, monto_mxn, forma_pago, conv_id)
+         VALUES (?, ?, ?, ?, ?, 'cerrada', ?, ?, ?, ?, ?)`
+      ).bind('v' + randomId(), conv.client_id, fecha, conv.fecha_cita ? String(conv.fecha_cita).slice(0, 10) : null,
+        nombreConv(conv).slice(0, 120), session.name || null, tipo, Math.round(monto * 100) / 100, forma, conv.id).run();
+      const destino = tipo === 'upgrade' ? 'postpro' : 'en_proceso';
+      const sube = (ORDEN_FASE[destino] ?? 0) > (ORDEN_FASE[conv.fase] ?? -1) || conv.etapa !== 'cliente';
+      if (sube) {
+        await env.DB.prepare(`UPDATE mkt_conversaciones SET etapa = 'cliente', fase = ?, fase_en = datetime('now'),
+          etapa_en = CASE WHEN etapa = 'cliente' THEN etapa_en ELSE datetime('now') END, updated_at = datetime('now') WHERE id = ?`).bind(destino, conv.id).run();
+      }
+      await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'pago', dato: { mxn: monto, via: forma, tipo } });
+      if (sube) await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'etapa', dato: { de: conv.etapa === 'cliente' ? (conv.fase || 'cliente') : conv.etapa, a: destino } });
+      return json({ ok: true });
+    }
+
+    // Amarrar a mano un cobro de Stripe que el sistema no reconoció (pagó otra persona, otro nombre…).
+    if (accion === 'cobro' && method === 'POST') {
+      if (conv.client_id !== IVAE_STUDIOS) return json({ error: 'Solo para el estudio.' }, 400);
+      const b = await leerJson(request);
+      const id = String(b.cobro_id || '');
+      const co = await env.DB.prepare('SELECT id, monto, moneda, monto_mxn, descripcion FROM cobros_sesion WHERE id = ?').bind(id).first().catch(() => null);
+      if (!co) return json({ error: 'Ese pago no existe.' }, 404);
+      if (b.soltar) {
+        await env.DB.prepare('DELETE FROM mkt_cobros_conv WHERE cobro_id = ? AND conv_id = ?').bind(id, conv.id).run();
+        return json({ ok: true });
+      }
+      await env.DB.prepare(`INSERT INTO mkt_cobros_conv (cobro_id, conv_id, manual) VALUES (?, ?, 1)
+        ON CONFLICT(cobro_id) DO UPDATE SET conv_id = excluded.conv_id, manual = 1`).bind(id, conv.id).run();
+      await env.DB.prepare('UPDATE mkt_neg_ventas SET conv_id = ? WHERE cobro_id = ?').bind(conv.id, id).run().catch(() => {});
+      await registrarEvento(env, { clientId: conv.client_id, convId: conv.id, userId: yo, userNombre: session.name, tipo: 'pago', dato: { mxn: pesosDeCobro(co, 18.7), via: 'stripe', tipo: clasificarCobro(co).tipo } });
+      // El paso lo pone la sincronización (pagó → galería en proceso; upgrade → post-producción).
+      await sincronizarEmbudoFoto(env, await marca(env, conv.client_id), { forzar: true }).catch(() => {});
+      return json({ ok: true });
     }
 
     // Comentario en el historial ("pasó a la clínica, se le dio el presupuesto impreso").
@@ -1919,8 +2025,12 @@ export async function handleBandeja(request, env, session, url, parts) {
     // Estudio de fotos: antes de pintar, las etapas se ponen al día con Juan
     // (reservas, colecciones mandadas, sesiones que ya pasaron).
     if (esFoto) await sincronizarEmbudoFoto(env, c).catch((e) => console.error('[embudo foto]', e && e.message));
+    // Clientes y perdidos: los últimos 90 días. En el estudio, una clienta que
+    // sigue en su flujo (falta cobrar, su galería, su selección) siempre se ve.
     const where = ['v.client_id = ?', 'v.archivado = 0',
-      "(v.etapa NOT IN ('cliente', 'perdido') OR COALESCE(v.etapa_en, v.updated_at, v.created_at) >= datetime('now', '-90 days'))"];
+      esFoto
+        ? "(v.etapa NOT IN ('cliente', 'perdido') OR (v.etapa = 'cliente' AND COALESCE(v.fase, '') NOT IN ('entregada', '')) OR COALESCE(v.fase_en, v.etapa_en, v.updated_at, v.created_at) >= datetime('now', '-90 days'))"
+        : "(v.etapa NOT IN ('cliente', 'perdido') OR COALESCE(v.etapa_en, v.updated_at, v.created_at) >= datetime('now', '-90 days'))"];
     const binds = [c.id];
     // Lo que la dueña marcó como "No es lead" en Administración no es una oportunidad.
     let noLeads = new Set();
@@ -1945,6 +2055,7 @@ export async function handleBandeja(request, env, session, url, parts) {
         `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.telefono, v.etapa, COALESCE(v.etapa_en, v.created_at) AS etapa_en,
                 v.valor_estimado, v.moneda, v.fecha_cita, v.motivo_perdida, v.asignado_a, u.name AS asignado_nombre,
                 v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.origen, v.created_at,
+                ${esFoto ? 'v.fase, v.fase_en, v.galeria_id,' : ''}
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_array_length(v.plan_tratamiento, '$.items') ELSE 0 END AS plan_n,
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_extract(v.plan_tratamiento, '$.items[0].tratamiento') ELSE NULL END AS plan_1,
                 ${esFoto ? "(SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto," : ''}
@@ -1965,13 +2076,18 @@ export async function handleBandeja(request, env, session, url, parts) {
     // Un hilo sin mensajes de la persona solo se queda si ya es una sesión (la
     // carta de confirmación salió de info@ y la reserva la puso en su etapa).
     if (esFoto) filas = filas.filter((f) => (f.primer_texto != null || f.fecha_cita || ['cita', 'cliente'].includes(f.etapa)) && !noLeads.has(f.id) && !noEsLead(f));
+    // Estudio: de cada clienta, sus pagos y su galería (lo que pinta la tarjeta).
+    const exp = esFoto && c.id === IVAE_STUDIOS
+      ? await expedientes(env, filas.filter((f) => ['cita', 'cliente'].includes(f.etapa)).map((f) => f.id)).catch(() => new Map())
+      : new Map();
     const oportunidades = filas.map((f) => {
       const { proxima, primer_texto: _pt, ...resto } = f;
       let prox = null;
       if (proxima) { const [id, tipo, vence, ...tit] = String(proxima).split('|'); prox = { id, tipo, vence_en: vence || null, titulo: tit.join('|') }; }
-      return { ...resto, proxima_tarea: prox };
+      const e = exp.get(f.id);
+      return { ...resto, proxima_tarea: prox, ...(e ? { pagos: e.pagos, galeria: e.galeria } : {}) };
     });
-    return json({ oportunidades, etapas: ETAPAS, cerradas_dias: 90 });
+    return json({ oportunidades, etapas: ETAPAS, fases: esFoto ? FASES_FOTO : [], cerradas_dias: 90 });
   }
 
   // ── Tareas de la marca (vista "Tareas" del embudo) ──
@@ -2720,6 +2836,10 @@ export async function avisarSeguimientos(env) {
 // Embudo (freno de 2 min) y cada 15 min desde el cron (sincronizarEmbudos).
 // ============================================================================
 const ORDEN_ETAPA = { nuevo: 0, platica: 1, cotizado: 2, cita: 3, cliente: 4, perdido: 5 };
+// Quién firma en el historial lo que se movió solo: Juan lo que hizo Juan (sus
+// reservas y su etapa); lo que salió de Stripe, de la galería o de nuestros
+// mensajes, "Automático" (no fue Juan).
+const QUIEN_MUEVE = { pago: 'Automático (Stripe)', upgrade: 'Automático (Stripe)', galeria: 'Automático (IVAE Gallery)', mensajes: 'Automático', sesion_pasada: 'Automático', antiguedad: 'Automático' };
 const AUTOR_JUAN = 'Juan (bot)';
 // Teléfonos como los guarda la Bandeja: solo dígitos y sin el 1 de los celulares de México.
 const claveTel = (s) => { const d = String(s || '').replace(/\D/g, ''); return d.length === 13 && d.startsWith('521') ? '52' + d.slice(3) : d; };
@@ -2737,7 +2857,7 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
 
   const [convsR, kvR, cfgNeg] = await Promise.all([
     env.DB.prepare(
-      'SELECT id, canal, contacto_id, nombre, username, etapa, etapa_en, fecha_cita, valor_estimado, moneda, plan_tratamiento, correo, telefono FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0'
+      'SELECT id, canal, contacto_id, nombre, username, etapa, etapa_en, fecha_cita, valor_estimado, moneda, plan_tratamiento, correo, telefono, fase, galeria_id FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0'
     ).bind(c.id).all(),
     env.DB.prepare("SELECT key, value FROM mkt_kv WHERE key IN ('juan_reservas', 'juan_bot_estado')").all(),
     cfgNegocio(env).catch(() => null),
@@ -2854,32 +2974,39 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
 
   // 3b) Lo que le escribimos dice en qué va (Caso Ann, 6-nov-2026: le mandamos
   //     la galería final sin reserva de Juan y seguía en "En plática"):
-  //     · la sesión ya pasó (editando sus fotos, galería enviada)  → Cliente
-  //     · pago confirmado o aviso de su sesión                    → Sesión agendada
-  //     · le avisamos que su sesión se canceló                    → Perdido
-  //     Manda el último mensaje que diga algo. Frases en _negocio.js; el LIKE
-  //     solo filtra para no traer todos los mensajes.
-  const abiertas = convs.filter((v) => ['nuevo', 'platica', 'cotizado', 'cita'].includes(etapaDe(v)) && !noEsLead(v));
-  for (let i = 0; i < abiertas.length; i += 80) {
-    const lote = abiertas.slice(i, i + 80);
+  //     · la sesión ya fue (se paga al terminar: pago confirmado, editando sus
+  //       fotos, galería enviada, galería final)                → Cliente
+  //     · aviso de su sesión ("about your photo session")      → Sesión reservada
+  //     · le avisamos que su sesión se canceló                 → Perdido
+  //     Manda el último mensaje que diga algo. De las clientas se anota además
+  //     en qué paso va (faseMsg, lo usa el paso 5). Frases en _negocio.js; el
+  //     LIKE solo filtra para no traer todos los mensajes.
+  const faseMsg = new Map(); // conv_id → el paso más avanzado que dicen nuestros mensajes
+  const conMensajes = convs.filter((v) => ['nuevo', 'platica', 'cotizado', 'cita', 'cliente'].includes(etapaDe(v)) && !noEsLead(v));
+  for (let i = 0; i < conMensajes.length; i += 80) {
+    const lote = conMensajes.slice(i, i + 80);
     const r = await env.DB.prepare(
       `SELECT conv_id, texto FROM mkt_mensajes
         WHERE direccion = 'out' AND conv_id IN (${lote.map(() => '?').join(',')})
           AND (texto LIKE '%galler%' OR texto LIKE '%galer%' OR texto LIKE '%editing%' OR texto LIKE '%editando%'
-               OR texto LIKE '%payment%' OR texto LIKE '%pago%' OR texto LIKE '%photo session%' OR texto LIKE '%cancel%')
+               OR texto LIKE '%payment%' OR texto LIKE '%pago%' OR texto LIKE '%photo session%' OR texto LIKE '%cancel%'
+               OR texto LIKE '%selection%' OR texto LIKE '%selecci%')
         ORDER BY creado`
     ).bind(...lote.map((v) => v.id)).all();
     const senal = new Map(); // conv_id → 'cliente' | 'cita' | 'perdido'
     for (const m of r.results || []) {
       const t = String(m.texto || '');
+      const f = faseDeMensaje(t);
+      if (f && (ORDEN_FASE[f] ?? -1) > (ORDEN_FASE[faseMsg.get(m.conv_id)] ?? -1)) faseMsg.set(m.conv_id, f);
       if (CANCELO_SESION.test(t)) senal.set(m.conv_id, 'perdido');
-      else if (YA_FUE_SESION.test(t)) senal.set(m.conv_id, 'cliente');
+      else if (f) senal.set(m.conv_id, 'cliente');
       else if (TIENE_SESION.test(t) && senal.get(m.conv_id) !== 'cliente') senal.set(m.conv_id, 'cita');
     }
     for (const v of lote) {
+      if (etapaDe(v) === 'cliente') continue; // ya es clienta: de ella solo cuenta su paso (paso 5)
       const destino = senal.get(v.id);
       if (!destino) continue;
-      if (destino !== 'perdido') { subir(v, destino, { por: 'mensajes', motivo: destino === 'cliente' ? 'galeria' : 'pago' }); continue; }
+      if (destino !== 'perdido') { subir(v, destino, { por: 'mensajes' }); continue; }
       // Una sesión agendada (reserva de Juan) no se tumba por un aviso viejo: solo lo que aún no tenía sesión.
       const actual = etapaDe(v);
       if (!['nuevo', 'platica', 'cotizado'].includes(actual)) continue;
@@ -2899,20 +3026,242 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
     if (t && t < ahora - 6 * 3600e3) subir(v, 'cliente', { por: 'sesion_pasada' });
   }
 
+  // 5) El flujo de la clienta (049): pagó, su galería, su selección, su entrega.
+  //    Solo IVAE STUDIOS: las galerías de IVAE Gallery y los cobros de Stripe son suyos.
+  if (c.id === IVAE_STUDIOS) {
+    try { await flujoClientas(env, c, convs, { tocar, etapaDe, cambios, reservas, chatDeReserva, faseMsg }); }
+    catch (e) { console.error('[embudo foto] flujo', e && e.message); }
+  }
+
   // Escribir, con su huella en el historial de cada oportunidad.
   let n = 0;
   for (const { v, sets, eventos } of cambios.values()) {
     const cols = Object.keys(sets);
     if (!cols.length) continue;
-    const frag = cols.map((k) => (k === 'etapa_en' ? "etapa_en = datetime('now')" : `${k} = ?`));
-    const binds = cols.filter((k) => k !== 'etapa_en').map((k) => sets[k]);
+    const ahoraSql = (k) => k === 'etapa_en' || k === 'fase_en';
+    const frag = cols.map((k) => (ahoraSql(k) ? `${k} = datetime('now')` : `${k} = ?`));
+    const binds = cols.filter((k) => !ahoraSql(k)).map((k) => sets[k]);
     try {
       await env.DB.prepare(`UPDATE mkt_conversaciones SET ${frag.join(', ')}, updated_at = datetime('now') WHERE id = ?`).bind(...binds, v.id).run();
-      for (const e of eventos) await registrarEvento(env, { clientId: c.id, convId: v.id, userNombre: AUTOR_JUAN, tipo: e.tipo, dato: e.dato });
+      for (const e of eventos) await registrarEvento(env, { clientId: c.id, convId: v.id, userNombre: QUIEN_MUEVE[(e.dato && e.dato.por) || ''] || AUTOR_JUAN, tipo: e.tipo, dato: e.dato });
       n++;
     } catch (e) { console.error('[embudo foto]', v.id, e && e.message); }
   }
   return { ok: true, revisadas: convs.length, cambiadas: n };
+}
+
+// ============================================================================
+// EL FLUJO DE LA CLIENTA, VINCULADO (049, 6-nov-2026). Vianey: "necesito que
+// todo el flujo esté súper vinculado… incluso Stripe". Después de la sesión:
+//   Por cobrar → Galería en proceso → Eligiendo fotos → Post-producción → Entregada
+// Lo dicen, sin que nadie mueva tarjetas:
+//   · los COBROS DE STRIPE (cobros_sesion: los guarda la galería con quién pagó)
+//     y los ingresos de Administración (efectivo, control de meses) → ya pagó;
+//     un upgrade pagado → ya eligió (post-producción);
+//   · su GALERÍA en IVAE Gallery (misma base D1): publicada → eligiendo;
+//     selección enviada → post-producción; entregada → entregada;
+//   · lo que le escribimos (faseMsg del paso 3b).
+// Cada cobro y cada galería se amarran a UNA clienta: por correo, teléfono o
+// nombre, y solo si no hay duda (si dos se parecen, no se adivina: se amarra a
+// mano desde su oportunidad). Lo amarrado se guarda (mkt_cobros_conv, galeria_id)
+// y lo que alguien amarró a mano manda. Solo hacia adelante.
+// ============================================================================
+async function flujoClientas(env, c, convs, h) {
+  const { tocar, etapaDe, cambios, reservas, chatDeReserva, faseMsg } = h;
+  const hace = (dias) => new Date(Date.now() - dias * 864e5).toISOString();
+  const [cobros, ligasR, ventasR, galsR, cfgN] = await Promise.all([
+    leerCobros(env, hace(180)),
+    env.DB.prepare('SELECT cobro_id, conv_id, manual FROM mkt_cobros_conv').all().catch(() => ({ results: [] })),
+    env.DB.prepare("SELECT id, cliente, fecha, fecha_sesion, tipo, monto_mxn, forma_pago, cobro_id, conv_id, reserva_id FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND fecha >= ?")
+      .bind(c.id, hace(180).slice(0, 10)).all().catch(() => ({ results: [] })),
+    env.DB.prepare("SELECT id, title, status, session_date, created_at, selection_submitted_at, delivered_at FROM galleries WHERE COALESCE(studio_id, 'ivae') = 'ivae' AND deleted_at IS NULL AND created_at >= ?")
+      .bind(hace(180).slice(0, 10)).all().catch(() => ({ results: [] })),
+    cfgNegocio(env).catch(() => null),
+  ]);
+  const hoy = diaCun(new Date().toISOString());
+  const vivas = convs.filter((v) => !noEsLead(v));
+  const porId = new Map(vivas.map((v) => [v.id, v]));
+
+  // Correos y teléfonos de cada clienta: su conversación, su reserva de Juan y sus cobros.
+  const porCorreo = new Map(); const porTel = new Map(); const correosConv = new Map();
+  const ponCorreo = (e, v) => {
+    const k = String(e || '').trim().toLowerCase();
+    if (!k.includes('@')) return;
+    porCorreo.set(k, porCorreo.has(k) && porCorreo.get(k) !== v ? null : v); // repetido = ambiguo
+    const s = correosConv.get(v.id) || new Set(); s.add(k); correosConv.set(v.id, s);
+  };
+  for (const v of vivas) {
+    if (v.correo) ponCorreo(v.correo, v);
+    if (v.canal === 'correo') ponCorreo(v.contacto_id, v);
+    if (v.canal === 'whatsapp') porTel.set(claveTel(v.contacto_id), v);
+    if (v.telefono) porTel.set(claveTel(v.telefono), v);
+  }
+  for (const r of reservas) { if (r && r.email) { const v = chatDeReserva(r); if (v && porId.has(v.id)) ponCorreo(r.email, v); } }
+  // Por nombre, solo entre quienes ya platicaron con nosotros, y solo si es UNA.
+  const porNombre = (nombre, diaRef) => {
+    const lista = vivas.filter((v) => ['platica', 'cotizado', 'cita', 'cliente'].includes(etapaDe(v)) && mismaPersona(v.nombre, nombre));
+    if (lista.length === 1) return lista[0];
+    const cerca = diaRef ? lista.filter((v) => v.fecha_cita && diasEntreYmd(v.fecha_cita.slice(0, 10), diaRef) <= 3) : [];
+    return cerca.length === 1 ? cerca[0] : null;
+  };
+
+  // a) Cobros de Stripe → clienta. pagos: conv_id → [{ dia, tipo }]
+  const pagos = new Map();
+  const anotarPago = (v, dia, tipo) => { const l = pagos.get(v.id) || []; l.push({ dia, tipo }); pagos.set(v.id, l); };
+  const liga = new Map((ligasR.results || []).map((l) => [l.cobro_id, l]));
+  const paquetes = (cfgN && cfgN.paquetes) || [];
+  const links = await leerLinks(env);
+  // El link de pago que creó Juan sabe de qué chat y de qué reserva es: exacto.
+  const porLink = (co) => {
+    const lk = co.payment_link ? links.get(co.payment_link) : null;
+    if (!lk) return null;
+    if (lk.conv_id && porId.has(lk.conv_id)) return porId.get(lk.conv_id);
+    if (String(lk.reserva_id || '').startsWith('juan:')) {
+      const r = reservas.find((x) => x && String(x.id) === String(lk.reserva_id).slice(5));
+      const x = r ? chatDeReserva(r) : null;
+      if (x && porId.has(x.id)) return x;
+    }
+    return null;
+  };
+  for (const co of cobros) {
+    const dia = diaCun(co.creado);
+    let v = null;
+    const l = liga.get(co.id);
+    if (l) v = porId.get(l.conv_id) || null;
+    else {
+      v = porLink(co)
+        || (co.email && porCorreo.get(String(co.email).toLowerCase()))
+        || (co.telefono && porTel.get(claveTel(co.telefono)))
+        || porNombre(co.nombre, dia) || null;
+      if (v) {
+        await env.DB.prepare('INSERT OR IGNORE INTO mkt_cobros_conv (cobro_id, conv_id, manual) VALUES (?, ?, 0)').bind(co.id, v.id).run().catch(() => {});
+        await env.DB.prepare('UPDATE mkt_neg_ventas SET conv_id = COALESCE(conv_id, ?) WHERE cobro_id = ?').bind(v.id, co.id).run().catch(() => {});
+      }
+    }
+    if (!v) continue;
+    if (co.email) ponCorreo(co.email, v);
+    const lk = co.payment_link ? links.get(co.payment_link) : null;
+    anotarPago(v, dia, (lk && lk.tipo) || clasificarCobro(co, paquetes).tipo);
+  }
+
+  // b) Ingresos de Administración que no vinieron de Stripe (efectivo, control
+  //    de meses, la reserva de Juan con su monto) → clienta.
+  for (const vt of ventasR.results || []) {
+    if (vt.cobro_id || !(Number(vt.monto_mxn) > 0) || (vt.tipo || 'sesion') === 'marca') continue;
+    let v = vt.conv_id ? porId.get(vt.conv_id) : null;
+    if (!v && String(vt.reserva_id || '').startsWith('juan:')) {
+      const r = reservas.find((x) => x && String(x.id) === String(vt.reserva_id).slice(5));
+      const x = r ? chatDeReserva(r) : null;
+      v = x && porId.has(x.id) ? x : null;
+    }
+    if (!v) {
+      const dia = vt.fecha_sesion || vt.fecha;
+      const lista = vivas.filter((x) => ['cita', 'cliente'].includes(etapaDe(x)) && x.fecha_cita && mismaPersona(x.nombre, vt.cliente) && diasEntreYmd(x.fecha_cita.slice(0, 10), dia) <= 10);
+      v = lista.length === 1 ? lista[0] : null;
+    }
+    if (!v) continue;
+    if (!vt.conv_id) await env.DB.prepare('UPDATE mkt_neg_ventas SET conv_id = ? WHERE id = ? AND conv_id IS NULL').bind(v.id, vt.id).run().catch(() => {});
+    anotarPago(v, vt.fecha, vt.tipo || 'sesion');
+  }
+
+  // c) Galerías de IVAE Gallery → clienta (la amarrada a mano manda; si no, por
+  //    correo de quien la abrió o eligió; si no, por el nombre del título).
+  const gals = galsR.results || [];
+  const galPorId = new Map(gals.map((g) => [g.id, g]));
+  const correosGal = new Map();
+  for (let i = 0; i < gals.length; i += 40) {
+    const lote = gals.slice(i, i + 40).map((g) => g.id);
+    const qs = lote.map(() => '?').join(',');
+    try {
+      const r = await env.DB.prepare(
+        `SELECT gallery_id, lower(visitor_email) AS e FROM gallery_events WHERE gallery_id IN (${qs}) AND visitor_email LIKE '%@%' GROUP BY 1, 2
+         UNION SELECT gallery_id, lower(email) AS e FROM proof_submissions WHERE gallery_id IN (${qs}) AND email LIKE '%@%' GROUP BY 1, 2`
+      ).bind(...lote, ...lote).all();
+      for (const f of r.results || []) { const s = correosGal.get(f.gallery_id) || new Set(); s.add(f.e); correosGal.set(f.gallery_id, s); }
+    } catch { /* sin correos: se amarra por nombre */ }
+  }
+  const galDe = new Map();
+  const tomadas = new Set();
+  for (const v of vivas) if (v.galeria_id) { tomadas.add(v.galeria_id); if (galPorId.has(v.galeria_id)) galDe.set(v.id, galPorId.get(v.galeria_id)); }
+  const aspirantes = vivas.filter((v) => !v.galeria_id && (['cita', 'cliente'].includes(etapaDe(v)) || pagos.has(v.id)));
+  for (const g of gals) {
+    if (tomadas.has(g.id) || NO_ES_GALERIA_DE_CLIENTA.test(g.title || '')) continue;
+    const correos = correosGal.get(g.id) || new Set();
+    let lista = correos.size ? aspirantes.filter((v) => [...(correosConv.get(v.id) || [])].some((e) => correos.has(e))) : [];
+    if (!lista.length) {
+      const toks = tokensNombre(g.title);
+      const creada = String(g.created_at || '').slice(0, 10);
+      lista = aspirantes.filter((v) => {
+        const nom = tokensNombre(v.nombre);
+        if (!nom.length || !toks.includes(nom[0])) return false;
+        const ref = (v.fecha_cita || '').slice(0, 10) || ((pagos.get(v.id) || [])[0] || {}).dia || null;
+        return !ref || (creada >= masDiasYmd(ref, -2) && creada <= masDiasYmd(ref, 30));
+      });
+    }
+    if (lista.length !== 1 || galDe.has(lista[0].id)) continue;
+    const v = lista[0];
+    galDe.set(v.id, g); tomadas.add(g.id);
+    tocar(v).sets.galeria_id = g.id;
+  }
+
+  // d) El paso de cada una: el más avanzado que digan sus pagos, su galería y sus mensajes.
+  for (const v of vivas) {
+    const etapa = etapaDe(v);
+    if (etapa === 'perdido') continue;
+    const g = galDe.get(v.id);
+    const pg = pagos.get(v.id) || [];
+    let fase = null; let por = null;
+    const sube = (f, quien) => { if ((ORDEN_FASE[f] ?? -1) > (ORDEN_FASE[fase] ?? -1)) { fase = f; por = quien; } };
+    if (pg.length) sube('en_proceso', 'pago');
+    if (pg.some((p) => p.tipo === 'upgrade')) sube('postpro', 'upgrade');
+    if (g) {
+      if (g.delivered_at) sube('entregada', 'galeria');
+      else if (g.selection_submitted_at) sube('postpro', 'galeria');
+      else if (g.status === 'published') sube('eligiendo', 'galeria');
+      else sube('en_proceso', 'galeria');
+    }
+    if (faseMsg.has(v.id)) sube(faseMsg.get(v.id), 'mensajes');
+    if (!fase && etapa !== 'cliente') continue;          // sin señales y aún no es clienta
+    if (!fase) {
+      // Clienta sin ninguna señal: si la sesión fue hace poco, falta cobrar; si
+      // fue hace más de 30 días, ya pasó por todo (es historial, no pendiente).
+      const ref = String(v.fecha_cita || v.etapa_en || '').slice(0, 10);
+      if (ref && diasEntreYmd(ref, hoy) > 30) { fase = 'entregada'; por = 'antiguedad'; } else { fase = 'por_cobrar'; por = 'sesion_pasada'; }
+    }
+    if (etapa !== 'cliente') {                           // pagó o ya tiene galería: es clienta
+      const ch = tocar(v);
+      ch.sets.etapa = 'cliente'; ch.sets.etapa_en = 'now';
+      ch.eventos.push({ tipo: 'etapa', dato: { de: etapa, a: 'cliente', por } });
+    }
+    const ch0 = cambios.get(v.id);
+    const actual = (ch0 && ch0.sets.fase) || v.fase || null;
+    if (actual && (ORDEN_FASE[actual] ?? -1) >= ORDEN_FASE[fase]) continue;   // solo hacia adelante
+    const ch = tocar(v);
+    ch.sets.fase = fase; ch.sets.fase_en = 'now';
+    if (por !== 'antiguedad') ch.eventos.push({ tipo: 'etapa', dato: { de: actual || 'cliente', a: fase, por } });
+  }
+}
+
+// Lo que la tarjeta y la oportunidad muestran del flujo: pagos y galería.
+async function expedientes(env, ids) {
+  const out = new Map(ids.map((id) => [id, { pagos: [], galeria: null }]));
+  if (!ids.length) return out;
+  for (let i = 0; i < ids.length; i += 80) {
+    const lote = ids.slice(i, i + 80);
+    const qs = lote.map(() => '?').join(',');
+    const [cobR, venR, galR] = await Promise.all([
+      env.DB.prepare(`SELECT cc.conv_id, cs.id, cs.creado, cs.monto, cs.moneda, cs.monto_mxn, cs.descripcion FROM mkt_cobros_conv cc JOIN cobros_sesion cs ON cs.id = cc.cobro_id WHERE cc.conv_id IN (${qs}) ORDER BY cs.creado`).bind(...lote).all().catch(() => ({ results: [] })),
+      env.DB.prepare(`SELECT conv_id, id, fecha, tipo, monto_mxn, forma_pago FROM mkt_neg_ventas WHERE conv_id IN (${qs}) AND cobro_id IS NULL AND estado = 'cerrada' AND monto_mxn > 0 ORDER BY fecha`).bind(...lote).all().catch(() => ({ results: [] })),
+      env.DB.prepare(`SELECT v.id AS conv_id, g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at FROM mkt_conversaciones v JOIN galleries g ON g.id = v.galeria_id WHERE v.id IN (${qs})`).bind(...lote).all().catch(() => ({ results: [] })),
+    ]);
+    for (const f of cobR.results || []) out.get(f.conv_id).pagos.push({ via: 'stripe', id: f.id, dia: diaCun(f.creado), mxn: pesosDeCobro(f, 18.7), usd: String(f.moneda).toUpperCase() === 'USD' ? (Number(f.monto) || 0) / 100 : null, que: f.descripcion || null });
+    // Sin forma de pago anotada: es lo que está en Administración (control de meses).
+    for (const f of venR.results || []) out.get(f.conv_id).pagos.push({ via: f.forma_pago || 'registro', id: f.id, dia: f.fecha, mxn: Number(f.monto_mxn), usd: null, que: f.tipo || null });
+    for (const f of galR.results || []) {
+      out.get(f.conv_id).galeria = { id: f.id, titulo: f.title, publicada: f.status === 'published', creada: diaCun(f.created_at), seleccion: diaCun(f.selection_submitted_at), entregada: diaCun(f.delivered_at), url: GALERIA_ADMIN(f.id) };
+    }
+  }
+  return out;
 }
 
 // Cron (cada 15 min): todas las marcas que son estudio de fotos.
