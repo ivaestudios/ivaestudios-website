@@ -89,13 +89,15 @@ export async function handlePagos(request, env, session, path, url, deps) {
   if (sub[0] === 'estado' && sub.length === 1 && method === 'GET') {
     const c = await marcaOk(qp('client_id'));
     if (!c) return json({ aplica: false });
-    const [links, cobros, stripe, cat] = await Promise.all([
+    const [links, cobros, stripe, cat, efectivo] = await Promise.all([
       env.DB.prepare('SELECT id, url, monto, moneda, concepto, tipo, cliente, correo, telefono, conv_id, canal, contacto_id, reserva_id, paquete, origen, creado_por, estado, pagado_en, pago_id, created_at FROM mkt_pago_links WHERE client_id = ? ORDER BY created_at DESC LIMIT 80').bind(c.id).all().catch(() => ({ results: [] })),
       cobrosRecientes(env).catch(() => []),
       estadoStripe(env),
       catalogoFoto(env).catch(() => null),
+      // Pagos en efectivo o transferencia registrados en Administración (botón de la oportunidad o Viernes).
+      env.DB.prepare("SELECT id, fecha, fecha_sesion, cliente, precio, monto_mxn, tipo, forma_pago, conv_id, reserva_id, creado_por FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND forma_pago IN ('efectivo', 'bbva', 'otro') AND fecha >= date('now', '-120 days') ORDER BY fecha DESC LIMIT 80").bind(c.id).all().catch(() => ({ results: [] })),
     ]);
-    return json({ aplica: true, stripe, links: links.results || [], cobros, catalogo: cat && cat.items ? cat.items : [] });
+    return json({ aplica: true, stripe, links: links.results || [], cobros, catalogo: cat && cat.items ? cat.items : [], efectivo: efectivo.results || [] });
   }
 
   if (sub[0] === 'precio' && sub.length === 1 && method === 'GET') {
@@ -113,7 +115,8 @@ export async function handlePagos(request, env, session, path, url, deps) {
       "SELECT id, url, monto, moneda, concepto, tipo, cliente, correo, estado, pagado_en, pago_id, created_at, creado_por, origen FROM mkt_pago_links WHERE client_id = ? AND (conv_id = ? OR (contacto_id = ? AND contacto_id != '')) ORDER BY created_at DESC LIMIT 10"
     ).bind(c.id, conv.id, String(conv.contacto_id || '')).all().catch(() => ({ results: [] }))).results || [];
     const cobros = await cobrosDeConv(env, conv.id, links.map((l) => l.id)).catch(() => []);
-    return json({ aplica: true, links, cobros });
+    const efectivo = (await env.DB.prepare("SELECT id, fecha, cliente, precio, monto_mxn, tipo, forma_pago, creado_por FROM mkt_neg_ventas WHERE conv_id = ? AND estado = 'cerrada' AND forma_pago IN ('efectivo', 'bbva', 'otro') ORDER BY fecha DESC LIMIT 10").bind(conv.id).all().catch(() => ({ results: [] }))).results || [];
+    return json({ aplica: true, links, cobros, efectivo });
   }
 
   if (sub[0] === 'link' && sub.length === 1 && method === 'POST') {

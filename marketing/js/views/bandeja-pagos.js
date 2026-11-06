@@ -18,10 +18,10 @@
 // fichaCobro(r) en la ficha de la reserva. Estilos: inyectados aquí (sin tocar
 // bandeja.css).
 // ============================================================================
-import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611060255';
-import { toast } from '../shell/toast.js?v=202611060255';
-import { icon } from '../shell/icons.js?v=202611060255';
-import { T } from '../shell/i18n.js?v=202611060255';
+import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611060335';
+import { toast } from '../shell/toast.js?v=202611060335';
+import { icon } from '../shell/icons.js?v=202611060335';
+import { T } from '../shell/i18n.js?v=202611060335';
 
 let d = null;        // deps que pone bandeja.js: ctx(), cid(), nombreDe(v), ponerEnChat(v, texto), alCambiarChat(id), alCambiarReservas()
 let estado = null;   // { client_id, en, aplica, stripe, links, cobros, catalogo }
@@ -72,7 +72,11 @@ function cobroDeReserva(r, e) {
   const links = (e.links || []).filter((l) => String(l.reserva_id || '') === rid || (correo && String(l.correo || '').toLowerCase() === correo));
   const link = links[0] || null;
   const cobro = (e.cobros || []).find((c) => (link && c.link_id && c.link_id === link.id) || (correo && String(c.correo || '').toLowerCase() === correo)) || null;
-  if (cobro) return { estado: 'pagado', monto: cobro.monto, moneda: cobro.moneda, fecha: cobro.fecha };
+  if (cobro) return { estado: 'pagado', monto: cobro.monto, moneda: cobro.moneda, fecha: cobro.fecha, via: 'stripe' };
+  // Efectivo o transferencia (Administración): por la reserva o por el nombre.
+  const nom = String(r.cliente || '').trim().toLowerCase();
+  const manual = (e.efectivo || []).find((m) => String(m.reserva_id || '') === 'juan:' + rid || (nom.length > 3 && String(m.cliente || '').trim().toLowerCase() === nom)) || null;
+  if (manual) return { estado: 'pagado', monto: manual.precio || manual.monto_mxn, moneda: manual.precio ? 'usd' : 'mxn', fecha: manual.fecha ? manual.fecha + 'T12:00:00Z' : null, via: manual.forma_pago === 'bbva' ? 'transferencia' : manual.forma_pago };
   if (link && link.estado === 'pagado') return { estado: 'pagado', monto: link.monto, moneda: link.moneda, fecha: link.pagado_en };
   if (link && link.estado === 'pendiente') return { estado: 'link', monto: link.monto, moneda: link.moneda, url: link.url, creado: link.created_at };
   return { estado: 'sin' };
@@ -85,7 +89,8 @@ export function fichaCobro(r) {
     if (!e || !e.aplica) return;
     const c = cobroDeReserva(r, e);
     clear(wrap);
-    const txt = c.estado === 'pagado' ? '✅ ' + T(`Pagado ${fmt(c.monto, c.moneda)}`, `Paid ${fmt(c.monto, c.moneda)}`) + (c.fecha ? ' · ' + timeAgo(c.fecha) : '')
+    const via = c.via === 'stripe' ? ' · Stripe' : c.via === 'transferencia' ? ' · ' + T('transferencia', 'transfer') : c.via === 'efectivo' ? ' · ' + T('efectivo', 'cash') : '';
+    const txt = c.estado === 'pagado' ? '✅ ' + T(`Pagado ${fmt(c.monto, c.moneda)}`, `Paid ${fmt(c.monto, c.moneda)}`) + via + (c.fecha ? ' · ' + timeAgo(c.fecha) : '')
       : c.estado === 'link' ? '🔗 ' + T(`Link enviado por ${fmt(c.monto, c.moneda)}, sin pagar`, `Link sent for ${fmt(c.monto, c.moneda)}, unpaid`) + (c.creado ? ' · ' + timeAgo(c.creado) : '')
       : T('Sin cobrar todavía', 'Not charged yet');
     wrap.append(el('div', { class: 'bj-reserva-ficha__dato' }, [el('span', { text: T('Cobro', 'Payment') }), el('b', { text: txt })]));

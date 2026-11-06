@@ -7,11 +7,11 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202611060255';
-import { T } from '../shell/i18n.js?v=202611060255';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202611060335';
+import { T } from '../shell/i18n.js?v=202611060335';
 // La tarjeta de contenido (agenda, backlog, semana y la Cuadricula en telefono)
 // abre el PANEL DEL GUION, igual que el Calendario. Ver guion-drawer.js.
-import { abrirGuion } from '../lib/guion-drawer.js?v=202611060255';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202611060335';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
