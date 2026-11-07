@@ -74,14 +74,14 @@
 
   function banner() {
     var t = isES
-      ? { msg: 'Usamos Google Analytics para saber qué páginas ayudan a planear una sesión. No se activa si no aceptas.', yes: 'Aceptar', no: 'Rechazar', more: 'Privacidad', href: '/es/politica-de-privacidad#cookies', label: 'Aviso de analítica' }
-      : { msg: 'We use Google Analytics to see which pages help people plan a session. Nothing runs unless you accept.', yes: 'Accept', no: 'Decline', more: 'Privacy', href: '/privacy-policy#cookies', label: 'Analytics notice' };
+      ? { msg: 'Usamos Google Analytics solo si aceptas, para saber qué páginas ayudan a planear una sesión.', yes: 'Aceptar', no: 'Rechazar', more: 'Privacidad', href: '/es/politica-de-privacidad#cookies', label: 'Aviso de analítica' }
+      : { msg: 'We use Google Analytics only if you accept, to see which pages help people plan a session.', yes: 'Accept', no: 'Decline', more: 'Privacy', href: '/privacy-policy#cookies', label: 'Analytics notice' };
     var css = document.createElement('style');
     css.textContent =
-      '.ivae-consent{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2147483000;max-width:560px;margin:0 auto;background:#fff;color:#1f3a5a;border:1px solid rgba(31,58,90,.22);box-shadow:0 10px 30px rgba(0,0,0,.12);padding:16px 18px;font-size:14px;line-height:1.5}' +
-      '.ivae-consent p{margin:0 0 12px}.ivae-consent a{color:inherit;text-decoration:underline}' +
-      '.ivae-consent-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}' +
-      '.ivae-consent button{font:inherit;font-size:14px;min-height:44px;padding:0 20px;cursor:pointer;border:1px solid #1f3a5a}' +
+      '.ivae-consent{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483000;max-width:560px;margin:0 auto;background:#fff;color:#1f3a5a;border:1px solid rgba(31,58,90,.22);box-shadow:0 8px 24px rgba(0,0,0,.12);padding:12px 14px;font-size:13px;line-height:1.45}' +
+      '.ivae-consent p{margin:0 0 10px}.ivae-consent a{color:inherit;text-decoration:underline}' +
+      '.ivae-consent-row{display:flex;gap:8px;align-items:center}' +
+      '.ivae-consent button{font:inherit;font-size:13px;min-height:40px;padding:0 16px;cursor:pointer;border:1px solid #1f3a5a}' +
       '.ivae-consent .ivae-yes{background:#1f3a5a;color:#fff}.ivae-consent .ivae-no{background:#fff;color:#1f3a5a}' +
       '.ivae-consent .ivae-more{margin-left:auto}';
     document.head.appendChild(css);
@@ -102,6 +102,21 @@
     row.appendChild(yes); row.appendChild(no); row.appendChild(more);
     box.appendChild(p); box.appendChild(row);
     document.body.appendChild(box);
+    /* Si la pagina tiene una barra fija abajo (Reservar / WhatsApp en celular), el aviso va encima. */
+    function lift() {
+      var h = 0, vw = window.innerWidth, vh = window.innerHeight;
+      var all = document.body.querySelectorAll('*');
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (el === box || box.contains(el)) continue;
+        var cs = window.getComputedStyle(el);
+        if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden') continue;
+        var r = el.getBoundingClientRect();
+        if (r.width > vw * 0.6 && r.height > 0 && r.height < vh * 0.3 && Math.abs(r.bottom - vh) < 4) h = Math.max(h, r.height);
+      }
+      box.style.bottom = 'calc(' + (h + 12) + 'px + env(safe-area-inset-bottom,0px))';
+    }
+    lift(); setTimeout(lift, 800); window.addEventListener('resize', lift);
     yes.addEventListener('click', function () { setChoice('granted'); box.remove(); load(); });
     no.addEventListener('click', function () { setChoice('denied'); box.remove(); });
   }
