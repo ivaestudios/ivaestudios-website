@@ -93,7 +93,9 @@ export async function avisarMetaReservas(env, c) {
       `SELECT id, canal, contacto_id, nombre, correo, telefono, etapa, etapa_en, fecha_cita, origen
          FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0 AND etapa IN ('cita', 'cliente') AND COALESCE(etapa_en, updated_at) >= ?`
     ).bind(c.id, desde).all(),
-    env.DB.prepare('SELECT conv_id, evento FROM mkt_meta_eventos WHERE ok = 1').all().catch(() => ({ results: [] })),
+    // Sin la tabla (migración 050 pendiente) no se manda nada: si no, cada
+    // barrido repetiría los mismos eventos sin poder anotarlos.
+    env.DB.prepare('SELECT conv_id, evento FROM mkt_meta_eventos WHERE ok = 1').all().catch(() => null),
     env.DB.prepare(
       'SELECT cc.conv_id, cs.creado, cs.monto_mxn, cs.neto_mxn, cs.monto, cs.moneda FROM mkt_cobros_conv cc JOIN cobros_sesion cs ON cs.id = cc.cobro_id WHERE cs.creado >= ?'
     ).bind(desde).all().catch(() => ({ results: [] })),
@@ -101,6 +103,7 @@ export async function avisarMetaReservas(env, c) {
       "SELECT conv_id, fecha, monto_mxn FROM mkt_neg_ventas WHERE client_id = ? AND estado = 'cerrada' AND conv_id IS NOT NULL AND cobro_id IS NULL AND monto_mxn > 0 AND fecha >= ?"
     ).bind(c.id, desde.slice(0, 10)).all().catch(() => ({ results: [] })),
   ]);
+  if (!hechosR) return { ok: false, enviados: 0, error: 'falta la tabla mkt_meta_eventos (migración 050)' };
   const hechos = new Set((hechosR.results || []).map((h) => h.conv_id + ':' + h.evento));
   const pagos = new Map(); // conv_id → { mxn, cuando }
   for (const f of cobrosR.results || []) {
