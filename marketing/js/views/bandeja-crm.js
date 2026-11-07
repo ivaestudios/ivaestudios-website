@@ -22,11 +22,11 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611060505';
-import { toast } from '../shell/toast.js?v=202611060505';
-import { icon } from '../shell/icons.js?v=202611060505';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611060505';
-import { botonCobrar } from './bandeja-pagos.js?v=202611060505';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611070309';
+import { toast } from '../shell/toast.js?v=202611070309';
+import { icon } from '../shell/icons.js?v=202611070309';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611070309';
+import { botonCobrar } from './bandeja-pagos.js?v=202611070309';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -540,6 +540,19 @@ function tarjeta(v) {
       const estado = g.entregada ? T('entregada', 'delivered') : (g.seleccion ? T('ya eligió', 'chosen') : (g.publicada ? T('publicada', 'published') : T('borrador', 'draft')));
       meta.push(el('span', { class: 'bj-card__dato' }, [icon('camera', 12), el('span', { text: `${g.titulo} · ${estado}` })]));
     }
+    // Sesión reservada: ¿ya salió su carta de confirmación?
+    if (v.etapa === 'cita') {
+      meta.push(v.carta_en
+        ? el('span', { class: 'bj-card__dato is-pagado' }, [icon('check', 12), el('span', { text: T('Carta enviada', 'Letter sent') })])
+        : el('span', { class: 'bj-card__dato is-falta' }, [icon('warning', 12), el('span', { text: T('Falta la carta', 'Letter not sent') })]));
+    }
+    // La misma persona también escribió por otro canal (su carta salió por correo…).
+    if ((v.otros_canales || []).length) {
+      meta.push(el('span', { class: 'bj-card__dato bj-card__otros' }, [
+        ...v.otros_canales.map((o) => d.icoCanal(o.canal, 12)),
+        el('span', { text: T('También por ', 'Also via ') + [...new Set(v.otros_canales.map((o) => (d.CANAL_TXT[o.canal] || o.canal).toLowerCase()))].join(T(' y ', ' and ')) }),
+      ]));
+    }
   }
   return el('button', {
     type: 'button', class: 'bj-card' + (ev === 'vencida' && viva ? ' is-vencida' : '') + (aviso && aviso.tono === 'vencida' ? ' is-vencida' : ''), 'data-id': v.id,
@@ -559,7 +572,7 @@ function tarjeta(v) {
       el('span', { class: 'bj-card__tarea-txt', text: prox.titulo }),
       prox.vence_en ? el('span', { class: 'bj-card__vence', text: ev === 'vencida' ? T('Venció ', 'Overdue ') + fmtVence(prox.vence_en) : fmtVence(prox.vence_en) }) : null,
     ].filter(Boolean)) : sinTarea,
-    v.fecha_cita && v.etapa !== 'perdido' ? el('span', { class: 'bj-card__cita' + (citaPasada(v.fecha_cita) ? ' is-pasada' : '') }, [icon('calendar', 13), el('span', { text: T('Cita: ', 'Visit: ') + fmtCita(v.fecha_cita) })]) : null,
+    v.fecha_cita && v.etapa !== 'perdido' ? el('span', { class: 'bj-card__cita' + (citaPasada(v.fecha_cita) ? ' is-pasada' : '') }, [icon('calendar', 13), el('span', { text: (giroFoto() ? T('Sesión: ', 'Session: ') : T('Cita: ', 'Visit: ')) + fmtCita(v.fecha_cita) })]) : null,
     v.etapa === 'perdido' && v.motivo_perdida ? el('span', { class: 'bj-card__motivo', text: v.motivo_perdida }) : null,
     el('span', { class: 'bj-card__pie' }, [
       el('span', { text: mayus(enEtapa(v.etapa_en)) }),
@@ -1110,6 +1123,9 @@ export async function abrirOportunidad(convId) {
       el('ol', { class: 'bj-flujo' }, [
         paso('calendar', T('Sesión', 'Session'), v.fecha_cita ? fmtCita(v.fecha_cita) : T('Sin fecha', 'No date'),
           v.fecha_cita ? (sesionPasada ? 'hecho' : 'ahora') : (esFase(k) ? 'hecho' : 'falta')),
+        paso('mail', T('Carta de confirmación', 'Confirmation letter'),
+          exped.carta_en ? T(`Enviada · ${fmtDia(String(exped.carta_en).slice(0, 10))}`, `Sent · ${fmtDia(String(exped.carta_en).slice(0, 10))}`) : (v.fecha_cita || k === 'cita' ? T('Todavía no sale', 'Not sent yet') : null),
+          exped.carta_en || esFase(k) ? 'hecho' : (k === 'cita' ? 'ahora' : 'falta')),
         paso('briefcase', T('Pago', 'Payment'),
           pagos.length ? pagos.map((p) => `${fmtDinero(Math.round(p.mxn))}${p.usd ? ` (US$${p.usd})` : ''} · ${VIA_TXT[p.via] || p.via} · ${fmtDia(p.dia)}${p.que && p.via === 'stripe' ? ` · ${p.que}` : ''}`) : T('Sin registrar', 'Not recorded'),
           total > 0 ? 'hecho' : (k === 'por_cobrar' ? 'ahora' : 'falta'),
@@ -1125,6 +1141,11 @@ export async function abrirOportunidad(convId) {
         paso('download', T('Entrega final', 'Final delivery'), g && g.entregada ? fmtDia(g.entregada) : null,
           (g && g.entregada) || k === 'entregada' ? 'hecho' : (k === 'postpro' ? 'ahora' : 'falta')),
       ]),
+      // La misma persona por otro canal: un toque abre esa conversación.
+      (exped.canales || []).length ? el('div', { class: 'bj-flujo__canales' }, [
+        el('span', { class: 'bj-flujo__v', text: T('La misma persona también escribió por:', 'Same person also wrote via:') }),
+        ...exped.canales.map((o) => el('button', { type: 'button', class: 'btn btn-sm', onclick: () => abrirOportunidad(o.id) }, [d.icoCanal(o.canal, 14), el('span', { text: d.CANAL_TXT[o.canal] || o.canal })])),
+      ]) : null,
     );
   }
   // Pagó en efectivo o por transferencia: el ingreso entra a Administración.

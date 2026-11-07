@@ -1371,6 +1371,11 @@ body {
 .bj-etapas.is-largo .bj-etapas__paso { flex: 0 0 auto; padding: 0 14px 0 20px; white-space: nowrap; }
 .bj-etapas.is-largo .bj-etapas__paso:first-child { padding-left: 14px; }
 .bj-card__dato.is-pagado > .ico { color: #15803d; }
+.bj-card__dato.is-falta { color: #b45309; }
+.bj-card__dato.is-falta > .ico { color: #b45309; }
+:root:not([data-theme="light"]) .bj-card__dato.is-falta, :root:not([data-theme="light"]) .bj-card__dato.is-falta > .ico { color: #fbbf24; }
+.bj-card__otros > .ico + .ico { margin-left: -2px; }
+.bj-flujo__canales { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
 :root:not([data-theme="light"]) .bj-card__dato.is-pagado > .ico { color: #4ade80; }
 
 .bj-op__flujo[hidden] { display: none !important; }

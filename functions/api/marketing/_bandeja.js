@@ -32,6 +32,11 @@ import {
   catalogoFoto, precioPaqueteFoto, cfgNegocio, noEsLead, esConversacionDeClienta, TIENE_SESION, CANCELO_SESION, faseDeMensaje,
   FASES_FOTO, IVAE_STUDIOS, leerCobros, leerLinks, clasificarCobro, pesosDeCobro, mismaPersona, tokensNombre,
 } from './_negocio.js';
+// La misma persona en varios canales y lo que dicen nuestros mensajes (7-nov-2026).
+import {
+  claveTel, nombreClave, extraerContactos, agruparPersonas, miembrosPorGrupo, confirmaReserva, CARTA_ENVIADA,
+  fechaDeTexto, paqueteDeTexto,
+} from './_persona.js';
 
 // El flujo de la clienta del estudio (049; ver flujoClientas). Los pasos de la
 // clienta viven en la etapa 'cliente' (FASES_FOTO en _negocio.js).
@@ -1747,6 +1752,20 @@ export async function handleBandeja(request, env, session, url, parts) {
         await ev('plan', { n: planNuevo ? planNuevo.items.length : 0, total: totalPlan(planNuevo), moneda: b.moneda || conv.moneda || 'MXN' });
       }
       if (citaCambio) await ev('cita', citaCambio);
+      // Estudio: lo que se mueve a mano vale para toda la persona (su Instagram,
+      // su WhatsApp y su correo dicen lo mismo; si no, la sincronización volvería
+      // a subir la tarjeta con lo que dice la otra conversación).
+      if ((etapaNueva || faseNueva || citaCambio) && cfgDe(await marca(env, conv.client_id)).giro === 'foto') {
+        try {
+          const nuevo = await env.DB.prepare('SELECT etapa, fase, fecha_cita, motivo_perdida FROM mkt_conversaciones WHERE id = ?').bind(conv.id).first();
+          for (const w of await grupoDeConv(env, conv)) {
+            if (w.id === conv.id || (w.etapa === nuevo.etapa && (w.fase || null) === (nuevo.fase || null) && (w.fecha_cita || null) === (nuevo.fecha_cita || null))) continue;
+            await env.DB.prepare(
+              "UPDATE mkt_conversaciones SET etapa = ?, fase = ?, fecha_cita = ?, motivo_perdida = ?, etapa_en = CASE WHEN etapa <> ? THEN datetime('now') ELSE etapa_en END, updated_at = datetime('now') WHERE id = ?"
+            ).bind(nuevo.etapa, nuevo.fase || null, nuevo.fecha_cita || null, nuevo.motivo_perdida || null, nuevo.etapa, w.id).run();
+          }
+        } catch (err) { console.error('[bandeja] igualar persona', err && err.message); }
+      }
       return json({ ok: true, valor_estimado: valor !== undefined ? valor : conv.valor_estimado, tareas_canceladas: canceladas });
     }
 
@@ -1755,7 +1774,13 @@ export async function handleBandeja(request, env, session, url, parts) {
     // galerías recientes de IVAE Gallery y los cobros de Stripe recientes.
     if (accion === 'expediente' && method === 'GET') {
       if (conv.client_id !== IVAE_STUDIOS) return json({ aplica: false });
-      const ex = (await expedientes(env, [conv.id])).get(conv.id);
+      // Toda la persona: si escribió por Instagram y su carta salió por correo,
+      // sus pagos, su galería y su carta son los mismos.
+      const grupo = await grupoDeConv(env, conv);
+      const idsGrupo = [conv.id, ...grupo.map((w) => w.id).filter((id) => id !== conv.id)];
+      const [exs, cartas] = await Promise.all([expedientes(env, idsGrupo), cartasDe(env, idsGrupo).catch(() => new Map())]);
+      const ex = juntarExpedientes(idsGrupo.map((id) => exs.get(id)));
+      const carta = idsGrupo.map((id) => cartas.get(id)).filter(Boolean).sort()[0] || null;
       const [gals, cobs, ligas] = await Promise.all([
         env.DB.prepare(`SELECT g.id, g.title, g.status, g.created_at, g.selection_submitted_at, g.delivered_at, ${SQL_FINALES},
                                (SELECT v.nombre FROM mkt_conversaciones v WHERE v.galeria_id = g.id AND v.id <> ? LIMIT 1) AS de_otra
@@ -1767,7 +1792,8 @@ export async function handleBandeja(request, env, session, url, parts) {
       const deQuien = new Map((ligas.results || []).map((l) => [l.cobro_id, l.nombre || '—']));
       const mios = new Set(ex.pagos.filter((p) => p.via === 'stripe').map((p) => p.id));
       return json({
-        aplica: true, pagos: ex.pagos, galeria: ex.galeria,
+        aplica: true, pagos: ex.pagos, galeria: ex.galeria, carta_en: carta,
+        canales: grupo.filter((w) => w.id !== conv.id).map((w) => ({ id: w.id, canal: w.canal, nombre: w.nombre || w.username || w.contacto_id })),
         galerias: (gals.results || []).filter((g) => !NO_ES_GALERIA_DE_CLIENTA.test(g.title || '')).map((g) => ({
           id: g.id, titulo: g.title, publicada: g.status === 'published', creada: diaCun(g.created_at), seleccion: diaCun(g.selection_submitted_at), entregada: diaCun(entregadaEn(g)), de_otra: g.de_otra || null,
         })),
@@ -2067,7 +2093,7 @@ export async function handleBandeja(request, env, session, url, parts) {
     let filas = [];
     try {
       filas = (await env.DB.prepare(
-        `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.telefono, v.etapa, COALESCE(v.etapa_en, v.created_at) AS etapa_en,
+        `SELECT v.id, v.canal, v.contacto_id, v.nombre, v.username, v.telefono, v.correo, v.etapa, COALESCE(v.etapa_en, v.created_at) AS etapa_en,
                 v.valor_estimado, v.moneda, v.fecha_cita, v.motivo_perdida, v.asignado_a, u.name AS asignado_nombre,
                 v.ultimo_en, v.ultimo_cliente_en, v.no_leidos, v.origen, v.created_at,
                 ${esFoto ? 'v.fase, v.fase_en, v.galeria_id,' : ''}
@@ -2075,7 +2101,8 @@ export async function handleBandeja(request, env, session, url, parts) {
                 CASE WHEN json_valid(v.plan_tratamiento) THEN json_extract(v.plan_tratamiento, '$.items[0].tratamiento') ELSE NULL END AS plan_1,
                 ${esFoto ? `(SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primer_texto,
                   (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS primer_in,
-                  (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'out') AS primer_out,` : ''}
+                  (SELECT MIN(m.creado) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'out') AS primer_out,
+                  (SELECT COUNT(*) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS n_in,` : ''}
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente') AS tareas_pend,
                 (SELECT COUNT(*) FROM mkt_bandeja_tareas t WHERE t.conv_id = v.id AND t.estado = 'pendiente' AND t.vence_en IS NOT NULL AND t.vence_en < datetime('now')) AS tareas_vencidas,
                 (SELECT t.id || '|' || t.tipo || '|' || COALESCE(t.vence_en, '') || '|' || t.titulo FROM mkt_bandeja_tareas t
@@ -2095,16 +2122,56 @@ export async function handleBandeja(request, env, session, url, parts) {
     // Y una conversación que empezamos nosotros (prospección, trámites con hoteles) no es
     // oportunidad salvo que ya tenga sesión (esConversacionDeClienta, _negocio.js).
     if (esFoto) filas = filas.filter((f) => (f.primer_texto != null || f.fecha_cita || ['cita', 'cliente'].includes(f.etapa)) && !noLeads.has(f.id) && esConversacionDeClienta(f));
-    // Estudio: de cada clienta, sus pagos y su galería (lo que pinta la tarjeta).
-    const exp = esFoto && c.id === IVAE_STUDIOS
-      ? await expedientes(env, filas.filter((f) => ['cita', 'cliente'].includes(f.etapa)).map((f) => f.id)).catch(() => new Map())
-      : new Map();
+    // Estudio: una tarjeta por persona (7-nov-2026, Woo Han: su Instagram en
+    // Seguimiento y su correo en Sesión reservada eran dos tarjetas). Manda la
+    // conversación donde de verdad platicó; los otros canales van en la tarjeta.
+    const otrosDe = new Map(); // id de la tarjeta → [{ id, canal }]
+    if (esFoto) {
+      const porId = new Map(filas.map((f) => [f.id, f]));
+      const PRI = { whatsapp: 3, instagram: 2, messenger: 1, correo: 0 };
+      const quedan = new Set();
+      for (const ids of miembrosPorGrupo(agruparPersonas(filas)).values()) {
+        const fs = ids.map((id) => porId.get(id)).filter(Boolean);
+        const prin = fs.reduce((a, b) => {
+          const na = Number(a.n_in) || 0; const nb = Number(b.n_in) || 0;
+          if (nb !== na) return nb > na ? b : a;
+          if ((PRI[b.canal] ?? 0) !== (PRI[a.canal] ?? 0)) return (PRI[b.canal] ?? 0) > (PRI[a.canal] ?? 0) ? b : a;
+          return String(b.ultimo_en || '') > String(a.ultimo_en || '') ? b : a;
+        });
+        quedan.add(prin.id);
+        const otros = fs.filter((f) => f !== prin);
+        if (!otros.length) continue;
+        otrosDe.set(prin.id, otros.map((f) => ({ id: f.id, canal: f.canal })));
+        for (const o of otros) {
+          if (!prin.fecha_cita && o.fecha_cita) prin.fecha_cita = o.fecha_cita;
+          if (prin.valor_estimado == null && o.valor_estimado != null) { prin.valor_estimado = o.valor_estimado; prin.moneda = o.moneda; }
+          if (!prin.plan_n && o.plan_n) { prin.plan_n = o.plan_n; prin.plan_1 = o.plan_1; }
+          prin.no_leidos = (Number(prin.no_leidos) || 0) + (Number(o.no_leidos) || 0);
+          if (String(o.ultimo_cliente_en || '') > String(prin.ultimo_cliente_en || '')) prin.ultimo_cliente_en = o.ultimo_cliente_en;
+          if (String(o.ultimo_en || '') > String(prin.ultimo_en || '')) prin.ultimo_en = o.ultimo_en;
+        }
+      }
+      filas = filas.filter((f) => quedan.has(f.id));
+    }
+    // Estudio: de cada clienta, sus pagos, su galería y su carta de
+    // confirmación, juntando todas sus conversaciones.
+    const conSesion = esFoto ? filas.filter((f) => ['cita', 'cliente'].includes(f.etapa)) : [];
+    const idsSesion = conSesion.flatMap((f) => [f.id, ...(otrosDe.get(f.id) || []).map((o) => o.id)]);
+    const [exp, cartas] = esFoto ? await Promise.all([
+      c.id === IVAE_STUDIOS ? expedientes(env, idsSesion).catch(() => new Map()) : Promise.resolve(new Map()),
+      cartasDe(env, idsSesion).catch(() => new Map()),
+    ]) : [new Map(), new Map()];
     const oportunidades = filas.map((f) => {
-      const { proxima, primer_texto: _pt, primer_in: _pi, primer_out: _po, ...resto } = f;
+      const { proxima, primer_texto: _pt, primer_in: _pi, primer_out: _po, n_in: _ni, correo: _co, ...resto } = f;
       let prox = null;
       if (proxima) { const [id, tipo, vence, ...tit] = String(proxima).split('|'); prox = { id, tipo, vence_en: vence || null, titulo: tit.join('|') }; }
-      const e = exp.get(f.id);
-      return { ...resto, proxima_tarea: prox, ...(e ? { pagos: e.pagos, galeria: e.galeria } : {}) };
+      const ids = [f.id, ...(otrosDe.get(f.id) || []).map((o) => o.id)];
+      const e = exp.has(f.id) ? juntarExpedientes(ids.map((id) => exp.get(id))) : null;
+      const carta = ids.map((id) => cartas.get(id)).filter(Boolean).sort()[0] || null;
+      return {
+        ...resto, proxima_tarea: prox, ...(e ? { pagos: e.pagos, galeria: e.galeria } : {}),
+        ...(esFoto ? { otros_canales: otrosDe.get(f.id) || [], carta_en: carta } : {}),
+      };
     });
     return json({ oportunidades, etapas: ETAPAS, fases: esFoto ? FASES_FOTO : [], cerradas_dias: 90 });
   }
@@ -2858,11 +2925,9 @@ const ORDEN_ETAPA = { nuevo: 0, platica: 1, cotizado: 2, cita: 3, cliente: 4, pe
 // Quién firma en el historial lo que se movió solo: Juan lo que hizo Juan (sus
 // reservas y su etapa); lo que salió de Stripe, de la galería o de nuestros
 // mensajes, "Automático" (no fue Juan).
-const QUIEN_MUEVE = { pago: 'Automático (Stripe)', upgrade: 'Automático (Stripe)', galeria: 'Automático (IVAE Gallery)', mensajes: 'Automático', sesion_pasada: 'Automático', antiguedad: 'Automático' };
+const QUIEN_MUEVE = { pago: 'Automático (Stripe)', upgrade: 'Automático (Stripe)', galeria: 'Automático (IVAE Gallery)', mensajes: 'Automático', sesion_pasada: 'Automático', antiguedad: 'Automático', misma_persona: 'Automático' };
 const AUTOR_JUAN = 'Juan (bot)';
-// Teléfonos como los guarda la Bandeja: solo dígitos y sin el 1 de los celulares de México.
-const claveTel = (s) => { const d = String(s || '').replace(/\D/g, ''); return d.length === 13 && d.startsWith('521') ? '52' + d.slice(3) : d; };
-const nombreClave = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+// claveTel y nombreClave viven en _persona.js (las usa también agruparPersonas).
 const esPrueba = (s) => /\bprueba\b/i.test(String(s || ''));
 
 export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
@@ -2887,15 +2952,62 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
   const reservas = kv.juan_reservas && kv.juan_reservas.client_id === c.id ? (kv.juan_reservas.reservas || []) : [];
   const contactosJuan = kv.juan_bot_estado && kv.juan_bot_estado.client_id === c.id ? (kv.juan_bot_estado.contactos || {}) : {};
 
+  const ahora = Date.now();
+  const cambios = new Map(); // conv.id → { v, sets, eventos }
+  const tocar = (v) => { if (!cambios.has(v.id)) cambios.set(v.id, { v, sets: {}, eventos: [] }); return cambios.get(v.id); };
+  const etapaDe = (v) => (cambios.has(v.id) && cambios.get(v.id).sets.etapa) || v.etapa || 'nuevo';
+  // La conversación con lo que ya se decidió en esta pasada (correo, teléfono, fecha…).
+  const vista = (v) => (cambios.has(v.id) ? { ...v, ...cambios.get(v.id).sets } : v);
+  const subir = (v, destino, dato) => {
+    const actual = etapaDe(v);
+    if ((ORDEN_ETAPA[destino] ?? -1) <= (ORDEN_ETAPA[actual] ?? 0)) return false;
+    if (actual === 'perdido' || actual === 'cliente') return false; // finales: solo a mano
+    const ch = tocar(v);
+    ch.sets.etapa = destino; ch.sets.etapa_en = 'now';
+    ch.eventos.push({ tipo: 'etapa', dato: { de: actual, a: destino, ...dato } });
+    return true;
+  };
+  const porIdConv = new Map(convs.map((v) => [v.id, v]));
+
+  // 0) Lo que la persona escribe en el chat (Woo Han dio su correo por
+  //    Instagram): su correo y su teléfono, si su conversación no los tiene.
+  //    Con eso se encuentra su reserva, su carta, sus pagos y su galería.
+  try {
+    const r = await env.DB.prepare(
+      `SELECT m.conv_id, m.texto FROM mkt_mensajes m JOIN mkt_conversaciones v ON v.id = m.conv_id
+        WHERE v.client_id = ? AND v.archivado = 0 AND m.direccion = 'in'
+          AND (m.texto LIKE '%@%' OR m.texto GLOB '*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*')
+          AND ((v.canal <> 'correo' AND COALESCE(v.correo, '') = '') OR (v.canal <> 'whatsapp' AND COALESCE(v.telefono, '') = ''))
+        ORDER BY m.creado`
+    ).bind(c.id).all();
+    for (const m of r.results || []) {
+      const v = porIdConv.get(m.conv_id);
+      if (!v || noEsLead(v)) continue;
+      const { correos, tels } = extraerContactos(m.texto);
+      const actual = vista(v);
+      if (correos[0] && v.canal !== 'correo' && !actual.correo) tocar(v).sets.correo = correos[0];
+      if (tels[0] && v.canal !== 'whatsapp' && !actual.telefono) tocar(v).sets.telefono = tels[0];
+    }
+  } catch (e) { console.error('[embudo foto] contactos', e && e.message); }
+
+  // La misma persona en varios canales (Instagram, WhatsApp, correo): por su
+  // correo, su teléfono o su nombre completo. Lo que le pasa a una de sus
+  // conversaciones le pasa a todas (la reserva, la fecha, el pago).
+  const leads = convs.filter((v) => !noEsLead(v));
+  let grupo = agruparPersonas(leads.map(vista));
+  let miembros = miembrosPorGrupo(grupo);
+  const delGrupo = (v) => (grupo.has(v.id) ? (miembros.get(grupo.get(v.id)) || [v.id]) : [v.id]).map((id) => porIdConv.get(id)).filter(Boolean);
+
   // Para encontrar el chat de una reserva: por teléfono, por correo y, al final, por nombre.
   const porTel = new Map(); const porCorreo = new Map(); const porNombre = new Map();
-  for (const v of convs) {
-    if (v.canal === 'whatsapp') porTel.set(claveTel(v.contacto_id), v);
-    if (v.telefono) porTel.set(claveTel(v.telefono), v);
-    if (v.canal === 'correo') porCorreo.set(String(v.contacto_id).toLowerCase(), v);
-    if (v.correo) porCorreo.set(String(v.correo).toLowerCase(), v);
+  for (const v0 of convs) {
+    const v = vista(v0);
+    if (v.canal === 'whatsapp') porTel.set(claveTel(v.contacto_id), v0);
+    if (v.telefono) porTel.set(claveTel(v.telefono), v0);
+    if (v.canal === 'correo') porCorreo.set(String(v.contacto_id).toLowerCase(), v0);
+    if (v.correo) porCorreo.set(String(v.correo).toLowerCase(), v0);
     const n = nombreClave(v.nombre);
-    if (n.length > 3) porNombre.set(n, porNombre.has(n) ? null : v); // repetido = ambiguo, no se adivina
+    if (n.length > 3) porNombre.set(n, porNombre.has(n) ? null : v0); // repetido = ambiguo, no se adivina
   }
   const chatDeReserva = (r) => {
     if (r.cliente_wa && porTel.get(claveTel(r.cliente_wa))) return porTel.get(claveTel(r.cliente_wa));
@@ -2908,54 +3020,45 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
     return null;
   };
 
-  const ahora = Date.now();
-  const cambios = new Map(); // conv.id → { v, sets, eventos }
-  const tocar = (v) => { if (!cambios.has(v.id)) cambios.set(v.id, { v, sets: {}, eventos: [] }); return cambios.get(v.id); };
-  const etapaDe = (v) => (cambios.has(v.id) && cambios.get(v.id).sets.etapa) || v.etapa || 'nuevo';
-  const subir = (v, destino, dato) => {
-    const actual = etapaDe(v);
-    if ((ORDEN_ETAPA[destino] ?? -1) <= (ORDEN_ETAPA[actual] ?? 0)) return false;
-    if (actual === 'perdido' || actual === 'cliente') return false; // finales: solo a mano
-    const ch = tocar(v);
-    ch.sets.etapa = destino; ch.sets.etapa_en = 'now';
-    ch.eventos.push({ tipo: 'etapa', dato: { de: actual, a: destino, ...dato } });
-    return true;
-  };
-
-  // 1) Las reservas de Juan: la sesión confirmada manda.
+  // 1) Las reservas de Juan: la sesión confirmada manda, en todas las
+  //    conversaciones de esa persona (Woo Han: su Instagram y su correo).
   for (const r of reservas) {
     if (!r || !['hecho', 'cancelado'].includes(r.estado) || esPrueba(r.cliente)) continue;
-    const v = chatDeReserva(r);
-    if (!v) continue;
-    const inicio = String(r.inicio_iso || '').replace('T', ' ').slice(0, 16);
-    const fechaCita = RE_FECHA_HORA.test(inicio) ? inicio : null;
-    const fin = Date.parse(r.fin_iso || r.inicio_iso || '') || 0;
-    if (r.estado === 'hecho') {
-      const pasada = !!fin && fin < ahora - 2 * 3600e3;
-      const destino = pasada ? 'cliente' : 'cita';
-      const ch = tocar(v);
-      // Un chat perdido que vuelve a agendar se reabre.
-      if (v.etapa === 'perdido' && r.creado && v.etapa_en && String(r.creado) > String(v.etapa_en)) {
-        ch.sets.etapa = destino; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = null;
-        ch.eventos.push({ tipo: 'etapa', dato: { de: 'perdido', a: destino, por: 'juan', reserva: r.id } });
-      } else subir(v, destino, { por: 'juan', reserva: r.id });
-      if (fechaCita && (v.fecha_cita || null) !== fechaCita && !(etapaDe(v) === 'cliente' && pasada && v.fecha_cita)) {
-        ch.sets.fecha_cita = fechaCita;
-        ch.eventos.push({ tipo: 'cita', dato: { de: v.fecha_cita || null, a: fechaCita, por: 'juan' } });
+    const v0 = chatDeReserva(r);
+    if (!v0) continue;
+    for (const v of delGrupo(v0)) {
+      // Un hilo de correo se llama como el correo: con la reserva ya tiene nombre.
+      if (r.cliente && (!v.nombre || /@|^[+\d\s()-]+$/.test(String(v.nombre))) && !esPrueba(r.cliente)) tocar(v).sets.nombre = String(r.cliente).slice(0, 120);
+      const inicio = String(r.inicio_iso || '').replace('T', ' ').slice(0, 16);
+      const fechaCita = RE_FECHA_HORA.test(inicio) ? inicio : null;
+      const fin = Date.parse(r.fin_iso || r.inicio_iso || '') || 0;
+      if (r.estado === 'hecho') {
+        const pasada = !!fin && fin < ahora - 2 * 3600e3;
+        const destino = pasada ? 'cliente' : 'cita';
+        const ch = tocar(v);
+        // Un chat perdido que vuelve a agendar se reabre.
+        if (v.etapa === 'perdido' && r.creado && v.etapa_en && String(r.creado) > String(v.etapa_en)) {
+          ch.sets.etapa = destino; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = null;
+          ch.eventos.push({ tipo: 'etapa', dato: { de: 'perdido', a: destino, por: 'juan', reserva: r.id } });
+        } else subir(v, destino, { por: 'juan', reserva: r.id });
+        if (fechaCita && (v.fecha_cita || null) !== fechaCita && !(etapaDe(v) === 'cliente' && pasada && v.fecha_cita)) {
+          ch.sets.fecha_cita = fechaCita;
+          ch.eventos.push({ tipo: 'cita', dato: { de: v.fecha_cita || null, a: fechaCita, por: 'juan' } });
+        }
+        const precio = cfgNeg ? await precioPaqueteFoto(env, r.paquete, cfgNeg) : null;
+        if (precio && !(Number(v.valor_estimado) > 0)) { ch.sets.valor_estimado = precio; ch.sets.moneda = 'USD'; }
+        const plan = leerPlan(v.plan_tratamiento);
+        if (!plan || !plan.items.length) {
+          const nuevo = { items: [{ id: randomId().slice(0, 12), tratamiento: String(r.paquete || 'Sesión').slice(0, 120), detalle: [r.ubicacion, r.hotel].filter(Boolean).join(' · ').slice(0, 200) || null, precio: precio || null, estado: pasada ? 'realizado' : 'aceptado' }], notas: null };
+          ch.sets.plan_tratamiento = JSON.stringify(nuevo);
+          ch.eventos.push({ tipo: 'plan', dato: { n: 1, total: precio || 0, moneda: 'USD', por: 'juan' } });
+        }
+        if (!Object.keys(ch.sets).length) cambios.delete(v.id);
+      } else if (v.etapa === 'cita' && fechaCita && v.fecha_cita === fechaCita) {
+        const ch = tocar(v);
+        ch.sets.etapa = 'perdido'; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = 'Canceló la sesión'; ch.sets.fecha_cita = null;
+        ch.eventos.push({ tipo: 'etapa', dato: { de: 'cita', a: 'perdido', motivo: 'Canceló la sesión', por: 'juan', reserva: r.id } });
       }
-      const precio = cfgNeg ? await precioPaqueteFoto(env, r.paquete, cfgNeg) : null;
-      if (precio && !(Number(v.valor_estimado) > 0)) { ch.sets.valor_estimado = precio; ch.sets.moneda = 'USD'; }
-      const plan = leerPlan(v.plan_tratamiento);
-      if (!plan || !plan.items.length) {
-        const nuevo = { items: [{ id: randomId().slice(0, 12), tratamiento: String(r.paquete || 'Sesión').slice(0, 120), detalle: [r.ubicacion, r.hotel].filter(Boolean).join(' · ').slice(0, 200) || null, precio: precio || null, estado: pasada ? 'realizado' : 'aceptado' }], notas: null };
-        ch.sets.plan_tratamiento = JSON.stringify(nuevo);
-        ch.eventos.push({ tipo: 'plan', dato: { n: 1, total: precio || 0, moneda: 'USD', por: 'juan' } });
-      }
-      if (!Object.keys(ch.sets).length) cambios.delete(v.id);
-    } else if (v.etapa === 'cita' && fechaCita && v.fecha_cita === fechaCita) {
-      const ch = tocar(v);
-      ch.sets.etapa = 'perdido'; ch.sets.etapa_en = 'now'; ch.sets.motivo_perdida = 'Canceló la sesión'; ch.sets.fecha_cita = null;
-      ch.eventos.push({ tipo: 'etapa', dato: { de: 'cita', a: 'perdido', motivo: 'Canceló la sesión', por: 'juan', reserva: r.id } });
     }
   }
 
@@ -3035,6 +3138,73 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
     }
   }
 
+  // 3c) La reserva confirmada por mensaje, en cualquier canal (Woo Han, 6-nov:
+  //     por Instagram le escribimos "You're all set: your session is booked for
+  //     Monday, November 23 at 6:45 am with The Creative Runway" y seguía en
+  //     Seguimiento). Nuestra confirmación → Sesión reservada, con la fecha, la
+  //     hora y la colección que dice el chat. Un aviso de cancelación posterior
+  //     la deja como estaba. Frases en _persona.js (confirmaReserva).
+  const sinReserva = convs.filter((v) => !noEsLead(v) && (['nuevo', 'platica', 'cotizado'].includes(etapaDe(v)) || (etapaDe(v) === 'cita' && !vista(v).fecha_cita)));
+  const nombresPaquetes = cfgNeg && Array.isArray(cfgNeg.paquetes) ? cfgNeg.paquetes.map((x) => x.nombre).filter(Boolean) : [];
+  for (let i = 0; i < sinReserva.length; i += 80) {
+    const lote = sinReserva.slice(i, i + 80);
+    const r = await env.DB.prepare(
+      `SELECT conv_id, texto, creado FROM mkt_mensajes
+        WHERE direccion = 'out' AND conv_id IN (${lote.map(() => '?').join(',')})
+          AND (texto LIKE '%all set%' OR texto LIKE '%booked%' OR texto LIKE '%confirm%' OR texto LIKE '%photo session%'
+               OR texto LIKE '%cancel%' OR texto LIKE '%reservad%' OR texto LIKE '%agendad%')
+        ORDER BY creado`
+    ).bind(...lote.map((v) => v.id)).all().catch(() => ({ results: [] }));
+    const reservo = new Map(); // conv_id → el mensaje que confirmó (null si después se canceló)
+    for (const m of r.results || []) {
+      const t = String(m.texto || '');
+      if (CANCELO_SESION.test(t)) { if (reservo.get(m.conv_id)) reservo.set(m.conv_id, null); continue; }
+      if (confirmaReserva(t) || TIENE_SESION.test(t)) reservo.set(m.conv_id, m);
+    }
+    const conReserva = lote.filter((v) => reservo.get(v.id));
+    if (!conReserva.length) continue;
+    // Toda la plática de esas personas: la colección la puede decir ella ("I
+    // would like the creative runway") y la fecha, el mensaje de antes o de después.
+    const todos = await env.DB.prepare(
+      `SELECT conv_id, direccion, texto, creado FROM mkt_mensajes WHERE conv_id IN (${conReserva.map(() => '?').join(',')}) AND COALESCE(texto, '') <> '' ORDER BY creado`
+    ).bind(...conReserva.map((v) => v.id)).all().catch(() => ({ results: [] }));
+    const porConv = new Map();
+    for (const m of todos.results || []) { if (!porConv.has(m.conv_id)) porConv.set(m.conv_id, []); porConv.get(m.conv_id).push(m); }
+    for (const v of conReserva) {
+      const conf = reservo.get(v.id);
+      const msgs = porConv.get(v.id) || [];
+      // Si después de la confirmación esa persona se perdió o canceló (en éste o
+      // en otro de sus canales), la confirmación ya no vale.
+      if (delGrupo(v).some((w) => etapaDe(w) === 'perdido' && String(vista(w).etapa_en || '') > String(conf.creado))) continue;
+      // La fecha: la del mensaje que confirmó o, si no la trae, la que dijimos
+      // nosotros más cerca de ese momento (antes o después), o la que ya tiene
+      // otra de sus conversaciones.
+      let f = vista(v).fecha_cita || null;
+      if (!f) {
+        const nuestros = msgs.filter((m) => m.direccion === 'out');
+        const orden = [conf, ...nuestros.filter((m) => m.creado > conf.creado), ...nuestros.filter((m) => m.creado < conf.creado).reverse()];
+        for (const m of orden) { f = fechaDeTexto(m.texto, m.creado); if (f) break; }
+        if (!f) f = delGrupo(v).map((w) => vista(w).fecha_cita).find(Boolean) || null;
+        // Sin fecha, solo una confirmación reciente: una carta de hace semanas sin
+        // fecha no dice si la sesión ya fue o se canceló (Sarah, Vicki, oct-2026).
+        if (!f && Date.parse(String(conf.creado).replace(' ', 'T') + 'Z') < ahora - 10 * 864e5) continue;
+        if (f) { tocar(v).sets.fecha_cita = f; tocar(v).eventos.push({ tipo: 'cita', dato: { de: null, a: f, por: 'mensajes' } }); }
+      }
+      subir(v, 'cita', { por: 'mensajes' });
+      let paquete = null;
+      for (const m of msgs) { const p = paqueteDeTexto(m.texto, nombresPaquetes); if (p) paquete = p; }
+      if (paquete) {
+        const precio = cfgNeg ? await precioPaqueteFoto(env, paquete, cfgNeg) : null;
+        if (precio && !(Number(vista(v).valor_estimado) > 0)) { tocar(v).sets.valor_estimado = precio; tocar(v).sets.moneda = 'USD'; }
+        const plan = leerPlan(vista(v).plan_tratamiento);
+        if (!plan || !plan.items.length) {
+          tocar(v).sets.plan_tratamiento = JSON.stringify({ items: [{ id: randomId().slice(0, 12), tratamiento: paquete, detalle: null, precio: precio || null, estado: 'aceptado' }], notas: null });
+          tocar(v).eventos.push({ tipo: 'plan', dato: { n: 1, total: precio || 0, moneda: 'USD', por: 'mensajes' } });
+        }
+      }
+    }
+  }
+
   // 4) Sesión agendada que ya pasó (6 h de margen) → Cliente.
   for (const v of convs) {
     if (etapaDe(v) !== 'cita') continue;
@@ -3048,8 +3218,47 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
   // 5) El flujo de la clienta (049): pagó, su galería, su selección, su entrega.
   //    Solo IVAE STUDIOS: las galerías de IVAE Gallery y los cobros de Stripe son suyos.
   if (c.id === IVAE_STUDIOS) {
-    try { await flujoClientas(env, c, convs, { tocar, etapaDe, cambios, reservas, chatDeReserva, faseMsg }); }
+    try { await flujoClientas(env, c, convs, { tocar, etapaDe, cambios, reservas, chatDeReserva, faseMsg, vista }); }
     catch (e) { console.error('[embudo foto] flujo', e && e.message); }
+  }
+
+  // 6) La misma persona dice lo mismo en todos sus canales: la conversación que
+  //    va más adelante (la reserva de su correo, el pago, su galería) pone al día
+  //    a las demás, y les pasa la fecha, el valor y la colección que les falten.
+  //    Solo hacia adelante; lo que alguien cerró a mano (Perdido) no se toca.
+  grupo = agruparPersonas(leads.map(vista));
+  miembros = miembrosPorGrupo(grupo);
+  const rango = (x) => {
+    const e = etapaDe(x);
+    if (e === 'perdido') return -1;
+    return (ORDEN_ETAPA[e] ?? 0) * 10 + (e === 'cliente' ? (ORDEN_FASE[vista(x).fase] ?? -1) + 1 : 0);
+  };
+  for (const ids of miembros.values()) {
+    if (ids.length < 2) continue;
+    const vs = ids.map((id) => porIdConv.get(id)).filter(Boolean);
+    const mejor = vs.reduce((a, b) => (rango(b) > rango(a) ? b : a));
+    if (rango(mejor) < 0) continue;
+    const vm = vista(mejor);
+    for (const w of vs) {
+      if (w === mejor) continue;
+      if (rango(w) < rango(mejor)) {
+        const destino = etapaDe(mejor);
+        subir(w, destino, { por: 'misma_persona', canal: mejor.canal });
+        if (destino === 'cliente' && etapaDe(w) === 'cliente' && vm.fase && (ORDEN_FASE[vm.fase] ?? -1) > (ORDEN_FASE[vista(w).fase] ?? -1)) {
+          const ch = tocar(w);
+          ch.sets.fase = vm.fase; ch.sets.fase_en = 'now';
+        }
+      }
+      const vw = vista(w);
+      if (rango(w) < 0) continue;
+      if (vm.fecha_cita && !vw.fecha_cita) tocar(w).sets.fecha_cita = vm.fecha_cita;
+      if (Number(vm.valor_estimado) > 0 && !(Number(vw.valor_estimado) > 0)) { tocar(w).sets.valor_estimado = vm.valor_estimado; tocar(w).sets.moneda = vm.moneda || 'USD'; }
+      const planW = leerPlan(vw.plan_tratamiento);
+      if (vm.plan_tratamiento && (!planW || !planW.items.length) && leerPlan(vm.plan_tratamiento)) tocar(w).sets.plan_tratamiento = vm.plan_tratamiento;
+      // El hilo de correo se llama como el correo: toma el nombre de la persona.
+      const nombreReal = vs.map((x) => vista(x).nombre).find((n) => n && !/@|^[+\d\s()-]+$/.test(n));
+      if (nombreReal && (!vw.nombre || /@|^[+\d\s()-]+$/.test(vw.nombre))) tocar(w).sets.nombre = nombreReal;
+    }
   }
 
   // Escribir, con su huella en el historial de cada oportunidad.
@@ -3087,6 +3296,8 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
 // ============================================================================
 async function flujoClientas(env, c, convs, h) {
   const { tocar, etapaDe, cambios, reservas, chatDeReserva, faseMsg } = h;
+  // La fecha de la sesión con lo que ya se decidió en esta pasada (la que dijo el chat).
+  const fechaDe = (v) => (h.vista ? h.vista(v) : v).fecha_cita || null;
   const hace = (dias) => new Date(Date.now() - dias * 864e5).toISOString();
   const [cobros, ligasR, ventasR, galsR, cfgN] = await Promise.all([
     leerCobros(env, hace(180)),
@@ -3214,7 +3425,7 @@ async function flujoClientas(env, c, convs, h) {
       lista = aspirantes.filter((v) => {
         const nom = tokensNombre(v.nombre);
         if (!nom.length || !toks.includes(nom[0])) return false;
-        const ref = (v.fecha_cita || '').slice(0, 10) || ((pagos.get(v.id) || [])[0] || {}).dia || null;
+        const ref = (fechaDe(v) || '').slice(0, 10) || ((pagos.get(v.id) || [])[0] || {}).dia || null;
         return !ref || (creada >= masDiasYmd(ref, -2) && creada <= masDiasYmd(ref, 30));
       });
     }
@@ -3245,7 +3456,7 @@ async function flujoClientas(env, c, convs, h) {
     if (!fase) {
       // Clienta sin ninguna señal: si la sesión fue hace poco, falta cobrar; si
       // fue hace más de 30 días, ya pasó por todo (es historial, no pendiente).
-      const ref = String(v.fecha_cita || v.etapa_en || '').slice(0, 10);
+      const ref = String(fechaDe(v) || v.etapa_en || '').slice(0, 10);
       if (ref && diasEntreYmd(ref, hoy) > 30) { fase = 'entregada'; por = 'antiguedad'; } else { fase = 'por_cobrar'; por = 'sesion_pasada'; }
     }
     if (etapa !== 'cliente') {                           // pagó o ya tiene galería: es clienta
@@ -3283,6 +3494,42 @@ async function expedientes(env, ids) {
     }
   }
   return out;
+}
+
+// Los pagos y la galería de una persona con varias conversaciones.
+function juntarExpedientes(lista) {
+  const pagos = []; const vistos = new Set(); let galeria = null;
+  for (const e of lista) {
+    if (!e) continue;
+    for (const p of e.pagos || []) { const k = p.via + ':' + p.id; if (!vistos.has(k)) { vistos.add(k); pagos.push(p); } }
+    if (!galeria && e.galeria) galeria = e.galeria;
+  }
+  return { pagos, galeria };
+}
+// Cuándo salió la carta de confirmación, por conversación (el correo "Session
+// Confirmation" de info@ o el aviso "we just sent your confirmation letter").
+async function cartasDe(env, ids) {
+  const out = new Map();
+  for (let i = 0; i < ids.length; i += 80) {
+    const lote = ids.slice(i, i + 80);
+    if (!lote.length) continue;
+    const r = await env.DB.prepare(
+      `SELECT conv_id, texto, creado FROM mkt_mensajes WHERE direccion = 'out' AND conv_id IN (${lote.map(() => '?').join(',')})
+          AND (texto LIKE '%confirmation%' OR texto LIKE '%carta de confirmaci%') ORDER BY creado`
+    ).bind(...lote).all();
+    for (const m of r.results || []) if (!out.has(m.conv_id) && CARTA_ENVIADA.test(String(m.texto || ''))) out.set(m.conv_id, m.creado);
+  }
+  return out;
+}
+// Las conversaciones de la misma persona (la de la oportunidad incluida).
+async function grupoDeConv(env, conv) {
+  const r = await env.DB.prepare('SELECT id, canal, contacto_id, nombre, username, correo, telefono, etapa, fase, fecha_cita FROM mkt_conversaciones WHERE client_id = ? AND archivado = 0')
+    .bind(conv.client_id).all().catch(() => ({ results: [] }));
+  const todas = (r.results || []).filter((v) => v.id === conv.id || !noEsLead(v));
+  if (!todas.some((v) => v.id === conv.id)) return [conv];
+  const g = agruparPersonas(todas);
+  const raiz = g.get(conv.id);
+  return todas.filter((v) => g.get(v.id) === raiz);
 }
 
 // Cron (cada 15 min): todas las marcas que son estudio de fotos.
