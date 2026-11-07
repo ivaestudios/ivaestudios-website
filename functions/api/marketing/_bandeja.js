@@ -37,6 +37,8 @@ import {
   claveTel, nombreClave, extraerContactos, agruparPersonas, miembrosPorGrupo, confirmaReserva, CARTA_ENVIADA,
   fechaDeTexto, paqueteDeTexto,
 } from './_persona.js';
+// Avisarle a Meta quién reservó y quién pagó (Conversions API, 7-nov-2026).
+import { avisarMetaReservas, avisosMetaDe } from './_meta_capi.js';
 
 // El flujo de la clienta del estudio (049; ver flujoClientas). Los pasos de la
 // clienta viven en la etapa 'cliente' (FASES_FOTO en _negocio.js).
@@ -1791,8 +1793,17 @@ export async function handleBandeja(request, env, session, url, parts) {
       ]);
       const deQuien = new Map((ligas.results || []).map((l) => [l.cobro_id, l.nombre || '—']));
       const mios = new Set(ex.pagos.filter((p) => p.via === 'stripe').map((p) => p.id));
+      // Lo que ya le avisamos a Meta de esta persona (reservó, pagó).
+      const avisosMeta = await avisosMetaDe(env, idsGrupo).catch(() => new Map());
+      const meta = {};
+      for (const id of idsGrupo) {
+        const a = avisosMeta.get(id);
+        if (!a) continue;
+        if (a.reserva && !meta.reserva) meta.reserva = a.reserva;
+        if (a.pago && !meta.pago) meta.pago = a.pago;
+      }
       return json({
-        aplica: true, pagos: ex.pagos, galeria: ex.galeria, carta_en: carta,
+        aplica: true, pagos: ex.pagos, galeria: ex.galeria, carta_en: carta, meta,
         canales: grupo.filter((w) => w.id !== conv.id).map((w) => ({ id: w.id, canal: w.canal, nombre: w.nombre || w.username || w.contacto_id })),
         galerias: (gals.results || []).filter((g) => !NO_ES_GALERIA_DE_CLIENTA.test(g.title || '')).map((g) => ({
           id: g.id, titulo: g.title, publicada: g.status === 'published', creada: diaCun(g.created_at), seleccion: diaCun(g.selection_submitted_at), entregada: diaCun(entregadaEn(g)), de_otra: g.de_otra || null,
@@ -3275,7 +3286,13 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
       n++;
     } catch (e) { console.error('[embudo foto]', v.id, e && e.message); }
   }
-  return { ok: true, revisadas: convs.length, cambiadas: n };
+  // 7) Avisarle a Meta quién reservó y quién pagó (Conversions API), para que
+  //    busque más gente como ellas. Solo el estudio; nunca tumba la sincronización.
+  let meta = null;
+  if (c.id === IVAE_STUDIOS) {
+    try { meta = await avisarMetaReservas(env, c); } catch (e) { console.error('[embudo foto] meta', e && e.message); }
+  }
+  return { ok: true, revisadas: convs.length, cambiadas: n, meta };
 }
 
 // ============================================================================

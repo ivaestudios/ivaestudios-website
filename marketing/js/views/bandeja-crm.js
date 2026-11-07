@@ -22,11 +22,11 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611070309';
-import { toast } from '../shell/toast.js?v=202611070309';
-import { icon } from '../shell/icons.js?v=202611070309';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611070309';
-import { botonCobrar } from './bandeja-pagos.js?v=202611070309';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611070449';
+import { toast } from '../shell/toast.js?v=202611070449';
+import { icon } from '../shell/icons.js?v=202611070449';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611070449';
+import { botonCobrar } from './bandeja-pagos.js?v=202611070449';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
@@ -1146,6 +1146,11 @@ export async function abrirOportunidad(convId) {
         el('span', { class: 'bj-flujo__v', text: T('La misma persona también escribió por:', 'Same person also wrote via:') }),
         ...exped.canales.map((o) => el('button', { type: 'button', class: 'btn btn-sm', onclick: () => abrirOportunidad(o.id) }, [d.icoCanal(o.canal, 14), el('span', { text: d.CANAL_TXT[o.canal] || o.canal })])),
       ]) : null,
+      // Lo que ya le avisamos a Meta (Conversions API): así busca más gente como ella.
+      exped.meta && ((exped.meta.reserva && exped.meta.reserva.ok) || (exped.meta.pago && exped.meta.pago.ok)) ? el('p', { class: 'bj-flujo__v bj-flujo__meta', text: (() => {
+        const que = [exped.meta.reserva && exped.meta.reserva.ok ? T('reservó', 'booked') : null, exped.meta.pago && exped.meta.pago.ok ? T('pagó', 'paid') : null].filter(Boolean).join(T(' y ', ' and '));
+        return T(`Meta ya sabe que ${que}: así busca más gente como ella para los anuncios.`, `Meta already knows they ${que}: that is how it finds more people like them for the ads.`);
+      })() }) : null,
     );
   }
   // Pagó en efectivo o por transferencia: el ingreso entra a Administración.
