@@ -196,7 +196,7 @@ def derive_category(slug: str, article_section: str, lang: str) -> str:
             ("tulum", "Travel · Tulum"),
             ("cabo", "Travel · Los Cabos"),
             ("riviera", "Travel · Riviera Maya"),
-            ("cancun", "Travel · Cancún"),
+            ("cancun", "Travel · Cancun"),
             ("resort", "Vendors · Resorts"),
             ("yacht", "Vendors · Yacht"),
             ("drone", "Vendors · Drone"),

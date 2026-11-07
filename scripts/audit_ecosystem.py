@@ -779,6 +779,44 @@ def inv10_sin_seo_para_ias(sitio, inf):
                   nota="Purga original: commit 1c2a8ca0 (2026-08-15). Retirar el artefacto, no documentarlo.")
 
 
+def inv11_cancun_sin_acento_en(sitio, inf):
+    """11. Paginas en INGLES escriben "Cancun", sin acento (2026-11-07).
+
+    Bing (y ChatGPT, Copilot, Yahoo y DuckDuckGo, que usan su indice) distingue
+    el acento: medido el 7-nov, "cancun family photographer" no mostraba a IVAE
+    en el top 16 y "cancún family photographer" lo ponia #1. Tam Rico y Roots
+    escriben "Cancun". Se revisan <title>, H1 y meta description de las paginas
+    lang="en". El addressLocality del schema conserva "Cancún" (ficha de Google).
+    """
+    b = inf.bloque("11", "PAGINAS EN INGLES CON \"Cancun\" SIN ACENTO (title, H1, description)")
+    pat_lang = re.compile(r'<html[^>]*\blang="en', re.I)
+    pat_acento = re.compile(r"Canc(?:ú|&uacute;)n|CANCÚN")
+    zonas = [re.compile(r"<title>(.*?)</title>", re.S),
+             re.compile(r"<h1\b[^>]*>(.*?)</h1>", re.S),
+             re.compile(r'<meta name="description" content="([^"]*)"')]
+    casos = []
+    for rel in sitio.htmls:
+        if rel.startswith(("es/", "marketing/")):
+            continue
+        try:
+            with open(os.path.join(sitio.raiz, rel), encoding="utf-8", errors="replace") as f:
+                texto = f.read()
+        except OSError:
+            continue
+        if not pat_lang.search(texto):
+            continue
+        for z in zonas:
+            if any(pat_acento.search(m) for m in z.findall(texto)):
+                casos.append(rel)
+                break
+    if casos:
+        inf.fallo(b, GRAVE_MEDIA,
+                  "%s en ingles con \"Cancún\" en title/H1/description: Bing no las "
+                  "muestra a quien teclea \"cancun\"" % plural(len(casos), "pagina", "paginas"),
+                  casos[:20],
+                  nota="Arreglo: gen_hotel.sin_acento_en() o el mismo reemplazo a mano; no tocar /es/.")
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Verificador de invariantes del ecosistema de URLs de ivaestudios.com")
@@ -814,6 +852,7 @@ def main():
     inv8_sin_huerfanos(sitio, paginas, inf)
     inv9_enlaces_vivos(sitio, paginas, inf)
     inv10_sin_seo_para_ias(sitio, inf)
+    inv11_cancun_sin_acento_en(sitio, inf)
 
     inf.imprimir(time.time() - t0)
 
