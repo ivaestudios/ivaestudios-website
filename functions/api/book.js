@@ -149,7 +149,9 @@ export async function onRequestPost({ request, env }) {
         ok: true, booking_id: d.booking_id || null, status: d.status || 'processing',
         message: d.status === 'needs_review'
           ? 'Request received. The studio will confirm it personally by email or WhatsApp.'
-          : 'Request received. The calendar is being checked now; if the time is free a confirmation letter (PDF) is emailed within a few minutes. If not, the studio emails the closest available times.',
+          : d.status === 'confirmed'
+            ? 'This booking is already confirmed. The confirmation letter (PDF) was emailed.'
+            : 'Request received. The calendar is being checked now; if the time is free a confirmation letter (PDF) is emailed within a few minutes. If not, the studio emails the closest available times.',
         payment: 'No deposit. Payment at the end of the session, by card or cash.',
         status_url: statusUrl, whatsapp: WHATSAPP,
       }, res.http === 201 ? 201 : 200);
