@@ -314,6 +314,9 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
       post_info: {
         title: String(post.title || '').slice(0, 90),
         description: captionTikTok(post, 4000),
+        // Vianey 8-nov-2026: "un carrusel con sonido". TikTok le pone solo un
+        // sonido recomendado a los carruseles de fotos (si no, salen mudos).
+        auto_add_music: true,
         ...(directo ? { privacy_level: privacidad } : {}),
         ...(elec.allow_comment === false ? { disable_comment: true } : {}),
         ...(directo && elec.brand_content ? { brand_content_toggle: true } : {}),
