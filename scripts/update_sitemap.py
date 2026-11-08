@@ -307,7 +307,6 @@ PAGE_EN_TO_ES = {
     "/rosewood-mayakoba-wedding-photographer": "/es/locaciones/rosewood-mayakoba/",
     "/bilingual-wedding-photographer-cancun": "/es/fotografo-bodas-bilingue-cancun",
     "/beach-wedding-photographer-cancun": "/es/fotografo-bodas-playa-cancun",
-    "/couples-photographer-cancun": "/es/fotografo-parejas-cancun",
     "/isla-mujeres-photographer": "/es/fotografo-isla-mujeres",
     "/playa-del-carmen-photographer": "/es/fotografo-playa-del-carmen",
 }
@@ -319,6 +318,15 @@ CONSOLIDATED_EN_SUBS = {
     "/venues/le-blanc-spa-cancun/",
     "/venues/banyan-tree-mayakoba/",
     "/venues/rosewood-mayakoba/",
+}
+
+# Root pages consolidated into a stronger page of the same intent (2026-11-08):
+# they keep serving but rel=canonical to the winner, so they must NOT appear in
+# the sitemap. Parejas en Cancun: /couples-photography-mexico tiene 3x contenido
+# y mas impresiones; la delgada tenia los enlaces internos (ya repuntados).
+CONSOLIDATED_ROOT_PAGES = {
+    "/couples-photographer-cancun",
+    "/es/fotografo-parejas-cancun",
 }
 
 # ES-only pages that have no EN counterpart. Listed so we can emit them
@@ -395,7 +403,10 @@ def file_to_url(rel_path):
             return "/" + rel[: -len(".html")], "es"
         # es/comparativa/<slug>.html → /es/comparativa/<slug>
         if rel.endswith(".html"):
-            return "/" + rel[: -len(".html")], "es"
+            path = "/" + rel[: -len(".html")]
+            if path in CONSOLIDATED_ROOT_PAGES:
+                return None
+            return path, "es"
         return None
 
     # English tree.
@@ -425,7 +436,10 @@ def file_to_url(rel_path):
         return "/" + rel[: -len(".html")], "en"
     # Top-level *.html → /<slug> (Cloudflare strips .html)
     if "/" not in rel and rel.endswith(".html"):
-        return "/" + rel[: -len(".html")], "en"
+        path = "/" + rel[: -len(".html")]
+        if path in CONSOLIDATED_ROOT_PAGES:
+            return None
+        return path, "en"
     return None
 
 
