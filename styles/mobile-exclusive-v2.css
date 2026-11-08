@@ -176,12 +176,16 @@
     object-position: 50% 50%;
     image-rendering: -webkit-optimize-contrast;
     transform: scale(1.04);
-    opacity: 0;
+    /* Visible desde el primer pintado: con opacity 0 la foto no contaba como
+       LCP y el inicio daba LCP 8.1 s en PageSpeed movil (8-nov-2026). El
+       loader blanco la tapa los primeros 2.8 s, asi que el usuario ve lo
+       mismo; solo queda el zoom suave. */
+    opacity: 1;
     animation: ivmHeroPhotoIn 1.6s var(--ivm-ease) 1.4s forwards;
-    will-change: transform, opacity;
+    will-change: transform;
   }
   @keyframes ivmHeroPhotoIn {
-    to { transform: scale(1); opacity: 1; }
+    to { transform: scale(1); }
   }
   .ivm-act-hero__veil {
     position: absolute; inset: 0;
