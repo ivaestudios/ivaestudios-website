@@ -59,7 +59,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
-import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos } from './_bandeja.js';
+import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos, avisarStaff } from './_bandeja.js';
 import { handlePagos } from './_pagos.js';
 import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, handleYtVideo, handleYtDisconnect, publicarEnYouTube } from './_youtube.js';
@@ -5642,6 +5642,10 @@ async function route(request, env, authCtx) {
   // Sesión de 15 min para el ROBOT que genera el PDF editorial en un navegador sin cabeza
   // (Worker ivae-juan + Browser Rendering), con la llave del conector de IA del espacio ivae.
   if (path === '/entregables/pdf-sesion-robot' && method === 'POST') return handleSesionRobotPdf(env, url);
+  // Aviso a la app (campana + push al teléfono) pedido por el Worker de Juan: correos de clientes,
+  // traspasos de Juan, pagos de Stripe, escalaciones. Israel (8-nov-2026): "una notificación como
+  // WhatsApp pero de mi CRM". Misma llave del conector de IA que el robot del PDF.
+  if (path === '/bandeja/aviso-robot' && method === 'POST') return handleAvisoRobot(request, env, url);
 
   // Everything else needs a valid session (y de paso la renueva: deslizante).
   const session = await getSession(request, env, authCtx);
@@ -6410,6 +6414,21 @@ async function handleEntregablesPdf(request, env, session, url, tipo = 'entregab
 }
 // Usuario 'team' de servicio ("Robot PDF") con sesión corta: el navegador sin cabeza entra a la
 // app como equipo, abre Entregables de la marca y toca "PDF del mes"; la app sube el PDF sola.
+async function handleAvisoRobot(request, env, url) {
+  const token = String(url.searchParams.get('token') || '').trim();
+  if (!token || token.length < 16) return json({ error: 'Not authenticated' }, 401);
+  const k = await env.DB.prepare("SELECT token, COALESCE(workspace_id, 'ivae') AS ws FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0").bind(token).first().catch(() => null);
+  if (!k || k.ws !== 'ivae') return json({ error: 'Not authenticated' }, 401);
+  const b = await request.json().catch(() => ({}));
+  const c = await env.DB.prepare('SELECT id, name, workspace_id FROM mkt_clients WHERE id = ?').bind(String(b.client_id || '')).first().catch(() => null);
+  if (!c || (c.workspace_id || 'ivae') !== 'ivae') return json({ error: 'Marca no encontrada' }, 404);
+  const body = String(b.body || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+  if (!body) return json({ error: 'Falta body' }, 400);
+  const link = /^#\//.test(String(b.link || '')) ? String(b.link).slice(0, 300) : `#/bandeja?cliente=${c.id}`;
+  const tipo = ['mensaje', 'pago', 'traspaso', 'correo', 'alerta'].includes(b.tipo) ? b.tipo : 'mensaje';
+  const n = await avisarStaff(env, c, { tipo, body, link });
+  return json({ ok: true, avisados: n });
+}
 async function handleSesionRobotPdf(env, url) {
   const token = String(url.searchParams.get('token') || '').trim();
   if (!token || token.length < 16) return json({ error: 'Not authenticated' }, 401);
