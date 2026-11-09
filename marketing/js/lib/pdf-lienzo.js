@@ -15,7 +15,7 @@
 // cursiva. Probar SIEMPRE en WebKit real (playwright-webkit) antes de subir.
 // ============================================================================
 
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202611070449';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202611091456';
 
 // Espacio de diseño y raster.
 export const W = 1080;
@@ -124,15 +124,20 @@ export function textoRecortado(cx, str, o, maxW) {
 }
 // Word-wrap real. Con `medir: true` NO dibuja: solo cuenta renglones.
 export function parrafo(cx, str, o, maxW, lineH, medir) {
-  const palabras = String(str).split(/\s+/).filter(Boolean);
+  // Vianey 9-nov-2026: "el PDF sale desordenado". Cada renglón del guion
+  // (1., 2., 3. o un párrafo nuevo) empieza en su propia línea; antes todo se
+  // juntaba en un solo bloque porque los saltos de línea se perdían.
   const lineas = [];
-  let linea = '';
-  for (const p of palabras) {
-    const cand = linea ? linea + ' ' + p : p;
-    if (anchoTexto(cx, cand, o) <= maxW || !linea) linea = cand;
-    else { lineas.push(linea); linea = p; }
+  for (const bloque of String(str).split(/\n+/)) {
+    const palabras = bloque.split(/\s+/).filter(Boolean);
+    let linea = '';
+    for (const p of palabras) {
+      const cand = linea ? linea + ' ' + p : p;
+      if (anchoTexto(cx, cand, o) <= maxW || !linea) linea = cand;
+      else { lineas.push(linea); linea = p; }
+    }
+    if (linea) lineas.push(linea);
   }
-  if (linea) lineas.push(linea);
   if (!medir) lineas.forEach((l, i) => texto(cx, l, { ...o, y: o.y + i * lineH }));
   return lineas.length;
 }
