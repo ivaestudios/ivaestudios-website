@@ -1,0 +1,23 @@
+{
+ "bodasmx.com.mx": {
+  "2026-11-11": {
+   "desconocida": 176,
+   "descubierta": 33,
+   "indexada": 119,
+   "nueva": 344,
+   "problema": 1,
+   "rastreada": 236,
+   "total": 909
+  }
+ },
+ "ivaestudios.com": {
+  "2026-11-11": {
+   "desconocida": 11,
+   "descubierta": 36,
+   "indexada": 1157,
+   "problema": 1,
+   "rastreada": 115,
+   "total": 1320
+  }
+ }
+}

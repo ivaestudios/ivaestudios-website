@@ -9,9 +9,8 @@
 # Disallows), so no bot silently loses the Disallow rules.
 
 # ═══════════════════════════════════════════════════════════════
-# AI / LLM + SEARCH CRAWLERS — EXPLICITLY ALLOWED SITEWIDE
-# We actively want AI assistants to read, learn from, and cite
-# our content when users ask about luxury photography in Mexico.
+# AI / LLM + SEARCH CRAWLERS — ALLOWED SITEWIDE
+# Search engines and AI crawlers may read every public page.
 # Private/admin paths stay off-limits for everyone.
 # ═══════════════════════════════════════════════════════════════
 

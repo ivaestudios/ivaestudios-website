@@ -93,10 +93,10 @@ jobs:
 
       - name: Guardar el cursor
         run: |
-          if [ -n "$(git status --porcelain seo/data/bodasmx_index_cursor.json)" ]; then
+          if [ -n "$(git status --porcelain seo/data/bodasmx_index_cursor.json seo/bodasmx-queue.txt)" ]; then
             git config user.name  "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add seo/data/bodasmx_index_cursor.json
+            git add seo/data/bodasmx_index_cursor.json seo/bodasmx-queue.txt
             git commit -m "seo: avance del indexado de bodasmx [skip ci]"
             for i in 1 2 3; do
               git pull --rebase --autostash origin main && git push origin HEAD:main && break

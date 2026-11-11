@@ -46,7 +46,33 @@ def urls_del_sitemap():
     return [x for x in u if "/fotografia/" in x] + [x for x in u if "/fotografia/" not in x]
 
 
+COLA_BMX = "seo/bodasmx-queue.txt"
+
+
+def enviar_cola():
+    """Si el control diario dejo paginas pendientes en la cola, van primero.
+
+    scripts/control_indexacion.py sabe cuales paginas de bodasmx NO estan en
+    Google y las pone en seo/bodasmx-queue.txt. Mandar esas rinde mas que dar
+    otra vuelta ciega con el cursor. Devuelve True si habia cola.
+    """
+    if not os.path.exists(COLA_BMX):
+        return False
+    pend = [x.strip() for x in open(COLA_BMX) if x.strip().startswith("http")]
+    if not pend:
+        return False
+    print(f"cola del control: {len(pend)} pendientes, se envian {min(len(pend), POR_DIA)}")
+    import subprocess
+    env = dict(os.environ, COLA_FILE=COLA_BMX, COLA_MAX=str(POR_DIA))
+    env.pop("URLS_FILE", None)
+    r = subprocess.run([sys.executable, "scripts/index_urls.py"], env=env, capture_output=True, text=True)
+    print(r.stdout.strip() or r.stderr.strip())
+    return True
+
+
 def main():
+    if enviar_cola():
+        return 0
     urls = urls_del_sitemap()
     if not urls:
         print("sitemap vacio o inalcanzable"); return 1

@@ -45,9 +45,12 @@
   X-Robots-Tag: noindex, nofollow
 /PWA_ICONS_TODO.md
   X-Robots-Tag: noindex, nofollow
-/.indexation-audit.json
+# Carpetas y archivos de trabajo que Pages tambien sirve (2026-11-11).
+/.claude/*
   X-Robots-Tag: noindex, nofollow
-/.tldr-batches.json
+/.devcontainer/*
+  X-Robots-Tag: noindex, nofollow
+/.gitignore
   X-Robots-Tag: noindex, nofollow
 # Documentos que se mandan por link a una pareja (listas de precios): se sirven,
 # pero no se indexan ni los recogen los rastreadores de IA. 2026-09-11.
@@ -289,3 +292,14 @@
 
 /marketing/css/*.css
   Cache-Control: public, max-age=0, must-revalidate
+
+# El dominio tecnico de Cloudflare (ivaestudios-website.pages.dev) sirve una
+# copia completa del sitio. El 11-nov-2026 un buscador de IA tenia indexada esa
+# copia en vez de ivaestudios.com, con textos y precios de hace meses. Esta
+# regla le dice a todo buscador que esa copia no se indexa: la real es
+# ivaestudios.com (cada pagina ya lo declara con rel=canonical). Solo aplica al
+# dominio pages.dev; ivaestudios.com no recibe esta cabecera.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

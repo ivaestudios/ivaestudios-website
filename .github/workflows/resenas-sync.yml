@@ -1,0 +1,64 @@
+name: Reseñas — cifra de Google al día
+
+# La ficha de Google gana una o dos reseñas por semana y el sitio se quedaba
+# atras (11-nov-2026: ficha 73, texto 67, contador del celular 63). Este flujo
+# lee la cifra real cada mañana y, si cambio, la escribe en todo el sitio:
+# texto, contadores del celular, comparativa, api/facts.json y llms.txt.
+#
+# Fuente: Places API (New) con la cuenta de servicio del sitio. Mientras esa
+# API no este activada en el proyecto de Google, la corrida diaria no cambia
+# nada y termina en verde; la cifra se puede mandar a mano desde Actions
+# ("Run workflow" y escribir el numero) o con:
+#   gh workflow run resenas-sync.yml -f resenas=75
+on:
+  schedule:
+    - cron: '40 12 * * *'   # 12:40 UTC = 7:40 am en Cancun
+  workflow_dispatch:
+    inputs:
+      resenas:
+        description: "Cifra que marca la ficha de Google (vacio = leerla de Google)"
+        required: false
+        default: ""
+
+concurrency:
+  group: resenas-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Poner la cifra real en todo el sitio
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      - run: pip install -r scripts/requirements.txt
+
+      - name: Leer la ficha y actualizar el sitio
+        env:
+          GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          RESENAS_MANUAL: ${{ github.event.inputs.resenas }}
+        run: python3 scripts/resenas_sync.py
+
+      - name: Publicar si cambio
+        run: |
+          if git diff --quiet; then echo "Sin cambios: la cifra del sitio ya es la de la ficha."; exit 0; fi
+          N=$(python3 -c "import json;print(json.load(open('api/facts.json'))['aggregate_rating']['review_count'])")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git add seo/resenas.json
+          git commit -q -m "Reseñas de Google: $N en todo el sitio (automatico)"
+          for i in 1 2 3; do
+            git pull --rebase -q origin main && git push -q origin HEAD:main && break
+            echo "push rechazado, reintento $i"; sleep 5
+          done
