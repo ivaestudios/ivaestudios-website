@@ -1296,6 +1296,50 @@ async function enviarMetaConVentana(url, token, to, texto) {
   }
 }
 
+// FOTOS Y ARCHIVOS por WhatsApp desde la Bandeja (11-nov-2026: Juan quedó
+// apagado, Israel contesta a mano y necesita mandar fotos). El archivo se sube
+// a Meta (lo guarda 30 días; el proxy de /adjunto lo enseña igual que los que
+// llegan) y sale como mensaje normal, así que solo cabe con la ventana de 24 h
+// abierta. Topes de Meta: foto 5 MB, video 16 MB.
+const ADJ_WA = {
+  'image/jpeg': { tipo: 'image', wa: 'image', max: 5, que: 'una foto' },
+  'image/png': { tipo: 'image', wa: 'image', max: 5, que: 'una foto' },
+  'application/pdf': { tipo: 'file', wa: 'document', max: 20, que: 'un PDF' },
+  'video/mp4': { tipo: 'video', wa: 'video', max: 16, que: 'un video' },
+};
+async function enviarAdjuntoWa(c, conv, archivo, texto) {
+  const mime = String(archivo.type || '').toLowerCase().split(';')[0].trim();
+  const d = ADJ_WA[mime];
+  if (!d) throw errSinCanal('Ese tipo de archivo no se puede mandar por WhatsApp. Sirven fotos JPG o PNG, PDF y video MP4.');
+  if (archivo.size > d.max * 1048576) throw errSinCanal(`El archivo pesa ${(archivo.size / 1048576).toFixed(1)} MB y WhatsApp acepta hasta ${d.max} MB en ${d.que}.`);
+  if (esDemo(c)) return { mid: 'demo:' + randomId(), texto, adjunto: { tipo: d.tipo } };
+  if (!c.wa_phone_id || !c.wa_access_token) throw errSinCanal('Esta marca no tiene WhatsApp conectado.');
+  const nombre = String(archivo.name || 'archivo').replace(/[^\w.\- ()áéíóúñÁÉÍÓÚÑ]/g, '_').slice(0, 120) || 'archivo';
+  const fd = new FormData();
+  fd.append('messaging_product', 'whatsapp');
+  fd.append('type', mime);
+  fd.append('file', archivo, nombre);
+  let res, sub;
+  try {
+    res = await fetch(`${GRAPH_FB}/${c.wa_phone_id}/media`, { method: 'POST', headers: { authorization: `Bearer ${c.wa_access_token}` }, body: fd, signal: AbortSignal.timeout(60000) });
+    sub = await res.json().catch(() => ({}));
+  } catch (e) {
+    throw errSinCanal('Meta no recibió el archivo (se cortó la subida). Intenta de nuevo.');
+  }
+  if (!res.ok || !sub.id) {
+    const e = new Error((sub.error && (sub.error.error_user_msg || sub.error.message)) || `HTTP ${res.status}`);
+    e.code = sub.error && sub.error.code; e.subcode = sub.error && sub.error.error_subcode; e.status = res.status;
+    throw e;
+  }
+  const media = { id: String(sub.id) };
+  if (texto) media.caption = texto;
+  if (d.wa === 'document') media.filename = nombre;
+  const r = await graph(`${GRAPH_FB}/${c.wa_phone_id}/messages`, { method: 'POST', token: c.wa_access_token, body: {
+    messaging_product: 'whatsapp', recipient_type: 'individual', ...destinoWa(conv.contacto_id), type: d.wa, [d.wa]: media,
+  } });
+  return { mid: (r.messages && r.messages[0] && r.messages[0].id) || null, texto: texto || (d.wa === 'document' ? nombre : ''), adjunto: { tipo: d.tipo, id: String(sub.id) } };
+}
+
 // Manda un texto por el canal de la conversación. Devuelve los mids.
 async function enviarTexto(c, conv, texto, env, opts = {}) {
   const lim = LIM_TEXTO[conv.canal] || 1900;
@@ -1966,19 +2010,35 @@ export async function handleBandeja(request, env, session, url, parts) {
     }
 
     if (accion === 'enviar' && method === 'POST') {
-      const b = await leerJson(request);
+      // Con archivo llega como formulario (archivo + texto); sin archivo, JSON como siempre.
+      let b = {};
+      let archivo = null;
+      if (/multipart\/form-data/i.test(request.headers.get('content-type') || '')) {
+        const fd = await request.formData().catch(() => null);
+        archivo = fd ? fd.get('archivo') : null;
+        if (!archivo || typeof archivo === 'string' || !archivo.size) return json({ error: 'No llegó el archivo. Intenta de nuevo.' }, 400);
+        b = { texto: String(fd.get('texto') || '') };
+      } else {
+        b = await leerJson(request);
+      }
       const texto = String(b.texto || '').trim();
-      if (!texto) return json({ error: 'Escribe el mensaje.' }, 400);
+      if (!texto && !archivo) return json({ error: 'Escribe el mensaje.' }, 400);
       if (texto.length > 4000) return json({ error: 'El mensaje es demasiado largo (máximo 4000 caracteres).' }, 400);
+      if (archivo && conv.canal !== 'whatsapp') return json({ error: 'Por ahora las fotos y archivos solo salen por WhatsApp. En este chat mándalo desde la app de la red.' }, 400);
+      if (archivo && texto.length > 1024) return json({ error: 'El texto que acompaña al archivo admite hasta 1024 caracteres. Acórtalo o mándalo en un mensaje aparte.' }, 400);
       const c = await marca(env, conv.client_id);
       // WhatsApp fuera de la ventana de 24 h (o si el agente lo pide): sale
       // dentro de la plantilla abierta. Margen de 6 min contra la carrera con Meta.
       const ventanaWa = conv.canal === 'whatsapp' && horasDesde(conv.ultimo_cliente_en) < 23.9;
       const clave = PLANTILLAS[b.plantilla] ? b.plantilla : null;
-      const conPlantilla = conv.canal === 'whatsapp' && (!ventanaWa || !!clave);
+      if (archivo && !ventanaWa) return json({ error: 'Pasaron más de 24 h desde el último mensaje de la persona y Meta solo deja mandar fotos y archivos con la ventana abierta. Mándale primero un mensaje; cuando conteste ya puedes mandarlo.', ventana: true }, 422);
+      const conPlantilla = !archivo && conv.canal === 'whatsapp' && (!ventanaWa || !!clave);
       let filas;
       try {
-        if (conPlantilla) {
+        if (archivo) {
+          const r = await enviarAdjuntoWa(c, conv, archivo, texto);
+          filas = [{ mid: r.mid, texto: r.texto, via: null, adjunto: r.adjunto }];
+        } else if (conPlantilla) {
           const r = await enviarPlantillaAbierta(c, conv, texto, { clave: clave || 'seguimiento', autorNombre: session.name });
           filas = [{ mid: r.mid, texto: r.texto, via: r.via }];
         } else {
@@ -1987,12 +2047,12 @@ export async function handleBandeja(request, env, session, url, parts) {
         }
       } catch (e) {
         const ex = e.code === 'SIN_CANAL' ? { msg: e.message } : explicarError(e, conv.canal);
-        await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto, autorUserId: yo, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300), via: conPlantilla ? 'plantilla:' + (clave || 'seguimiento') : null });
+        await insertarMensaje(env, { convId: conv.id, direccion: 'out', texto: texto || (archivo ? '📎 ' + String(archivo.name || 'archivo').slice(0, 120) : ''), autorUserId: yo, autorNombre: session.name, estado: 'error', error: ex.msg.slice(0, 300), via: conPlantilla ? 'plantilla:' + (clave || 'seguimiento') : null });
         return json({ error: ex.msg, ventana: !!ex.ventana, permiso: !!ex.permiso }, 422);
       }
       // Un renglón por pieza enviada, con su mid (así el eco de Meta no duplica).
       for (const f of filas) {
-        await insertarMensaje(env, { convId: conv.id, mid: f.mid, direccion: 'out', texto: f.texto, autorUserId: yo, autorNombre: session.name, estado: 'enviado', via: f.via });
+        await insertarMensaje(env, { convId: conv.id, mid: f.mid, direccion: 'out', texto: f.texto, adjunto: f.adjunto || null, autorUserId: yo, autorNombre: session.name, estado: 'enviado', via: f.via });
       }
       await refrescarConv(env, conv.id, 0);
       // Demo: en WhatsApp el mensaje aparece entregado (dos palomitas), como en la vida real.
@@ -2020,7 +2080,8 @@ export async function handleBandeja(request, env, session, url, parts) {
       const pend = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind('juan_bot_cmd:' + conv.contacto_id).first().catch(() => null);
       let pendiente = null; try { pendiente = pend && pend.value ? JSON.parse(pend.value) : null; } catch { pendiente = null; }
       if (method === 'GET') {
-        return json({ aplica: true, bot_activo: actual ? !!actual.bot_activo : true, atencion: !!(actual && actual.atencion), pendiente: pendiente ? !!pendiente.bot_activo : null, estado_en: estado.en || null });
+        // `modo` (11-nov-2026): Juan puede estar apagado para TODOS los clientes; el chip lo dice.
+        return json({ aplica: true, modo: estado.modo || null, bot_activo: actual ? !!actual.bot_activo : true, atencion: !!(actual && actual.atencion), pendiente: pendiente ? !!pendiente.bot_activo : null, estado_en: estado.en || null });
       }
       if (method === 'POST') {
         if (esAgente && conv.asignado_a && conv.asignado_a !== yo) return prohibido();

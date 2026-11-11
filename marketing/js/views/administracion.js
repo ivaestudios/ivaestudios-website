@@ -14,10 +14,10 @@
 // listas desplegables. Cinco pestañas; el mes de arriba manda en todas.
 // Backend: functions/api/marketing/_negocio.js.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202611091456';
-import { icon, iconMarca } from '../shell/icons.js?v=202611091456';
-import { T, isEN } from '../shell/i18n.js?v=202611091456';
-import { toast } from '../shell/toast.js?v=202611091456';
+import { api, el, clear } from '../api.js?v=202611110832';
+import { icon, iconMarca } from '../shell/icons.js?v=202611110832';
+import { T, isEN } from '../shell/i18n.js?v=202611110832';
+import { toast } from '../shell/toast.js?v=202611110832';
 
 const VIEW_ID = 'administracion';
 const IVAE_STUDIOS_ID = '6ae5dd2381faa430d9e6966470b29602';
@@ -1306,7 +1306,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/administracion.css?v=202611091456';
+  link.href = '/marketing/css/administracion.css?v=202611110832';
   document.head.appendChild(link);
 }
 

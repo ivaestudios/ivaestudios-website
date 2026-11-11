@@ -338,6 +338,22 @@ video.bj-adj { max-height: 320px; width: 100%; }
 .bj-enviar:active { transform: scale(.94); }
 .bj-enviar[disabled] { opacity: .55; cursor: not-allowed; }
 .bj-ia { gap: 5px; border-radius: 999px; }
+/* Mandar foto o archivo por WhatsApp: botón a la izquierda y ficha de lo que va a salir. */
+.bj-clip {
+  appearance: none; flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; color: var(--text-dim); background: var(--surface-2);
+  transition: transform var(--t-fast), color var(--t-fast);
+}
+.bj-clip:hover { color: var(--text); }
+.bj-clip:active { transform: scale(.94); }
+.bj-porenviar {
+  display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-sm);
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.bj-porenviar img { flex: none; width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+.bj-porenviar__ico { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 8px; background: var(--surface); color: var(--text-dim); }
+.bj-porenviar__txt { flex: 1; min-width: 0; display: grid; font-size: var(--fs-1); line-height: 1.35; color: var(--text-dim); }
+.bj-porenviar__txt strong { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bj-composer .bj-ia { min-height: 44px; padding: 0 14px; }
 .bj-aviso {
   margin: 0; font-size: var(--fs-1); line-height: 1.4; padding: 6px 10px; border-radius: var(--r-sm);

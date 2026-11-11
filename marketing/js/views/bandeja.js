@@ -22,12 +22,12 @@
 // pasadas 24 h el texto del agente sale dentro de la PLANTILLA ABIERTA (saludo
 // y cierre fijos, el medio libre) y cada mensaje muestra si llegó o no.
 // ============================================================================
-import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611091456';
-import { toast } from '../shell/toast.js?v=202611091456';
-import { icon, iconMarca } from '../shell/icons.js?v=202611091456';
-import { T, isEN } from '../shell/i18n.js?v=202611091456';
-import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611091456';
-import { conectarPagos, botonCobrar, fichaCobro, reiniciarPagos } from './bandeja-pagos.js?v=202611091456';
+import { api, el, clear, timeAgo, initials, copyText } from '../api.js?v=202611110832';
+import { toast } from '../shell/toast.js?v=202611110832';
+import { icon, iconMarca } from '../shell/icons.js?v=202611110832';
+import { T, isEN } from '../shell/i18n.js?v=202611110832';
+import { conectarCRM, panelEmbudo, repintarCRM, cargarCRM, abrirOportunidad, reiniciarCRM, textoEvento, iconoEvento, cambiarEtapaCRM } from './bandeja-crm.js?v=202611110832';
+import { conectarPagos, botonCobrar, fichaCobro, reiniciarPagos } from './bandeja-pagos.js?v=202611110832';
 
 const VIEW_ID = 'bandeja';
 const REFRESCO_MS = 25000;
@@ -64,6 +64,11 @@ let opPedida = null;           // deep-link ?op= (oportunidad, desde un aviso de
 let cargandoLista = false;
 let enviando = false;
 const borradores = new Map();  // convId -> texto del composer
+const adjuntos = new Map();    // convId -> { archivo, nombre, vista } listo para salir (solo WhatsApp)
+// WhatsApp con el número oculto: el contacto es un identificador de Meta
+// (p. ej. CA.2596095714224789), no un teléfono. No se enseña ni se marca.
+const esOculto = (id) => /^[A-Za-z]{2}\./.test(String(id || ''));
+const telWa = (id) => (esOculto(id) ? T('Número oculto', 'Hidden number') : '+' + id);
 
 // ── Etiquetas ────────────────────────────────────────────────────────────────
 const ETAPAS = ['nuevo', 'platica', 'cotizado', 'cita', 'cliente', 'perdido'];
@@ -143,7 +148,7 @@ function chipCanal(c) {
   ]);
 }
 function nombreDe(v) {
-  return v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : (v.canal === 'correo' ? v.contacto_id : T('Sin nombre', 'No name'))));
+  return v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? telWa(v.contacto_id) : (v.canal === 'correo' ? v.contacto_id : T('Sin nombre', 'No name'))));
 }
 function origenDe(v) {
   try { return v && v.origen ? (typeof v.origen === 'string' ? JSON.parse(v.origen) : v.origen) : null; } catch { return null; }
@@ -797,12 +802,29 @@ function chat() {
   const sinApi = !esWa && v.canal !== 'correo' && horas > 24 * 7;
   const ta = el('textarea', { class: 'textarea bj-ta', rows: 1, disabled: sinApi, placeholder: sinApi
     ? (v.canal === 'instagram' ? T('Escríbele desde Instagram con el botón de arriba', 'Write from Instagram using the button above') : T('Escríbele desde Business Suite con el botón de arriba', 'Write from Business Suite using the button above'))
-    : usaPlantilla ? T('Escribe tu mensaje…', 'Write your message…') : T('Escribe tu respuesta…', 'Write your reply…'),
+    : usaPlantilla ? T('Escribe tu mensaje…', 'Write your message…')
+      : (esWa && adjuntos.has(v.id)) ? T('Texto que acompaña al archivo (opcional)…', 'Caption for the file (optional)…') : T('Escribe tu respuesta…', 'Write your reply…'),
     oninput: (e) => { borradores.set(v.id, e.target.value); autoAlto(e.target); if (usaPlantilla) pintarVistaPrevia(v, e.target.value); },
     onkeydown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); enviar(v, ta); } } }, [draft]);
   requestAnimationFrame(() => autoAlto(ta));
   const btnIA = el('button', { type: 'button', class: 'btn btn-sm bj-ia', disabled: sinApi, onclick: () => sugerirConv(v, ta, btnIA) }, [icon('sparkles', 14), ' ' + T('Sugerir', 'Suggest')]);
   const btnEnviar = el('button', { type: 'button', class: 'bj-enviar', disabled: sinApi, 'aria-label': T('Enviar', 'Send'), title: T('Enviar', 'Send'), onclick: () => enviar(v, ta) }, [icon('send', 19)]);
+  // FOTOS Y ARCHIVOS por WhatsApp (11-nov-2026: Juan quedó apagado y el equipo
+  // contesta desde aquí). Solo con la ventana de 24 h abierta: fuera de ella
+  // Meta no deja mandar archivos sueltos, solo la plantilla.
+  const puedeAdjuntar = esWa && !usaPlantilla;
+  if (!puedeAdjuntar) soltarAdjunto(v.id);
+  const adj = puedeAdjuntar ? adjuntos.get(v.id) : null;
+  const inpArchivo = puedeAdjuntar ? el('input', { type: 'file', accept: 'image/*,application/pdf,video/mp4', hidden: true, onchange: (e) => elegirAdjunto(v, e.target) }) : null;
+  const btnAdj = puedeAdjuntar ? el('button', { type: 'button', class: 'bj-clip', 'aria-label': T('Mandar foto o archivo', 'Send a photo or file'), title: T('Mandar foto, PDF o video', 'Send a photo, PDF or video'), onclick: () => inpArchivo.click() }, [icon('camera', 19)]) : null;
+  const fichaAdj = adj ? el('div', { class: 'bj-porenviar' }, [
+    adj.vista ? el('img', { src: adj.vista, alt: '' }) : el('span', { class: 'bj-porenviar__ico' }, [icon('link', 18)]),
+    el('span', { class: 'bj-porenviar__txt' }, [
+      el('strong', { text: adj.nombre }),
+      el('span', { text: pesoTxt(adj.archivo.size) + ' · ' + T('sale cuando toques enviar', 'goes out when you tap send') }),
+    ]),
+    el('button', { type: 'button', class: 'btn btn-ghost btn-sm', 'aria-label': T('Quitar el archivo', 'Remove the file'), title: T('Quitar', 'Remove'), onclick: () => { soltarAdjunto(v.id); pintarCuerpo(); } }, ['✕']),
+  ]) : null;
 
   const avisos = [];
   if (esWa) {
@@ -852,7 +874,9 @@ function chat() {
   }
   composerEl = el('div', { class: 'bj-composer' + (usaPlantilla ? ' is-plantilla' : '') }, [
     ...avisos,
-    el('div', { class: 'bj-composer__fila' }, [ta, el('div', { class: 'bj-composer__btns' }, [btnIA, btnEnviar])]),
+    fichaAdj,
+    el('div', { class: 'bj-composer__fila' }, [btnAdj, ta, el('div', { class: 'bj-composer__btns' }, [btnIA, btnEnviar])]),
+    inpArchivo,
   ]);
   if (usaPlantilla) requestAnimationFrame(() => pintarVistaPrevia(v, ta.value));
 
@@ -868,8 +892,18 @@ function botonJuan(v) {
   const b = el('button', { type: 'button', class: 'bj-asignado is-libre', style: { display: 'none' }, 'aria-label': T('Juan, el bot de WhatsApp', 'Juan, the WhatsApp bot') });
   let estado = null;
   const activoAhora = () => (estado.pendiente != null ? estado.pendiente : estado.bot_activo);
+  // Juan apagado para TODOS (11-nov-2026): los mensajes llegan aquí y contesta el
+  // equipo. El chip lo dice y no ofrece pausar chat por chat, que ya no aplica.
+  const apagado = () => estado.modo === 'apagado';
   const pintar = () => {
     clear(b);
+    if (apagado()) {
+      b.className = 'bj-asignado';
+      b.appendChild(el('span', { text: '⏸ ' + T('Juan apagado', 'Juan is off') }));
+      b.title = T('Juan no le contesta a nadie: los mensajes llegan aquí y contestas tú. Para encenderlo de nuevo, pídeselo a Viernes.', 'Juan replies to no one: messages arrive here and you reply. To turn it back on, ask Viernes.');
+      b.style.display = '';
+      return;
+    }
     const activo = activoAhora();
     b.className = 'bj-asignado' + (activo ? ' is-libre' : '');
     b.appendChild(el('span', { text: (activo ? '🤖 ' + T('Juan contesta', 'Juan replies') : '✋ ' + T('Juan en pausa', 'Juan paused')) + (estado.pendiente != null ? ' …' : '') }));
@@ -879,6 +913,7 @@ function botonJuan(v) {
   api.get(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/juan`).then((r) => { if (r && r.aplica) { estado = r; pintar(); } }).catch(() => {});
   b.onclick = async () => {
     if (!estado) return;
+    if (apagado()) { toast(T('Juan está apagado para todos los chats: aquí contestas tú. Para encenderlo de nuevo, pídeselo a Viernes por WhatsApp.', 'Juan is off for every chat: you reply here. To turn it back on, ask Viernes on WhatsApp.'), { ms: 7000 }); return; }
     const activo = activoAhora();
     try {
       await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/juan`, { activo: !activo });
@@ -1029,7 +1064,7 @@ function fmtTelUI(t) {
 }
 function telDeConv(v) {
   if (v.telefono) return v.telefono;
-  if (v.canal === 'whatsapp' && v.contacto_id) return '+' + v.contacto_id;
+  if (v.canal === 'whatsapp' && v.contacto_id && !esOculto(v.contacto_id)) return '+' + v.contacto_id;
   return '';
 }
 const lineaMarca = () => { const r = resumen && !resumen.error ? resumen : null; return r && r.llamadas && r.llamadas.conectada ? r.llamadas : null; };
@@ -1196,7 +1231,7 @@ function seccionLlamarConLinea(body, v, linea, close) {
 
 // Registro a mano: la llamada que se hizo por fuera de la línea.
 function seccionRegistroManual(body, v, close, { plegado = false } = {}) {
-  const tel = v.canal === 'whatsapp' ? fmtTelUI('+' + v.contacto_id) : (v.telefono ? fmtTelUI(v.telefono) : '');
+  const tel = v.canal === 'whatsapp' && !esOculto(v.contacto_id) ? fmtTelUI('+' + v.contacto_id) : (v.telefono ? fmtTelUI(v.telefono) : '');
   let resultado = '';
   const chips = el('div', { class: 'bj-res' });
   const pintarChips = () => {
@@ -1475,19 +1510,109 @@ function autoAlto(ta) {
   ta.style.height = Math.min(window.innerWidth < 600 ? 120 : 160, Math.max(44, ta.scrollHeight)) + 'px';
 }
 
+// ── Fotos y archivos por WhatsApp ───────────────────────────────────────────
+// Topes de Meta: foto JPG o PNG de 5 MB, video MP4 de 16 MB. PDF: 20 MB aquí.
+const TOPE_FOTO = 4.8 * 1048576;
+function pesoTxt(n) { return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+function soltarAdjunto(convId) {
+  const a = adjuntos.get(convId);
+  if (!a) return;
+  if (a.vista) URL.revokeObjectURL(a.vista);
+  adjuntos.delete(convId);
+}
+// Cualquier foto (HEIC del iPhone, WebP, PNG pesado, JPG de cámara) sale como
+// JPG de 2560 px de lado mayor: es lo que WhatsApp acepta y se ve nítido.
+async function fotoParaWa(file) {
+  if ((file.type === 'image/jpeg' || file.type === 'image/png') && file.size <= TOPE_FOTO) return file;
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    try { await img.decode(); } catch {
+      throw new Error(T('Este navegador no pudo abrir esa foto. Guárdala como JPG y vuelve a intentarlo.', 'This browser could not open that photo. Save it as JPG and try again.'));
+    }
+    const esc = Math.min(1, 2560 / Math.max(img.naturalWidth, img.naturalHeight, 1));
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(img.naturalWidth * esc));
+    cv.height = Math.max(1, Math.round(img.naturalHeight * esc));
+    const g = cv.getContext('2d');
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, cv.width, cv.height);
+    g.drawImage(img, 0, 0, cv.width, cv.height);
+    const nombre = String(file.name || 'foto').replace(/\.[^.]+$/, '') + '.jpg';
+    for (const q of [0.9, 0.82, 0.72, 0.6]) {
+      const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', q));
+      if (blob && blob.size <= TOPE_FOTO) return new File([blob], nombre, { type: 'image/jpeg' });
+    }
+    throw new Error(T('La foto pesa demasiado para WhatsApp.', 'The photo is too heavy for WhatsApp.'));
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+async function elegirAdjunto(v, input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  try {
+    const tipo = String(file.type || '').toLowerCase();
+    const esFoto = tipo.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp)$/i.test(file.name || '');
+    let archivo = file;
+    if (esFoto) archivo = await fotoParaWa(file);
+    else if (tipo === 'video/mp4') {
+      if (file.size > 16 * 1048576) throw new Error(T(`El video pesa ${pesoTxt(file.size)} y WhatsApp acepta hasta 16 MB. Recórtalo o mándalo con un enlace.`, `The video is ${pesoTxt(file.size)} and WhatsApp takes up to 16 MB. Trim it or send a link.`));
+    } else if (tipo === 'application/pdf') {
+      if (file.size > 20 * 1048576) throw new Error(T(`El PDF pesa ${pesoTxt(file.size)} y aquí caben hasta 20 MB.`, `The PDF is ${pesoTxt(file.size)} and the limit here is 20 MB.`));
+    } else {
+      throw new Error(T('Ese tipo de archivo no sale por WhatsApp desde aquí. Sirven fotos, PDF y video MP4.', 'That file type cannot be sent on WhatsApp from here. Photos, PDF and MP4 video work.'));
+    }
+    soltarAdjunto(v.id);
+    adjuntos.set(v.id, { archivo, nombre: archivo.name || T('archivo', 'file'), vista: archivo.type.startsWith('image/') ? URL.createObjectURL(archivo) : null });
+    if (convAbierta && convAbierta.conversacion.id === v.id) pintarCuerpo();
+  } catch (e) {
+    toast(e.message, { type: 'error', ms: 8000 });
+  }
+}
+// El archivo va como formulario: `api` solo habla JSON.
+async function mandarAdjunto(v, archivo, texto) {
+  const fd = new FormData();
+  fd.append('archivo', archivo, archivo.name || 'archivo');
+  fd.append('texto', texto || '');
+  let res;
+  try {
+    res = await fetch(`/api/marketing/bandeja/conversaciones/${encodeURIComponent(v.id)}/enviar`, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' }, body: fd });
+  } catch {
+    throw new Error(T('Se cortó la conexión y el archivo no salió. Inténtalo de nuevo.', 'The connection dropped and the file was not sent. Try again.'));
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error((data && data.error) || (res.status === 401
+      ? T('Tu sesión expiró. Vuelve a iniciar sesión.', 'Your session expired. Please sign in again.')
+      : T('No se pudo mandar el archivo. Inténtalo de nuevo.', 'The file could not be sent. Try again.')));
+  }
+  return data;
+}
+
 async function enviar(v, ta) {
   const texto = (ta.value || '').trim();
-  if (!texto || enviando) return;
+  const adj = v.canal === 'whatsapp' ? (adjuntos.get(v.id) || null) : null;
+  if ((!texto && !adj) || enviando) return;
   enviando = true;
   ta.disabled = true;
   try {
-    const cuerpo = { texto };
-    // "Con botones" (confirmación) se pide explícito; el seguimiento lo decide el servidor por la ventana.
-    if (v.canal === 'whatsapp' && plantillaClave === 'confirmacion') cuerpo.plantilla = 'confirmacion';
-    const x = await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/enviar`, cuerpo);
+    let x;
+    if (adj) {
+      toast(T('Mandando el archivo…', 'Sending the file…'), { ms: 2500 });
+      x = await mandarAdjunto(v, adj.archivo, texto);
+    } else {
+      const cuerpo = { texto };
+      // "Con botones" (confirmación) se pide explícito; el seguimiento lo decide el servidor por la ventana.
+      if (v.canal === 'whatsapp' && plantillaClave === 'confirmacion') cuerpo.plantilla = 'confirmacion';
+      x = await api.post(`/bandeja/conversaciones/${encodeURIComponent(v.id)}/enviar`, cuerpo);
+    }
     if (x && x.plantilla) toast(T('Enviado dentro de la plantilla. Abajo verás si llegó.', 'Sent inside the template. You will see below if it was delivered.'), { type: 'success' });
     plantillaClave = 'seguimiento';
     borradores.delete(v.id);
+    soltarAdjunto(v.id);
     ta.value = '';
     await abrirConv(v.id, { silencioso: true });
     bajarChat(false);
@@ -2283,7 +2408,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/bandeja.css?v=202611091456';
+  link.href = '/marketing/css/bandeja.css?v=202611110832';
   document.head.appendChild(link);
 }
 
