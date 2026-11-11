@@ -458,6 +458,27 @@ async function guardarOrigen(env, convId, origen) {
   try { await env.DB.prepare('UPDATE mkt_conversaciones SET origen = COALESCE(origen, ?) WHERE id = ?').bind(JSON.stringify(origen), convId).run(); }
   catch { /* el origen es un extra */ }
 }
+// Respaldo cuando Meta no manda `referral` (pasa, por ejemplo, con anuncios vistos
+// en Estados de WhatsApp: el 10-nov-2026 llegó un chat de anuncio sin etiqueta).
+// Cada anuncio deja escrito un mensaje precargado; si el PRIMER mensaje de la
+// persona es uno de esos, el chat viene de un anuncio.
+// mkt_kv.ads_mensajes = { "mensaje normalizado": "id del anuncio" | null }
+function normalizarMensajeAnuncio(t) {
+  return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+}
+async function origenPorMensaje(env, convId, texto) {
+  const n = normalizarMensajeAnuncio(texto);
+  if (!n || n.length > 160) return;
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'ads_mensajes'").first();
+    if (!r || !r.value) return;
+    const mapa = JSON.parse(r.value) || {};
+    if (!Object.prototype.hasOwnProperty.call(mapa, n)) return;
+    const cuantos = await env.DB.prepare("SELECT COUNT(*) AS n FROM mkt_mensajes WHERE conv_id = ? AND direccion = 'in'").bind(convId).first();
+    if (!cuantos || Number(cuantos.n) !== 1) return; // solo si es lo primero que escribe
+    await guardarOrigen(env, convId, { tipo: 'anuncio', ad_id: mapa[n] ? String(mapa[n]) : null, titulo: 'Anuncio (reconocido por el mensaje)', url: null, ctwa_clid: null });
+  } catch { /* el origen es un extra */ }
+}
 function horasDesde(s) {
   if (!s) return Infinity;
   const t = Date.parse(String(s).replace(' ', 'T') + (String(s).includes('Z') ? '' : 'Z'));
@@ -639,6 +660,7 @@ async function ingerirMensajeWa(env, c, m, nombre) {
   if (!ok) return 0;
   await refrescarConv(env, conv.id, 1);
   await guardarOrigen(env, conv.id, origenDe(m.referral));
+  if (!m.referral && m.type === 'text') await origenPorMensaje(env, conv.id, texto);
   const asignacion = await asignarSiToca(env, c, conv.id);
   if (!conv.noLeidosAntes || asignacion.nuevo) {
     await avisarEntrada(env, c, conv.id, {

@@ -16,6 +16,21 @@
 // la sincronización del Embudo (al abrirlo y cada 15 min desde el cron).
 // Token: META_CAPI_TOKEN de Cloudflare si existe; si no, el token de la cuenta
 // de anuncios que la app ya tiene (mkt_kv.ads_token, permiso ads_management).
+//
+// CHATS DE WHATSAPP QUE LLEGARON DE UN ANUNCIO (11-nov-2026). Israel: "Meta
+// puede decir 3 conversaciones pero solo escribieron 2 y no se cerraron".
+// Meta cuenta el primer mensaje y no sabe qué pasó después. Esos chats traen
+// el clic de Meta (ctwa_clid) y se avisan por OTRO camino, el único que Meta
+// amarra al anuncio: el conjunto de datos de la cuenta de WhatsApp, con el
+// acceso de WhatsApp de la marca (usuario del sistema, no caduca).
+//   · LeadSubmitted → lead real: la persona siguió escribiendo después del
+//                     mensaje precargado (2 o más mensajes suyos).
+//   · Purchase      → reservó (etapa cita o cliente). En mensajería Meta NO
+//                     acepta "Schedule" (error 2804066, probado). La reserva es
+//                     la venta: se paga el día de la sesión, casi siempre fuera
+//                     de la ventana de 7 días del anuncio. Valor = lo pagado
+//                     (MXN) o lo cotizado. En mkt_meta_eventos queda como
+//                     'Schedule' para que la tarjeta diga "reservó".
 // ============================================================================
 
 const DATASET_FIJO = '1830358918394577';
@@ -38,6 +53,29 @@ function origenDeConv(v) {
   try { return v.origen ? JSON.parse(v.origen) : null; } catch { return null; }
 }
 
+// El conjunto de datos de la cuenta de WhatsApp. Se anota en mkt_kv.meta_dataset_wa
+// ({ waba: dataset }); si falta, se le pregunta a Meta. Aquí no se crea: crearlo
+// es una decisión, no un efecto de barrer.
+async function datasetWa(env, c) {
+  const waba = String(c.wa_waba_id || '');
+  if (!waba || !c.wa_access_token) return null;
+  let mapa = {};
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'meta_dataset_wa'").first();
+    if (r && r.value) mapa = JSON.parse(r.value) || {};
+  } catch { /* se pregunta a Meta */ }
+  if (mapa[waba]) return String(mapa[waba]);
+  try {
+    const r = await fetch(`${GRAPH}/${waba}/dataset?access_token=${encodeURIComponent(c.wa_access_token)}`);
+    const j = await r.json().catch(() => ({}));
+    const id = (j && j.data && j.data[0] && j.data[0].id) || (j && j.id) || null;
+    if (!id) return null;
+    mapa[waba] = String(id);
+    await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind('meta_dataset_wa', JSON.stringify(mapa)).run().catch(() => {});
+    return String(id);
+  } catch { return null; }
+}
+
 async function tokenMeta(env) {
   if (env.META_CAPI_TOKEN) return env.META_CAPI_TOKEN;
   const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'ads_token'").first().catch(() => null);
@@ -45,8 +83,8 @@ async function tokenMeta(env) {
   try { const j = JSON.parse(r.value); return j.t || null; } catch { return r.value; }
 }
 
-// Los datos de la persona, como los pide Meta.
-async function userData(v, c) {
+// Los datos de la persona, como los pide Meta (teléfono, correo y nombre en SHA-256).
+async function userData(v) {
   const u = {};
   const tel = soloDigitos(v.telefono) || (v.canal === 'whatsapp' ? soloDigitos(v.contacto_id) : null);
   if (tel) u.ph = [await sha256(tel)];
@@ -54,26 +92,23 @@ async function userData(v, c) {
   if (correo.includes('@')) u.em = [await sha256(correo)];
   const partes = String(v.nombre || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/\s+/).filter((p) => p && !p.includes('@'));
   if (partes.length >= 2) { u.fn = [await sha256(partes[0])]; u.ln = [await sha256(partes[partes.length - 1])]; }
-  const o = origenDeConv(v);
-  if (o && o.ctwa_clid) u.ctwa_clid = o.ctwa_clid;
-  if (v.canal === 'instagram' && c.ig_igsid && v.contacto_id) { u.ig_account_id = String(c.ig_igsid); u.ig_sid = String(v.contacto_id); }
-  if (v.canal === 'messenger' && c.fb_page_id && v.contacto_id) { u.page_id = String(c.fb_page_id); u.page_scoped_user_id = String(v.contacto_id); }
   u.external_id = [await sha256(v.id)];
   return u;
 }
 
+// 'business_messaging' solo vale con el conjunto de datos del canal y su clic de
+// anuncio (eso va por eventosWhatsAppDeAnuncio) y no acepta 'Schedule'. Lo demás
+// se manda como conversación o correo, amarrado por teléfono y correo.
 function fuenteDe(v) {
-  if (v.canal === 'whatsapp') return { action_source: 'business_messaging', messaging_channel: 'whatsapp' };
-  if (v.canal === 'instagram') return { action_source: 'business_messaging', messaging_channel: 'instagram' };
-  if (v.canal === 'messenger') return { action_source: 'business_messaging', messaging_channel: 'messenger' };
   if (v.canal === 'correo') return { action_source: 'email' };
+  if (v.canal === 'whatsapp' || v.canal === 'instagram' || v.canal === 'messenger') return { action_source: 'chat' };
   return { action_source: 'other' };
 }
 
-export async function enviarEventosMeta(env, eventos, { test } = {}) {
-  const tok = await tokenMeta(env);
+export async function enviarEventosMeta(env, eventos, { test, dataset: ds, token } = {}) {
+  const tok = token || await tokenMeta(env);
   if (!tok) return { ok: false, error: 'sin token' };
-  const dataset = env.META_DATASET_ID || DATASET_FIJO;
+  const dataset = ds || env.META_DATASET_ID || DATASET_FIJO;
   const body = { data: eventos };
   if (test) body.test_event_code = test;
   const r = await fetch(`${GRAPH}/${dataset}/events?access_token=${encodeURIComponent(tok)}`, {
@@ -84,7 +119,50 @@ export async function enviarEventosMeta(env, eventos, { test } = {}) {
   return { ok: true, recibidos: j.events_received };
 }
 
-// El barrido: reservas y pagos recientes que Meta todavía no conoce.
+// Chats de WhatsApp que llegaron de un anuncio: lead real y reserva.
+async function eventosWhatsAppDeAnuncio(env, c, desde, ahora, hechos, pagos) {
+  const r = await env.DB.prepare(
+    `SELECT v.id, v.etapa, v.etapa_en, v.origen, v.valor_estimado, v.moneda, v.ultimo_cliente_en, v.created_at,
+            (SELECT COUNT(*) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS entrantes
+       FROM mkt_conversaciones v
+      WHERE v.client_id = ? AND v.archivado = 0 AND v.canal = 'whatsapp' AND v.origen LIKE '%ctwa_clid%'
+        AND COALESCE(v.ultimo_cliente_en, v.created_at) >= ?`
+  ).bind(c.id, desde).all().catch(() => ({ results: [] }));
+  const out = [];
+  for (const v of r.results || []) {
+    const o = origenDeConv(v);
+    if (!o || !o.ctwa_clid) continue;
+    const base = {
+      action_source: 'business_messaging', messaging_channel: 'whatsapp',
+      user_data: { whatsapp_business_account_id: String(c.wa_waba_id), ctwa_clid: String(o.ctwa_clid) },
+    };
+    if (Number(v.entrantes) >= 2 && !hechos.has(v.id + ':LeadSubmitted')) {
+      out.push({ conv: v, evento: 'LeadSubmitted', valor: null,
+        ev: { ...base, event_name: 'LeadSubmitted', event_time: segundos(v.ultimo_cliente_en || v.created_at, ahora), event_id: `LeadSubmitted:${v.id}` } });
+    }
+    if ((v.etapa === 'cita' || v.etapa === 'cliente') && !hechos.has(v.id + ':Schedule')) {
+      const p = pagos.get(v.id);
+      const valor = p && p.mxn > 0
+        ? { currency: 'MXN', value: Math.round(p.mxn * 100) / 100 }
+        : (Number(v.valor_estimado) > 0 ? { currency: String(v.moneda || 'USD').toUpperCase(), value: Number(v.valor_estimado) } : null);
+      if (!valor) continue; // sin monto no es una venta que Meta pueda aprender; se manda cuando la oportunidad tenga valor
+      out.push({ conv: v, evento: 'Schedule', valor: valor.currency === 'MXN' ? valor.value : null,
+        ev: { ...base, event_name: 'Purchase', event_time: segundos(v.etapa_en, ahora), event_id: `Reserva:${v.id}`, custom_data: { ...valor, content_name: 'Sesión de fotos' } } });
+    }
+  }
+  return out;
+}
+
+async function anotarEnvio(env, c, convId, evento, eventId, valor, resultado) {
+  await env.DB.prepare(
+    `INSERT INTO mkt_meta_eventos (id, client_id, conv_id, evento, event_id, valor_mxn, enviado_en, ok, respuesta)
+     VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)
+     ON CONFLICT(conv_id, evento) DO UPDATE SET enviado_en = datetime('now'), ok = excluded.ok, respuesta = excluded.respuesta, valor_mxn = excluded.valor_mxn`
+  ).bind('me' + crypto.randomUUID().replace(/-/g, '').slice(0, 20), c.id, convId, evento, eventId, valor, resultado.ok ? 1 : 0,
+    resultado.ok ? `recibidos ${resultado.recibidos}` : String(resultado.error || '').slice(0, 300)).run().catch(() => {});
+}
+
+// El barrido: leads reales, reservas y pagos recientes que Meta todavía no conoce.
 export async function avisarMetaReservas(env, c) {
   const ahora = Date.now();
   const desde = new Date(ahora - DIAS_ATRAS * 864e5).toISOString().slice(0, 19).replace('T', ' ');
@@ -115,18 +193,37 @@ export async function avisarMetaReservas(env, c) {
     const p = pagos.get(f.conv_id) || { mxn: 0, cuando: f.fecha };
     p.mxn += Number(f.monto_mxn) || 0; if (String(f.fecha) > String(p.cuando)) p.cuando = f.fecha; pagos.set(f.conv_id, p);
   }
+
+  // a) WhatsApp que llegó de un anuncio → conjunto de datos de la cuenta de WhatsApp.
+  const whatsapp = { enviados: 0, error: null };
+  if (c.wa_waba_id && c.wa_access_token) {
+    const wa = await eventosWhatsAppDeAnuncio(env, c, desde, ahora, hechos, pagos).catch(() => []);
+    if (wa.length) {
+      const dataset = await datasetWa(env, c);
+      let res;
+      if (!dataset) res = { ok: false, error: 'la cuenta de WhatsApp no tiene conjunto de datos en Meta' };
+      else {
+        try { res = await enviarEventosMeta(env, wa.map((e) => e.ev), { dataset, token: c.wa_access_token }); }
+        catch (err) { res = { ok: false, error: (err && err.message) || 'fallo' }; }
+      }
+      for (const e of wa) await anotarEnvio(env, c, e.conv.id, e.evento, e.ev.event_id, e.valor, res);
+      whatsapp.enviados = res.ok ? wa.length : 0; whatsapp.error = res.ok ? null : (res.error || 'fallo');
+    }
+  }
+
+  // b) Lo demás (correo, WhatsApp e Instagram sin clic de anuncio) → conjunto de datos de la cuenta de anuncios.
   const porEnviar = []; // { conv, evento, valor, cuando }
   for (const v of convsR.results || []) {
+    const o = origenDeConv(v);
+    if (v.canal === 'whatsapp' && o && o.ctwa_clid) continue; // ya salió por (a)
     if (!hechos.has(v.id + ':Schedule')) porEnviar.push({ conv: v, evento: 'Schedule', valor: null, cuando: v.etapa_en });
     const p = pagos.get(v.id);
     if (p && p.mxn > 0 && !hechos.has(v.id + ':Purchase')) porEnviar.push({ conv: v, evento: 'Purchase', valor: Math.round(p.mxn * 100) / 100, cuando: p.cuando });
   }
-  if (!porEnviar.length) return { ok: true, enviados: 0 };
-
   const eventos = [];
   for (const e of porEnviar) {
-    const u = await userData(e.conv, c);
-    if (!u.ph && !u.em && !u.ctwa_clid && !u.ig_sid && !u.page_scoped_user_id) continue; // sin con qué amarrar, no sirve
+    const u = await userData(e.conv);
+    if (!u.ph && !u.em) continue; // sin con qué amarrar, no sirve
     const ev = {
       event_name: e.evento, event_time: segundos(e.cuando, ahora), event_id: `${e.evento}:${e.conv.id}`,
       ...fuenteDe(e.conv), user_data: u,
@@ -134,20 +231,15 @@ export async function avisarMetaReservas(env, c) {
     if (e.evento === 'Purchase') ev.custom_data = { currency: 'MXN', value: e.valor, content_name: 'Sesión de fotos' };
     eventos.push(ev); e.event_id = ev.event_id;
   }
-  if (!eventos.length) return { ok: true, enviados: 0 };
+  if (!eventos.length) return { ok: !whatsapp.error, enviados: whatsapp.enviados, whatsapp, error: whatsapp.error };
   let resultado;
   try { resultado = await enviarEventosMeta(env, eventos); }
   catch (err) { resultado = { ok: false, error: (err && err.message) || 'fallo' }; }
   for (const e of porEnviar) {
     if (!e.event_id) continue;
-    await env.DB.prepare(
-      `INSERT INTO mkt_meta_eventos (id, client_id, conv_id, evento, event_id, valor_mxn, enviado_en, ok, respuesta)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)
-       ON CONFLICT(conv_id, evento) DO UPDATE SET enviado_en = datetime('now'), ok = excluded.ok, respuesta = excluded.respuesta, valor_mxn = excluded.valor_mxn`
-    ).bind('me' + crypto.randomUUID().replace(/-/g, '').slice(0, 20), c.id, e.conv.id, e.evento, e.event_id, e.valor, resultado.ok ? 1 : 0,
-      resultado.ok ? `recibidos ${resultado.recibidos}` : String(resultado.error || '').slice(0, 300)).run().catch(() => {});
+    await anotarEnvio(env, c, e.conv.id, e.evento, e.event_id, e.valor, resultado);
   }
-  return { ok: resultado.ok, enviados: resultado.ok ? eventos.length : 0, error: resultado.error || null };
+  return { ok: resultado.ok && !whatsapp.error, enviados: (resultado.ok ? eventos.length : 0) + whatsapp.enviados, whatsapp, error: resultado.error || whatsapp.error || null };
 }
 
 // Para la tarjeta de la oportunidad: qué le avisamos a Meta de esta persona.
@@ -158,7 +250,8 @@ export async function avisosMetaDe(env, convIds) {
   const r = await env.DB.prepare(`SELECT conv_id, evento, enviado_en, ok FROM mkt_meta_eventos WHERE conv_id IN (${qs})`).bind(...convIds).all().catch(() => ({ results: [] }));
   for (const f of r.results || []) {
     if (!out.has(f.conv_id)) out.set(f.conv_id, {});
-    out.get(f.conv_id)[f.evento === 'Schedule' ? 'reserva' : 'pago'] = { en: f.enviado_en, ok: !!f.ok };
+    const que = f.evento === 'Schedule' ? 'reserva' : (f.evento === 'LeadSubmitted' ? 'lead' : 'pago');
+    out.get(f.conv_id)[que] = { en: f.enviado_en, ok: !!f.ok };
   }
   return out;
 }
