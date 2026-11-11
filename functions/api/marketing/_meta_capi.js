@@ -86,7 +86,9 @@ async function tokenMeta(env) {
 // Los datos de la persona, como los pide Meta (teléfono, correo y nombre en SHA-256).
 async function userData(v) {
   const u = {};
-  const tel = soloDigitos(v.telefono) || (v.canal === 'whatsapp' ? soloDigitos(v.contacto_id) : null);
+  // Un contacto de WhatsApp con el número oculto trae un identificador (CA.123…), no un teléfono.
+  const esTelWa = v.canal === 'whatsapp' && !/^[A-Za-z]{2}\./.test(String(v.contacto_id || ''));
+  const tel = soloDigitos(v.telefono) || (esTelWa ? soloDigitos(v.contacto_id) : null);
   if (tel) u.ph = [await sha256(tel)];
   const correo = String(v.correo || (v.canal === 'correo' ? v.contacto_id : '') || '').trim().toLowerCase();
   if (correo.includes('@')) u.em = [await sha256(correo)];

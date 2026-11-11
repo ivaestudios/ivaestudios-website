@@ -141,6 +141,16 @@ function fechaDeIso(s) {
   const d = new Date(String(s).replace(/\+0000$/, 'Z'));
   return isNaN(d) ? fechaDeMs(Date.now()) : fechaDeMs(d.getTime());
 }
+// WhatsApp con el teléfono oculto: Meta ya no manda el número sino un
+// identificador de usuario (BSUID, p. ej. 'CA.2596095714224789'). Se guarda
+// tal cual como contacto_id y para escribirle va en `recipient`, no en `to`.
+export function esBsuid(s) {
+  return /^[A-Za-z]{2}\.(?:ENT\.)?[A-Za-z0-9]{3,128}$/.test(String(s || ''));
+}
+function destinoWa(contacto) {
+  return esBsuid(contacto) ? { recipient: String(contacto) } : { to: String(contacto) };
+}
+const etiquetaWa = (contacto) => (esBsuid(contacto) ? 'alguien con el número oculto' : '+' + contacto);
 export function nombreCanal(c) {
   return { instagram: 'Instagram', messenger: 'Messenger', facebook: 'Facebook', whatsapp: 'WhatsApp', correo: 'correo' }[c] || c;
 }
@@ -636,8 +646,9 @@ async function ingerirMensajeMeta(env, c, canal, ev) {
 
 // Un mensaje de WhatsApp Cloud API (value.messages[]).
 async function ingerirMensajeWa(env, c, m, nombre) {
-  if (!m || !m.from) return 0;
-  const contacto = String(m.from);
+  const de = m && (m.from || m.from_user_id);
+  if (!de) return 0;
+  const contacto = String(de);
   const cuando = fechaDeMs(Number(m.timestamp) * 1000);
   let texto = '';
   let adj = null;
@@ -664,7 +675,7 @@ async function ingerirMensajeWa(env, c, m, nombre) {
   const asignacion = await asignarSiToca(env, c, conv.id);
   if (!conv.noLeidosAntes || asignacion.nuevo) {
     await avisarEntrada(env, c, conv.id, {
-      body: `${conv.nombre || '+' + contacto} te escribió por WhatsApp: "${(texto || textoDeAdjunto(adj)).slice(0, 90)}"`,
+      body: `${conv.nombre || etiquetaWa(contacto)} te escribió por WhatsApp: "${(texto || textoDeAdjunto(adj)).slice(0, 90)}"`,
       link: `#/bandeja?cliente=${c.id}&conv=${conv.id}`,
       asignacion,
     });
@@ -676,7 +687,7 @@ async function ingerirMensajeWa(env, c, m, nombre) {
 // API). Lo que el equipo manda desde la app llega aquí; Meta no lo cobra y no
 // tiene ventana de 24 h. Campo smb_message_echoes del webhook.
 async function ingerirEcoWa(env, c, e) {
-  const contacto = String((e && e.to) || '');
+  const contacto = String((e && (e.to || e.to_user_id || e.recipient_id || e.recipient_user_id)) || '');
   if (!contacto) return 0;
   let texto = '';
   let adj = null;
@@ -710,6 +721,7 @@ const FALLOS_WA = {
   131026: 'No llegó: ese número no tiene WhatsApp o no puede recibir mensajes.',
   131050: 'No llegó: la persona pidió no recibir mensajes de marketing de esta marca.',
   131051: 'No llegó: WhatsApp no admite ese tipo de mensaje.',
+  131062: 'No llegó: la persona tiene el número oculto y WhatsApp no deja mandarle ese tipo de mensaje. Escríbele un mensaje normal mientras sigan abiertas sus 24 h.',
   132000: 'No llegó: el texto no cabe en la plantilla aprobada (revisa saltos de línea y largo).',
   132001: 'No llegó: la plantilla no existe o Meta todavía no la aprueba.',
   132015: 'No llegó: Meta pausó la plantilla por quejas o baja lectura.',
@@ -737,7 +749,7 @@ async function aplicarEstadoWa(env, c, st) {
       const v = await env.DB.prepare('SELECT nombre, contacto_id FROM mkt_conversaciones WHERE id = ?').bind(m.conv_id).first();
       await avisarUsuarios(env, c, [m.autor_user_id], {
         tipo: 'mensaje',
-        body: `Tu mensaje a ${(v && (v.nombre || '+' + v.contacto_id)) || 'un contacto'} no llegó. ${motivo}`,
+        body: `Tu mensaje a ${(v && (v.nombre || etiquetaWa(v.contacto_id))) || 'un contacto'} no llegó. ${motivo}`,
         link: `#/bandeja?cliente=${c.id}&conv=${m.conv_id}`,
       });
     }
@@ -903,8 +915,12 @@ export async function procesarWebhook(env, body) {
           continue;
         }
         const nombres = {};
-        for (const ct of v.contacts || []) nombres[String(ct.wa_id)] = ct.profile && ct.profile.name;
-        for (const m of v.messages || []) resumen.mensajes += await ingerirMensajeWa(env, c, m, nombres[String(m.from)]);
+        for (const ct of v.contacts || []) {
+          const nom = ct.profile && ct.profile.name;
+          if (ct.wa_id) nombres[String(ct.wa_id)] = nom;
+          if (ct.user_id) nombres[String(ct.user_id)] = nom;
+        }
+        for (const m of v.messages || []) resumen.mensajes += await ingerirMensajeWa(env, c, m, nombres[String(m.from || m.from_user_id)]);
         for (const st of v.statuses || []) resumen.estados = (resumen.estados || 0) + await aplicarEstadoWa(env, c, st);
       }
     }
@@ -1233,7 +1249,7 @@ async function enviarPlantillaAbierta(c, conv, texto, { clave = 'seguimiento', a
   if (!p3) throw errSinCanal('Escribe el mensaje.');
   if (Array.from(p3).length > esp.max) throw errSinCanal(`Dentro de la plantilla caben ${esp.max} caracteres y tu mensaje tiene ${Array.from(p3).length}. Acórtalo un poco.`);
   const r = await graph(`${GRAPH_FB}/${c.wa_phone_id}/messages`, { method: 'POST', token: c.wa_access_token, body: {
-    messaging_product: 'whatsapp', recipient_type: 'individual', to: conv.contacto_id, type: 'template',
+    messaging_product: 'whatsapp', recipient_type: 'individual', ...destinoWa(conv.contacto_id), type: 'template',
     template: { name: p.nombre, language: { code: IDIOMA_PLANTILLA }, components: [{ type: 'body', parameters: [esp.p1, esp.p2, p3].map((t) => ({ type: 'text', text: t })) }] },
   } });
   const visto = renderPlantilla(esp.cuerpo, [esp.p1, esp.p2, p3]) + (d.botones.length ? '\n' + d.botones.map((b) => `[ ${b} ]`).join('  ') : '');
@@ -1288,7 +1304,7 @@ async function enviarTexto(c, conv, texto, env, opts = {}) {
     if (conv.canal === 'whatsapp') {
       if (!c.wa_phone_id || !c.wa_access_token) throw Object.assign(new Error('Esta marca no tiene WhatsApp conectado.'), { code: 'SIN_CANAL' });
       const r = await graph(`${GRAPH_FB}/${c.wa_phone_id}/messages`, { method: 'POST', token: c.wa_access_token, body: {
-        messaging_product: 'whatsapp', recipient_type: 'individual', to: conv.contacto_id, type: 'text', text: { preview_url: false, body: pieza },
+        messaging_product: 'whatsapp', recipient_type: 'individual', ...destinoWa(conv.contacto_id), type: 'text', text: { preview_url: false, body: pieza },
       } });
       mids.push((r.messages && r.messages[0] && r.messages[0].id) || null);
     } else if (conv.canal === 'instagram') {
@@ -1478,7 +1494,7 @@ function horaCancunTxt(utc) {
   const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   return `${d.getUTCDate()} ${meses[d.getUTCMonth()]} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
 }
-const nombreConv = (v) => v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' && v.contacto_id ? '+' + v.contacto_id : 'un paciente'));
+const nombreConv = (v) => v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' && v.contacto_id ? etiquetaWa(v.contacto_id) : 'un paciente'));
 
 export async function handleBandeja(request, env, session, url, parts) {
   const method = request.method;
@@ -2035,7 +2051,7 @@ export async function handleBandeja(request, env, session, url, parts) {
       if (ag.id !== yo) {
         await avisarUsuarios(env, c, [ag.id], {
           tipo: 'mensaje',
-          body: `${session.name} te asignó el chat de ${conv.nombre || (conv.username ? '@' + conv.username : (conv.canal === 'whatsapp' ? '+' + conv.contacto_id : 'un contacto'))}.`,
+          body: `${session.name} te asignó el chat de ${conv.nombre || (conv.username ? '@' + conv.username : (conv.canal === 'whatsapp' ? etiquetaWa(conv.contacto_id) : 'un contacto'))}.`,
           link: `#/bandeja?cliente=${c.id}&conv=${conv.id}`,
         });
       }
@@ -2848,7 +2864,7 @@ export async function reasignarVencidas(env) {
       await asignar(env, c, v.id, ag, { tipo: 'reasignacion', dato: { de: v.asignado_a, motivo: `sin respuesta en ${min} min` } });
       await avisarUsuarios(env, c, [ag.id], {
         tipo: 'mensaje',
-        body: `Te pasamos el chat de ${v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? '+' + v.contacto_id : 'un contacto'))}: lleva ${min} min sin respuesta.`,
+        body: `Te pasamos el chat de ${v.nombre || (v.username ? '@' + v.username : (v.canal === 'whatsapp' ? etiquetaWa(v.contacto_id) : 'un contacto'))}: lleva ${min} min sin respuesta.`,
         link: `#/bandeja?cliente=${c.id}&conv=${v.id}`,
       });
       n++;

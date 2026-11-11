@@ -53,7 +53,8 @@ function llavesDe(v) {
     if (local.length >= 8) k.push('nj:' + local);
   }
   const tels = [];
-  if (v.canal === 'whatsapp' && v.contacto_id) tels.push(claveTel(v.contacto_id));
+  // Con el número oculto, WhatsApp da un identificador (CA.123…) que no es teléfono.
+  if (v.canal === 'whatsapp' && v.contacto_id && !/^[A-Za-z]{2}\./.test(String(v.contacto_id))) tels.push(claveTel(v.contacto_id));
   if (v.telefono) tels.push(claveTel(v.telefono));
   for (const d of tels) if (d.length >= 10 && !TELS_PROPIOS.test(d)) k.push('t:' + d.slice(-10));
   // Nombre completo (dos palabras o más): "Woo Han" en Instagram y en la carta.
