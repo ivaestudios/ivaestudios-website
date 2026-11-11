@@ -22,15 +22,14 @@ En cola para mandar a Google: 182 (salen 140 al dia).
 
 ## bodasmx.com.mx
 
-**119 de 909 paginas estan en Google (13.1%).**
+**176 de 909 paginas estan en Google (19.4%).**
 
 | Estado | Paginas | Cambio desde ayer |
 |---|---:|---:|
-| En Google | 119 |  |
-| Leidas por Google, todavia sin entrar | 236 |  |
-| Descubiertas, todavia sin leer | 33 |  |
-| Google aun no las conoce | 176 |  |
-| Nuevas, sin revisar todavia | 344 |  |
+| En Google | 176 |  |
+| Leidas por Google, todavia sin entrar | 389 |  |
+| Descubiertas, todavia sin leer | 41 |  |
+| Google aun no las conoce | 302 |  |
 | Con problema (hay que arreglar) | 1 |  |
 
 En cola para mandar a Google: 180 (salen 60 al dia).
