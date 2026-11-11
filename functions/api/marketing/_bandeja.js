@@ -489,6 +489,30 @@ async function origenPorMensaje(env, convId, texto) {
     await guardarOrigen(env, convId, { tipo: 'anuncio', ad_id: mapa[n] ? String(mapa[n]) : null, titulo: 'Anuncio (reconocido por el mensaje)', url: null, ctwa_clid: null });
   } catch { /* el origen es un extra */ }
 }
+// Lo mismo, en barrido: chats de WhatsApp de la última semana que siguen sin etiqueta y cuyo
+// primer mensaje es el precargado de un anuncio. Cubre los que no pasaron por el webhook de la
+// Bandeja (11-nov-2026: un mensaje de una persona con el teléfono oculto se atoró en Juan y
+// entró horas después por su rescate, sin etiqueta: era la tercera conversación que contaba Meta).
+async function etiquetarChatsDeAnuncio(env, c) {
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'ads_mensajes'").first();
+    if (!r || !r.value) return 0;
+    const mapa = JSON.parse(r.value) || {};
+    const f = await env.DB.prepare(
+      `SELECT v.id, (SELECT m.texto FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in' ORDER BY m.creado LIMIT 1) AS primero
+         FROM mkt_conversaciones v
+        WHERE v.client_id = ? AND v.canal = 'whatsapp' AND v.origen IS NULL AND v.created_at >= datetime('now', '-7 days')`
+    ).bind(c.id).all();
+    let n = 0;
+    for (const v of f.results || []) {
+      const t = normalizarMensajeAnuncio(v.primero);
+      if (!t || t.length > 160 || !Object.prototype.hasOwnProperty.call(mapa, t)) continue;
+      await guardarOrigen(env, v.id, { tipo: 'anuncio', ad_id: mapa[t] ? String(mapa[t]) : null, titulo: 'Anuncio (reconocido por el mensaje)', url: null, ctwa_clid: null });
+      n++;
+    }
+    return n;
+  } catch { return 0; /* el origen es un extra */ }
+}
 function horasDesde(s) {
   if (!s) return Infinity;
   const t = Date.parse(String(s).replace(' ', 'T') + (String(s).includes('Z') ? '' : 'Z'));
@@ -668,10 +692,12 @@ async function ingerirMensajeWa(env, c, m, nombre) {
   }
   const conv = await convDe(env, c, 'whatsapp', contacto, { nombre: nombre || null });
   const ok = await insertarMensaje(env, { convId: conv.id, mid: m.id, direccion: 'in', texto, adjunto: adj, creado: cuando });
-  if (!ok) return 0;
-  await refrescarConv(env, conv.id, 1);
+  // El origen va ANTES de salir: Meta solo manda `referral` con el primer mensaje, y si
+  // ese mensaje ya estaba (lo metió el rescate de Juan) el clic del anuncio se perdía.
   await guardarOrigen(env, conv.id, origenDe(m.referral));
   if (!m.referral && m.type === 'text') await origenPorMensaje(env, conv.id, texto);
+  if (!ok) return 0;
+  await refrescarConv(env, conv.id, 1);
   const asignacion = await asignarSiToca(env, c, conv.id);
   if (!conv.noLeidosAntes || asignacion.nuevo) {
     await avisarEntrada(env, c, conv.id, {
@@ -3328,6 +3354,7 @@ export async function sincronizarEmbudoFoto(env, c, { forzar = false } = {}) {
   //    busque más gente como ellas. Solo el estudio; nunca tumba la sincronización.
   let meta = null;
   if (c.id === IVAE_STUDIOS) {
+    await etiquetarChatsDeAnuncio(env, c);
     try { meta = await avisarMetaReservas(env, c); } catch (e) { console.error('[embudo foto] meta', e && e.message); }
   }
   return { ok: true, revisadas: convs.length, cambiadas: n, meta };

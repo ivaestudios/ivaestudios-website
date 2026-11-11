@@ -19,24 +19,33 @@
 //
 // CHATS DE WHATSAPP QUE LLEGARON DE UN ANUNCIO (11-nov-2026). Israel: "Meta
 // puede decir 3 conversaciones pero solo escribieron 2 y no se cerraron".
-// Meta cuenta el primer mensaje y no sabe qué pasó después. Esos chats traen
-// el clic de Meta (ctwa_clid) y se avisan por OTRO camino, el único que Meta
-// amarra al anuncio: el conjunto de datos de la cuenta de WhatsApp, con el
-// acceso de WhatsApp de la marca (usuario del sistema, no caduca).
+// Meta cuenta el primer mensaje y no sabe qué pasó después. Esos chats se
+// avisan por OTRO camino, el único que Meta amarra al anuncio: el conjunto de
+// datos de la cuenta de WhatsApp, con el acceso de WhatsApp de la marca
+// (usuario del sistema, no caduca).
 //   · LeadSubmitted → lead real: la persona siguió escribiendo después del
 //                     mensaje precargado (2 o más mensajes suyos).
+//   · QualifiedLead → además ya tiene su cotización (etapa cotizado o más).
 //   · Purchase      → reservó (etapa cita o cliente). En mensajería Meta NO
 //                     acepta "Schedule" (error 2804066, probado). La reserva es
 //                     la venta: se paga el día de la sesión, casi siempre fuera
 //                     de la ventana de 7 días del anuncio. Valor = lo pagado
-//                     (MXN) o lo cotizado. En mkt_meta_eventos queda como
-//                     'Schedule' para que la tarjeta diga "reservó".
+//                     (MXN), lo cotizado, o si no hay monto anotado el de la
+//                     colección más chica (PISO_RESERVA_USD): vale al menos eso.
+//                     En mkt_meta_eventos queda como 'Schedule' para que la
+//                     tarjeta diga "reservó".
+// Con qué lo amarra Meta: el clic del anuncio (ctwa_clid) si llegó. Si no llegó
+// (pasa: el chat se reconoce por el mensaje precargado, ver origenPorMensaje en
+// _bandeja.js), se manda la página y el teléfono en SHA-256 y Meta busca sola
+// un anuncio que esa persona haya tocado en los últimos 7 días. Sin page_id
+// Meta lo rechaza (error 2804069, probado 11-nov-2026).
 // ============================================================================
 
 const DATASET_FIJO = '1830358918394577';
 const GRAPH = 'https://graph.facebook.com/v26.0';
 const DIAS_ATRAS = 30;           // reservas y pagos más viejos no se mandan
 const TOPE_EVENT_TIME = 6;       // Meta no acepta event_time de más de 7 días
+const PISO_RESERVA_USD = 295;    // la colección más chica: una reserva sin monto anotado vale al menos eso
 
 async function sha256(s) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -122,32 +131,50 @@ export async function enviarEventosMeta(env, eventos, { test, dataset: ds, token
 }
 
 // Chats de WhatsApp que llegaron de un anuncio: lead real y reserva.
+// Con qué amarra Meta un chat de WhatsApp a su anuncio (null = no se puede).
+async function datosWaAnuncio(c, v, o) {
+  const waba = String(c.wa_waba_id || '');
+  if (!waba || !o || o.tipo !== 'anuncio') return null;
+  if (o.ctwa_clid) return { whatsapp_business_account_id: waba, ctwa_clid: String(o.ctwa_clid) };
+  if (!c.fb_page_id) return null;
+  const u = await userData(v);
+  if (!u.ph) return null;
+  delete u.external_id; // en mensajería Meta no lo usa para amarrar
+  return { page_id: String(c.fb_page_id), whatsapp_business_account_id: waba, ...u };
+}
+
 async function eventosWhatsAppDeAnuncio(env, c, desde, ahora, hechos, pagos) {
   const r = await env.DB.prepare(
-    `SELECT v.id, v.etapa, v.etapa_en, v.origen, v.valor_estimado, v.moneda, v.ultimo_cliente_en, v.created_at,
+    `SELECT v.id, v.canal, v.contacto_id, v.telefono, v.correo, v.nombre, v.etapa, v.etapa_en, v.origen,
+            v.valor_estimado, v.moneda, v.ultimo_cliente_en, v.created_at,
             (SELECT COUNT(*) FROM mkt_mensajes m WHERE m.conv_id = v.id AND m.direccion = 'in') AS entrantes
        FROM mkt_conversaciones v
-      WHERE v.client_id = ? AND v.archivado = 0 AND v.canal = 'whatsapp' AND v.origen LIKE '%ctwa_clid%'
+      WHERE v.client_id = ? AND v.archivado = 0 AND v.canal = 'whatsapp' AND v.origen LIKE '%anuncio%'
         AND COALESCE(v.ultimo_cliente_en, v.created_at) >= ?`
   ).bind(c.id, desde).all().catch(() => ({ results: [] }));
   const out = [];
   for (const v of r.results || []) {
-    const o = origenDeConv(v);
-    if (!o || !o.ctwa_clid) continue;
-    const base = {
-      action_source: 'business_messaging', messaging_channel: 'whatsapp',
-      user_data: { whatsapp_business_account_id: String(c.wa_waba_id), ctwa_clid: String(o.ctwa_clid) },
-    };
-    if (Number(v.entrantes) >= 2 && !hechos.has(v.id + ':LeadSubmitted')) {
+    const user_data = await datosWaAnuncio(c, v, origenDeConv(v));
+    if (!user_data) continue;
+    const base = { action_source: 'business_messaging', messaging_channel: 'whatsapp', user_data };
+    const siguio = Number(v.entrantes) >= 2;                    // escribió algo más que el mensaje precargado
+    const reservo = v.etapa === 'cita' || v.etapa === 'cliente';
+    const cotizado = reservo || (siguio && v.etapa === 'cotizado');
+    if ((siguio || reservo) && !hechos.has(v.id + ':LeadSubmitted')) {
       out.push({ conv: v, evento: 'LeadSubmitted', valor: null,
         ev: { ...base, event_name: 'LeadSubmitted', event_time: segundos(v.ultimo_cliente_en || v.created_at, ahora), event_id: `LeadSubmitted:${v.id}` } });
     }
-    if ((v.etapa === 'cita' || v.etapa === 'cliente') && !hechos.has(v.id + ':Schedule')) {
+    if (cotizado && !hechos.has(v.id + ':QualifiedLead')) {
+      out.push({ conv: v, evento: 'QualifiedLead', valor: null,
+        ev: { ...base, event_name: 'QualifiedLead', event_time: segundos(v.etapa_en || v.ultimo_cliente_en || v.created_at, ahora), event_id: `QualifiedLead:${v.id}` } });
+    }
+    if (reservo && !hechos.has(v.id + ':Schedule')) {
       const p = pagos.get(v.id);
       const valor = p && p.mxn > 0
         ? { currency: 'MXN', value: Math.round(p.mxn * 100) / 100 }
-        : (Number(v.valor_estimado) > 0 ? { currency: String(v.moneda || 'USD').toUpperCase(), value: Number(v.valor_estimado) } : null);
-      if (!valor) continue; // sin monto no es una venta que Meta pueda aprender; se manda cuando la oportunidad tenga valor
+        : (Number(v.valor_estimado) > 0
+          ? { currency: String(v.moneda || 'USD').toUpperCase(), value: Number(v.valor_estimado) }
+          : { currency: 'USD', value: PISO_RESERVA_USD });
       out.push({ conv: v, evento: 'Schedule', valor: valor.currency === 'MXN' ? valor.value : null,
         ev: { ...base, event_name: 'Purchase', event_time: segundos(v.etapa_en, ahora), event_id: `Reserva:${v.id}`, custom_data: { ...valor, content_name: 'Sesión de fotos' } } });
     }
@@ -213,11 +240,11 @@ export async function avisarMetaReservas(env, c) {
     }
   }
 
-  // b) Lo demás (correo, WhatsApp e Instagram sin clic de anuncio) → conjunto de datos de la cuenta de anuncios.
+  // b) Lo demás (correo, Instagram y WhatsApp que no llegó de un anuncio) → conjunto de datos de la cuenta de anuncios.
   const porEnviar = []; // { conv, evento, valor, cuando }
   for (const v of convsR.results || []) {
     const o = origenDeConv(v);
-    if (v.canal === 'whatsapp' && o && o.ctwa_clid) continue; // ya salió por (a)
+    if (v.canal === 'whatsapp' && c.wa_access_token && await datosWaAnuncio(c, v, o)) continue; // ya salió por (a)
     if (!hechos.has(v.id + ':Schedule')) porEnviar.push({ conv: v, evento: 'Schedule', valor: null, cuando: v.etapa_en });
     const p = pagos.get(v.id);
     if (p && p.mxn > 0 && !hechos.has(v.id + ':Purchase')) porEnviar.push({ conv: v, evento: 'Purchase', valor: Math.round(p.mxn * 100) / 100, cuando: p.cuando });
@@ -252,7 +279,7 @@ export async function avisosMetaDe(env, convIds) {
   const r = await env.DB.prepare(`SELECT conv_id, evento, enviado_en, ok FROM mkt_meta_eventos WHERE conv_id IN (${qs})`).bind(...convIds).all().catch(() => ({ results: [] }));
   for (const f of r.results || []) {
     if (!out.has(f.conv_id)) out.set(f.conv_id, {});
-    const que = f.evento === 'Schedule' ? 'reserva' : (f.evento === 'LeadSubmitted' ? 'lead' : 'pago');
+    const que = { Schedule: 'reserva', LeadSubmitted: 'lead', QualifiedLead: 'calificado' }[f.evento] || 'pago';
     out.get(f.conv_id)[que] = { en: f.enviado_en, ok: !!f.ok };
   }
   return out;
