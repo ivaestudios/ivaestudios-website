@@ -86,8 +86,8 @@ def armar(d):
         else:
             e["otros"].append(r)
     L = ["# Robots que leyeron el sitio", "",
-         "Actualizado: %s (hora de Cancun). Ventana: ultimos %d dias. El registro empezo el %s." % (
-             hoy, d["dias"], d.get("registro_desde") or "dia de hoy"), "",
+         "Actualizado: %s (hora de Cancun). Ventana: ultimos %d dias. El registro empezo el 11 de noviembre de 2026 en la noche." % (
+             hoy, d["dias"]), "",
          "Solo cuentan las visitas **genuinas**: las que vienen de la red del propio robot. "
          "Las demas son alguien usando el nombre del robot.", ""]
 
@@ -107,20 +107,23 @@ def armar(d):
         L.append("- No ha pedido la copia vieja en esta ventana.")
     cu = por.get("Claude-User", {}).get("real")
     if cu and cu["genuinas"]:
-        L.append("- Ademas, Claude abrio %d paginas porque alguien se lo pidio en una conversacion (%d visitas)." % (cu["paginas"], cu["genuinas"]))
+        L.append("- Ademas, Claude abrio paginas del sitio real porque alguien se lo pidio en una conversacion: %d visitas. Ultima: %s." % (
+            cu["genuinas"], hora_cancun(cu["ultima"])))
     L.append("")
 
     # 2. Tabla general
-    L += ["## Todos los robots", "", "| Robot | Para que sirve | Visitas genuinas | Paginas | Ultima visita | Copia vieja |", "|---|---|---:|---:|---|---:|"]
+    L += ["## Todos los robots", "", "| Robot | Para que sirve | Visitas genuinas a ivaestudios.com | Paginas | Ultima visita | Copia vieja | bodasmx.com.mx |",
+          "|---|---|---:|---:|---|---:|---:|"]
     nombres = [n for n in ORDEN if n in por] + sorted(n for n in por if n not in ORDEN)
     for n in nombres:
         e = por[n]
         r, c = e["real"] or {}, e["copia"] or {}
-        L.append("| %s | %s | %s | %s | %s | %s |" % (
+        bmx = sum(o.get("genuinas", 0) for o in e["otros"] if o["sitio"] == "bodasmx.com.mx")
+        L.append("| %s | %s | %s | %s | %s | %s | %s |" % (
             n, QUIEN.get(n, ""), r.get("genuinas", 0), r.get("paginas", 0),
-            hora_cancun(r.get("ultima")) if r else "-", c.get("genuinas", 0)))
+            hora_cancun(r.get("ultima")) if r else "-", c.get("genuinas", 0), bmx))
     if not nombres:
-        L.append("| (sin visitas todavia) | | | | | |")
+        L.append("| (sin visitas todavia) | | | | | | |")
     L.append("")
 
     # 3. Paginas que leyo Claude
