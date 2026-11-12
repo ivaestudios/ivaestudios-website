@@ -65,6 +65,21 @@ function robotDe(ua) {
   return null;
 }
 
+// Solo se anotan paginas publicas. En las rutas privadas (API, galeria de
+// clientes, panel, app de marketing) viajan claves y enlaces personales: de esas
+// se manda nada mas el primer tramo, y cualquier tramo que parezca una clave
+// (largo, sin guiones ni puntos) se borra antes de salir de aqui.
+function rutaSegura(ruta) {
+  const r = String(ruta || '/');
+  const m = /^\/(api|gallery|admin|marketing|cdn-cgi|\.well-known)(?=\/|$)(?:\/([^/]*))?/i.exec(r);
+  if (m) {
+    const base = m[1].toLowerCase();
+    const sub = base === 'api' && m[2] && /^[a-z][a-z0-9-]{0,30}$/i.test(m[2]) ? '/' + m[2] : '';
+    return '/' + base + sub;
+  }
+  return r.split('/').map((t) => (/^[A-Za-z0-9_]{20,}$/.test(t) ? '~' : t)).join('/');
+}
+
 function anotar(context, sitio, ruta, estado) {
   try {
     const env = context.env || {};
@@ -78,7 +93,7 @@ function anotar(context, sitio, ruta, estado) {
       body: JSON.stringify({
         robot,
         sitio,
-        ruta: String(ruta).slice(0, 300),
+        ruta: rutaSegura(ruta).slice(0, 300),
         estado,
         ip: context.request.headers.get('cf-connecting-ip') || '',
         cat: cf.verifiedBotCategory || '',

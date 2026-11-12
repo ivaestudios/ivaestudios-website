@@ -105,6 +105,10 @@ def armar(d):
             copia["genuinas"], hora_cancun(copia["ultima"])))
     else:
         L.append("- No ha pedido la copia vieja en esta ventana.")
+    cb = por.get("ClaudeBot", {}).get("real")
+    if cb and cb["genuinas"]:
+        L.append("- El otro robot de Anthropic (ClaudeBot, el que junta material para entrenar a Claude) si leyo el sitio real: %d paginas. Ultima: %s. No es el del buscador, pero confirma que Anthropic llega sin problema a ivaestudios.com." % (
+            cb["paginas"], hora_cancun(cb["ultima"])))
     cu = por.get("Claude-User", {}).get("real")
     if cu and cu["genuinas"]:
         L.append("- Ademas, Claude abrio paginas del sitio real porque alguien se lo pidio en una conversacion: %d visitas. Ultima: %s." % (
@@ -134,6 +138,18 @@ def armar(d):
             L.append("| %s | %s | %s | `%s` | %s | %s |" % (hora_cancun(r["ultima"]), r["robot"],
                                                         "copia vieja" if r["sitio"] == COPIA else r["sitio"], r["ruta"][:70],
                                                         r["estado"], (r.get("red") or "")[:30]))
+        L.append("")
+
+    # 3b. Direcciones que los robots pidieron y no existen: candidatas a redireccion
+    faltan = d.get("noExisten") or []
+    if faltan:
+        L += ["## Direcciones que no existen y que los robots pidieron", "",
+              "Son enlaces viejos que siguen vivos en algun lado. Las que tengan pagina equivalente se redirigen "
+              "(las del blog viejo, en `functions/post/[[ruta]].js`).", "",
+              "| Sitio | Direccion | Veces | Quien la pidio | Ultima vez |", "|---|---|---:|---|---|"]
+        for r in faltan[:40]:
+            L.append("| %s | `%s` | %s | %s | %s |" % ("copia vieja" if r["sitio"] == COPIA else r["sitio"], str(r["ruta"])[:90],
+                                                   r["visitas"], (r.get("robots") or "")[:60], hora_cancun(r["ultima"])))
         L.append("")
 
     # 4. Por dia
