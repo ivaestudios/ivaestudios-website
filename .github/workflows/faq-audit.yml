@@ -9,6 +9,7 @@ on:
     paths:
       - "**/*.html"
       - "scripts/auditar_faq.py"
+      - "scripts/auditar_marcado.py"
       - ".github/workflows/faq-audit.yml"
   workflow_dispatch:
 
@@ -22,3 +23,8 @@ jobs:
           python-version: "3.12"
       - name: Preguntas declaradas contra preguntas visibles
         run: python3 scripts/auditar_faq.py
+      - name: Enlaces mal puestos y entidades en datos estructurados
+        # Un <a> dentro de un alt deja codigo a la vista; un <a> dentro de otro
+        # parte las tarjetas; un &amp; dentro del JSON-LD se lee literal.
+        if: always()
+        run: python3 scripts/auditar_marcado.py
