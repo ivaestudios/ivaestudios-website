@@ -18,6 +18,13 @@ QUE HACE
    texto), tabla de la comparativa, api/facts.json, llms.txt y llms-full.txt.
 3. Deja registro en seo/resenas.json.
 
+CIFRAS ESCRITAS CON LETRA
+El 11-nov-2026 Claude leyo la pagina de familias y encontro "Sixty-Six Reviews"
+junto a "73 Google reviews": la portada decia "Forty-Seven Reviews" y Brave
+repetia 47. Eran cifras escritas con letra, que el robot no veia. Desde ese dia
+tambien las cambia ("Seventy-Three Reviews", "Setenta y Tres Reseñas"),
+respetando mayusculas y el separador que use cada pagina.
+
 CANDADOS
 - No baja mas de 3 ni sube mas de 40 de un jalon: eso es un dato malo.
 - Si la calificacion deja de ser 5.0 se detiene y avisa: el sitio dice "5.0"
@@ -44,7 +51,8 @@ REGISTRO = os.path.join(RAIZ, "seo", "resenas.json")
 CONSULTA = "IVAE Studios photographer Cancun"
 
 EXT = re.compile(r"\.(html|txt|json|js|xml)$")
-FUERA = re.compile(r"(^|/)(node_modules|vendor)/|^(seo|_docs|_estrategia|scripts|tools|marketing|gallery)/|^\.")
+# functions/ es codigo: sus comentarios cuentan la historia con cifras viejas a proposito.
+FUERA = re.compile(r"(^|/)(node_modules|vendor)/|^(seo|_docs|_estrategia|scripts|tools|marketing|gallery|functions)/|^\.")
 
 PALABRA = r"(?:reviews|reseñas|resenas|opiniones|rese&ntilde;as)"
 CONTEXTO = re.compile(r"IVAE|Vianey|studio|estudio|Google|5\.0|5,0|rating|calificaci", re.I)
@@ -62,6 +70,136 @@ CONTADOR = re.compile(
 TABLA = re.compile(r"(IVAE Studios</td>\s*<td>5\.0\s*(?:·|&middot;|&#183;)\s*)(\d+)(\s*</td>)")
 LD = re.compile(r'("(?:reviewCount|ratingCount)"\s*:\s*"?)(\d+)("?)')
 
+# ── Cifras escritas con letra ────────────────────────────────────────────────
+EN_U = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+EN_10 = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+         "seventeen", "eighteen", "nineteen"]
+EN_D = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+ES_U = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+ES_10 = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis",
+         "diecisiete", "dieciocho", "diecinueve"]
+ES_20 = ["veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco",
+         "veintiséis", "veintisiete", "veintiocho", "veintinueve"]
+ES_D = ["", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"]
+
+EN_VALOR = {"one hundred": 100}
+EN_VALOR.update({w: i for i, w in enumerate(EN_U) if w})
+EN_VALOR.update({w: 10 + i for i, w in enumerate(EN_10)})
+EN_VALOR.update({w: 10 * i for i, w in enumerate(EN_D) if w})
+ES_VALOR = {"cien": 100, "ciento": 100, "una": 1, "un": 1, "veintiuna": 21, "veintiún": 21}
+ES_VALOR.update({w: i for i, w in enumerate(ES_U) if w})
+ES_VALOR.update({w: 10 + i for i, w in enumerate(ES_10)})
+ES_VALOR.update({w: 20 + i for i, w in enumerate(ES_20)})
+ES_VALOR.update({w: 10 * i for i, w in enumerate(ES_D) if w})
+
+SEP_EN = r"(?:-|&#8209;|‑|\s/\s|\s+and\s+|\s+)"
+UNA_EN = "(?:" + "|".join(sorted(EN_VALOR, key=len, reverse=True)).replace(" ", r"\s+") + ")"
+UNA_ES = "(?:" + "|".join(sorted(ES_VALOR, key=len, reverse=True)) + ")"
+LETRA_EN = UNA_EN + "(?:" + SEP_EN + UNA_EN + ")*"
+LETRA_ES = UNA_ES + r"(?:(?:\s+y\s+|\s+)" + UNA_ES + ")*"
+# Buscar la cifra con una expresion regular sobre todo el sitio tarda minutos.
+# Se busca la palabra "reviews" o "reseñas" (rapido) y se mira lo que hay justo antes.
+MARCAS_EN = ("reviews", "Reviews", "REVIEWS")
+MARCAS_ES = ("reseñas", "Reseñas", "RESEÑAS", "rese&ntilde;as", "Rese&ntilde;as")
+ANTES_EN = re.compile(r"(?P<pal>" + LETRA_EN + r")\s+(?:written\s+|Google\s+|client\s+)?$", re.I)
+ANTES_ES = re.compile(r"(?P<pal>" + LETRA_ES + r")\s+$", re.I)
+# El numero grande de la tira de cifras: la palabra va sola en un span y
+# "Reviews" en el siguiente.
+TIRA = re.compile(r'(lf-stat-num--word"[^>]*>)\s*(?P<pal>[^<]+?)\s*(</span>\s*<span class="lf-stat-label">\s*'
+                  r"(?P<idioma>Reviews|Reseñas|Rese&ntilde;as)\s*</span>)")
+# La misma cifra, repetida en la etiqueta para lectores de pantalla de esa tira.
+TIRA_ARIA = re.compile(r'(<div class="lf-stat" aria-label=")(?P<pal>[^"<>]+?)(\s+(?:reviews|reseñas|rese&ntilde;as)"\s*>\s*'
+                       r'<span class="lf-stat-num lf-stat-num--word")', re.I)
+DECENA_UNIDAD = re.compile(r"(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(" + SEP_EN
+                           + r")(?:one|two|three|four|five|six|seven|eight|nine)\b", re.I)
+
+
+def numero_de(palabras, ingles):
+    """'Forty&#8209;Seven' -> 47; 'ciento veintiuna' -> 121. None si no es una cifra."""
+    t = re.sub(r"\s+", " ", palabras.strip().lower())
+    if ingles:
+        t = t.replace("one hundred", "one_hundred")
+        fichas = [x.replace("_", " ") for x in re.split(r"-|&#8209;|‑|/| and | ", t) if x.strip()]
+        valores = [EN_VALOR.get(x.strip()) for x in fichas]
+    else:
+        fichas = [x for x in re.split(r" y | ", t) if x.strip()]
+        valores = [ES_VALOR.get(x.strip()) for x in fichas]
+    if not valores or any(v is None for v in valores):
+        return None
+    # Solo vale "ciento + decena + unidad" en ese orden: "one seventy" no es una cifra.
+    clases = [3 if v == 100 else 2 if (v >= 20 and v % 10 == 0) else 1 for v in valores]
+    if any(a <= b for a, b in zip(clases, clases[1:])):
+        return None
+    return sum(valores)
+
+
+def cifras_con_letra(s, ingles):
+    """Cifras con letra que van justo antes de 'reviews' o 'reseñas': [(inicio, fin, palabras)]."""
+    marcas, antes = (MARCAS_EN, ANTES_EN) if ingles else (MARCAS_ES, ANTES_ES)
+    hallados = {}
+    for marca in marcas:
+        i = s.find(marca)
+        while i != -1:
+            fin = i + len(marca)
+            if fin >= len(s) or not s[fin].isalpha():
+                base = max(0, i - 100)
+                previo = s[base:i]
+                for p in range(len(previo)):
+                    if not previo[p].isalpha() or (p and previo[p - 1].isalpha()):
+                        continue
+                    m = antes.match(previo, p)
+                    if m and numero_de(m.group("pal"), ingles) is not None:
+                        hallados[base + p] = (base + p, base + m.end("pal"), m.group("pal"))
+                        break
+            i = s.find(marca, i + 1)
+    return [hallados[k] for k in sorted(hallados)]
+
+
+def letra_en(n, sep="-"):
+    """73 -> 'seventy-three'; 80 -> 'eighty'; 104 -> 'one hundred four'."""
+    if n >= 100:
+        resto = n % 100
+        return EN_U[n // 100] + " hundred" + (" " + letra_en(resto, sep) if resto else "")
+    if n < 10:
+        return EN_U[n]
+    if n < 20:
+        return EN_10[n - 10]
+    return EN_D[n // 10] + (sep + EN_U[n % 10] if n % 10 else "")
+
+
+def letra_es(n):
+    """73 -> 'setenta y tres'; 81 -> 'ochenta y una' (va antes de 'reseñas')."""
+    if n == 100:
+        return "cien"
+    if n > 100:
+        return "ciento " + letra_es(n - 100)
+    if n < 10:
+        return "una" if n == 1 else ES_U[n]
+    if n < 20:
+        return ES_10[n - 10]
+    if n < 30:
+        return "veintiuna" if n == 21 else ES_20[n - 20]
+    unidad = "una" if n % 10 == 1 else ES_U[n % 10]
+    return ES_D[n // 10] + (" y " + unidad if n % 10 else "")
+
+
+def con_estilo(original, texto):
+    """Escribe la cifra nueva con las mayusculas de la vieja."""
+    fichas = [t for t in re.split(r"-|&#8209;|‑|/|\s+", original) if t and t.lower() not in ("y", "and")]
+    if fichas and all(t[0].isupper() for t in fichas):
+        return re.sub(r"[A-Za-zÁÉÍÓÚáéíóúñ]+",
+                      lambda w: w.group(0) if w.group(0) in ("y", "and") else w.group(0).capitalize(), texto)
+    if fichas and fichas[0][0].isupper():
+        return texto[:1].upper() + texto[1:]
+    return texto
+
+
+def letra_nueva(palabras, nueva, ingles):
+    """La cifra nueva escrita como estaba la vieja: mismas mayusculas y mismo separador."""
+    if ingles:
+        m = DECENA_UNIDAD.search(palabras)
+        return con_estilo(palabras, letra_en(nueva, m.group(1) if m else "-"))
+    return con_estilo(palabras, letra_es(nueva))
 
 def archivos():
     os.chdir(RAIZ)
@@ -125,8 +263,9 @@ def es_de_otro(texto, inicio):
 
 def aplicar(nueva, viejas, escribir=True):
     nueva_s = str(nueva)
-    cuenta = {"texto": 0, "contador": 0, "tabla": 0, "schema": 0}
+    cuenta = {"texto": 0, "letra": 0, "contador": 0, "tabla": 0, "schema": 0}
     cambiados, saltados = [], []
+    viejas_n = {int(v) for v in viejas}
     pats = [re.compile(r"(?<![\d.,$#/-])%s(\s+(?:Google\s+|client\s+)?%s\b)" % (v, PALABRA), re.I)
             for v in sorted(set(viejas)) if str(v) != nueva_s]
     for f in archivos():
@@ -144,6 +283,37 @@ def aplicar(nueva, viejas, escribir=True):
                 cuenta["texto"] += 1
                 return nueva_s + m.group(1)
             s = pat.sub(cambia, s)
+
+        def tira(m):
+            ingles = m.group("idioma") == "Reviews"
+            n = numero_de(m.group("pal"), ingles)
+            if n is None or n == int(nueva):
+                return m.group(0)
+            cuenta["letra"] += 1
+            return m.group(1) + letra_nueva(m.group("pal").strip(), int(nueva), ingles) + m.group(3)
+        s = TIRA.sub(tira, s)
+
+        def tira_aria(m):
+            ingles = "review" in m.group(3).lower()
+            n = numero_de(m.group("pal"), ingles)
+            if n is None or n == int(nueva):
+                return m.group(0)
+            cuenta["letra"] += 1
+            return m.group(1) + letra_nueva(m.group("pal").strip(), int(nueva), ingles) + m.group(3)
+        s = TIRA_ARIA.sub(tira_aria, s)
+
+        # Cifras con letra: "Sixty-Six Reviews", "Sesenta y seis reseñas".
+        for ingles in (True, False):
+            for ini, fin, pal in reversed(cifras_con_letra(s, ingles)):
+                n = numero_de(pal, ingles)
+                if n == int(nueva) or n not in viejas_n:
+                    continue
+                ventana = s[max(0, ini - 250):fin + 200]
+                if not CONTEXTO.search(ventana) or es_de_otro(s, ini):
+                    saltados.append((f, re.sub(r"\s+", " ", s[max(0, ini - 90):fin + 40])))
+                    continue
+                cuenta["letra"] += 1
+                s = s[:ini] + letra_nueva(pal, int(nueva), ingles) + s[fin:]
 
         def contador(m):
             if m.group(2) != nueva_s or m.group(4) != nueva_s:
@@ -196,6 +366,23 @@ def revisar(nueva):
         for m in TABLA.finditer(s):
             if m.group(2) != nueva_s:
                 raras.append((f, "tabla %s" % m.group(2)))
+        for m in TIRA.finditer(s):
+            n = numero_de(m.group("pal"), m.group("idioma") == "Reviews")
+            if n is not None and n != int(nueva):
+                raras.append((f, "tira de cifras: %s" % m.group("pal").strip()))
+        for m in TIRA_ARIA.finditer(s):
+            n = numero_de(m.group("pal"), "review" in m.group(3).lower())
+            if n is not None and n != int(nueva):
+                raras.append((f, "etiqueta de la tira: %s" % m.group("pal").strip()))
+        for ingles in (True, False):
+            for ini, fin, pal in cifras_con_letra(s, ingles):
+                n = numero_de(pal, ingles)
+                if n == int(nueva) or n < 20:
+                    continue
+                cerca = s[max(0, ini - 250):fin + 200]
+                if (re.search(r"IVAE|Vianey|5\.0|5,0|&starf;|rating|calificaci", cerca)
+                        and not es_de_otro(s, ini)):
+                    raras.append((f, "con letra: " + re.sub(r"\s+", " ", s[max(0, ini - 40):fin + 30])))
         if "/blog/" in "/" + f:
             continue  # el blog habla de reseñas de otros negocios
         for m in pat.finditer(s):
@@ -265,8 +452,8 @@ def main():
         print("SIMULACION, no se escribio nada. Archivos que cambiarian: %s" % ", ".join(cambiados[:40]))
     else:
         guardar_registro(nueva, calificacion, fuente, place_id)
-    print("Reseñas: %d -> %d (%s). texto:%d contadores:%d tabla:%d schema:%d | archivos:%d | saltados:%d"
-          % (actual, nueva, fuente, cuenta["texto"], cuenta["contador"], cuenta["tabla"],
+    print("Reseñas: %d -> %d (%s). texto:%d con letra:%d contadores:%d tabla:%d schema:%d | archivos:%d | saltados:%d"
+          % (actual, nueva, fuente, cuenta["texto"], cuenta["letra"], cuenta["contador"], cuenta["tabla"],
              cuenta["schema"], len(cambiados), len(saltados)))
     for f, t in saltados[:15]:
         print("  SALTADO %s | %s" % (f, t[:170]))
