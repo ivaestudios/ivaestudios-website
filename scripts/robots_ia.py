@@ -126,10 +126,11 @@ def armar(d):
     # 3. Paginas que leyo Claude
     filas = [r for r in d.get("rutasClaude", []) if r.get("genuinas")]
     if filas:
-        L += ["## Lo ultimo que leyo Claude", "", "| Cuando | Robot | Sitio | Pagina | Respuesta |", "|---|---|---|---|---:|"]
+        L += ["## Lo ultimo que leyo Claude", "", "| Cuando | Robot | Sitio | Pagina | Respuesta | Red |", "|---|---|---|---|---:|---|"]
         for r in filas[:40]:
-            L.append("| %s | %s | %s | `%s` | %s |" % (hora_cancun(r["ultima"]), r["robot"],
-                                                   "copia vieja" if r["sitio"] == COPIA else r["sitio"], r["ruta"][:70], r["estado"]))
+            L.append("| %s | %s | %s | `%s` | %s | %s |" % (hora_cancun(r["ultima"]), r["robot"],
+                                                        "copia vieja" if r["sitio"] == COPIA else r["sitio"], r["ruta"][:70],
+                                                        r["estado"], (r.get("red") or "")[:30]))
         L.append("")
 
     # 4. Por dia
