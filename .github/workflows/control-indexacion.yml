@@ -39,6 +39,15 @@ jobs:
           GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
         run: python3 scripts/control_indexacion.py
 
+      # Que robots de IAs y buscadores leyeron el sitio (Claude, ChatGPT, Meta...).
+      # Nunca detiene el control: si el registro no contesta, solo avisa.
+      - name: Robots que leyeron el sitio
+        continue-on-error: true
+        env:
+          RASTREO_INFORME_URL: ${{ secrets.RASTREO_INFORME_URL }}
+          RASTREO_CLAVE: ${{ secrets.RASTREO_CLAVE }}
+        run: python3 scripts/robots_ia.py
+
       - name: Guardar el libro
         run: |
           git add seo/control seo/google-queue.txt seo/bodasmx-queue.txt
