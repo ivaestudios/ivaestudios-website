@@ -18,7 +18,15 @@ Tres fallas que el 12-nov-2026 estaban en vivo sin que nadie las viera:
    <script type="application/ld+json"> nada se decodifica: `&amp;` se lee tal
    cual ("Nizuc Resort &amp; Spa"). Habia 12 casos en 6 paginas.
 
-Las tres salieron de pasadas automaticas de enlaces internos que reemplazaron
+4. Codigo a la vista: texto de la pagina que en realidad es un pedazo de
+   etiqueta (`loading="lazy"`, `width="1600"`, `/>`). Es la senal de que una
+   etiqueta quedo cortada por cualquier motivo. Habia 1 pagina mas asi.
+
+5. Un enlace dentro del titulo principal (<h1>). En los articulos el titulo va
+   en blanco sobre la foto de portada y el enlace sale oscuro: esa parte del
+   titulo no se lee. Habia 6 articulos asi.
+
+Las tres primeras y la quinta salieron de pasadas automaticas de enlaces internos que reemplazaron
 palabras sin mirar donde estaban. Si se vuelve a correr algo parecido, esta
 compuerta lo dice en el mismo push.
 
@@ -32,6 +40,7 @@ import argparse
 import os
 import re
 import sys
+from html.parser import HTMLParser
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FUERA = (".git", "node_modules", "_archive", os.sep + "gallery" + os.sep, os.sep + "marketing" + os.sep,
@@ -40,12 +49,46 @@ FUERA = (".git", "node_modules", "_archive", os.sep + "gallery" + os.sep, os.sep
 EN_ATRIBUTO = re.compile(r'\b(alt|title|content|aria-label|placeholder)="[^"<>]*<a\s+href=', re.I)
 ANIDADO = re.compile(r"<a\b[^>]*>(?:(?!</a>).)*?<a\b", re.S | re.I)
 CODIGO = re.compile(r"<script.*?</script>|<style.*?</style>|<!--.*?-->", re.S | re.I)
+EN_TITULO = re.compile(r"<h1\b[^>]*>(?:(?!</h1>).)*?<a\b", re.S | re.I)
 LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S | re.I)
 ENTIDAD = re.compile(r"&(amp|quot|apos|lt|gt|nbsp|#\d+|#x[0-9a-f]+|[a-z]+acute|[a-z]+tilde|[a-z]+uml|rsquo|lsquo|rdquo|ldquo|ndash|mdash|middot);", re.I)
 
 
+PARECE_CODIGO = re.compile(
+    r'\b(loading|decoding|srcset|sizes|width|height|class|style|href|src|alt|rel|target)="[^"]*"|/>|</[a-z]+>')
+SIN_TEXTO = ("script", "style", "code", "pre", "textarea", "template", "noscript")
+
+
+class _Texto(HTMLParser):
+    """Junta el texto visible y cuenta los trozos que parecen codigo."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.fuera = 0
+        self.n = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in SIN_TEXTO:
+            self.fuera += 1
+
+    def handle_endtag(self, tag):
+        if tag in SIN_TEXTO:
+            self.fuera = max(0, self.fuera - 1)
+
+    def handle_data(self, data):
+        if not self.fuera and PARECE_CODIGO.search(data):
+            self.n += 1
+
+
 def revisar(s: str) -> list[str]:
     fallos = []
+    lector = _Texto()
+    try:
+        lector.feed(s)
+    except Exception:  # un archivo que ni se puede leer tambien es un fallo
+        fallos.append("no se pudo leer como HTML")
+    if lector.n:
+        fallos.append(f"{lector.n} trozo(s) de codigo a la vista")
     n = len(EN_ATRIBUTO.findall(s))
     if n:
         fallos.append(f"{n} enlace(s) dentro de un atributo")
@@ -53,6 +96,9 @@ def revisar(s: str) -> list[str]:
     n = len(ANIDADO.findall(cuerpo))
     if n:
         fallos.append(f"{n} enlace(s) dentro de otro enlace")
+    n = len(EN_TITULO.findall(cuerpo))
+    if n:
+        fallos.append(f"{n} enlace(s) dentro del titulo principal")
     n = sum(len(ENTIDAD.findall(m.group(1))) for m in LD.finditer(s))
     if n:
         fallos.append(f"{n} entidad(es) HTML dentro de datos estructurados")
@@ -84,7 +130,7 @@ def main() -> int:
                 malas.append((os.path.relpath(ruta, RAIZ), f))
 
     if not malas:
-        print(f"Marcado: {total} paginas revisadas, sin enlaces mal puestos ni entidades en datos estructurados.")
+        print(f"Marcado: {total} paginas revisadas, sin enlaces mal puestos, codigo a la vista ni entidades en datos estructurados.")
         return 0
 
     print(f"MARCADO ROTO en {len(malas)} pagina(s) de {total}:")
