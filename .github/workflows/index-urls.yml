@@ -77,6 +77,10 @@ jobs:
               | sed -E 's|^|https://ivaestudios.com/|' | head -300)
             if [ -z "$CAMBIADOS" ]; then echo "Sin HTML cambiado en este push: nada que encolar."; exit 0; fi
             echo "$CAMBIADOS" | sed 's/^/  /'
+            # Se guarda la lista por si al guardar la cola hay que volver a agregarla
+            # (dos push seguidos; ver el paso siguiente).
+            echo "$CAMBIADOS" > "$RUNNER_TEMP/cambiados.txt"
+            echo "CAMBIADOS_ARCHIVO=$RUNNER_TEMP/cambiados.txt" >> "$GITHUB_ENV"
             python scripts/index_urls.py --encolar $CAMBIADOS
           fi
 
@@ -84,12 +88,35 @@ jobs:
         # Corrida diaria o manual sin URLs: index_urls.py quita de la cola las
         # URLs que Google acepto. Push: index_urls.py --encolar agrego al final
         # las paginas que cambiaron. En los dos casos se guarda el archivo.
+        #
+        # DOS PUSH SEGUIDOS (12-nov-2026): se publicaron 60 y 21 paginas con 17
+        # segundos de diferencia. La segunda corrida salio de un commit que no
+        # traia lo que agrego la primera; las dos escribieron al final del mismo
+        # archivo, el rebase choco y las 21 paginas no entraron a la cola. Ahora,
+        # si choca, se toma la cola que ya esta en main y se le vuelve a agregar
+        # lo de este push (--encolar no repite las que ya estan). Hasta 4 veces.
         run: |
-          if ! git diff --quiet -- seo/google-queue.txt; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- seo/google-queue.txt; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add seo/google-queue.txt
+          git commit -q -m "seo: avance de la cola de Google [skip ci]"
+          for intento in 1 2 3 4; do
+            if git pull --rebase -q origin main && git push -q origin HEAD:main; then
+              echo "cola guardada (intento $intento)"; exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            if [ -z "${CAMBIADOS_ARCHIVO:-}" ] || [ ! -s "${CAMBIADOS_ARCHIVO:-}" ]; then
+              echo "::error::choque al guardar la cola y esta corrida no es de push: revisar seo/google-queue.txt a mano"
+              exit 1
+            fi
+            echo "choque al guardar la cola (intento $intento): se toma la de main y se vuelve a agregar"
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            python scripts/index_urls.py --encolar $(cat "$CAMBIADOS_ARCHIVO")
+            if git diff --quiet -- seo/google-queue.txt; then echo "ya estaban todas en la cola"; exit 0; fi
             git add seo/google-queue.txt
-            git commit -m "seo: avance de la cola de Google [skip ci]"
-            git pull --rebase -q origin main
-            git push -q origin HEAD:main
-          fi
+            git commit -q -m "seo: avance de la cola de Google [skip ci]"
+          done
+          echo "::error::no se pudo guardar la cola tras 4 intentos"
+          exit 1
