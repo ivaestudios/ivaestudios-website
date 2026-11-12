@@ -4505,6 +4505,28 @@
       rgba(0,0,0,.92) 100%) !important;
   }
 
+  /* ═══════════════════════════════════════════════════════════════
+     LETRA OSCURA SOBRE VELO NEGRO EN EL CIERRE · 2026-11-12
+     Medido en teléfono en las diez páginas que usan este cierre
+     (portada incluida). Al pasar el sitio a blanco el 9-oct la letra
+     quedó oscura (#1a1a1a, azul marino y gris), pero el velo de arriba
+     siguió negro y la foto oscurecida. La etiqueta, la frase de apoyo
+     y el correo no se leían; el título, a medias.
+     El bloque se pensó oscuro: se regresa la letra a blanco y la base
+     a negro, para que la foto al 52% se mezcle con oscuro y no con
+     blanco (con base blanca el velo de .62 dejaba zonas grises donde
+     el blanco tampoco se leía). El botón no cambia.
+     ═══════════════════════════════════════════════════════════════ */
+  .ivm-act-cta { background: #161616 !important; }
+  .ivm-act-cta__eyebrow { color: rgba(255,255,255,.86) !important; }
+  .ivm-act-cta__title,
+  .ivm-act-cta__title em { color: #ffffff !important; }
+  .ivm-act-cta__sub { color: rgba(255,255,255,.88) !important; }
+  .ivm-act-cta__alt {
+    color: rgba(255,255,255,.88) !important;
+    text-decoration-color: rgba(255,255,255,.5) !important;
+  }
+
 
   /* El encabezado de la sección venía POSICIONADO ABSOLUTO, porque en el
      carrusel viejo flotaba sobre las tarjetas que pasaban por debajo.
