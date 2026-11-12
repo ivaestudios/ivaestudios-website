@@ -146,7 +146,8 @@ def armar(d):
     L += ["## Muse y Meta AI: paginas que abrieron para contestarle a alguien", "",
           "Cada fila es una pagina que el asistente de Meta abrio en ese momento porque una persona le pregunto algo. "
           "Son las visitas de Meta-WebIndexer que llegan por la red de Cloudflare: el 11 de noviembre de 2026 se comprobo, "
-          "con cuatro pruebas hechas en Muse, que cada pagina que Muse abre deja una visita asi en el mismo minuto. "
+          "con pruebas hechas en Muse, que cuando Muse abre una pagina del sitio queda una visita asi en el mismo minuto. "
+          "Si la abrio hace pocos minutos usa la que ya tiene y no deja visita nueva, asi que el conteo es un minimo. "
           "No dice quien pregunto ni que pregunto.", ""]
     if vivo:
         L.append("- En esta ventana: **%d aperturas** de %d paginas. Ultima: %s." % (

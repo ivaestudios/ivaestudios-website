@@ -7,10 +7,10 @@
   {
    "robot": "Meta-ExternalAgent",
    "sitio": "ivaestudios.com",
-   "visitas": 144,
-   "genuinas": 144,
-   "paginas": 141,
-   "ultima": "2026-11-12T04:52:33.976Z",
+   "visitas": 156,
+   "genuinas": 156,
+   "paginas": 153,
+   "ultima": "2026-11-12T05:08:17.714Z",
    "redes": ",Meta Platforms Ireland Limited"
   },
   {
@@ -25,10 +25,10 @@
   {
    "robot": "FacebookExternalHit",
    "sitio": "ivaestudios.com",
-   "visitas": 60,
-   "genuinas": 60,
+   "visitas": 64,
+   "genuinas": 64,
    "paginas": 7,
-   "ultima": "2026-11-12T04:50:36.480Z",
+   "ultima": "2026-11-12T05:02:25.121Z",
    "redes": "Meta Platforms Ireland Limited"
   },
   {
@@ -43,11 +43,20 @@
   {
    "robot": "ClaudeBot",
    "sitio": "ivaestudios.com",
-   "visitas": 24,
-   "genuinas": 24,
-   "paginas": 21,
-   "ultima": "2026-11-12T04:22:48.798Z",
+   "visitas": 25,
+   "genuinas": 25,
+   "paginas": 22,
+   "ultima": "2026-11-12T05:07:35.722Z",
    "redes": "Anthropic, PBC"
+  },
+  {
+   "robot": "Amazonbot",
+   "sitio": "ivaestudios.com",
+   "visitas": 19,
+   "genuinas": 19,
+   "paginas": 19,
+   "ultima": "2026-11-12T04:58:04.215Z",
+   "redes": ",Amazon Data Services Northern Virginia,Amazon Technologies Inc.,Amazon.com, Inc."
   },
   {
    "robot": "Bytespider",
@@ -59,22 +68,13 @@
    "redes": "CHINANET hebei province network,Amazon Data Services Singapore"
   },
   {
-   "robot": "Amazonbot",
-   "sitio": "ivaestudios.com",
-   "visitas": 17,
-   "genuinas": 17,
-   "paginas": 17,
-   "ultima": "2026-11-12T04:13:56.410Z",
-   "redes": ",Amazon Data Services Northern Virginia,Amazon Technologies Inc.,Amazon.com, Inc."
-  },
-  {
    "robot": "Meta-WebIndexer",
    "sitio": "ivaestudios.com",
-   "visitas": 15,
-   "genuinas": 15,
+   "visitas": 16,
+   "genuinas": 16,
    "paginas": 14,
-   "ultima": "2026-11-12T04:52:11.640Z",
-   "redes": ",Meta Platforms Ireland Limited"
+   "ultima": "2026-11-12T05:01:11.809Z",
+   "redes": "Meta Platforms Ireland Limited,"
   },
   {
    "robot": "Meta-WebIndexer (en vivo)",
@@ -124,10 +124,10 @@
   {
    "robot": "Bingbot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 6,
-   "genuinas": 6,
-   "paginas": 6,
-   "ultima": "2026-11-12T04:00:11.703Z",
+   "visitas": 7,
+   "genuinas": 7,
+   "paginas": 7,
+   "ultima": "2026-11-12T04:55:01.422Z",
    "redes": "Microsoft Corporation"
   },
   {
@@ -183,6 +183,15 @@
    "paginas": 2,
    "ultima": "2026-11-12T03:19:02.199Z",
    "redes": "Microsoft Limited"
+  },
+  {
+   "robot": "Googlebot",
+   "sitio": "bodasmx.com.mx",
+   "visitas": 2,
+   "genuinas": 2,
+   "paginas": 2,
+   "ultima": "2026-11-12T05:05:36.801Z",
+   "redes": "Google LLC"
   },
   {
    "robot": "Kagibot",
@@ -243,8 +252,8 @@
   {
    "dia": "2026-11-12",
    "robot": "Meta-ExternalAgent",
-   "visitas": 144,
-   "genuinas": 144
+   "visitas": 156,
+   "genuinas": 156
   },
   {
    "dia": "2026-11-12",
@@ -255,26 +264,26 @@
   {
    "dia": "2026-11-12",
    "robot": "FacebookExternalHit",
-   "visitas": 61,
-   "genuinas": 61
-  },
-  {
-   "dia": "2026-11-12",
-   "robot": "Bingbot",
-   "visitas": 31,
-   "genuinas": 31
+   "visitas": 65,
+   "genuinas": 65
   },
   {
    "dia": "2026-11-12",
    "robot": "Amazonbot",
-   "visitas": 30,
-   "genuinas": 30
+   "visitas": 32,
+   "genuinas": 32
+  },
+  {
+   "dia": "2026-11-12",
+   "robot": "Bingbot",
+   "visitas": 32,
+   "genuinas": 32
   },
   {
    "dia": "2026-11-12",
    "robot": "ClaudeBot",
-   "visitas": 24,
-   "genuinas": 24
+   "visitas": 25,
+   "genuinas": 25
   },
   {
    "dia": "2026-11-12",
@@ -291,8 +300,8 @@
   {
    "dia": "2026-11-12",
    "robot": "Meta-WebIndexer",
-   "visitas": 16,
-   "genuinas": 16
+   "visitas": 17,
+   "genuinas": 17
   },
   {
    "dia": "2026-11-12",
@@ -315,8 +324,8 @@
   {
    "dia": "2026-11-12",
    "robot": "Googlebot",
-   "visitas": 4,
-   "genuinas": 4
+   "visitas": 6,
+   "genuinas": 6
   },
   {
    "dia": "2026-11-12",
@@ -380,6 +389,16 @@
   }
  ],
  "rutasClaude": [
+  {
+   "robot": "ClaudeBot",
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/ivae-studios-prensa-cobertura-medios",
+   "estado": 200,
+   "visitas": 1,
+   "genuinas": 1,
+   "ultima": "2026-11-12T05:07:35.722Z",
+   "red": "Anthropic, PBC"
+  },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
@@ -776,6 +795,12 @@
  "metaIndice": [
   {
    "sitio": "ivaestudios.com",
+   "ruta": "/blog/luxury-family-photoshoot-cost-cancun-2026",
+   "visitas": 2,
+   "ultima": "2026-11-12T05:01:11.809Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
    "ruta": "/es/blog/costo-sesion-familiar-lujo-cancun-2026",
    "visitas": 1,
    "ultima": "2026-11-12T04:52:11.640Z"
@@ -851,12 +876,6 @@
    "ruta": "/blog/cancun-cenote-photoshoot-guide",
    "visitas": 1,
    "ultima": "2026-11-12T01:08:13.043Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/luxury-family-photoshoot-cost-cancun-2026",
-   "visitas": 1,
-   "ultima": "2026-11-12T01:00:05.263Z"
   },
   {
    "sitio": "ivaestudios.com",
