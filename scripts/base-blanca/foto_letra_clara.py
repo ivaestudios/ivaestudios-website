@@ -32,6 +32,7 @@ su propio diseno (panel blanco y letra oscura con !important): no se toca.
 COMO SE USA (desde la raiz del repo)
   python3 scripts/base-blanca/foto_letra_clara.py            # aplica y lista lo cambiado
   python3 scripts/base-blanca/foto_letra_clara.py --ver      # solo dice que cambiaria
+  python3 scripts/base-blanca/foto_letra_clara.py --con-pendientes   # ademas, las 81 que esperan OK
 
 COMO SE REVISA
 Pegar scripts/base-blanca/escaner_letra_sobre_foto.js en la consola del navegador, en
@@ -205,6 +206,93 @@ FAMILIAS = {
  'F11': (F11, ['surprise-proposal-photographer-cancun.html','es/fotografo-propuesta-sorpresa-cancun.html']),
 }
 
+# Paginas con la misma plantilla que propuestas (portada y cierre con foto a brillo completo,
+# sin velo y con letra oscura). NO se aplican solas: es un cambio de diseno que se nota y
+# espera el OK de Vianey. Para aplicarlas: --con-pendientes
+F11_PENDIENTES = [
+    'anniversary-couples-photographer-mexico.html',
+    'anniversary-party-photographer-cancun.html',
+    'beach-wedding-photographer-cancun.html',
+    'best-places-to-propose-cancun-riviera-maya.html',
+    'bilingual-wedding-photographer-cancun.html',
+    'cancun-elopement-photographer.html',
+    'cancun-photo-spots.html',
+    'cancun-photographer-prices.html',
+    'cancun-wedding-videographer.html',
+    'couples-photographer-cancun.html',
+    'destination-couples-photographer-mexico.html',
+    'destination-wedding-videographer-mexico.html',
+    'engagement-photographer-cancun.html',
+    'es/fotografo-aniversario-pareja-mexico.html',
+    'es/fotografo-bodas-bilingue-cancun.html',
+    'es/fotografo-bodas-intimas-cancun.html',
+    'es/fotografo-bodas-intimas-los-cabos.html',
+    'es/fotografo-bodas-judias-destino-mexico.html',
+    'es/fotografo-bodas-los-cabos.html',
+    'es/fotografo-bodas-playa-cancun.html',
+    'es/fotografo-bodas-playa-mujeres.html',
+    'es/fotografo-cena-ensayo-bienvenida-cancun.html',
+    'es/fotografo-compromiso-cancun.html',
+    'es/fotografo-compromiso-los-cabos.html',
+    'es/fotografo-cumpleanos-cancun.html',
+    'es/fotografo-eventos-lujo-cancun.html',
+    'es/fotografo-familiar-ciudad-de-mexico.html',
+    'es/fotografo-familiar-los-cabos.html',
+    'es/fotografo-familiar-merida.html',
+    'es/fotografo-familiar-playa-del-carmen.html',
+    'es/fotografo-familiar-puerto-vallarta.html',
+    'es/fotografo-fiesta-aniversario-cancun.html',
+    'es/fotografo-isla-mujeres.html',
+    'es/fotografo-luna-de-miel-riviera-maya.html',
+    'es/fotografo-parejas-cancun.html',
+    'es/fotografo-parejas-destino-mexico.html',
+    'es/fotografo-parejas-playa-del-carmen.html',
+    'es/fotografo-parejas-puerto-vallarta.html',
+    'es/fotografo-parejas-san-miguel-de-allende.html',
+    'es/fotografo-parejas-tulum.html',
+    'es/fotografo-playa-del-carmen.html',
+    'es/fotografo-quinceanera-cancun.html',
+    'es/fotografo-renovacion-votos-mexico.html',
+    'es/fotografo-resorts-cancun.html',
+    'es/fotografo-tulum.html',
+    'es/fotografo-vacaciones-familia-riviera-maya.html',
+    'es/fotos-embarazo-cancun.html',
+    'es/lugares-sesion-fotos-cancun.html',
+    'es/mejores-lugares-proponer-cancun-riviera-maya.html',
+    'es/planear-boda-destino-lujo-cancun-riviera-maya.html',
+    'es/precios-fotografo-cancun.html',
+    'es/venues.html',
+    'es/videografo-bodas-cancun.html',
+    'es/videografo-bodas-destino-mexico.html',
+    'extended-family-vacation-photographer-riviera-maya.html',
+    'honeymoon-photographer-riviera-maya.html',
+    'isla-mujeres-photographer.html',
+    'jewish-destination-wedding-photographer-mexico.html',
+    'los-cabos-elopement-photographer.html',
+    'los-cabos-engagement-photographer.html',
+    'los-cabos-family-photographer.html',
+    'los-cabos-wedding-photographer.html',
+    'luxury-event-photographer-cancun.html',
+    'merida-family-photographer.html',
+    'mexico-city-family-photographer.html',
+    'milestone-birthday-photographer-cancun.html',
+    'planning-a-luxury-destination-wedding-cancun-riviera-maya.html',
+    'playa-del-carmen-couples-photographer.html',
+    'playa-del-carmen-family-photographer.html',
+    'playa-del-carmen-photographer.html',
+    'playa-mujeres-wedding-photographer.html',
+    'puerto-vallarta-couples-photographer.html',
+    'puerto-vallarta-family-photographer.html',
+    'quinceanera-photographer-cancun.html',
+    'resort-photographer-cancun.html',
+    'san-miguel-de-allende-couples-photographer.html',
+    'tulum-couples-photographer.html',
+    'tulum-photographer.html',
+    'venues.html',
+    'vow-renewal-photographer-mexico.html',
+    'welcome-party-rehearsal-dinner-photographer-cancun.html',
+]
+
 
 def texto_visible(s):
     t = re.sub(r'<script.*?</script>|<style.*?</style>', '', s, flags=re.S)
@@ -213,6 +301,9 @@ def texto_visible(s):
 
 def main():
     solo_ver = '--ver' in sys.argv
+    if '--con-pendientes' in sys.argv:
+        css11, paginas11 = FAMILIAS['F11']
+        FAMILIAS['F11'] = (css11, paginas11 + [x for x in F11_PENDIENTES if x not in paginas11])
     por_pagina = {}
     for fam, (css, paginas) in FAMILIAS.items():
         for p in paginas:
