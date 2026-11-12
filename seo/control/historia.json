@@ -7,6 +7,14 @@
    "problema": 1,
    "rastreada": 389,
    "total": 909
+  },
+  "2026-11-12": {
+   "desconocida": 305,
+   "descubierta": 38,
+   "indexada": 176,
+   "problema": 1,
+   "rastreada": 389,
+   "total": 909
   }
  },
  "ivaestudios.com": {
@@ -17,6 +25,14 @@
    "problema": 1,
    "rastreada": 115,
    "total": 1320
+  },
+  "2026-11-12": {
+   "desconocida": 23,
+   "descubierta": 31,
+   "indexada": 1158,
+   "problema": 1,
+   "rastreada": 116,
+   "total": 1329
   }
  }
 }
