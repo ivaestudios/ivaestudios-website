@@ -85,6 +85,7 @@ DEFAULT_URLS = [
     "https://ivaestudios.com/es/fotografia-parejas-mexico",
     # Comparativas (quien es el mejor)
     "https://ivaestudios.com/comparison/luxury-photographers-cancun",
+    "https://ivaestudios.com/comparison/wedding-photographers-cancun",
     "https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun",
     # Standalone
     # Blog indexes

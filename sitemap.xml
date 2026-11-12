@@ -10269,7 +10269,7 @@
 
   <url>
     <loc>https://ivaestudios.com/comparison/luxury-photographers-cancun</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/comparison/luxury-photographers-cancun"/>
@@ -10279,12 +10279,21 @@
 
   <url>
     <loc>https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/comparison/luxury-photographers-cancun"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/comparison/luxury-photographers-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/comparison/wedding-photographers-cancun</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/comparison/wedding-photographers-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/comparison/wedding-photographers-cancun"/>
   </url>
 
   <url>
