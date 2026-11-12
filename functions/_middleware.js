@@ -82,6 +82,7 @@ function anotar(context, sitio, ruta, estado) {
         estado,
         ip: context.request.headers.get('cf-connecting-ip') || '',
         cat: cf.verifiedBotCategory || '',
+        red: String(cf.asOrganization || '').slice(0, 60),
       }),
     }).catch(() => {});
     context.waitUntil(aviso);
