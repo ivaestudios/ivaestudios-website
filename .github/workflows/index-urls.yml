@@ -73,7 +73,7 @@ jobs:
               | grep -vE '(^|/)(_|tools/|marketing/|preview|index-preview|-preview)' \
               | grep -vE '^(404|admin|accessibility-statement|privacy-policy)\.html$' \
               | grep -vE 'preview[^/]*\.html$' \
-              | sed -E 's|^index\.html$||; s|^es/index\.html$|es/|; s|\.html$||' \
+              | sed -E 's#(^|/)index\.html$#\1#; s#\.html$##' \
               | sed -E 's|^|https://ivaestudios.com/|' | head -300)
             if [ -z "$CAMBIADOS" ]; then echo "Sin HTML cambiado en este push: nada que encolar."; exit 0; fi
             echo "$CAMBIADOS" | sed 's/^/  /'
