@@ -14,7 +14,7 @@ QUE HACE CADA DIA
    indexada. Primero las que faltan; las que ya entraron se revisan por turnos
    para detectar si alguna se cae.
 3. Las que faltan y no se han mandado hace poco entran a la cola:
-     ivaestudios -> seo/google-queue.txt   (salen 140 al dia, 07:15 UTC)
+     ivaestudios -> seo/google-queue.txt   (salen 140 al dia, 08:20 UTC)
      bodasmx     -> seo/bodasmx-queue.txt  (salen 60 al dia, 09:20 UTC)
 4. Escribe el libro (seo/control/indexacion.tsv), la historia por dia
    (seo/control/historia.json) y un informe legible (seo/control/INDEXACION.md).

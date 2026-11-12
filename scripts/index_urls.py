@@ -11,11 +11,22 @@ URLs can come from four places, in order of precedence:
   2. --source trends:     URLs listed in seo/data/latest.json (changed_pages)
   3. URLS_FILE env var:   path to a newline-delimited list of URLs
   4. Cola:                seo/google-queue.txt, hasta COLA_MAX por corrida (la
-                          corrida diaria de las 07:15 UTC la va vaciando; las
-                          aceptadas se quitan y el workflow guarda el archivo)
+                          corrida diaria la va vaciando; las aceptadas se
+                          quitan y el workflow guarda el archivo)
+     --encolar URL...     no manda nada: agrega esas URLs al final de la cola.
+                          Lo usa el push (ver "POR QUE EL PUSH ENCOLA" abajo).
   5. Default list:        the 21 high-priority April 2026 audit URLs
 
 Quota: Google Indexing API allows 200 notifications/day per project.
+
+POR QUE EL PUSH ENCOLA (12-nov-2026)
+La cuota de 200 al dia se reparte asi: 140 de esta cola + 60 de bodasmx. Antes,
+cada push mandaba directo las paginas cambiadas (hasta 40 por push). En un dia
+con muchos cambios eso se comia la cuota y la corrida diaria de la cola no
+mandaba NADA: el 11-nov-2026 la cola (182 paginas que Google aun no tenia) se
+quedo entera, y las paginas cambiadas que pegaron con la cuota tampoco se
+guardaban para despues. Ahora el push solo encola al final; las paginas nuevas,
+que son las que mas urgen, salen primero.
 """
 import argparse
 import json
@@ -99,6 +110,29 @@ def load_credentials():
         file=sys.stderr,
     )
     sys.exit(1)
+
+
+def encolar(urls):
+    """Agrega al final de la cola las URLs que no esten ya. No toca la cuota."""
+    nuevas = []
+    vistas = set()
+    for trozo in urls:
+        # Un argumento puede traer varias URLs separadas por espacios o saltos de linea.
+        for u in trozo.split():
+            if u.startswith("https://") and u not in vistas:
+                vistas.add(u)
+                nuevas.append(u)
+    cola = []
+    if os.path.exists(COLA):
+        with open(COLA, encoding="utf-8") as f:
+            cola = [ln.strip() for ln in f if ln.strip().startswith("http")]
+    ya = set(cola)
+    agregar = [u for u in nuevas if u not in ya]
+    if agregar:
+        with open(COLA, "w", encoding="utf-8") as f:
+            f.write("".join(u + "\n" for u in cola + agregar))
+    print(f"  cola: +{len(agregar)} (ya estaban {len(nuevas) - len(agregar)}), total {len(cola) + len(agregar)}")
+    return len(agregar)
 
 
 def collect_from_trends():
@@ -200,8 +234,17 @@ def main():
         choices=["trends"],
         help="Read URLs from seo/data/latest.json (changed_pages list).",
     )
+    parser.add_argument(
+        "--encolar",
+        action="store_true",
+        help="No manda nada: agrega las URLs al final de la cola (seo/google-queue.txt).",
+    )
     parser.add_argument("urls", nargs="*", help="URLs to submit (positional).")
     args = parser.parse_args()
+
+    if args.encolar:
+        encolar(args.urls)
+        sys.exit(0)
 
     use_trends = args.source == "trends"
     urls = collect_urls(use_trends, args.urls)
