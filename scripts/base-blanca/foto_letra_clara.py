@@ -23,8 +23,8 @@ F7  .lf-hero                                    (familias, escritorio)
 F8  .lw-pause y .lw-inq2                        (frase sobre foto y cierre de consulta)
 F9  .lw-hero .lw-meta-l                         (bodas de destino)
 F10 .le-hero .le-eyebrow                        (editorial)
-F11 .hero-bg con foto a brillo completo         (MUESTRA: solo propuestas; hay 81 paginas mas
-                                                 con esta plantilla que esperan decision de Vianey)
+F11 .hero-bg con foto a brillo completo         (propuestas + las 81 paginas con la misma plantilla;
+                                                 Vianey dio el OK el 12-nov-2026 y quedaron aplicadas)
 F12 .jrn-feat y .jrn-mini (fotos al 62%)        (portada EN y ES, las tarjetas de "The Journal";
                                                  solo se ven en computadora)
 
@@ -34,7 +34,6 @@ su propio diseno (panel blanco y letra oscura con !important): no se toca.
 COMO SE USA (desde la raiz del repo)
   python3 scripts/base-blanca/foto_letra_clara.py            # aplica y lista lo cambiado
   python3 scripts/base-blanca/foto_letra_clara.py --ver      # solo dice que cambiaria
-  python3 scripts/base-blanca/foto_letra_clara.py --con-pendientes   # ademas, las 81 que esperan OK
 
 COMO SE REVISA
 Pegar scripts/base-blanca/escaner_letra_sobre_foto.js en la consola del navegador, en
@@ -178,7 +177,7 @@ F10 = """
 }
 """
 # F11: portada y cierre con foto a brillo completo, sin velo y con letra oscura (83 paginas).
-# MUESTRA: solo la pagina de propuestas (EN y ES), para que Vianey decida si se aplica a las demas.
+# Primero fue una muestra en propuestas (EN y ES). Vianey aprobo aplicarlo a todas el 12-nov-2026.
 F11 = """
 .hero,.cta{background-color:#161616}
 .hero::after{background:linear-gradient(180deg,rgba(0,0,0,.58) 0%,rgba(0,0,0,.80) 100%)}
@@ -221,9 +220,9 @@ FAMILIAS = {
 }
 
 # Paginas con la misma plantilla que propuestas (portada y cierre con foto a brillo completo,
-# sin velo y con letra oscura). NO se aplican solas: es un cambio de diseno que se nota y
-# espera el OK de Vianey. Para aplicarlas: --con-pendientes
-F11_PENDIENTES = [
+# sin velo y con letra oscura). Estuvieron en espera hasta el OK de Vianey (12-nov-2026);
+# desde entonces se aplican siempre, junto con la familia F11.
+F11_APROBADAS_12NOV = [
     'anniversary-couples-photographer-mexico.html',
     'anniversary-party-photographer-cancun.html',
     'beach-wedding-photographer-cancun.html',
@@ -315,9 +314,8 @@ def texto_visible(s):
 
 def main():
     solo_ver = '--ver' in sys.argv
-    if '--con-pendientes' in sys.argv:
-        css11, paginas11 = FAMILIAS['F11']
-        FAMILIAS['F11'] = (css11, paginas11 + [x for x in F11_PENDIENTES if x not in paginas11])
+    css11, paginas11 = FAMILIAS['F11']
+    FAMILIAS['F11'] = (css11, paginas11 + [x for x in F11_APROBADAS_12NOV if x not in paginas11])
     por_pagina = {}
     for fam, (css, paginas) in FAMILIAS.items():
         for p in paginas:
