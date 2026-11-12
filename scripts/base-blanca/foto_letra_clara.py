@@ -25,6 +25,8 @@ F9  .lw-hero .lw-meta-l                         (bodas de destino)
 F10 .le-hero .le-eyebrow                        (editorial)
 F11 .hero-bg con foto a brillo completo         (MUESTRA: solo propuestas; hay 81 paginas mas
                                                  con esta plantilla que esperan decision de Vianey)
+F12 .jrn-feat y .jrn-mini (fotos al 62%)        (portada EN y ES, las tarjetas de "The Journal";
+                                                 solo se ven en computadora)
 
 Los bloques que llevan @media (min-width:769px) son plantillas cuyo celular ya tiene
 su propio diseno (panel blanco y letra oscura con !important): no se toca.
@@ -193,6 +195,17 @@ F11 = """
 .cta .cta-btn{color:#ffffff;border-color:rgba(255,255,255,.6)}
 .cta .cta-btn:hover{background:#ffffff;color:#1a1a1a}
 """
+# F12: tarjetas del diario en la portada. La foto va oscurecida al 62% (50% al pasar el cursor)
+# y la letra encima quedo oscura: no se lee. Hallado el 12-nov-2026 con el barrido a 1440 px.
+F12 = NOTA + """
+.jrn-feat,.jrn-mini{background-color:#161616}
+.jrn-feat::after,.jrn-mini::after{background:linear-gradient(to top,rgba(0,0,0,.62) 0%,rgba(0,0,0,.18) 60%,rgba(0,0,0,0) 100%)}
+.jrn-feat .jrn-no,.jrn-mini .jrn-no{color:rgba(255,255,255,.86)}
+.jrn-feat .jrn-no::after,.jrn-mini .jrn-no::after{background:#ffffff}
+.jrn-feat h3,.jrn-feat h3 em,.jrn-mini h3,.jrn-mini h3 em{color:#ffffff}
+.jrn-feat p{color:rgba(255,255,255,.88)}
+.jrn-feat .jrn-go,.jrn-mini .jrn-go{color:#ffffff}
+"""
 FAMILIAS = {
  'F1': (F1, ['cabo-photographer.html','cenote-photographer-tulum.html','es/fotografo-los-cabos.html','mayakoba-wedding-photographer.html','riviera-maya-wedding-photographer.html']),
  'F2': (F2, ['destination-family-photographer-mexico.html','es/fotografo-familiar-destino-mexico.html','es/fotografia-familiar-multigeneracional-mexico.html','multigenerational-family-photography-mexico.html']),
@@ -204,6 +217,7 @@ FAMILIAS = {
  'F9': (F9, ['destination-wedding-photographer-mexico.html','es/fotografo-bodas-destino-mexico.html']),
  'F10': (F10, ['luxury-editorial.html','es/editorial-de-lujo.html']),
  'F11': (F11, ['surprise-proposal-photographer-cancun.html','es/fotografo-propuesta-sorpresa-cancun.html']),
+ 'F12': (F12, ['index.html','es/index.html']),
 }
 
 # Paginas con la misma plantilla que propuestas (portada y cierre con foto a brillo completo,
