@@ -38,6 +38,7 @@ QUIEN = {
     "PerplexityBot": "Perplexity: arma su buscador",
     "Perplexity-User": "Perplexity: abre una pagina a pedido",
     "Meta-WebIndexer": "Meta: arma el buscador de Meta AI y Muse",
+    "Meta-WebIndexer (en vivo)": "Meta: Muse o Meta AI abren una pagina para contestarle a una persona",
     "Meta-ExternalAgent": "Meta: entrenamiento",
     "Meta-ExternalFetcher": "Meta: abre una pagina a pedido (Meta AI, Muse)",
     "Meta-ExternalAds": "Meta: anuncios",
@@ -52,7 +53,7 @@ QUIEN = {
     "Bravebot": "Brave: buscador",
 }
 ORDEN = ["Claude-SearchBot", "Claude-User", "ClaudeBot", "OAI-SearchBot", "ChatGPT-User", "GPTBot",
-         "Meta-WebIndexer", "Meta-ExternalFetcher", "Meta-ExternalAgent", "PerplexityBot", "Perplexity-User",
+         "Meta-WebIndexer (en vivo)", "Meta-WebIndexer", "Meta-ExternalFetcher", "Meta-ExternalAgent", "PerplexityBot", "Perplexity-User",
          "Googlebot", "Google-Extended", "Bingbot"]
 
 
@@ -138,6 +139,32 @@ def armar(d):
             L.append("| %s | %s | %s | `%s` | %s | %s |" % (hora_cancun(r["ultima"]), r["robot"],
                                                         "copia vieja" if r["sitio"] == COPIA else r["sitio"], r["ruta"][:70],
                                                         r["estado"], (r.get("red") or "")[:30]))
+        L.append("")
+
+    # 3a. Muse y Meta AI: lo que abrieron en vivo y lo que Meta ya tiene en su buscador
+    vivo = d.get("metaVivo") or []
+    L += ["## Muse y Meta AI: paginas que abrieron para contestarle a alguien", "",
+          "Cada fila es una pagina que el asistente de Meta abrio en ese momento porque una persona le pregunto algo. "
+          "Son las visitas de Meta-WebIndexer que llegan por la red de Cloudflare: el 11 de noviembre de 2026 se comprobo, "
+          "con cuatro pruebas hechas en Muse, que cada pagina que Muse abre deja una visita asi en el mismo minuto. "
+          "No dice quien pregunto ni que pregunto.", ""]
+    if vivo:
+        L.append("- En esta ventana: **%d aperturas** de %d paginas. Ultima: %s." % (
+            sum(r["visitas"] or 0 for r in vivo), len(vivo), hora_cancun(vivo[0]["ultima"])))
+        L += ["", "| Ultima vez | Sitio | Pagina | Veces |", "|---|---|---|---:|"]
+        for r in vivo[:40]:
+            L.append("| %s | %s | `%s` | %s |" % (hora_cancun(r["ultima"]), r["sitio"], str(r["ruta"])[:80], r["visitas"]))
+    else:
+        L.append("- Ninguna en esta ventana.")
+    L.append("")
+    indice = d.get("metaIndice") or []
+    if indice:
+        L += ["## Paginas que Meta ya leyo para su buscador", "",
+              "Lo que Meta-WebIndexer leyo por la red de Meta. De ahi salen los resultados cuando Muse o Meta AI buscan. "
+              "En esta ventana: %d paginas. Las mas recientes:" % len(indice), "",
+              "| Ultima vez | Sitio | Pagina | Veces |", "|---|---|---|---:|"]
+        for r in indice[:60]:
+            L.append("| %s | %s | `%s` | %s |" % (hora_cancun(r["ultima"]), r["sitio"], str(r["ruta"])[:80], r["visitas"]))
         L.append("")
 
     # 3b. Direcciones que los robots pidieron y no existen: candidatas a redireccion
