@@ -41,6 +41,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      # IndexNow used to fire 25 to 82 s before Cloudflare Pages finished
+      # publishing, so a fast crawler could fetch the previous version.
+      - name: Wait for Cloudflare Pages to publish
+        run: sleep 150
+
       - name: Submit to IndexNow
         env:
           BING_INDEXNOW_KEY: ${{ secrets.BING_INDEXNOW_KEY }}
