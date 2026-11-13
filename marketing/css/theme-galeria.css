@@ -286,3 +286,74 @@
 }
 :root[data-diseno="galeria"] .pauta-rango .btn.is-active { color: #0F0F10 !important; border-bottom-color: #0F0F10 !important; font-weight: 600; }
 :root[data-diseno="galeria"] .pauta-sw.is-on { background: var(--brand) !important; background-image: none !important; }
+
+/* ── 20. ESQUINAS: nada de pastillas (los interruptores siguen redondos) ── */
+:root[data-diseno="galeria"] { --r-pill: 8px; }
+
+/* ── 21. INICIO ────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] .dash-row__bar { display: none !important; }
+:root[data-diseno="galeria"] .dash-card__meta { background: transparent !important; border: 0 !important; color: #62625F !important; padding: 0 !important; }
+
+/* ── 22. BANDEJA: lista, etiquetas y etapas ───────────────────────────── */
+:root[data-diseno="galeria"] .bj-conv::before { display: none !important; }
+:root[data-diseno="galeria"] .bj-conv.is-unread { background: #FFFFFF !important; }
+:root[data-diseno="galeria"] .bj-conv:hover { background: #FAFAF8 !important; }
+:root[data-diseno="galeria"] .bj-conv.is-active { background: #F4F4F1 !important; }
+:root[data-diseno="galeria"] .bj-conv.is-unread .bj-conv__hora { color: var(--brand) !important; }
+:root[data-diseno="galeria"] .bj-conv__n { background: var(--brand) !important; color: #FFFFFF !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"] .bj-tag { background: transparent !important; border: 0 !important; padding: 0 !important; color: var(--text-dim) !important; font-weight: 600; font-size: 11.5px; }
+:root[data-diseno="galeria"] .bj-tag--etapa { color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .bj-tag--ad { color: #6B3FA0 !important; }
+:root[data-diseno="galeria"] .bj-tag--libre { color: #A15C00 !important; }
+:root[data-diseno="galeria"] .bj-etapa { border-radius: 8px !important; }
+:root[data-diseno="galeria"] .bj-emb__etapa { border-radius: 8px !important; }
+:root[data-diseno="galeria"] .bj-emb__etapa.is-on { background: #0F0F10 !important; border-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .bj-emb__etapa-n,
+:root[data-diseno="galeria"] .bj-emb__etapa.is-on .bj-emb__etapa-n { background: transparent !important; color: inherit !important; padding: 0 !important; }
+:root[data-diseno="galeria"] .bj-etapas__paso.is-hecho::after,
+:root[data-diseno="galeria"] .bj-etapas__paso.is-hecho:hover::after { background: #0F0F10 !important; }
+:root[data-diseno="galeria"] .bj-etapas__paso.is-hecho { color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .bj-etapas__paso:hover::after { background: #E7E7E4 !important; }
+:root[data-diseno="galeria"] .bj-etapas__perdido.is-actual { background: #62625F !important; border-color: #62625F !important; }
+:root[data-diseno="galeria"] .bj-reserva__estado { border-radius: 6px !important; }
+:root[data-diseno="galeria"] .bj-reserva__estado.is-hecho { color: #1E6B52 !important; border-color: #1E6B52 !important; }
+:root[data-diseno="galeria"] .bj-reserva__estado.is-cancelado,
+:root[data-diseno="galeria"] .bj-reserva__estado.is-error { color: #B3261E !important; border-color: #B3261E !important; }
+
+/* ── 23. VISTA DEL CLIENTE (Mi contenido) ─────────────────────────────── */
+:root[data-diseno="galeria"] .cnt-filtros { gap: 18px !important; border-bottom: 1px solid var(--border); padding-bottom: 0 !important; }
+:root[data-diseno="galeria"] .cnt-filtro {
+  border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; background: none !important;
+  padding: 0 2px !important; margin-bottom: -1px; color: #62625F !important; font-weight: 500;
+}
+:root[data-diseno="galeria"] .cnt-filtro.is-on { color: #0F0F10 !important; border-bottom-color: #0F0F10 !important; font-weight: 600; }
+:root[data-diseno="galeria"] .cnt-filtro b,
+:root[data-diseno="galeria"] .cnt-filtro.is-on b { background: none !important; padding: 0 !important; min-width: 0 !important; color: #62625F !important; }
+:root[data-diseno="galeria"] .cnt-filtro.is-alerta:not(.is-on) b { background: none !important; color: var(--brand) !important; }
+:root[data-diseno="galeria"] .cnt-card__tipo { border-radius: 3px !important; background: #FFFFFF !important; color: #0F0F10 !important; font-size: 11px !important; padding: 3px 6px !important; }
+:root[data-diseno="galeria"] .cnt-etapa { background: transparent !important; padding: 0 !important; gap: 6px; color: #62625F !important; font-weight: 600; }
+:root[data-diseno="galeria"] .cnt-etapa::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+:root[data-diseno="galeria"] .cnt-etapa[data-etapa="revisar"] { color: #A15C00 !important; }
+:root[data-diseno="galeria"] .cnt-etapa[data-etapa="aprobado"] { color: #1E6B52 !important; }
+:root[data-diseno="galeria"] .cnt-etapa[data-etapa="publicado"] { color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .cnt-etapa[data-etapa="cambios"] { color: #B3261E !important; }
+:root[data-diseno="galeria"] .cnt-tipo { border-radius: 8px !important; }
+:root[data-diseno="galeria"] .cnt-tipo.is-on { border: 1.5px solid #0F0F10 !important; background: #FFFFFF !important; color: #0F0F10 !important; }
+
+/* ── 24. CALENDARIO (tabla del mes) ───────────────────────────────────── */
+:root[data-diseno="galeria"] .meses-monthpill { background: #FFFFFF !important; }
+:root[data-diseno="galeria"] .meses-monthpill.is-active { background: #0F0F10 !important; border-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .meses-monthpill__n,
+:root[data-diseno="galeria"] .meses-monthpill.is-active .meses-monthpill__n { background: transparent !important; color: inherit !important; }
+:root[data-diseno="galeria"] .meses-side__item.is-active { background: #F4F4F1 !important; color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .meses-side__item:hover { color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .meses-side__n { background: transparent !important; }
+:root[data-diseno="galeria"] .meses-pill { background: transparent !important; border: 0 !important; padding: 0 !important; color: var(--chipc, var(--text-mute)) !important; }
+:root[data-diseno="galeria"] .meses-pill--plain { color: var(--text-dim) !important; }
+:root[data-diseno="galeria"] .meses-tool__badge,
+:root[data-diseno="galeria"] .meses-sec__count { background: transparent !important; color: #62625F !important; }
+:root[data-diseno="galeria"] .etable-st { background: transparent !important; border: 0 !important; color: var(--stc) !important; }
+:root[data-diseno="galeria"] .etable-ghead__count,
+:root[data-diseno="galeria"] .tl-ghead__count,
+:root[data-diseno="galeria"] .kb-col__count,
+:root[data-diseno="galeria"] .mw-count { background: transparent !important; color: #62625F !important; }
