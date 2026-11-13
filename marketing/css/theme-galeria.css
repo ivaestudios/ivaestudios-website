@@ -1,0 +1,288 @@
+/* ============================================================================
+   DISEÑO GALERÍA · IVAE Marketing (13-nov-2026)
+   Vianey aprobó la dirección "C · Galería" del lienzo de rediseño y pidió
+   pasarla a TODA la app: "solo tocamos el diseño, lo demás tiene que estar
+   funcionando al 100" (hay una campaña activa conectada al CRM).
+   Esta hoja es SOLO de estilo: se carga al final y gana por especificidad con
+   el prefijo :root[data-diseno="galeria"]. No cambia ningún comportamiento.
+   Para volver al diseño anterior basta con quitar data-diseno del <html>.
+   Reglas: blanco, tinta #0F0F10, letra Hanken Grotesk, filetes de 1px en vez
+   de sombras, un solo acento plano (magenta #B5307C), estados con punto y
+   palabra (nunca pastillas rellenas), sin degradados salvo el velo de fotos.
+   ============================================================================ */
+
+/* ── 1. TOKENS ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] {
+  --font: "Hanken Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --violet: #B5307C; --fuchsia: #B5307C; --pink: #B5307C;
+  --brand: #B5307C; --brand-strong: #8E2462;
+  --grad: linear-gradient(#B5307C, #B5307C);
+  --grad-soft: linear-gradient(rgba(181, 48, 124, .06), rgba(181, 48, 124, .06));
+  --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F4F4F1; --surface-3: rgba(15, 15, 16, .04);
+  --border: #E7E7E4; --border-strong: #D6D6D2;
+  --text: #0F0F10; --text-dim: #45453F; --text-mute: #62625F;
+  --sh-1: none; --sh-2: none; --sh-3: 0 12px 32px rgba(15, 15, 16, .14);
+  --sh-glow: none; --sh-glow-hover: none;
+  --e1: none; --e2: none; --e3: 0 12px 32px rgba(15, 15, 16, .14); --e4: 0 18px 48px rgba(15, 15, 16, .18);
+  --ring: 0 0 0 2px #FFFFFF, 0 0 0 4px #0F0F10;
+  --r-sm: 6px; --r: 8px; --r-lg: 10px; --r-xl: 12px;
+  /* estados: punto + palabra, tonos que pasan 4.5:1 sobre blanco */
+  --st-idea: #62625F; --st-guion: #1F5FBF; --st-grabacion: #A15C00; --st-edicion: #6B3FA0;
+  --st-revision: #9C2C6B; --st-aprobado: #1E6B52; --st-programado: #0E6E7E; --st-publicado: #0F0F10;
+  --warn: #A15C00; --ok: #1E6B52; --success: #1E6B52; --danger: #B3261E; --info: #1F5FBF;
+}
+
+/* ── 2. BASE ───────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] body {
+  font-family: var(--font);
+  background: #FFFFFF !important; background-image: none !important;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-diseno="galeria"] h1, :root[data-diseno="galeria"] h2, :root[data-diseno="galeria"] h3 { letter-spacing: -.01em; }
+:root[data-diseno="galeria"] ::selection { background: rgba(181, 48, 124, .18); color: #0F0F10; }
+:root[data-diseno="galeria"] ::-webkit-scrollbar-thumb { background: #D6D6D2; }
+:root[data-diseno="galeria"] ::-webkit-scrollbar-thumb:hover { background: #B9B9B4; }
+
+/* Sin sombras ni brillos en todo el diseño… */
+:root[data-diseno="galeria"] *,
+:root[data-diseno="galeria"] *::before,
+:root[data-diseno="galeria"] *::after { box-shadow: none !important; text-shadow: none !important; }
+/* …salvo lo que FLOTA sobre la pantalla (menús, hojas, avisos, ventanas) */
+:root[data-diseno="galeria"] .sheet,
+:root[data-diseno="galeria"] .modal,
+:root[data-diseno="galeria"] .drawer,
+:root[data-diseno="galeria"] .toast,
+:root[data-diseno="galeria"] .menu,
+:root[data-diseno="galeria"] .popover,
+:root[data-diseno="galeria"] .dropdown,
+:root[data-diseno="galeria"] [role="menu"],
+:root[data-diseno="galeria"] [role="dialog"],
+:root[data-diseno="galeria"] [role="listbox"] { box-shadow: 0 12px 32px rgba(15, 15, 16, .14) !important; }
+/* Foco visible con teclado: anillo de tinta (antes era sombra) */
+:root[data-diseno="galeria"] :focus-visible { outline: 2px solid #0F0F10 !important; outline-offset: 2px; }
+
+/* Texto con degradado → tinta */
+:root[data-diseno="galeria"] .grad-text {
+  background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important; color: var(--text) !important;
+}
+
+/* ── 3. BOTONES ────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] .btn {
+  background: #FFFFFF; color: var(--text); border: 1px solid #0F0F10; border-radius: 8px;
+  font-weight: 600; letter-spacing: 0;
+}
+:root[data-diseno="galeria"] .btn:hover { background: #F4F4F1; border-color: #0F0F10; transform: none; }
+:root[data-diseno="galeria"] .btn:active { transform: none; }
+:root[data-diseno="galeria"] .btn-primary,
+:root[data-diseno="galeria"] .btn-primary:hover {
+  background-color: var(--brand) !important; background-image: none !important;
+  border-color: var(--brand) !important; color: #FFFFFF !important; filter: none; transform: none;
+}
+:root[data-diseno="galeria"] .btn-primary:hover { background-color: var(--brand-strong) !important; border-color: var(--brand-strong) !important; }
+:root[data-diseno="galeria"] .btn-ghost { background: transparent; border-color: transparent; color: var(--text); }
+:root[data-diseno="galeria"] .btn-ghost:hover { background: #F4F4F1; border-color: transparent; }
+:root[data-diseno="galeria"] .btn-danger { background: #FFFFFF; border-color: #B3261E; color: #B3261E; }
+:root[data-diseno="galeria"] .btn-danger:hover { background: #B3261E; border-color: #B3261E; color: #FFFFFF; }
+:root[data-diseno="galeria"] .btn-sm { border-radius: 6px; }
+
+/* ── 4. CONTROLES SEGMENTADOS → PESTAÑAS SUBRAYADAS ───────────────────── */
+:root[data-diseno="galeria"] .seg {
+  background: transparent; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 0; gap: 18px;
+}
+:root[data-diseno="galeria"] .seg button {
+  border-radius: 0; padding: 0 2px; min-height: 40px; color: var(--text-mute); font-weight: 500;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; background: none !important;
+}
+:root[data-diseno="galeria"] .seg button:hover { color: var(--text); background: none; }
+:root[data-diseno="galeria"] .seg button:active { transform: none; }
+:root[data-diseno="galeria"] .seg button.is-active {
+  background: none !important; color: var(--text); font-weight: 600; border-bottom-color: #0F0F10;
+}
+
+/* ── 5. TARJETAS Y CIFRAS ──────────────────────────────────────────────── */
+:root[data-diseno="galeria"] .card { border-color: var(--border); border-radius: 10px; }
+:root[data-diseno="galeria"] .stat,
+:root[data-diseno="galeria"] .stat:hover {
+  background: #FFFFFF !important; background-image: none !important; border-color: var(--border); border-radius: 10px; transform: none;
+}
+:root[data-diseno="galeria"] .stat__num { font-weight: 700; }
+:root[data-diseno="galeria"] .stat__label { text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 500; }
+:root[data-diseno="galeria"] .dash-card,
+:root[data-diseno="galeria"] .dash-counter,
+:root[data-diseno="galeria"] .kb-card,
+:root[data-diseno="galeria"] .mt-kpi,
+:root[data-diseno="galeria"] .mt-vid,
+:root[data-diseno="galeria"] .meses-stat,
+:root[data-diseno="galeria"] .wl-person,
+:root[data-diseno="galeria"] .mw-stat,
+:root[data-diseno="galeria"] .mt-card {
+  background: #FFFFFF !important; background-image: none !important; border: 1px solid var(--border) !important; border-radius: 10px !important;
+}
+:root[data-diseno="galeria"] .dash-pipeline::before,
+:root[data-diseno="galeria"] .dash-donutcard::before { display: none !important; }
+
+/* ── 6. CHIPS, ESTADOS Y CONTADORES (punto + palabra, sin relleno) ────── */
+:root[data-diseno="galeria"] .chip {
+  background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 6px; font-weight: 600;
+}
+:root[data-diseno="galeria"] .chip .swatch { box-shadow: none; }
+:root[data-diseno="galeria"] .status-badge {
+  background: transparent; border: 0; padding: 0; height: auto; border-radius: 0;
+  color: var(--c, var(--text-mute)); font-weight: 600;
+}
+:root[data-diseno="galeria"] .status-badge .swatch { width: 8px; height: 8px; }
+:root[data-diseno="galeria"] .approval-badge { background: transparent !important; border: 0 !important; padding: 0; height: auto; border-radius: 0; font-weight: 600; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="pending"] { color: #A15C00; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="pending"] .dot { background: #A15C00; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="approved"] { color: #1E6B52; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="approved"] .dot { background: #1E6B52; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="changes"] { color: #B3261E; }
+:root[data-diseno="galeria"] .approval-badge[data-approval="changes"] .dot { background: #B3261E; }
+:root[data-diseno="galeria"] .tag { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 6px; }
+
+/* ── 7. CAMPOS ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+:root[data-diseno="galeria"] select,
+:root[data-diseno="galeria"] textarea { border-color: #8C8C87; border-radius: 8px; background-color: #FFFFFF; }
+:root[data-diseno="galeria"] input[type="checkbox"], :root[data-diseno="galeria"] input[type="radio"] { accent-color: var(--brand); }
+
+/* ── 8. INTERRUPTORES: pista de acento plano ──────────────────────────── */
+:root[data-diseno="galeria"] .switch input:checked + .switch__track,
+:root[data-diseno="galeria"] .edswitch.is-on,
+:root[data-diseno="galeria"] .mw-switch.is-on,
+:root[data-diseno="galeria"] .au-switch.is-on .au-switch__track { background: var(--brand) !important; background-image: none !important; }
+:root[data-diseno="galeria"] .av-switch.is-on .av-switch__knob { background-image: none !important; }
+
+/* ── 9. AVATARES E ÍCONOS DE VACÍO: relleno neutro ────────────────────── */
+:root[data-diseno="galeria"] .avatar,
+:root[data-diseno="galeria"] .bj-avatar,
+:root[data-diseno="galeria"] .acct-act__avatar,
+:root[data-diseno="galeria"] .nf-row__avatar {
+  background: #F4F4F1 !important; background-image: none !important; color: #0F0F10 !important;
+}
+:root[data-diseno="galeria"] .empty__icon,
+:root[data-diseno="galeria"] .kb-empty__icon,
+:root[data-diseno="galeria"] .mw-empty__icon,
+:root[data-diseno="galeria"] .au-empty__icon,
+:root[data-diseno="galeria"] .empty-rich__ico,
+:root[data-diseno="galeria"] .au-head__icon {
+  background: #F4F4F1 !important; background-image: none !important; color: #0F0F10 !important;
+}
+
+/* ── 10. HOY / BOTÓN FLOTANTE / CONTADORES ────────────────────────────── */
+:root[data-diseno="galeria"] .cal-day.is-today,
+:root[data-diseno="galeria"] .dash-spark__bar.is-today { background-image: none !important; }
+:root[data-diseno="galeria"] .cal-day.is-today .cal-day__num,
+:root[data-diseno="galeria"] .mini__day.is-today .mini__num,
+:root[data-diseno="galeria"] .cal-mcell__num.is-today,
+:root[data-diseno="galeria"] .tl-strip__day.is-today .tl-strip__num,
+:root[data-diseno="galeria"] .tl-dayhead.is-today .tl-dayhead__num {
+  background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important;
+}
+:root[data-diseno="galeria"] .fab { background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .cs-row__badge,
+:root[data-diseno="galeria"] .cal-ctlbtn__badge,
+:root[data-diseno="galeria"] .kb-ctl__badge,
+:root[data-diseno="galeria"] .nav-item .count { background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .dash-day__tag { background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .toast__action { background: transparent !important; background-image: none !important; color: #FFFFFF !important; text-decoration: underline; }
+
+/* ── 11. BARRA SUPERIOR ───────────────────────────────────────────────── */
+:root[data-diseno="galeria"] #topbar,
+:root[data-diseno="galeria"] .topbar {
+  background: #FFFFFF !important; border-bottom: 1px solid var(--border) !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+:root[data-diseno="galeria"] .tb-brand__mark,
+:root[data-diseno="galeria"] .logo__mark { background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .tb-tab.is-active::after { background: #0F0F10 !important; background-image: none !important; height: 2px; }
+
+/* ── 12. SKELETONS: gris plano que respira ────────────────────────────── */
+:root[data-diseno="galeria"] .skeleton::after,
+:root[data-diseno="galeria"] .edskel__row,
+:root[data-diseno="galeria"] .kb-skel,
+:root[data-diseno="galeria"] .meses-skel,
+:root[data-diseno="galeria"] .mt-sk,
+:root[data-diseno="galeria"] .mw-skel__bar,
+:root[data-diseno="galeria"] .au-skel__bar,
+:root[data-diseno="galeria"] .tl-skel,
+:root[data-diseno="galeria"] .wl-skel,
+:root[data-diseno="galeria"] .etable-skel__head::after,
+:root[data-diseno="galeria"] .etable-skel__row::after { background-image: none !important; background-color: #F4F4F1 !important; }
+
+/* ── 13. BANDEJA: embudo con columnas blancas y punto de color ────────── */
+:root[data-diseno="galeria"] .bj-col { background: #FFFFFF !important; border: 1px solid var(--border) !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"] .bj-col__head {
+  background: #FFFFFF !important; color: #0F0F10 !important; border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0 !important;
+}
+:root[data-diseno="galeria"] .bj-col__head .bj-col__punto { display: block !important; }
+:root[data-diseno="galeria"] .bj-col__n { background: transparent !important; color: #62625F !important; padding: 0; min-width: 0; }
+:root[data-diseno="galeria"] .bj-col__valor { color: #62625F !important; font-weight: 600; }
+:root[data-diseno="galeria"] .bj-menu.is-on,
+:root[data-diseno="galeria"] .bj-filtro.is-on,
+:root[data-diseno="galeria"] .bj-ftarea__atajo.is-on { background: #0F0F10 !important; background-image: none !important; color: #FFFFFF !important; border-color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .bj-msgs { background: #FFFFFF !important; background-image: none !important; }
+
+/* ── 14. OTROS DEGRADADOS DE COMPONENTES → planos ──────────────────────── */
+:root[data-diseno="galeria"] .nav-item.is-active { background: #F4F4F1 !important; background-image: none !important; color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .cs-row__dot--all { background: #0F0F10 !important; background-image: none !important; }
+:root[data-diseno="galeria"] .dlv-prog__fill { background: #0F0F10 !important; background-image: none !important; }
+:root[data-diseno="galeria"] .dlv-addbtn,
+:root[data-diseno="galeria"] .dlv-dl--ready,
+:root[data-diseno="galeria"] .dlv-carrusel-btn,
+:root[data-diseno="galeria"] .dlv-comment-send,
+:root[data-diseno="galeria"] .dlv-dl.dlv-dlall,
+:root[data-diseno="galeria"] .dlv-dl.dlv-dlall.dlv-dl--ready { background-image: none !important; background-color: var(--brand) !important; color: #FFFFFF !important; border-color: var(--brand) !important; }
+:root[data-diseno="galeria"] .edcheck__add { background-image: none !important; background-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .kb-notice__clear { background-image: none !important; background-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .mdsec__lbl::before { background-image: none !important; background-color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .meses-item { background-image: none !important; }
+:root[data-diseno="galeria"] .mt-step__n { background-image: none !important; background-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .dash-mini__bar i,
+:root[data-diseno="galeria"] .mt-aud__bar i { background-image: none !important; background-color: #0F0F10 !important; }
+:root[data-diseno="galeria"] .edhead,
+:root[data-diseno="galeria"] .edblock { background-image: none !important; background-color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .ag-list .cal-card { background-image: none !important; }
+:root[data-diseno="galeria"] .ptab[aria-selected="true"] { background-image: none !important; background-color: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .portal__brandline { background-image: none !important; background-color: var(--border) !important; }
+:root[data-diseno="galeria"] .pmsg.is-mine .pmsg__bubble { background-image: none !important; background-color: #F4F4F1 !important; color: #0F0F10 !important; }
+
+/* ── 15. BARRA SUPERIOR: detalles ─────────────────────────────────────── */
+:root[data-diseno="galeria"] .tb-accent { background: transparent !important; }
+:root[data-diseno="galeria"] .tb-lang__btn.is-active { background: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .tb-badge,
+:root[data-diseno="galeria"] .bn-badge { background: #0F0F10 !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"] .tb-client { border-radius: 8px !important; }
+
+/* ── 16. MAYÚSCULAS → texto normal (el logo se queda como está) ──────── */
+:root[data-diseno="galeria"] body *:not(.tb-brand):not(.tb-brand *):not(.logo):not(.logo *) {
+  text-transform: none !important; letter-spacing: normal !important;
+}
+
+/* ── 17. MÉTRICAS: la letra de la casa en todo ────────────────────────── */
+:root[data-diseno="galeria"] * { --mt-serif: var(--font); --mt-mono: var(--font); }
+
+/* ── 18. BANDEJA: contadores como texto, canales sin pastilla ─────────── */
+:root[data-diseno="galeria"] .bj-seg__n { background: transparent !important; color: #62625F !important; padding: 0 !important; min-width: 0 !important; font-weight: 600; }
+:root[data-diseno="galeria"] .bj-canal { border-radius: 8px !important; }
+
+/* ── 19. PAUTA ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"] .pauta-resumen { background: #FFFFFF !important; background-image: none !important; border: 1px solid var(--border) !important; }
+:root[data-diseno="galeria"] .pauta-card { border-color: var(--border) !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"] .pauta-chip {
+  background: transparent !important; border: 0 !important; padding: 0 !important; height: auto !important;
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 600;
+}
+:root[data-diseno="galeria"] .pauta-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+:root[data-diseno="galeria"] .pauta-chip--ok { color: #1E6B52 !important; }
+:root[data-diseno="galeria"] .pauta-chip--warn { color: #A15C00 !important; }
+:root[data-diseno="galeria"] .pauta-chip--off { color: #62625F !important; }
+:root[data-diseno="galeria"] .pauta-rango { gap: 18px !important; border-bottom: 1px solid var(--border); }
+:root[data-diseno="galeria"] .pauta-rango .btn {
+  background: none !important; background-image: none !important; border: 0 !important; border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important; color: #62625F !important; padding: 0 2px !important; margin-bottom: -1px; font-weight: 500;
+}
+:root[data-diseno="galeria"] .pauta-rango .btn.is-active { color: #0F0F10 !important; border-bottom-color: #0F0F10 !important; font-weight: 600; }
+:root[data-diseno="galeria"] .pauta-sw.is-on { background: var(--brand) !important; background-image: none !important; }
