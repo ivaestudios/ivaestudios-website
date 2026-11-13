@@ -161,6 +161,35 @@ html:not(.js-on) .rv{opacity:1 !important;transform:none !important;clip-path:no
 @media(max-width:900px){.folio{padding:64px 24px}.folio-grid{columns:2}}
 @media(max-width:560px){.folio-grid{columns:1}}
 </style>
+<style>
+/* Collections table (.pdcf-col): scoped to this page; scrolls inside its own box on narrow phones */
+.pdcf-col{max-width:880px;margin-top:56px}
+.pdcf-col-h{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;line-height:1.2;color:var(--ink);margin-bottom:18px}
+.pdcf-col-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;background:#ffffff;border:1px solid var(--border-d)}
+.pdcf-col-scroll:focus-visible{outline:2px solid #1f3a5a;outline-offset:2px}
+.pdcf-col-table{width:100%;border-collapse:collapse;font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;color:var(--ink);background:#ffffff}
+.pdcf-col-table th,.pdcf-col-table td{padding:14px 16px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--border-d)}
+.pdcf-col-table thead th{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#1f3a5a;background:var(--sand)}
+.pdcf-col-table tbody th{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;line-height:1.2;color:var(--ink)}
+.pdcf-col-table tbody tr:last-child th,.pdcf-col-table tbody tr:last-child td{border-bottom:0}
+.pdcf-col-table .pdcf-n{white-space:nowrap}
+.pdcf-col-table .pdcf-price{white-space:nowrap;font-weight:600}
+.pdcf-col-table tr.pdcf-rec th,.pdcf-col-table tr.pdcf-rec td{background:rgba(31,58,90,0.06)}
+.pdcf-tag{display:block;margin-top:3px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.2;color:#1f3a5a}
+.pdcf-col-note{margin-top:20px;font-size:14px;line-height:1.85;color:rgba(26,36,51,0.82)}
+.pdcf-col-note strong{color:var(--ink);font-weight:600}
+@media(max-width:480px){.pdcf-col{margin-top:40px}.pdcf-col-h{font-size:22px;margin-bottom:14px}.pdcf-col-table{font-size:12px}.pdcf-col-table th,.pdcf-col-table td{padding:11px 7px}.pdcf-col-table thead th{font-size:9px;letter-spacing:0.1em}.pdcf-col-table tbody th{font-size:16px}.pdcf-tag{font-size:12.5px}.pdcf-col-note{font-size:13.5px;line-height:1.75}}
+html.dark .pdcf-col-h{color:#f4f1ec}
+html.dark .pdcf-col-scroll{background:#141c26;border-color:rgba(196,165,78,0.18)}
+html.dark .pdcf-col-table{background:#141c26;color:rgba(249,248,245,0.82)}
+html.dark .pdcf-col-table th,html.dark .pdcf-col-table td{border-bottom-color:rgba(196,165,78,0.18)}
+html.dark .pdcf-col-table thead th{background:#1a2230;color:#c9a54e}
+html.dark .pdcf-col-table tbody th{color:#f4f1ec}
+html.dark .pdcf-col-table tr.pdcf-rec th,html.dark .pdcf-col-table tr.pdcf-rec td{background:#1a2230}
+html.dark .pdcf-tag{color:#c9a54e}
+html.dark .pdcf-col-note{color:rgba(249,248,245,0.82)}
+html.dark .pdcf-col-note strong{color:#ffffff}
+</style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
 </head>
 <body><!--email_off-->
@@ -253,6 +282,23 @@ html:not(.js-on) .rv{opacity:1 !important;transform:none !important;clip-path:no
       <div class="svc rv d1" data-anim="fade"><div class="svc-num">01</div><h3>Golden-Hour Family Portraits</h3><p>The signature session: a relaxed walking portrait across a soft-sand Playa beach or the Playacar enclave at sunset, direction calibrated for kids of every age and grandparents who want to stay seated and close to the action.</p></div>
       <div class="svc rv d2" data-anim="fade"><div class="svc-num">02</div><h3>Multi-Generation Reunions</h3><p>Extended sessions for the whole family traveling together, with no limit on the number of people. We build a shot list in advance so every pairing and grandparent combination is captured without rushing.</p></div>
       <div class="svc rv d3" data-anim="fade"><div class="svc-num">03</div><h3>Resort &amp; Celebration Days</h3><p>Birthdays, anniversaries, and milestone trips photographed at your Playa or Mayakoba resort or on the beach. Couples celebrating without the kids can also book a <a href="/couples-photography-mexico">couples session</a>, and families marking a wedding weekend can add <a href="/destination-wedding-photographer-mexico">wedding coverage</a>.</p></div>
+    </div>
+    <div class="pdcf-col rv d2" data-anim="fade">
+      <h3 class="pdcf-col-h" id="pdcf-col-h">Six published collections, fixed prices in USD</h3>
+      <div class="pdcf-col-scroll" role="region" aria-labelledby="pdcf-col-h" tabindex="0">
+        <table class="pdcf-col-table">
+          <thead><tr><th scope="col">Collection</th><th scope="col">Time</th><th scope="col">Edited photos</th><th scope="col">Looks</th><th scope="col">Price</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">The Postcard <span class="pdcf-tag">Made for couples</span></th><td class="pdcf-n">35 min</td><td>15</td><td>1</td><td class="pdcf-price">295 USD</td></tr>
+            <tr><th scope="row">The Keepsake</th><td class="pdcf-n">45 min</td><td>25</td><td>1</td><td class="pdcf-price">375 USD</td></tr>
+            <tr class="pdcf-rec"><th scope="row">The Chapter <span class="pdcf-tag">Recommended for families</span></th><td class="pdcf-n">60 min</td><td>35</td><td>1</td><td class="pdcf-price">475 USD</td></tr>
+            <tr><th scope="row">The Story</th><td class="pdcf-n">75 min</td><td>50</td><td>2</td><td class="pdcf-price">545 USD</td></tr>
+            <tr><th scope="row">The Editorial <span class="pdcf-tag">Best value</span></th><td class="pdcf-n">90 min</td><td>70</td><td>2</td><td class="pdcf-price">645 USD</td></tr>
+            <tr><th scope="row">The Heirloom</th><td class="pdcf-n">90 min</td><td>Complete edited gallery</td><td>2</td><td class="pdcf-price">895 USD</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="pdcf-col-note"><strong>The Chapter (60 minutes, 35 photos, 475 USD)</strong> is the one we recommend for families, and every collection comes with no group limit and no per-person charge, no deposit, a preview within 24 hours and the full gallery in 1 to 3 business days. See <a href="/blog/how-many-photos-family-session-cancun">how many photos a family session brings</a> and the <a href="/blog/where-to-propose-in-playa-del-carmen">Playa del Carmen proposal guide</a>.</p>
     </div>
   </div>
 </section>

@@ -161,6 +161,32 @@ html:not(.js-on) .rv{opacity:1 !important;transform:none !important}
 @media(max-width:900px){.folio{padding:64px 24px}.folio-grid{columns:2}}
 @media(max-width:560px){.folio-grid{columns:1}}
 </style>
+<style id="ivae-colec-css">
+/* Tabla de las seis colecciones (mismos datos que /api/facts.json). Colores explicitos en claro y bajo html.dark. */
+.ivae-colec{margin-top:56px}
+.ivae-colec-h{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;line-height:1.2;color:#1a2230;margin-bottom:18px}
+.ivae-colec-h em{font-style:italic;color:#1f3a5a}
+.ivae-colec-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#ffffff;border:1px solid rgba(26,34,48,.09)}
+.ivae-colec table{width:100%;border-collapse:collapse;background:#ffffff;color:#1a2230;font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.45}
+.ivae-colec th,.ivae-colec td{padding:14px 18px;text-align:left;vertical-align:middle;font-weight:400;color:#1a2230;border-bottom:1px solid rgba(26,34,48,.09)}
+.ivae-colec thead th{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#1f3a5a;background:#f7f7f5}
+.ivae-colec tbody th{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;line-height:1.2}
+.ivae-colec tbody td:last-child{font-weight:600;white-space:nowrap}
+.ivae-colec tbody tr:last-child th,.ivae-colec tbody tr:last-child td{border-bottom:0}
+.ivae-colec tr.is-rec th,.ivae-colec tr.is-rec td{background:#eef2f6}
+.ivae-colec-tag{display:block;margin-top:4px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.14em;line-height:1.35;text-transform:uppercase;color:#1f3a5a}
+.ivae-colec-note{margin-top:18px;max-width:880px;font-size:14px;line-height:1.85;color:rgba(26,34,48,.68)}
+@media(max-width:480px){.ivae-colec{margin-top:40px}.ivae-colec-h{font-size:22px}.ivae-colec table{font-size:12.5px}.ivae-colec th,.ivae-colec td{padding:11px 5px}.ivae-colec thead th{font-size:9.5px;letter-spacing:.06em}.ivae-colec tbody th{font-size:16px}.ivae-colec-tag{font-size:9.5px;letter-spacing:.04em}.ivae-colec-note{font-size:13.5px;line-height:1.78}}
+@media(max-width:374px){.ivae-colec th,.ivae-colec td{padding:10px 5px}.ivae-colec-tag{font-size:8.5px;letter-spacing:.06em}}
+html.dark .ivae-colec-h{color:#faf8f5}
+html.dark .ivae-colec-h em{color:#c9a54e}
+html.dark .ivae-colec-wrap,html.dark .ivae-colec table{background:#141c26;border-color:rgba(250,248,245,.14)}
+html.dark .ivae-colec th,html.dark .ivae-colec td{color:#faf8f5;border-bottom-color:rgba(250,248,245,.12)}
+html.dark .ivae-colec thead th{background:#1a2230;color:#c9a54e}
+html.dark .ivae-colec tr.is-rec th,html.dark .ivae-colec tr.is-rec td{background:#1f2a3a}
+html.dark .ivae-colec-tag{color:#c9a54e}
+html.dark .ivae-colec-note{color:rgba(250,248,245,.82)}
+</style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
 </head>
 <body><!--email_off-->
@@ -187,7 +213,7 @@ html:not(.js-on) .rv{opacity:1 !important;transform:none !important}
   <div class="hero-bg"></div>
   <div class="hero-content">
     <span class="eyebrow rv" data-anim="fade">Documentary vacation lifestyle · One family · Riviera Maya</span>
-    <h1 class="rv d1" data-anim="fade">Family Vacation Photographer in <em>Riviera Maya</em></h1>
+    <h1 class="rv d1" data-anim="fade">Family Photographer in the <em>Riviera Maya</em></h1>
     <p class="hero-sub rv d2" data-anim="fade">Relaxed, unposed sessions that follow your family through a real day on the coast: a cenote near Tulum, soft sand at Xpu-Ha, the resort pool, the quiet moments in between. Documentary, never stiff.</p>
     <a class="hero-btn rv d3" data-anim="fade" href="https://wa.me/529902046514?text=Hello%2C%20we%27d%20like%20a%20family%20vacation%20session%20in%20the%20Riviera%20Maya" target="_blank" rel="noopener">Plan Your Vacation Session</a>
   </div>
@@ -262,6 +288,23 @@ html:not(.js-on) .rv{opacity:1 !important;transform:none !important}
       <div class="svc rv d1" data-anim="fade"><div class="svc-num">01</div><h3>The Vacation Session</h3><p>60 to 90 minutes at one or two nearby settings: a beach and your resort, or a single cenote. The documentary core, perfect for one family wanting a relaxed slice of the trip.</p></div>
       <div class="svc rv d2" data-anim="fade"><div class="svc-num">02</div><h3>Half-Day Coast Story</h3><p>3 to 4 hours weaving a cenote, a beach and a resort meal into one continuous story, with shaded breaks built in. Ideal for <a href="/luxury-family-photos-cancun">multi-generational reunions</a> who want the full day documented.</p></div>
       <div class="svc rv d3" data-anim="fade"><div class="svc-num">03</div><h3>Cenote Adventure Session</h3><p>A dedicated session in an open, swimmable cenote near Tulum, briefed in advance on water shoes, reef-safe sunscreen and timing. The most adventurous frames in the gallery, family-safe by design.</p></div>
+    </div>
+    <div class="ivae-colec">
+      <h3 class="ivae-colec-h" id="precios-colecciones">Family session <em>prices</em></h3>
+      <div class="ivae-colec-wrap" role="region" aria-labelledby="precios-colecciones" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Collection</th><th scope="col">Length</th><th scope="col">Edited photos</th><th scope="col">Looks</th><th scope="col">Price</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">The Postcard <span class="ivae-colec-tag">Made for couples</span></th><td>35 min</td><td>15</td><td>1</td><td>295 USD</td></tr>
+            <tr><th scope="row">The Keepsake</th><td>45 min</td><td>25</td><td>1</td><td>375 USD</td></tr>
+            <tr class="is-rec"><th scope="row">The Chapter <span class="ivae-colec-tag">Recommended for families</span></th><td>60 min</td><td>35</td><td>1</td><td>475 USD</td></tr>
+            <tr><th scope="row">The Story</th><td>75 min</td><td>50</td><td>2</td><td>545 USD</td></tr>
+            <tr><th scope="row">The Editorial <span class="ivae-colec-tag">Best value</span></th><td>90 min</td><td>70</td><td>2</td><td>645 USD</td></tr>
+            <tr><th scope="row">The Heirloom</th><td>90 min</td><td>Full edited gallery</td><td>2</td><td>895 USD</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="ivae-colec-note">The Chapter (60 minutes, 35 photos, 475 USD) is the one we recommend for families: no group limit, no per-person charge and no deposit, with a preview within 24 hours and the full gallery in 1 to 3 business days. See <a href="/blog/how-many-photos-family-session-cancun">how many photos a family session brings</a>.</p>
     </div>
   </div>
 </section>
