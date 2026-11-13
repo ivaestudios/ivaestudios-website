@@ -56,10 +56,8 @@ function faltaConfig(env) {
 // Facebook. Espejo del CLIENT_CAN_CONNECT de _instagram.js (pedido 2026-08-27:
 // botón Conectar para el cliente Regeneris). El cliente queda FORZADO a su
 // propia marca: se ignora el client_id de la URL.
-const CLIENT_FB_CONNECT = [
-  'demo-regeneris', // REGENERIS THERAPY
-  '8de22da29a5def29149a8e86ae5c4096', // SMILE NOW (CRM, pedido 2026-10-07)
-];
+// Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
+const CLIENT_FB_CONNECT = [];
 export async function handleFbLogin(request, env, session, url) {
   if (session.role === 'client' && !CLIENT_FB_CONNECT.includes(session.client_id)) {
     return json({ error: 'Forbidden' }, 403);

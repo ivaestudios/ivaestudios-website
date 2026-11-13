@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611110832';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611110832';
-import * as store from './store.js?v=202611110832';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611110832';
-import { toast } from './toast.js?v=202611110832';
-import { icon } from './icons.js?v=202611110832';
-import { openClientSwitcher } from './clientswitcher.js?v=202611110832';
-import { T, isEN, setLang } from './i18n.js?v=202611110832';
+import { startTour } from './tour.js?v=202611130158';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611130158';
+import * as store from './store.js?v=202611130158';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611130158';
+import { toast } from './toast.js?v=202611130158';
+import { icon } from './icons.js?v=202611130158';
+import { openClientSwitcher } from './clientswitcher.js?v=202611130158';
+import { T, isEN, setLang } from './i18n.js?v=202611130158';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611110832';
-import { getTheme, setTheme } from './theme.js?v=202611110832';
-import * as version from './version.js?v=202611110832';
-import * as tienda from './tienda.js?v=202611110832';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611110832';
-import * as prefs from './prefs.js?v=202611110832';
+import { abrirBloqueados } from './moderacion.js?v=202611130158';
+import { getTheme, setTheme } from './theme.js?v=202611130158';
+import * as version from './version.js?v=202611130158';
+import * as tienda from './tienda.js?v=202611130158';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611130158';
+import * as prefs from './prefs.js?v=202611130158';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -113,7 +113,8 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const clientSeesMetrics = isClient && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id);
   // Conexiones para clientes: lista blanca por marca (pedido 2026-08-27, solo
   // Regeneris). MISMA lista en shell.js y conexiones.js — cámbialas juntas.
-  const CLIENT_CONEXIONES_IDS = ['demo-regeneris', '8de22da29a5def29149a8e86ae5c4096'];
+  // Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
+  const CLIENT_CONEXIONES_IDS = [];
   const clientSeesConexiones = isClient && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id);
   // "Mi contenido" para clientes: por marca, '*' = todas. MISMA lista en shell.js.
   const CLIENT_CONTENIDO_IDS = ['*'];

@@ -49,11 +49,8 @@ export async function handleIgLogin(request, env, session, url) {
   // Conectar Instagram desde el portal del CLIENTE: habilitado marca por marca
   // (Vianey lo aprueba). El resto de clientes sigue bloqueado: la conexión la
   // hace la agencia. MISMA lista en marketing/js/views/metricas.js.
-  const CLIENT_CAN_CONNECT = [
-    '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS (marca propia)
-    'demo-regeneris',                    // REGENERIS THERAPY
-    '8de22da29a5def29149a8e86ae5c4096', // SMILE NOW (CRM, pedido 2026-10-07)
-  ];
+  // Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
+  const CLIENT_CAN_CONNECT = [];
   if (session.role === 'client' && !CLIENT_CAN_CONNECT.includes(session.client_id)) {
     return json({ error: 'Forbidden' }, 403);
   }

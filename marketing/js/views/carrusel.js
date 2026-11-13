@@ -12,17 +12,17 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611110832';
-import { icon } from '../shell/icons.js?v=202611110832';
-import { T } from '../shell/i18n.js?v=202611110832';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202611110832';
-import * as prefs from '../shell/prefs.js?v=202611110832';
+import { el, clear, toast } from '../api.js?v=202611130158';
+import { icon } from '../shell/icons.js?v=202611130158';
+import { T } from '../shell/i18n.js?v=202611130158';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202611130158';
+import * as prefs from '../shell/prefs.js?v=202611130158';
 import {
   esArchivoDeVideo, grupoDePaginasVideo, cargarVideo, playThrough, analizarPagina,
   slidesRealesDe, huecosDe, partesExtraDe, zoomSrc, cortarWebCodecs, armarZip,
   aceptarCortesDudosos, resumenDudoso,
-} from '../lib/cortador-video.js?v=202611110832';
-import { confirmar } from '../shell/sheet.js?v=202611110832';
+} from '../lib/cortador-video.js?v=202611130158';
+import { confirmar } from '../shell/sheet.js?v=202611130158';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -943,6 +943,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202611110832';
+  link.href = '/marketing/css/carrusel.css?v=202611130158';
   document.head.appendChild(link);
 }
