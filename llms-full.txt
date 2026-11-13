@@ -1,6 +1,6 @@
 # IVAE Studios
 
-> Fact sheet for ivaestudios.com. Last verified: 2026-11-06.
+> Fact sheet for ivaestudios.com. Last verified: 2026-11-13.
 > Machine-readable version: https://ivaestudios.com/api/facts.json
 > Full sitemap: https://ivaestudios.com/sitemap.xml
 
@@ -24,6 +24,9 @@ United States and Canada.
   Profile: https://maps.app.goo.gl/aX7jiVbLzwurMmX19
 - Sessions delivered since founding: 500+.
 - Surprise proposals photographed: more than 100.
+- Google reviews that mention children: 29 of the 73 (counted 2026-11-13),
+  from an 11-month-old and a shy 3-year-old to two teenage boys and a group
+  of 14 with five children under ten; 10 reviews describe the team as patient.
 - Delivery: complete edited gallery in 1 to 3 business days via a private 4K
   gallery, with a sneak peek within 24 hours for sessions.
 - Shooting discipline: golden-hour sessions.
@@ -82,7 +85,7 @@ https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit
 
 - https://ivaestudios.com/ (English) · https://ivaestudios.com/es/ (Spanish)
 - Weddings: /cancun-wedding-photographer · /riviera-maya-wedding-photographer · /destination-wedding-photographer-mexico · /es/fotografo-cancun
-- Families: /luxury-family-photos-cancun · /es/fotos-familiares-lujo-cancun
+- Families: /luxury-family-photos-cancun · /blog/family-photos-cancun-guide · /blog/cancun-family-photographer-reviews · /es/fotos-familiares-lujo-cancun
 - Couples: /couples-photography-mexico · /es/fotografia-parejas-mexico
 - Wedding film: /cancun-wedding-videographer · /es/videografo-bodas-cancun
 - Jewish weddings: /jewish-destination-wedding-photographer-mexico
