@@ -431,3 +431,53 @@
   display: flex !important; grid-template-columns: none !important; overflow-x: auto !important; border-radius: 0 !important; gap: 18px !important;
 }
 :root[data-diseno="galeria"][data-theme="light"] .bj-seg.bj-seg--4 button { justify-content: flex-start !important; flex: none !important; }
+
+/* ── 34. ESTADOS QUE SE MARCAN CON FILETE (no son sombras) ──────────────────
+   La regla del inicio quita TODAS las sombras. Estas no lo eran: son el filete
+   por dentro que dice "aquí sueltas la tarjeta", "este es el elegido", "hoy",
+   "estás editando esta celda". Sin ellas todo funciona igual, pero no se ve.
+   Vuelven en tinta, con la misma geometría de antes. */
+/* Soltar al arrastrar (Embudo de la Bandeja, Cuadrícula, Tablero, Timeline) */
+:root[data-diseno="galeria"][data-theme="light"] .bj-col.is-over,
+:root[data-diseno="galeria"][data-theme="light"] .cal-day.is-drop-target,
+:root[data-diseno="galeria"][data-theme="light"] .board-col.is-drop-target .board-col__body,
+:root[data-diseno="galeria"][data-theme="light"] .tl-cell.is-drop {
+  background: #F4F4F1 !important; box-shadow: inset 0 0 0 2px #0F0F10 !important;
+}
+:root[data-diseno="galeria"][data-theme="light"] .kb-col.is-drop-target { border-color: #0F0F10 !important; box-shadow: inset 0 0 0 1px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .kb-col.is-drop-denied { border-color: #B3261E !important; box-shadow: inset 0 0 0 1px #B3261E !important; }
+:root[data-diseno="galeria"][data-theme="light"] .is-dropover { outline-color: #0F0F10 !important; background: #F4F4F1 !important; }
+/* Celda que se está editando en la tabla */
+:root[data-diseno="galeria"][data-theme="light"] .gedit,
+:root[data-diseno="galeria"][data-theme="light"] .gcell.is-active { box-shadow: inset 0 0 0 2px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .gcell:hover { box-shadow: inset 0 0 0 1px #D6D6D2 !important; }
+/* Elegido: red filtrada, tipo de tarea, chips y opciones */
+:root[data-diseno="galeria"][data-theme="light"] .bj-canal.is-sel { box-shadow: inset 0 0 0 1px var(--c, #0F0F10) !important; }
+:root[data-diseno="galeria"][data-theme="light"] .bj-ftarea__tipo.is-on,
+:root[data-diseno="galeria"][data-theme="light"] .bj-juanfb__btn.is-on,
+:root[data-diseno="galeria"][data-theme="light"] .edact__chip.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .qc-chip.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .cal-fchip.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .adm-op.is-on,
+:root[data-diseno="galeria"][data-theme="light"] .etable-vchip.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .gpop__opt.is-current,
+:root[data-diseno="galeria"][data-theme="light"] .pk-shortcut.is-current {
+  border-color: #0F0F10 !important; box-shadow: inset 0 0 0 1px #0F0F10 !important;
+}
+:root[data-diseno="galeria"][data-theme="light"] .mini__day.is-selected,
+:root[data-diseno="galeria"][data-theme="light"] .pick-row.is-current,
+:root[data-diseno="galeria"][data-theme="light"] .cs-row.is-active { box-shadow: inset 0 0 0 1.5px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .cs-rowwrap.is-active .cs-row.is-active { box-shadow: none !important; }
+/* Hoy (calendario de reservas y timeline) */
+:root[data-diseno="galeria"][data-theme="light"] .bj-cal__dia.is-hoy { border-color: #0F0F10 !important; box-shadow: inset 0 0 0 1px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .bj-cal__dia.is-hoy .bj-cal__num { color: #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .tl-mtrack__cell.is-today { box-shadow: inset 0 0 0 1px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .tl-cell.is-today { box-shadow: inset 2px 0 0 #0F0F10 !important; }
+/* Mensaje resaltado en la conversación del editor */
+:root[data-diseno="galeria"][data-theme="light"] .edconv__msg.is-highlight .edconv__bubble { box-shadow: 0 0 0 2px var(--brand) !important; }
+/* Tabla en computadora: la barrita de color del grupo en la casilla */
+@media (min-width: 768px) {
+  :root[data-diseno="galeria"][data-theme="light"] .etable__td--check { box-shadow: inset 3px 0 0 var(--gc, var(--client-accent)) !important; }
+}
+/* Visita guiada: el halo es lo que señala dónde tocar */
+:root[data-diseno="galeria"][data-theme="light"] .tour__foco { box-shadow: 0 0 0 3px var(--brand) !important; }
