@@ -410,3 +410,24 @@
   --text: #0F0F10; --text-dim: #45453F; --text-mute: #62625F;
 }
 :root[data-diseno="galeria"][data-theme="light"][data-marca="smile"] #topbar { border-bottom-color: var(--border) !important; }
+
+/* ── 31. ÚLTIMOS DETALLES DEL ESCÁNER ─────────────────────────────────── */
+:root[data-diseno="galeria"][data-theme="light"] .dash-row.is-warn { background: #FFFFFF !important; }
+:root[data-diseno="galeria"][data-theme="light"] .dash-spark__bar.has-val { background: #0F0F10 !important; background-image: none !important; }
+:root[data-diseno="galeria"][data-theme="light"] .pauta-datos { border-color: var(--border) !important; }
+:root[data-diseno="galeria"][data-theme="light"] .edtabs__tab.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .tabs button.is-active { border-bottom-color: #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .edtabs__tab.is-active .edtabs__badge,
+:root[data-diseno="galeria"][data-theme="light"] .edtabs__badge { background: transparent !important; border-color: transparent !important; color: #62625F !important; }
+
+/* ── 32. TELÉFONO: menú de abajo con la pestaña activa en tinta ──────── */
+:root[data-diseno="galeria"][data-theme="light"] .bn-tab.is-active,
+:root[data-diseno="galeria"][data-theme="light"] .bn-tab.is-active .bn-tab__icowrap { color: #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] #bottomnav,
+:root[data-diseno="galeria"][data-theme="light"] .bottomnav { background: #FFFFFF !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-top: 1px solid var(--border) !important; }
+
+/* ── 33. BANDEJA EN TELÉFONO: secciones en una sola fila que se desliza ── */
+:root[data-diseno="galeria"][data-theme="light"] .bj-seg.bj-seg--4 {
+  display: flex !important; grid-template-columns: none !important; overflow-x: auto !important; border-radius: 0 !important; gap: 18px !important;
+}
+:root[data-diseno="galeria"][data-theme="light"] .bj-seg.bj-seg--4 button { justify-content: flex-start !important; flex: none !important; }

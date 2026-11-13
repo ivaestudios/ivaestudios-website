@@ -15,17 +15,26 @@
   <!-- Tema ANTES de pintar (cero flash). CLARO por defecto; oscuro solo si
        el usuario lo eligio a mano. Ver css/theme-light.css. -->
   <script>document.documentElement.setAttribute('data-theme','light');try{if(localStorage.getItem('mkt_theme')==='dark'){document.documentElement.removeAttribute('data-theme');}localStorage.removeItem('mkt_theme_def');}catch(e){}try{var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content',document.documentElement.getAttribute('data-theme')==='light'?'#F6F6FA':'#0A0A0E');}catch(e){}</script>
+  <!-- Diseño Galería (13-nov-2026): el rediseño que aprobó Vianey. Es SOLO estilo
+       (css/theme-galeria.css, al final del head) y solo pinta sobre el tema claro.
+       Para volver al diseño anterior en un equipo: localStorage.mkt_diseno = "clasico". -->
+  <script>try{if(localStorage.getItem('mkt_diseno')!=='clasico'){document.documentElement.setAttribute('data-diseno','galeria');}}catch(e){document.documentElement.setAttribute('data-diseno','galeria');}</script>
   <title>Iniciar sesión · IVAE Marketing</title>
   <meta name="description" content="Acceso privado al calendario de contenido de IVAE Marketing.">
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202611130158">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202611130158">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202611130158">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202611130220">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202611130220">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202611130220">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202611130158">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202611130158">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202611130220">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202611130220">
+  <!-- Diseño Galería: va AL FINAL para ganarle a todas las hojas anteriores. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="/marketing/css/theme-galeria.css?v=202611130220">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -298,7 +307,7 @@
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202611130158"></script>
+  <script src="/marketing/js/login-en.js?v=202611130220"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';
