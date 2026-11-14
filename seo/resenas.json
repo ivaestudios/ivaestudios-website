@@ -4,10 +4,15 @@
       "fecha": "2026-11-11",
       "cifra": 73,
       "fuente": "a mano"
+    },
+    {
+      "fecha": "2026-11-14",
+      "cifra": 75,
+      "fuente": "a mano"
     }
   ],
-  "cifra": 73,
+  "cifra": 75,
   "calificacion": 5.0,
-  "revisado": "2026-11-11",
+  "revisado": "2026-11-14",
   "fuente": "a mano"
 }
