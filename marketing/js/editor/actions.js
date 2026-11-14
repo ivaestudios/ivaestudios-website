@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202611132340';
-import { T } from '../shell/i18n.js?v=202611132340';
-import { icon } from '../shell/icons.js?v=202611132340';
-import { openSheet } from '../shell/sheet.js?v=202611132340';
-import * as store from '../shell/store.js?v=202611132340';
-import * as cl from '../services/checklist.js?v=202611132340';
+import { el, api, copyText, isClientRole } from '../api.js?v=202611132347';
+import { T } from '../shell/i18n.js?v=202611132347';
+import { icon } from '../shell/icons.js?v=202611132347';
+import { openSheet } from '../shell/sheet.js?v=202611132347';
+import * as store from '../shell/store.js?v=202611132347';
+import * as cl from '../services/checklist.js?v=202611132347';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;

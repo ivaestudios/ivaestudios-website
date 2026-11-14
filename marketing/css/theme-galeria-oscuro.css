@@ -1,0 +1,501 @@
+/* ============================================================================
+   GENERADO por scripts/generar_galeria_oscuro.py desde theme-galeria.css.
+   NO editar a mano: cambiar el claro y volver a correr el script.
+   Diseño Galería en el tema OSCURO (13-nov-2026, Vianey: "la versión de
+   oscuros no está bien"): mismas reglas que el claro, colores de noche.
+   ============================================================================ */
+
+/* ============================================================================
+   DISEÑO GALERÍA · IVAE Marketing (13-nov-2026)
+   Vianey aprobó la dirección "C · Galería" del lienzo de rediseño y pidió
+   pasarla a TODA la app: "solo tocamos el diseño, lo demás tiene que estar
+   funcionando al 100" (hay una campaña activa conectada al CRM).
+   Esta hoja es SOLO de estilo: se carga al final y gana por especificidad con
+   el prefijo :root[data-diseno="galeria"][data-theme="light"]. No cambia ningún comportamiento.
+   Para volver al diseño anterior basta con quitar data-diseno del <html>.
+   Reglas: blanco, tinta #0F0F10, letra Hanken Grotesk, filetes de 1px en vez
+   de sombras, un solo acento plano (magenta #B5307C), estados con punto y
+   palabra (nunca pastillas rellenas), sin degradados salvo el velo de fotos.
+   ============================================================================ */
+
+/* ── 1. TOKENS ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) {
+  --font: "Hanken Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --violet: #C2408A; --fuchsia: #C2408A; --pink: #C2408A;
+  --brand: #C2408A; --brand-strong: #D35C9F;
+  --grad: linear-gradient(#C2408A, #C2408A);
+  --grad-soft: linear-gradient(rgba(194, 64, 138, .16), rgba(194, 64, 138, .16));
+  --bg: #141415; --surface: #141415; --surface-2: #1F1F21; --surface-3: rgba(255, 255, 255, .04);
+  --border: #2B2B2E; --border-strong: #3B3B3F;
+  --text: #F2F2EE; --text-dim: #CFCFC9; --text-mute: #A3A39D;
+  --sh-1: none; --sh-2: none; --sh-3: 0 12px 32px rgba(0, 0, 0, .55);
+  --sh-glow: none; --sh-glow-hover: none;
+  --e1: none; --e2: none; --e3: 0 12px 32px rgba(0, 0, 0, .55); --e4: 0 18px 48px rgba(0, 0, 0, .6);
+  --ring: 0 0 0 2px #141415, 0 0 0 4px #F2F2EE;
+  --r-sm: 6px; --r: 8px; --r-lg: 10px; --r-xl: 12px;
+  /* estados: punto + palabra, tonos que pasan 4.5:1 sobre blanco */
+  --st-idea: #62625F; --st-guion: #7FAAF2; --st-grabacion: #E3A452; --st-edicion: #B494EC;
+  --st-revision: #E27BB2; --st-aprobado: #5CC497; --st-programado: #5DC3D1; --st-publicado: #F2F2EE;
+  --warn: #E3A452; --ok: #5CC497; --success: #5CC497; --danger: #F0716A; --info: #7FAAF2;
+}
+
+/* ── 2. BASE ───────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) body {
+  font-family: var(--font);
+  background: #141415 !important; background-image: none !important;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) h1, :root[data-diseno="galeria"]:not([data-theme="light"]) h2, :root[data-diseno="galeria"]:not([data-theme="light"]) h3 { letter-spacing: -.01em; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) ::selection { background: rgba(194, 64, 138, .38); color: #F2F2EE; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) ::-webkit-scrollbar-thumb { background: #3B3B3F; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) ::-webkit-scrollbar-thumb:hover { background: #56565B; }
+
+/* Sin sombras ni brillos en todo el diseño… */
+:root[data-diseno="galeria"]:not([data-theme="light"]) *,
+:root[data-diseno="galeria"]:not([data-theme="light"]) *::before,
+:root[data-diseno="galeria"]:not([data-theme="light"]) *::after { box-shadow: none !important; text-shadow: none !important; }
+/* …salvo lo que FLOTA sobre la pantalla (menús, hojas, avisos, ventanas) */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .sheet,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .modal,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .drawer,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .toast,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .menu,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .popover,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dropdown,
+:root[data-diseno="galeria"]:not([data-theme="light"]) [role="menu"],
+:root[data-diseno="galeria"]:not([data-theme="light"]) [role="dialog"],
+:root[data-diseno="galeria"]:not([data-theme="light"]) [role="listbox"] { box-shadow: 0 12px 32px rgba(0, 0, 0, .55) !important; }
+/* Foco visible con teclado: anillo de tinta (antes era sombra) */
+:root[data-diseno="galeria"]:not([data-theme="light"]) :focus-visible { outline: 2px solid #F2F2EE !important; outline-offset: 2px; }
+
+/* Texto con degradado → tinta */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .grad-text {
+  background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important; color: var(--text) !important;
+}
+
+/* ── 3. BOTONES ────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn {
+  background: #141415; color: var(--text); border: 1px solid #F2F2EE; border-radius: 8px;
+  font-weight: 600; letter-spacing: 0;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn:hover { background: #1F1F21; border-color: #F2F2EE; transform: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn:active { transform: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-primary,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-primary:hover {
+  background-color: var(--brand) !important; background-image: none !important;
+  border-color: var(--brand) !important; color: #FFFFFF !important; filter: none; transform: none;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-primary:hover { background-color: var(--brand-strong) !important; border-color: var(--brand-strong) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-ghost { background: transparent; border-color: transparent; color: var(--text); }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-ghost:hover { background: #1F1F21; border-color: transparent; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-danger { background: #141415; border-color: #F0716A; color: #F0716A; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-danger:hover { background: #F0716A; border-color: #F0716A; color: #141415; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .btn-sm { border-radius: 6px; }
+
+/* ── 4. CONTROLES SEGMENTADOS → PESTAÑAS SUBRAYADAS ───────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .seg {
+  background: transparent; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 0; gap: 18px;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .seg button {
+  border-radius: 0; padding: 0 2px; min-height: 40px; color: var(--text-mute); font-weight: 500;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; background: none !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .seg button:hover { color: var(--text); background: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .seg button:active { transform: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .seg button.is-active {
+  background: none !important; color: var(--text); font-weight: 600; border-bottom-color: #F2F2EE;
+}
+
+/* ── 5. TARJETAS Y CIFRAS ──────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .card { border-color: var(--border); border-radius: 10px; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .stat,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .stat:hover {
+  background: #141415 !important; background-image: none !important; border-color: var(--border); border-radius: 10px; transform: none;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .stat__num { font-weight: 700; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .stat__label { text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 500; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-card,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-counter,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-card,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-kpi,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-vid,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-stat,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .wl-person,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mw-stat,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-card {
+  background: #141415 !important; background-image: none !important; border: 1px solid var(--border) !important; border-radius: 10px !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-pipeline::before,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-donutcard::before { display: none !important; }
+
+/* ── 6. CHIPS, ESTADOS Y CONTADORES (punto + palabra, sin relleno) ────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .chip {
+  background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 6px; font-weight: 600;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .chip .swatch { box-shadow: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .status-badge {
+  background: transparent; border: 0; padding: 0; height: auto; border-radius: 0;
+  color: var(--c, var(--text-mute)); font-weight: 600;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .status-badge .swatch { width: 8px; height: 8px; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge { background: transparent !important; border: 0 !important; padding: 0; height: auto; border-radius: 0; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="pending"] { color: #E3A452; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="pending"] .dot { background: #E3A452; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="approved"] { color: #5CC497; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="approved"] .dot { background: #5CC497; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="changes"] { color: #F0716A; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .approval-badge[data-approval="changes"] .dot { background: #F0716A; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tag { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 6px; }
+
+/* ── 7. CAMPOS ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+:root[data-diseno="galeria"]:not([data-theme="light"]) select,
+:root[data-diseno="galeria"]:not([data-theme="light"]) textarea { border-color: #6C6C71; border-radius: 8px; background-color: #141415; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) input[type="checkbox"], :root[data-diseno="galeria"]:not([data-theme="light"]) input[type="radio"] { accent-color: var(--brand); }
+
+/* ── 8. INTERRUPTORES: pista de acento plano ──────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .switch input:checked + .switch__track,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edswitch.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mw-switch.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .au-switch.is-on .au-switch__track { background: var(--brand) !important; background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .av-switch.is-on .av-switch__knob { background-image: none !important; }
+
+/* ── 9. AVATARES E ÍCONOS DE VACÍO: relleno neutro ────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .avatar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-avatar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .acct-act__avatar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .nf-row__avatar {
+  background: #1F1F21 !important; background-image: none !important; color: #F2F2EE !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .empty__icon,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-empty__icon,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mw-empty__icon,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .au-empty__icon,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .empty-rich__ico,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .au-head__icon {
+  background: #1F1F21 !important; background-image: none !important; color: #F2F2EE !important;
+}
+
+/* ── 10. HOY / BOTÓN FLOTANTE / CONTADORES ────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-day.is-today,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-spark__bar.is-today { background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-day.is-today .cal-day__num,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mini__day.is-today .mini__num,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-mcell__num.is-today,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-strip__day.is-today .tl-strip__num,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-dayhead.is-today .tl-dayhead__num {
+  background: #F2F2EE !important; background-image: none !important; color: #141415 !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .fab { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cs-row__badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-ctlbtn__badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-ctl__badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .nav-item .count { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-day__tag { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .toast__action { background: transparent !important; background-image: none !important; color: #FFFFFF !important; text-decoration: underline; }
+
+/* ── 11. BARRA SUPERIOR ───────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) #topbar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .topbar {
+  background: #141415 !important; border-bottom: 1px solid var(--border) !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-brand__mark,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .logo__mark { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-tab.is-active::after { background: #F2F2EE !important; background-image: none !important; height: 2px; }
+
+/* ── 12. SKELETONS: gris plano que respira ────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .skeleton::after,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edskel__row,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-skel,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-skel,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-sk,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mw-skel__bar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .au-skel__bar,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-skel,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .wl-skel,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .etable-skel__head::after,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .etable-skel__row::after { background-image: none !important; background-color: #1F1F21 !important; }
+
+/* ── 13. BANDEJA: embudo con columnas blancas y punto de color ────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col { background: #141415 !important; border: 1px solid var(--border) !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col__head {
+  background: #141415 !important; color: #F2F2EE !important; border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0 !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col__head .bj-col__punto { display: block !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col__n { background: transparent !important; color: #A3A39D !important; padding: 0; min-width: 0; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col__valor { color: #A3A39D !important; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-menu.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-filtro.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-ftarea__atajo.is-on { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; border-color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-msgs { background: #141415 !important; background-image: none !important; }
+
+/* ── 14. OTROS DEGRADADOS DE COMPONENTES → planos ──────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .nav-item.is-active { background: #1F1F21 !important; background-image: none !important; color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cs-row__dot--all { background: #F2F2EE !important; background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-prog__fill { background: #F2F2EE !important; background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-addbtn,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-dl--ready,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-carrusel-btn,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-comment-send,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-dl.dlv-dlall,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-dl.dlv-dlall.dlv-dl--ready { background-image: none !important; background-color: var(--brand) !important; color: #FFFFFF !important; border-color: var(--brand) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edcheck__add { background-image: none !important; background-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-notice__clear { background-image: none !important; background-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mdsec__lbl::before { background-image: none !important; background-color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-item { background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-step__n { background-image: none !important; background-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-mini__bar i,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-aud__bar i { background-image: none !important; background-color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edhead,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edblock { background-image: none !important; background-color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .ag-list .cal-card { background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .ptab[aria-selected="true"] { background-image: none !important; background-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .portal__brandline { background-image: none !important; background-color: var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pmsg.is-mine .pmsg__bubble { background-image: none !important; background-color: #1F1F21 !important; color: #F2F2EE !important; }
+
+/* ── 15. BARRA SUPERIOR: detalles ─────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-accent { background: transparent !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-lang__btn.is-active { background: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bn-badge { background: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tb-client { border-radius: 8px !important; }
+
+/* ── 16. MAYÚSCULAS → texto normal (el logo se queda como está) ──────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) body *:not(.tb-brand):not(.tb-brand *):not(.logo):not(.logo *) {
+  text-transform: none !important; letter-spacing: normal !important;
+}
+
+/* ── 17. MÉTRICAS: la letra de la casa en todo ────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) * { --mt-serif: var(--font); --mt-mono: var(--font); }
+
+/* ── 18. BANDEJA: contadores como texto, canales sin pastilla ─────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-seg__n { background: transparent !important; color: #A3A39D !important; padding: 0 !important; min-width: 0 !important; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-canal { border-radius: 8px !important; }
+
+/* ── 19. PAUTA ─────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-resumen { background: #141415 !important; background-image: none !important; border: 1px solid var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-card { border-color: var(--border) !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-chip {
+  background: transparent !important; border: 0 !important; padding: 0 !important; height: auto !important;
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 600;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-chip--ok { color: #5CC497 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-chip--warn { color: #E3A452 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-chip--off { color: #A3A39D !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-rango { gap: 18px !important; border-bottom: 1px solid var(--border); }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-rango .btn {
+  background: none !important; background-image: none !important; border: 0 !important; border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important; color: #A3A39D !important; padding: 0 2px !important; margin-bottom: -1px; font-weight: 500;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-rango .btn.is-active { color: #F2F2EE !important; border-bottom-color: #F2F2EE !important; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-sw.is-on { background: var(--brand) !important; background-image: none !important; }
+
+/* ── 20. ESQUINAS: nada de pastillas (los interruptores siguen redondos) ── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) { --r-pill: 8px; }
+
+/* ── 21. INICIO ────────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-row__bar { display: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-card__meta { background: transparent !important; border: 0 !important; color: #A3A39D !important; padding: 0 !important; }
+
+/* ── 22. BANDEJA: lista, etiquetas y etapas ───────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv::before { display: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv.is-unread { background: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv:hover { background: #19191A !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv.is-active { background: #1F1F21 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv.is-unread .bj-conv__hora { color: var(--brand) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-conv__n { background: var(--brand) !important; color: #FFFFFF !important; border-radius: 10px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-tag { background: transparent !important; border: 0 !important; padding: 0 !important; color: var(--text-dim) !important; font-weight: 600; font-size: 11.5px; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-tag--etapa { color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-tag--ad { color: #B494EC !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-tag--libre { color: #E3A452 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapa { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-emb__etapa { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-emb__etapa.is-on { background: #F2F2EE !important; border-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-emb__etapa-n,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-emb__etapa.is-on .bj-emb__etapa-n { background: transparent !important; color: inherit !important; padding: 0 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapas__paso.is-hecho::after,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapas__paso.is-hecho:hover::after { background: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapas__paso.is-hecho { color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapas__paso:hover::after { background: #2B2B2E !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-etapas__perdido.is-actual { background: #A3A39D !important; border-color: #A3A39D !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-reserva__estado { border-radius: 6px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-reserva__estado.is-hecho { color: #5CC497 !important; border-color: #5CC497 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-reserva__estado.is-cancelado,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-reserva__estado.is-error { color: #F0716A !important; border-color: #F0716A !important; }
+
+/* ── 23. VISTA DEL CLIENTE (Mi contenido) ─────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtros { gap: 18px !important; border-bottom: 1px solid var(--border); padding-bottom: 0 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtro {
+  border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; background: none !important;
+  padding: 0 2px !important; margin-bottom: -1px; color: #A3A39D !important; font-weight: 500;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtro.is-on { color: #F2F2EE !important; border-bottom-color: #F2F2EE !important; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtro b,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtro.is-on b { background: none !important; padding: 0 !important; min-width: 0 !important; color: #A3A39D !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-filtro.is-alerta:not(.is-on) b { background: none !important; color: var(--brand) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-card__tipo { border-radius: 3px !important; background: #141415 !important; color: #F2F2EE !important; font-size: 11px !important; padding: 3px 6px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa { background: transparent !important; padding: 0 !important; gap: 6px; color: #A3A39D !important; font-weight: 600; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa[data-etapa="revisar"] { color: #E3A452 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa[data-etapa="aprobado"] { color: #5CC497 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa[data-etapa="publicado"] { color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-etapa[data-etapa="cambios"] { color: #F0716A !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-tipo { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-tipo.is-on { border: 1.5px solid #F2F2EE !important; background: #141415 !important; color: #F2F2EE !important; }
+
+/* ── 24. CALENDARIO (tabla del mes) ───────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-monthpill { background: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-monthpill.is-active { background: #F2F2EE !important; border-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-monthpill__n,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-monthpill.is-active .meses-monthpill__n { background: transparent !important; color: inherit !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-side__item.is-active { background: #1F1F21 !important; color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-side__item:hover { color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-side__n { background: transparent !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-pill { background: transparent !important; border: 0 !important; padding: 0 !important; color: var(--chipc, var(--text-mute)) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-pill--plain { color: var(--text-dim) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-tool__badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .meses-sec__count { background: transparent !important; color: #A3A39D !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .etable-st { background: transparent !important; border: 0 !important; color: var(--stc) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .etable-ghead__count,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-ghead__count,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-col__count,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mw-count { background: transparent !important; color: #A3A39D !important; }
+
+/* ── 25. CUADRÍCULA ────────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-pill {
+  background: #141415 !important; background-image: none !important; border: 1px solid var(--border-strong) !important;
+  border-radius: 6px !important; color: #F2F2EE !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-mcell { background-color: #141415 !important; }
+
+/* ── 26. ENTREGABLES ───────────────────────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-monthpill { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-monthpill.is-active { background: #F2F2EE !important; border-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-dltoggle { background: #141415 !important; border: 1px solid var(--border-strong) !important; color: #5CC497 !important; border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dlv-piece { background: transparent !important; border: 1px solid var(--border-strong) !important; color: var(--text-dim) !important; border-radius: 4px !important; }
+
+/* ── 27. FEED, CARRUSEL, MARCA, VIDEO IA ──────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .igs-chip { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .igs-chip.is-on { background: #F2F2EE !important; border-color: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .car-modeseg__btn.is-active { background: #F2F2EE !important; color: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mk-ico { background: #1F1F21 !important; color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .via-aviso--ok { border-color: var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .via-seg { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .via-seg.is-on { background: #F2F2EE !important; color: #141415 !important; border-color: #F2F2EE !important; }
+
+/* ── 28. ADMINISTRACIÓN, ASISTENTE, CONEXIONES, MÉTRICAS ──────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-barra__lleno { background: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-accion__ico,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-decision__ico,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-av--accion,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .asis-cab__ico,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cx-ia__ico { background: #1F1F21 !important; color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-decision.is-cuidado { border-color: var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cx-ia__aviso { background: #141415 !important; border: 1px solid var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cx-red--ok,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cx-card--full { border-color: var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cx-card__badge { border: 0 !important; background: transparent !important; color: #5CC497 !important; padding: 0 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-chip { border-radius: 8px !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mt-chip.is-active { background: #F2F2EE !important; border-color: #F2F2EE !important; color: #141415 !important; }
+
+/* ── 29. BANDEJA: conversación abierta ────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-chat__head { background: #141415 !important; border-bottom: 1px solid var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-enviar { background: var(--brand) !important; background-image: none !important; color: #FFFFFF !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-play__btn { background: #F2F2EE !important; background-image: none !important; color: #141415 !important; }
+
+/* ── 30. CLIENTES DE SMILE NOW: su dorado como único acento ───────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"])[data-marca="smile"] {
+  --font: "Hanken Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --brand: #D4AF5A; --brand-strong: #E2C27A; --client-accent: #D4AF5A;
+  --grad: linear-gradient(#D4AF5A, #D4AF5A); --grad-soft: linear-gradient(rgba(212, 175, 90, .12), rgba(212, 175, 90, .12));
+  --sm-gold-grad: linear-gradient(#D4AF5A, #D4AF5A); --sm-ink-grad: linear-gradient(#F2F2EE, #F2F2EE);
+  --bg: #141415; --surface: #141415; --surface-2: #1F1F21; --border: #2B2B2E; --border-strong: #3B3B3F;
+  --text: #F2F2EE; --text-dim: #CFCFC9; --text-mute: #A3A39D;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"])[data-marca="smile"] #topbar { border-bottom-color: var(--border) !important; }
+
+/* ── 31. ÚLTIMOS DETALLES DEL ESCÁNER ─────────────────────────────────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-row.is-warn { background: #141415 !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .dash-spark__bar.has-val { background: #F2F2EE !important; background-image: none !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pauta-datos { border-color: var(--border) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edtabs__tab.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tabs button.is-active { border-bottom-color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edtabs__tab.is-active .edtabs__badge,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edtabs__badge { background: transparent !important; border-color: transparent !important; color: #A3A39D !important; }
+
+/* ── 32. TELÉFONO: menú de abajo con la pestaña activa en tinta ──────── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bn-tab.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bn-tab.is-active .bn-tab__icowrap { color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) #bottomnav,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bottomnav { background: #141415 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-top: 1px solid var(--border) !important; }
+
+/* ── 33. BANDEJA EN TELÉFONO: secciones en una sola fila que se desliza ── */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-seg.bj-seg--4 {
+  display: flex !important; grid-template-columns: none !important; overflow-x: auto !important; border-radius: 0 !important; gap: 18px !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-seg.bj-seg--4 button { justify-content: flex-start !important; flex: none !important; }
+
+/* ── 34. ESTADOS QUE SE MARCAN CON FILETE (no son sombras) ──────────────────
+   La regla del inicio quita TODAS las sombras. Estas no lo eran: son el filete
+   por dentro que dice "aquí sueltas la tarjeta", "este es el elegido", "hoy",
+   "estás editando esta celda". Sin ellas todo funciona igual, pero no se ve.
+   Vuelven en tinta, con la misma geometría de antes. */
+/* Soltar al arrastrar (Embudo de la Bandeja, Cuadrícula, Tablero, Timeline) */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-col.is-over,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-day.is-drop-target,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .board-col.is-drop-target .board-col__body,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-cell.is-drop {
+  background: #1F1F21 !important; box-shadow: inset 0 0 0 2px #F2F2EE !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-col.is-drop-target { border-color: #F2F2EE !important; box-shadow: inset 0 0 0 1px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .kb-col.is-drop-denied { border-color: #F0716A !important; box-shadow: inset 0 0 0 1px #F0716A !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .is-dropover { outline-color: #F2F2EE !important; background: #1F1F21 !important; }
+/* Celda que se está editando en la tabla */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .gedit,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .gcell.is-active { box-shadow: inset 0 0 0 2px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .gcell:hover { box-shadow: inset 0 0 0 1px #3B3B3F !important; }
+/* Elegido: red filtrada, tipo de tarea, chips y opciones */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-canal.is-sel { box-shadow: inset 0 0 0 1px var(--c, #F2F2EE) !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-ftarea__tipo.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-juanfb__btn.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edact__chip.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .qc-chip.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cal-fchip.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .adm-op.is-on,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .etable-vchip.is-active,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .gpop__opt.is-current,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-shortcut.is-current {
+  border-color: #F2F2EE !important; box-shadow: inset 0 0 0 1px #F2F2EE !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .mini__day.is-selected,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pick-row.is-current,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cs-row.is-active { box-shadow: inset 0 0 0 1.5px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cs-rowwrap.is-active .cs-row.is-active { box-shadow: none !important; }
+/* Hoy (calendario de reservas y timeline) */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-cal__dia.is-hoy { border-color: #F2F2EE !important; box-shadow: inset 0 0 0 1px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .bj-cal__dia.is-hoy .bj-cal__num { color: #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-mtrack__cell.is-today { box-shadow: inset 0 0 0 1px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tl-cell.is-today { box-shadow: inset 2px 0 0 #F2F2EE !important; }
+/* Mensaje resaltado en la conversación del editor */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .edconv__msg.is-highlight .edconv__bubble { box-shadow: 0 0 0 2px var(--brand) !important; }
+/* Tabla en computadora: la barrita de color del grupo en la casilla */
+@media (min-width: 768px) {
+  :root[data-diseno="galeria"]:not([data-theme="light"]) .etable__td--check { box-shadow: inset 3px 0 0 var(--gc, var(--client-accent)) !important; }
+}
+/* Visita guiada: el halo es lo que señala dónde tocar */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .tour__foco { box-shadow: 0 0 0 3px var(--brand) !important; }
+
+/* ── 35. PROGRAMAR CON LOGOS (13-nov-2026) ──────────────────────────────────
+   Prendida = filete de tinta y fondo gris claro, con palomita; apagada = solo
+   el contorno gris. Sin color de marca de cada red: el logo basta. */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2 { border: 1px solid #2B2B2E; background: #141415; border-radius: 10px; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2.is-on { border-color: #F2F2EE; background: #1F1F21; box-shadow: inset 0 0 0 1px #F2F2EE !important; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2.is-on::after { color: #F2F2EE; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2.is-on .ico--marca,
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2.is-on .pk-red2__nombre { color: #F2F2EE; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-redes__opcion { background: #1F1F21; border-color: #2B2B2E; }
+:root[data-diseno="galeria"]:not([data-theme="light"]) .pk-redes__opcion.is-falta { border-color: #E3A452; }
