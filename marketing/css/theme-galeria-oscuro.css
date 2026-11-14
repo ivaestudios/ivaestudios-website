@@ -499,3 +499,12 @@
 :root[data-diseno="galeria"]:not([data-theme="light"]) .pk-red2.is-on .pk-red2__nombre { color: #F2F2EE; }
 :root[data-diseno="galeria"]:not([data-theme="light"]) .pk-redes__opcion { background: #1F1F21; border-color: #2B2B2E; }
 :root[data-diseno="galeria"]:not([data-theme="light"]) .pk-redes__opcion.is-falta { border-color: #E3A452; }
+
+/* ── N1. PORTADAS SIN FOTO de la vista del cliente ──────────────────────────
+   contenido.css pinta la portada mezclando el color de la marca con BLANCO y
+   la frase con var(--text): de noche quedaba letra clara sobre azul claro
+   (ya pasaba en el oscuro viejo). De noche la mezcla va con el papel oscuro. */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-card__texto {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--cnt-acc) 20%, #141415) 0%, color-mix(in srgb, var(--cnt-acc) 38%, #141415) 100%) !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-card__frase { color: #F2F2EE !important; }

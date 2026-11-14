@@ -100,6 +100,19 @@ def mapear_bloque(selector, cuerpo):
         salida.append(m.group(1) + m.group(2) + m.group(3) + mapear_valor(m.group(2).lower(), m.group(4), fondo_noche, forzar))
     return ';'.join(salida)
 
+# Reglas que SOLO existen de noche (no tienen par en el claro). Se agregan al
+# final del archivo generado; cambiarlas AQUÍ, nunca en el .css generado.
+SOLO_NOCHE = """
+/* ── N1. PORTADAS SIN FOTO de la vista del cliente ──────────────────────────
+   contenido.css pinta la portada mezclando el color de la marca con BLANCO y
+   la frase con var(--text): de noche quedaba letra clara sobre azul claro
+   (ya pasaba en el oscuro viejo). De noche la mezcla va con el papel oscuro. */
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-card__texto {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--cnt-acc) 20%, #141415) 0%, color-mix(in srgb, var(--cnt-acc) 38%, #141415) 100%) !important;
+}
+:root[data-diseno="galeria"]:not([data-theme="light"]) .cnt-card__frase { color: #F2F2EE !important; }
+"""
+
 def main():
     css = ENTRA.read_text()
     # 1) Comentarios fuera (se guardan y se reponen intactos).
@@ -119,7 +132,7 @@ def main():
               '   Diseño Galería en el tema OSCURO (13-nov-2026, Vianey: "la versión de\n'
               '   oscuros no está bien"): mismas reglas que el claro, colores de noche.\n'
               '   ============================================================================ */\n\n')
-    SALE.write_text(cabeza + css)
+    SALE.write_text(cabeza + css + '\n' + SOLO_NOCHE.strip() + '\n')
     print(f'escrito {SALE.relative_to(RAIZ)} · {css.count("{")} llaves')
 
 if __name__ == '__main__':

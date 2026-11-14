@@ -22,11 +22,11 @@
 // Las horas se muestran y se capturan en hora de Cancún (UTC-5 todo el año),
 // sin importar la zona del aparato.
 // ============================================================================
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202611132347';
-import { toast } from '../shell/toast.js?v=202611132347';
-import { icon } from '../shell/icons.js?v=202611132347';
-import { T as T0, isEN } from '../shell/i18n.js?v=202611132347';
-import { botonCobrar } from './bandeja-pagos.js?v=202611132347';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202611132351';
+import { toast } from '../shell/toast.js?v=202611132351';
+import { icon } from '../shell/icons.js?v=202611132351';
+import { T as T0, isEN } from '../shell/i18n.js?v=202611132351';
+import { botonCobrar } from './bandeja-pagos.js?v=202611132351';
 
 // Dependencias que pone bandeja.js al montar (estado de la Bandeja, colores,
 // formatos y acciones del chat). Ver conectarCRM() en bandeja.js.
