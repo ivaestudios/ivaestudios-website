@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202611130232';
-import { T } from '../shell/i18n.js?v=202611130232';
-import { icon } from '../shell/icons.js?v=202611130232';
-import { openSheet } from '../shell/sheet.js?v=202611130232';
-import * as store from '../shell/store.js?v=202611130232';
-import * as cl from '../services/checklist.js?v=202611130232';
+import { el, api, copyText, isClientRole } from '../api.js?v=202611132340';
+import { T } from '../shell/i18n.js?v=202611132340';
+import { icon } from '../shell/icons.js?v=202611132340';
+import { openSheet } from '../shell/sheet.js?v=202611132340';
+import * as store from '../shell/store.js?v=202611132340';
+import * as cl from '../services/checklist.js?v=202611132340';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -268,7 +268,10 @@ export function openPublishNowSheet(ed) {
       // los canales extra que la pieza traiga encendidos.
       const destinos = [];
       if (cli) {
-        if (cli.ig_username) {
+        // Instagram apagado en la pieza (also_instagram = 0) no se ofrece:
+        // esa pieza no va a Instagram. NULL = piezas de antes, como siempre.
+        const igPieza = post.also_instagram == null || Number(post.also_instagram) === 1;
+        if (cli.ig_username && igPieza) {
           destinos.push({ key: 'instagram', label: 'Instagram', cuenta: '@' + String(cli.ig_username).replace(/^@/, ''), on: true });
         }
         if (Number(post.also_facebook) === 1 && !post.fb_post_id) {

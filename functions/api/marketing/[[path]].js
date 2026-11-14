@@ -426,7 +426,10 @@ const POST_EDITABLE_FIELDS = [
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
   'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options',
   'also_youtube', 'yt_options',
-  'also_linkedin', 'li_options'
+  'also_linkedin', 'li_options',
+  // Instagram por pieza (13-nov-2026, Vianey: "no me deja programar solo
+  // TikTok"). NULL = piezas de antes: sale en Instagram si la marca lo tiene.
+  'also_instagram'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -489,6 +492,8 @@ const POST_V2_FIELDS = [
   'also_youtube', 'yt_video_id', 'yt_error', 'yt_options',
   // LinkedIn (2026-10-09): opt-in por pieza + destino (perfil o página) + rastro.
   'also_linkedin', 'li_post_id', 'li_error', 'li_options',
+  // Instagram por pieza (13-nov-2026): 0 = no sale en Instagram; NULL = como siempre.
+  'also_instagram',
 ];
 
 const CONTENT_TYPES = ['reel', 'post', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
@@ -3063,6 +3068,7 @@ async function handlePatchPost(request, env, session, postId) {
       let v = bodyObj[f];
       if (f === 'client_visible') v = v ? 1 : 0;
       if (f === 'grabacion') v = (v === '' || v == null) ? null : Number(v);
+      if (f === 'also_instagram') v = (v === '' || v == null) ? null : (Number(v) ? 1 : 0);
       sets.push(`${f} = ?`);
       vals.push(v);
     }
@@ -3098,6 +3104,13 @@ async function handlePatchPost(request, env, session, postId) {
     if (resolved) sets.push('overdue = 0');
   }
 
+  // Re-programar = volver a la fila (13-nov-2026): "Programar" reinicia los
+  // intentos del reloj y borra el error viejo. Antes, una pieza detenida tras
+  // 5 intentos ya no salía aunque se programara de nuevo.
+  if (bodyObj.status === 'programado' && session.role !== 'client' && post.status !== 'publicando') {
+    sets.push('publish_attempts = 0');
+    sets.push('publish_error = NULL');
+  }
   sets.push("updated_at = datetime('now')");
   vals.push(postId);
   await env.DB.prepare(`UPDATE mkt_posts SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
@@ -6738,7 +6751,12 @@ async function extraTikTok(env, post, session, permitido = true) {
   try {
     const videoUrlTt = await videoFirmadoDePieza(env, post);
     const slidesTt = await slidesFirmadosDePieza(env, post);
-    const rt = await publicarEnTikTok(env, { clientId: post.client_id, post, videoUrl: videoUrlTt, slides: slidesTt });
+    // El id se guarda EN CUANTO TikTok lo da (antes de esperar su estado): si
+    // el reloj se corta esperando, la pieza no se vuelve a mandar (duplicado).
+    const guardarIdTt = async (pid) => {
+      await env.DB.prepare("UPDATE mkt_posts SET tt_post_id = ?, updated_at = datetime('now') WHERE id = ?").bind(pid, post.id).run();
+    };
+    const rt = await publicarEnTikTok(env, { clientId: post.client_id, post, videoUrl: videoUrlTt, slides: slidesTt, onPublishId: guardarIdTt });
     await env.DB.prepare("UPDATE mkt_posts SET tt_post_id = ?, tt_error = NULL, updated_at = datetime('now') WHERE id = ?")
       .bind(rt.ttPostId, post.id).run();
     await logActivity(env, {
@@ -6754,7 +6772,13 @@ async function extraTikTok(env, post, session, permitido = true) {
     return { ok: true, post_id: rt.ttPostId, modo: rt.modo };
   } catch (eTt) {
     const msgTt = ((eTt && eTt.message) || 'Error desconocido').slice(0, 300);
-    await env.DB.prepare("UPDATE mkt_posts SET tt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgTt, post.id).run();
+    // TikTok contestó FAILED: no salió nada, así que el id provisional se
+    // suelta y la pieza puede reintentarse.
+    if (eTt && eTt.ttFallo) {
+      await env.DB.prepare("UPDATE mkt_posts SET tt_error = ?, tt_post_id = NULL, updated_at = datetime('now') WHERE id = ?").bind(msgTt, post.id).run();
+    } else {
+      await env.DB.prepare("UPDATE mkt_posts SET tt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgTt, post.id).run();
+    }
     await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_tt_error', detail: msgTt });
     await avisarAdmins(env, { type: 'publicador_tt_error', post, body: `⚠️ TIKTOK falló — ${post.title}: ${msgTt.slice(0, 120)}` });
     return { ok: false, error: msgTt };
@@ -6835,8 +6859,19 @@ async function publicarPendientes(env) {
       // WASICAFE, 2026-09-10, que solo tenía Facebook). Desde 2026-09-13 vale
       // para los tres: Facebook, TikTok y YouTube — una pieza puede vivir solo
       // en YouTube y el reloj ya no truena con "no tiene Instagram conectado".
-      const sinInstagram = !post.ig_user_id || !post.ig_access_token;
+      // INSTAGRAM APAGADO EN LA PIEZA (13-nov-2026, Vianey: "solo TikTok"):
+      // also_instagram = 0 la trata igual que a una marca sin Instagram. NULL
+      // (todas las piezas de antes) = como siempre.
+      const igApagado = post.also_instagram != null && Number(post.also_instagram) === 0;
+      const sinInstagram = !post.ig_user_id || !post.ig_access_token || igApagado;
       const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1 || Number(post.also_linkedin) === 1;
+      if (igApagado && !pideOtroCanal) {
+        // Sin ninguna red elegida no hay nada que publicar, y JAMÁS se cae al
+        // camino de Instagram que la persona apagó. Se detiene de una.
+        const eSinRed = new Error('La pieza no tiene ninguna red elegida: ábrela en "Programar" y elige al menos una.');
+        eSinRed.determinista = true;
+        throw eSinRed;
+      }
       if (sinInstagram && pideOtroCanal) {
         let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
         let ultimoError = null;
@@ -6964,7 +6999,7 @@ async function publicarPendientes(env) {
       // Subcódigos DETERMINISTAS de Meta (formato/derechos/duración): el
       // reintento jamás los arregla — se detiene de una y se avisa el motivo.
       const DETERMINISTAS = [2207026, 2207057, 2207042, 2207050, 2207051, 2207008, 9007];
-      const esDeterminista = e && DETERMINISTAS.includes(Number(e.igSubcode));
+      const esDeterminista = e && (e.determinista || DETERMINISTAS.includes(Number(e.igSubcode)));
       const intentos = esDeterminista ? 5 : (Number(post.publish_attempts) || 0) + 1;
       const msg = ((intentos >= 5 ? 'DETENIDO tras 5 intentos — revisar a mano: ' : '') +
         ((e && e.message) || 'Error desconocido')).slice(0, 300);
@@ -7076,12 +7111,21 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
   // WASICAFE, 2026-08-27, que solo tenía Facebook). Desde 2026-09-13 cubre los
   // tres: Facebook, TikTok y YouTube — el mismo criterio que el reloj.
   const igConectado = !!post.ig_user_id && !!post.ig_access_token;
-  const igOmitidoPorEleccion = igConectado && !quiere('instagram');
-  const sinInstagram = !igConectado || igOmitidoPorEleccion;
+  // Instagram apagado EN LA PIEZA (also_instagram = 0): no es "pendiente de
+  // Instagram", es que esa pieza no va a Instagram. Al salir en sus redes
+  // queda publicada. NULL = piezas de antes, como siempre.
+  const igApagado = post.also_instagram != null && Number(post.also_instagram) === 0;
+  const igOmitidoPorEleccion = igConectado && !igApagado && !quiere('instagram');
+  const sinInstagram = !igConectado || igApagado || igOmitidoPorEleccion;
   const pideOtroCanal = (Number(post.also_facebook) === 1 && quiere('facebook'))
     || (Number(post.also_tiktok) === 1 && quiere('tiktok'))
     || (Number(post.also_youtube) === 1 && quiere('youtube'))
     || (Number(post.also_linkedin) === 1 && quiere('linkedin'));
+  // Nada elegido y sin Instagram: jamás se cae al camino de Instagram.
+  if ((igApagado || (canales && !quiere('instagram'))) && !pideOtroCanal) {
+    await soltarCandado();
+    return json({ error: 'Esta pieza no tiene ninguna red elegida para publicar.' }, 422);
+  }
   if (sinInstagram && pideOtroCanal) {
     let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
     let ultimoError = null;

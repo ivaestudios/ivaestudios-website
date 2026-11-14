@@ -511,6 +511,37 @@ a.update-bar__btn { display: inline-flex; align-items: center; text-decoration: 
 .pk-red__txt small { font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pk-red__link { flex: none; background: none; border: 1.5px solid var(--border-strong); border-radius: 999px;
   color: var(--text); font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; cursor: pointer; }
+/* Redes con LOGO (13-nov-2026, Vianey: "elegir con iconos y apretar Programar"):
+   cada red es un botón que se prende y se apaga; Instagram ya no es obligatorio. */
+.pk-redes2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.pk-red2 {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 84px; padding: 10px 6px; border-radius: var(--r, 10px);
+  border: 1.5px solid var(--border); background: var(--surface); color: var(--text-mute);
+  font: inherit; text-align: center; cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.pk-red2 .ico--marca { color: var(--text-mute); }
+.pk-red2__nombre { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+.pk-red2__cuenta { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text-mute); }
+.pk-red2:hover:not(:disabled) { border-color: var(--border-strong); }
+.pk-red2.is-on { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, var(--surface)); }
+.pk-red2.is-on .ico--marca, .pk-red2.is-on .pk-red2__nombre { color: var(--text); }
+.pk-red2.is-on::after { content: '\2713'; position: absolute; top: 6px; right: 8px; font-size: 12px; font-weight: 700; color: var(--brand); }
+.pk-red2.is-off { opacity: .45; cursor: not-allowed; }
+.pk-redes__resumen { margin: 8px 0 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.pk-redes__resumen.is-vacio { color: var(--danger); }
+.pk-redes__extras { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.pk-redes__extras:empty { display: none; }
+.pk-redes__opcion {
+  display: flex; align-items: center; gap: 8px; width: 100%; min-height: 40px; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: var(--r-sm, 8px); background: var(--surface-2);
+  color: var(--text-dim); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+}
+.pk-redes__opcion span { flex: 1; min-width: 0; }
+.pk-redes__opcion b { font-weight: 700; color: var(--text); }
+.pk-redes__opcion.is-falta { border-color: var(--warn, #b45309); color: var(--text); }
+.pk-redes__conectar { margin-top: 8px; }
 .pk-hint { font-size: 12.5px; line-height: 1.45; color: var(--text-dim); margin: 0 0 var(--s-3); }
 .pk-hint--error { color: var(--danger, #e5484d); font-weight: 600; }
 .pk-free { margin-top: var(--s-3); }

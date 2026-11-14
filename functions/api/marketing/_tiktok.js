@@ -266,7 +266,7 @@ export function duracionMp4(buf) {
   return null;
 }
 
-export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }) {
+export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides, onPublishId = null }) {
   const tok = await tokenTikTokVigente(env, clientId);
   const auth = { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json; charset=UTF-8' };
 
@@ -328,26 +328,60 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
     return { ttPostId: r.data && r.data.publish_id, modo: directo ? modoDirecto : 'buzon' };
   }
 
-  // REEL/VIDEO → FILE_UPLOAD en 1 chunk (nuestros videos son ≤64MB).
+  // REEL/VIDEO. Dos caminos (13-nov-2026):
+  //   · ≤64MB → FILE_UPLOAD en 1 chunk, como siempre.
+  //   · >64MB → PULL_FROM_URL: TikTok baja el video DIRECTO de nuestra URL
+  //     firmada. Los 4K de Entregables pesan 100-140MB y el Worker no puede
+  //     cargarlos en memoria (tope 128MB); el dominio ivaestudios.com está
+  //     verificado en el portal de TikTok (TXT en el DNS, el mismo que ya usa
+  //     el carrusel), así que TikTok acepta bajarlo de aquí.
   if (!videoUrl) throw new Error('La pieza no tiene video para TikTok.');
+  const UN_CHUNK = 64 * 1024 * 1024;
+  const maxSeg = Number(ci.data && ci.data.max_video_post_duration_sec) || 0;
+  const revisarDuracion = (durSeg) => {
+    // Lecturas absurdas (un 'mvhd' casual dentro de los datos) no cuentan.
+    if (!maxSeg || !durSeg || !Number.isFinite(durSeg) || durSeg > 36000) return;
+    if (durSeg > maxSeg + 0.5) {
+      const f = (x) => `${Math.floor(Math.round(x) / 60)}:${String(Math.round(x) % 60).padStart(2, '0')}`;
+      throw new Error(`El video dura ${f(durSeg)} y esta cuenta de TikTok acepta hasta ${f(maxSeg)}. Hay que recortarlo.`);
+    }
+  };
+
   const vid = await fetch(videoUrl);
   if (!vid.ok) throw new Error('No se pudo leer el video del almacén (' + vid.status + ').');
-  const bytes = await vid.arrayBuffer();
-  if (bytes.byteLength > 64 * 1024 * 1024) throw new Error('El video pasa de 64MB — comprimirlo para TikTok.');
-  // Duración máxima que acepta ESA cuenta (creator_info): se revisa antes de subir.
-  const maxSeg = Number(ci.data && ci.data.max_video_post_duration_sec) || 0;
-  const durSeg = duracionMp4(bytes);
-  if (maxSeg && durSeg && durSeg > maxSeg + 0.5) {
-    const f = (x) => `${Math.floor(Math.round(x) / 60)}:${String(Math.round(x) % 60).padStart(2, '0')}`;
-    throw new Error(`El video dura ${f(durSeg)} y esta cuenta de TikTok acepta hasta ${f(maxSeg)}. Hay que recortarlo.`);
+  const tam = Number(vid.headers.get('content-length')) || 0;
+  const grande = tam > UN_CHUNK;
+  let bytes = null;
+  let source;
+  if (grande) {
+    try { await vid.body.cancel(); } catch { /* sin cuerpo pendiente */ }
+    if (!/^https:\/\/ivaestudios\.com\//.test(videoUrl)) {
+      throw new Error('El video pasa de 64MB y no vive en el almacén de la app: súbelo a Entregables y vincúlalo a la pieza.');
+    }
+    // Duración: en los videos de cámara o de edición el índice (moov) va al
+    // FINAL del archivo; si no está ahí, se busca al principio. Sin dato, sigue.
+    for (const rango of ['bytes=-4194304', 'bytes=0-1048575']) {
+      try {
+        const trozo = await fetch(videoUrl, { headers: { Range: rango } });
+        if (trozo.status !== 206) { try { await trozo.body.cancel(); } catch { /* noop */ } continue; }
+        const dur = duracionMp4(await trozo.arrayBuffer());
+        if (dur) { revisarDuracion(dur); break; }
+      } catch (eDur) {
+        if (eDur && /Hay que recortarlo/.test(eDur.message || '')) throw eDur;
+      }
+    }
+    source = { source: 'PULL_FROM_URL', video_url: videoUrl };
+  } else {
+    bytes = await vid.arrayBuffer();
+    if (bytes.byteLength > UN_CHUNK) throw new Error('El video pasa de 64MB — comprimirlo para TikTok.');
+    revisarDuracion(duracionMp4(bytes));
+    source = { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 };
   }
 
   let modoFinal = directo ? modoDirecto : 'buzon';
   const initBuzon = () => ttJson(`${TT_API}/post/publish/inbox/video/init/`, {
     method: 'POST', headers: auth,
-    body: JSON.stringify({
-      source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
-    }),
+    body: JSON.stringify({ source_info: source }),
   });
   let init;
   if (directo) {
@@ -365,7 +399,7 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
             ...(elec.brand_content ? { brand_content_toggle: true } : {}),
             ...(elec.brand_organic ? { brand_organic_toggle: true } : {}),
           },
-          source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
+          source_info: source,
         }),
       });
     } catch (e) {
@@ -379,29 +413,46 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
     init = await initBuzon();
   }
   const publishId = init.data && init.data.publish_id;
-  const uploadUrl = init.data && init.data.upload_url;
-  if (!publishId || !uploadUrl) throw new Error('TikTok no devolvió el destino de subida.');
+  if (!publishId) throw new Error('TikTok no devolvió el destino de subida.');
 
-  const up = await fetch(uploadUrl, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'video/mp4',
-      'Content-Length': String(bytes.byteLength),
-      'Content-Range': `bytes 0-${bytes.byteLength - 1}/${bytes.byteLength}`,
-    },
-    body: bytes,
-  });
-  if (!up.ok) throw new Error('TikTok no aceptó la subida del video (HTTP ' + up.status + ').');
-
-  // Poll del estado hasta completar (o quedar en el buzón).
-  for (let i = 0; i < 18; i++) {
-    await new Promise((r) => setTimeout(r, 5000));
-    const st = await ttJson(`${TT_API}/post/publish/status/fetch/`, {
-      method: 'POST', headers: auth, body: JSON.stringify({ publish_id: publishId }),
+  if (!grande) {
+    const uploadUrl = init.data && init.data.upload_url;
+    if (!uploadUrl) throw new Error('TikTok no devolvió el destino de subida.');
+    const up = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Content-Length': String(bytes.byteLength),
+        'Content-Range': `bytes 0-${bytes.byteLength - 1}/${bytes.byteLength}`,
+      },
+      body: bytes,
     });
+    if (!up.ok) throw new Error('TikTok no aceptó la subida del video (HTTP ' + up.status + ').');
+  }
+
+  // Desde aquí TikTok YA tiene la publicación: el id se guarda de inmediato,
+  // así un reloj cortado a media espera no la vuelve a mandar (duplicado).
+  if (onPublishId) { try { await onPublishId(publishId); } catch { /* best effort */ } }
+
+  // Poll del estado hasta completar (o quedar en el buzón). Con PULL_FROM_URL
+  // TikTok primero baja el archivo: más paciencia. Un tropiezo al preguntar
+  // NO es un fallo de la publicación (ya va en camino): se deja de preguntar.
+  const vueltas = grande ? 30 : 18;
+  for (let i = 0; i < vueltas; i++) {
+    await new Promise((r) => setTimeout(r, 5000));
+    let st;
+    try {
+      st = await ttJson(`${TT_API}/post/publish/status/fetch/`, {
+        method: 'POST', headers: auth, body: JSON.stringify({ publish_id: publishId }),
+      });
+    } catch { break; }
     const s = st.data && st.data.status;
     if (s === 'PUBLISH_COMPLETE' || s === 'SEND_TO_USER_INBOX') break;
-    if (s === 'FAILED') throw new Error('TikTok no pudo procesar el video: ' + ((st.data && st.data.fail_reason) || 'sin motivo'));
+    if (s === 'FAILED') {
+      const eF = new Error('TikTok no pudo procesar el video: ' + ((st.data && st.data.fail_reason) || 'sin motivo'));
+      eF.ttFallo = true;
+      throw eF;
+    }
   }
   return { ttPostId: publishId, modo: modoFinal };
 }

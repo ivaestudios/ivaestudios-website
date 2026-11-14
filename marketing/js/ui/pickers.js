@@ -18,9 +18,11 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202611130232';
-import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611130232';
-import { T } from '../shell/i18n.js?v=202611130232';
+} from '../api.js?v=202611132340';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611132340';
+import { T } from '../shell/i18n.js?v=202611132340';
+import { iconMarca } from '../shell/icons.js?v=202611132340';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok } from '../editor/canales.js?v=202611132340';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
@@ -178,19 +180,29 @@ export function pickTime({ current = null, anchor = null, title = T('Hora de pub
 // ── Programar (fecha + hora + redes) ─────────────────────────────────────────
 /**
  * pickSchedule({post, client, anchor, canProgram}) ->
- *   { fields: {publish_date, publish_time, also_facebook, also_tiktok, also_youtube}, programar: bool }
+ *   { fields: {publish_date, publish_time, also_instagram, also_facebook,
+ *              also_tiktok, also_youtube, also_linkedin, platform,
+ *              tt_options?, yt_options?}, programar: bool }
  *   | null (cancelado)
  * Pedido de Vianey (24-sep-2026): "programar en el calendario con hora, solo
  * me deja el día; y que cuando se pongan las plataformas se publique en esas".
- * Instagram no lleva interruptor: si la marca lo tiene conectado, el reloj
- * SIEMPRE publica ahí (así funciona el programador); las demás redes son
- * los interruptores also_* que ya usaba el editor.
+ * 13-nov-2026 ("no me deja programar solamente TikTok, sí o sí me tengo que
+ * meter Instagram, y eso está mal"): cada red es un BOTÓN CON SU LOGO que se
+ * prende y se apaga, Instagram incluido. "Programar" deja la pieza en esas
+ * redes; volver a "Programar" con una red apagada la quita de la pieza.
+ * TikTok y YouTube piden una decisión humana (privacidad / contenido para
+ * niños): al prenderlos se abre su hoja una sola vez.
  */
 export function pickSchedule({ post, client = null, anchor = null, canProgram = true } = {}) {
   return new Promise((resolve) => {
     let picked = null, done = false;
     const settle = (v) => { if (!done) { done = true; resolve(v); } };
     const c = client || {};
+    // Opciones de TikTok/YouTube que se van eligiendo en esta hoja (se
+    // guardan junto con lo demás al Programar o Guardar).
+    let ttOpts = post.tt_options || null;
+    let ytOpts = post.yt_options || null;
+    const leer = (j) => { try { return j ? JSON.parse(j) : {}; } catch { return {}; } };
     openSheet({
       title: T('Programar publicación', 'Schedule post'), mode: 'form', anchor,
       onClose: () => settle(picked),
@@ -223,46 +235,123 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
         }
         dateIn.addEventListener('input', marcar); timeIn.addEventListener('input', marcar); marcar();
 
-        // Redes: solo se pueden prender las que la marca tiene conectadas.
+        // Redes: un botón con logo por red. Solo se prenden las conectadas.
         const irAConexiones = () => {
           close({ source: 'cancel' });
           location.hash = '#/conexiones' + (post.client_id ? `?cliente=${encodeURIComponent(post.client_id)}` : '');
         };
+        const igOn = post.also_instagram == null ? true : Number(post.also_instagram) === 1;
         const redes = [
-          { key: null, label: 'Instagram', conectada: !!c.ig_username, detalle: c.ig_username ? '@' + c.ig_username : '', on: true },
-          { key: 'also_facebook', label: 'Facebook', conectada: !!c.fb_page_name, detalle: c.fb_page_name || '', on: Number(post.also_facebook) === 1 },
-          { key: 'also_tiktok', label: 'TikTok', conectada: !!c.tt_username, detalle: c.tt_username ? '@' + c.tt_username : '', on: Number(post.also_tiktok) === 1 },
-          { key: 'also_youtube', label: 'YouTube', conectada: !!c.yt_channel_title, detalle: c.yt_channel_title || '', on: Number(post.also_youtube) === 1 },
-          { key: 'also_linkedin', label: 'LinkedIn', conectada: !!(c.li_person_name || c.li_org_name), detalle: c.li_org_name || c.li_person_name || '', on: Number(post.also_linkedin) === 1 },
+          { key: 'also_instagram', red: 'instagram', label: 'Instagram', conectada: !!c.ig_username, detalle: c.ig_username ? '@' + c.ig_username : '', on: igOn },
+          { key: 'also_facebook', red: 'facebook', label: 'Facebook', conectada: !!c.fb_page_name, detalle: c.fb_page_name || '', on: Number(post.also_facebook) === 1 },
+          { key: 'also_tiktok', red: 'tiktok', label: 'TikTok', conectada: !!c.tt_username, detalle: c.tt_username ? '@' + c.tt_username : '', on: Number(post.also_tiktok) === 1 },
+          { key: 'also_youtube', red: 'youtube', label: 'YouTube', conectada: !!c.yt_channel_title, detalle: c.yt_channel_title || '', on: Number(post.also_youtube) === 1 },
+          { key: 'also_linkedin', red: 'linkedin', label: 'LinkedIn', conectada: !!(c.li_person_name || c.li_org_name), detalle: c.li_org_name || c.li_person_name || '', on: Number(post.also_linkedin) === 1 },
         ];
-        const boxes = {};
-        const redesEl = el('div', { class: 'pk-redes' }, redes.map((r) => {
-          const box = el('input', { type: 'checkbox' });
-          box.checked = r.conectada && r.on;
-          box.disabled = !r.conectada || r.key === null;
-          if (r.key) boxes[r.key] = box;
-          return el('label', { class: 'pk-red' + (r.conectada ? '' : ' pk-red--off') }, [
-            box,
-            el('span', { class: 'pk-red__txt' }, [
-              el('b', { text: r.label }),
-              el('small', { text: r.conectada
-                ? (r.key === null ? `${r.detalle} · ${T('siempre', 'always')}` : r.detalle)
-                : T('No conectada', 'Not connected') }),
-            ]),
-            r.conectada ? null : el('button', { class: 'pk-red__link', type: 'button', text: T('Conectar', 'Connect'), onclick: irAConexiones }),
-          ].filter(Boolean));
-        }));
-        const algunaRed = () => redes[0].conectada || Object.values(boxes).some((b) => b.checked);
-
-        const campos = () => ({
-          publish_date: dateIn.value || null,
-          publish_time: timeIn.value ? timeIn.value.slice(0, 5) : null,
-          also_facebook: boxes.also_facebook && boxes.also_facebook.checked ? 1 : 0,
-          also_tiktok: boxes.also_tiktok && boxes.also_tiktok.checked ? 1 : 0,
-          also_youtube: boxes.also_youtube && boxes.also_youtube.checked ? 1 : 0,
-          also_linkedin: boxes.also_linkedin && boxes.also_linkedin.checked ? 1 : 0,
-        });
+        const prendida = {};
+        redes.forEach((r) => { prendida[r.key] = r.conectada && r.on; });
         const aviso = el('p', { class: 'pk-hint pk-hint--error', hidden: true });
+        const resumen = el('p', { class: 'pk-redes__resumen' });
+        const extras = el('div', { class: 'pk-redes__extras' });
+
+        // Un "ed" mínimo para reutilizar las hojas de TikTok y YouTube del
+        // editor (las que TikTok y YouTube ya aprobaron) sin duplicarlas.
+        const edTikTok = {
+          getPost: () => ({ ...post, tt_options: ttOpts }),
+          setField: (k, v) => { if (k === 'tt_options') ttOpts = v; pintar(); },
+        };
+        const edYouTube = {
+          getPost: () => ({ ...post, yt_options: ytOpts }),
+          setField: (k, v) => { if (k === 'yt_options') ytOpts = v; pintar(); },
+        };
+        const faltaTikTok = () => prendida.also_tiktok && !leer(ttOpts).privacy_level;
+        const faltaYouTube = () => prendida.also_youtube && leer(ytOpts).made_for_kids == null;
+
+        const tiles = redes.map((r) => {
+          const b = el('button', {
+            class: 'pk-red2' + (r.conectada ? '' : ' is-off'), type: 'button',
+            'aria-pressed': 'false', disabled: r.conectada ? null : 'disabled',
+            title: r.conectada ? r.detalle : T('No conectada', 'Not connected'),
+            onclick: () => {
+              if (!r.conectada) return;
+              prendida[r.key] = !prendida[r.key];
+              aviso.hidden = true;
+              pintar();
+              if (prendida[r.key] && r.key === 'also_tiktok' && faltaTikTok()) openTikTokSheet(edTikTok, { onSaved: pintar });
+              if (prendida[r.key] && r.key === 'also_youtube' && faltaYouTube()) openYouTubeSheet(edYouTube, { onSaved: pintar });
+            },
+          }, [
+            iconMarca(r.red, 22),
+            el('span', { class: 'pk-red2__nombre', text: r.label }),
+            el('span', { class: 'pk-red2__cuenta', text: r.conectada ? (r.detalle || T('conectada', 'connected')) : T('Sin conectar', 'Not connected') }),
+          ]);
+          r.btn = b;
+          return b;
+        });
+        const sinConectar = redes.filter((r) => !r.conectada);
+        const linkConectar = sinConectar.length
+          ? el('button', { class: 'pk-red__link pk-redes__conectar', type: 'button', text: T('Conectar otra red', 'Connect another network'), onclick: irAConexiones })
+          : null;
+
+        function pintar() {
+          redes.forEach((r) => {
+            const on = !!prendida[r.key];
+            r.btn.classList.toggle('is-on', on);
+            r.btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+          const elegidas = redes.filter((r) => prendida[r.key]).map((r) => r.label);
+          resumen.textContent = elegidas.length
+            ? `${T('Sale en', 'Goes out on')}: ${elegidas.join(' · ')}`
+            : T('Elige al menos una red.', 'Pick at least one network.');
+          resumen.classList.toggle('is-vacio', !elegidas.length);
+          while (extras.firstChild) extras.removeChild(extras.firstChild);
+          if (prendida.also_tiktok) {
+            extras.append(el('button', {
+              class: 'pk-redes__opcion' + (faltaTikTok() ? ' is-falta' : ''), type: 'button',
+              onclick: () => openTikTokSheet(edTikTok, { onSaved: pintar }),
+            }, [
+              iconMarca('tiktok', 14),
+              el('span', { text: faltaTikTok()
+                ? T('TikTok: falta elegir quién lo ve', 'TikTok: choose who can see it')
+                : `TikTok: ${resumenTikTok({ tt_options: ttOpts })}` }),
+              el('b', { text: faltaTikTok() ? T('Elegir', 'Choose') : T('Cambiar', 'Change') }),
+            ]));
+          }
+          if (prendida.also_youtube) {
+            extras.append(el('button', {
+              class: 'pk-redes__opcion' + (faltaYouTube() ? ' is-falta' : ''), type: 'button',
+              onclick: () => openYouTubeSheet(edYouTube, { onSaved: pintar }),
+            }, [
+              iconMarca('youtube', 14),
+              el('span', { text: faltaYouTube() ? T('YouTube: falta una declaración', 'YouTube: a declaration is missing') : T('YouTube: listo', 'YouTube: ready') }),
+              el('b', { text: faltaYouTube() ? T('Elegir', 'Choose') : T('Cambiar', 'Change') }),
+            ]));
+          }
+        }
+        const redesEl = el('div', { class: 'pk-redes2', role: 'group', 'aria-label': T('Redes donde se publica', 'Networks to publish on') }, tiles);
+        pintar();
+
+        const campos = () => {
+          const f = {
+            publish_date: dateIn.value || null,
+            publish_time: timeIn.value ? timeIn.value.slice(0, 5) : null,
+          };
+          if (canProgram) {
+            // Instagram solo se escribe si la marca lo tiene: sin Instagram
+            // conectado la pieza conserva su valor (y el reloj no lo intenta).
+            if (redes[0].conectada) f.also_instagram = prendida.also_instagram ? 1 : 0;
+            f.also_facebook = prendida.also_facebook ? 1 : 0;
+            f.also_tiktok = prendida.also_tiktok ? 1 : 0;
+            f.also_youtube = prendida.also_youtube ? 1 : 0;
+            f.also_linkedin = prendida.also_linkedin ? 1 : 0;
+            // La columna "Plataforma" del calendario dice lo mismo que los botones.
+            const elegidas = redes.filter((r) => prendida[r.key]).map((r) => r.label);
+            if (elegidas.length) f.platform = elegidas.join(', ');
+            if (ttOpts && ttOpts !== (post.tt_options || null)) f.tt_options = ttOpts;
+            if (ytOpts && ytOpts !== (post.yt_options || null)) f.yt_options = ytOpts;
+          }
+          return f;
+        };
         const guardar = el('button', {
           class: 'btn', type: 'button', text: T('Guardar', 'Save'),
           onclick: () => { picked = { fields: campos(), programar: false }; close({ source: 'pick' }); },
@@ -272,9 +361,12 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           onclick: () => {
             const f = campos();
             let falta = '';
+            const alguna = redes.some((r) => prendida[r.key]);
             if (!f.publish_date) falta = T('Elige el día.', 'Pick the day.');
             else if (!f.publish_time) falta = T('Elige la hora: sin hora la app no publica.', 'Pick the time: without a time the app does not publish.');
-            else if (!algunaRed()) falta = T('Conecta al menos una red para esta marca.', 'Connect at least one network for this brand.');
+            else if (!alguna) falta = T('Elige al menos una red (toca su logo).', 'Pick at least one network (tap its logo).');
+            else if (faltaTikTok()) { falta = T('Elige quién lo ve en TikTok.', 'Choose who can see it on TikTok.'); openTikTokSheet(edTikTok, { onSaved: pintar }); }
+            else if (faltaYouTube()) { falta = T('Falta la declaración de YouTube.', 'The YouTube declaration is missing.'); openYouTubeSheet(edYouTube, { onSaved: pintar }); }
             if (falta) { aviso.textContent = falta; aviso.hidden = false; return; }
             picked = { fields: f, programar: true }; close({ source: 'pick' });
           },
@@ -282,8 +374,11 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
         body.append(
           el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Día', 'Day') }), dateRow, dateIn]),
           el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Hora (Cancún)', 'Time (Cancún)') }), timeRow, timeIn]),
-          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Redes donde se publica', 'Networks to publish on') }), redesEl]),
-          el('p', { class: 'pk-hint', text: T('"Programar" deja la pieza lista y la app la publica sola a esa hora. Súbele el video o la imagen antes.', '"Schedule" leaves the piece ready and the app publishes it on its own at that time. Upload the video or image before then.') }),
+          ...(canProgram ? [el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: T('Redes donde se publica', 'Networks to publish on') }),
+            redesEl, resumen, extras, linkConectar,
+          ].filter(Boolean))] : []),
+          el('p', { class: 'pk-hint', text: T('Toca los logos para elegir dónde sale. "Programar" deja la pieza lista y la app la publica sola a esa hora. Súbele el video o la imagen antes.', 'Tap the logos to choose where it goes out. "Schedule" leaves the piece ready and the app publishes it on its own at that time. Upload the video or image before then.') }),
           aviso,
           el('div', { class: 'sheet__footer' }, [
             el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),

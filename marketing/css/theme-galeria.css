@@ -481,3 +481,14 @@
 }
 /* Visita guiada: el halo es lo que señala dónde tocar */
 :root[data-diseno="galeria"][data-theme="light"] .tour__foco { box-shadow: 0 0 0 3px var(--brand) !important; }
+
+/* ── 35. PROGRAMAR CON LOGOS (13-nov-2026) ──────────────────────────────────
+   Prendida = filete de tinta y fondo gris claro, con palomita; apagada = solo
+   el contorno gris. Sin color de marca de cada red: el logo basta. */
+:root[data-diseno="galeria"][data-theme="light"] .pk-red2 { border: 1px solid #E7E7E4; background: #FFFFFF; border-radius: 10px; }
+:root[data-diseno="galeria"][data-theme="light"] .pk-red2.is-on { border-color: #0F0F10; background: #F4F4F1; box-shadow: inset 0 0 0 1px #0F0F10 !important; }
+:root[data-diseno="galeria"][data-theme="light"] .pk-red2.is-on::after { color: #0F0F10; }
+:root[data-diseno="galeria"][data-theme="light"] .pk-red2.is-on .ico--marca,
+:root[data-diseno="galeria"][data-theme="light"] .pk-red2.is-on .pk-red2__nombre { color: #0F0F10; }
+:root[data-diseno="galeria"][data-theme="light"] .pk-redes__opcion { background: #F4F4F1; border-color: #E7E7E4; }
+:root[data-diseno="galeria"][data-theme="light"] .pk-redes__opcion.is-falta { border-color: #A15C00; }

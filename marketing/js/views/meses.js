@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202611130232';
-import { icon, iconMarca } from '../shell/icons.js?v=202611130232';
-import { T } from '../shell/i18n.js?v=202611130232';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611130232';
-import { confirmar } from '../shell/sheet.js?v=202611130232';
-import { openNewClient } from '../shell/clientswitcher.js?v=202611130232';
+} from '../api.js?v=202611132340';
+import { icon, iconMarca } from '../shell/icons.js?v=202611132340';
+import { T } from '../shell/i18n.js?v=202611132340';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611132340';
+import { confirmar } from '../shell/sheet.js?v=202611132340';
+import { openNewClient } from '../shell/clientswitcher.js?v=202611132340';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202611130232';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611130232';
+import { errorCard } from '../ui/states.js?v=202611132340';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611132340';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611130232';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611132340';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202611130232';
+} from '../lib/video-upload.js?v=202611132340';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -643,12 +643,19 @@ async function onPickDate(post, anchor) {
   if (!r || !r.fields) return;
   const fields = {};
   const prev = {};
+  // Texto se compara como texto; los interruptores como número, pero NULL
+  // cuenta aparte (also_instagram NULL = "como siempre", no es lo mismo que 0).
+  const TEXTO = new Set(['publish_date', 'publish_time', 'platform', 'tt_options', 'yt_options']);
   for (const [k, v] of Object.entries(r.fields)) {
     const antes = post[k] == null ? null : post[k];
-    const cambia = (k === 'publish_date' || k === 'publish_time') ? (antes || null) !== (v || null) : Number(antes || 0) !== Number(v || 0);
+    const cambia = TEXTO.has(k)
+      ? (antes || null) !== (v || null)
+      : (antes == null ? null : Number(antes)) !== (v == null ? null : Number(v));
     if (cambia) { fields[k] = v; prev[k] = antes; }
   }
-  if (r.programar && post.status !== 'programado') { fields.status = 'programado'; prev.status = post.status || null; }
+  // "Programar" otra vez sobre una pieza ya programada también cuenta: el
+  // servidor la vuelve a poner en fila (reinicia intentos) con sus redes nuevas.
+  if (r.programar) { fields.status = 'programado'; prev.status = post.status || null; }
   if (!Object.keys(fields).length) return;
   const f = r.fields;
   const cuando = f.publish_date ? `${fmtDate(f.publish_date, { day: 'numeric', month: 'long' })}${f.publish_time ? ' · ' + f.publish_time : ''}` : '';
@@ -2028,8 +2035,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202611130232');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611130232');
+        const mod = await import('../lib/pdf-contenido.js?v=202611132340');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611132340');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

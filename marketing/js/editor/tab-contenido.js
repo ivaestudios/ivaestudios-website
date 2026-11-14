@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202611130232';
-import { pickFrom } from '../shell/sheet.js?v=202611130232';
-import * as store from '../shell/store.js?v=202611130232';
-import * as checklistService from '../services/checklist.js?v=202611130232';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611130232';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611130232';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611130232';
-import { T } from '../shell/i18n.js?v=202611130232';
+} from '../api.js?v=202611132340';
+import { pickFrom } from '../shell/sheet.js?v=202611132340';
+import * as store from '../shell/store.js?v=202611132340';
+import * as checklistService from '../services/checklist.js?v=202611132340';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611132340';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611132340';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611132340';
+import { T } from '../shell/i18n.js?v=202611132340';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -226,6 +226,58 @@ export function mount(host, ed) {
     },
   });
 
+  // ── Programar con logos + Instagram por pieza (13-nov-2026) ───────────────
+  // Vianey: "no me deja programar solamente TikTok, sí o sí me tengo que meter
+  // Instagram". La fila abre la MISMA hoja del calendario (día, hora y un logo
+  // por red); "Programar" otra vez actualiza y quita la red que se apagó.
+  const nombresRedes = (p) => {
+    const c = ed.getClient() || {};
+    const igOn = c.ig_username && (p.also_instagram == null || Number(p.also_instagram) === 1);
+    return [
+      igOn ? 'Instagram' : null,
+      Number(p.also_facebook) === 1 ? 'Facebook' : null,
+      Number(p.also_tiktok) === 1 ? 'TikTok' : null,
+      Number(p.also_youtube) === 1 ? 'YouTube' : null,
+      Number(p.also_linkedin) === 1 ? 'LinkedIn' : null,
+    ].filter(Boolean);
+  };
+  const rProgramar = rowButton({
+    label: T('Programar', 'Schedule'),
+    render: (v) => {
+      const p = post();
+      const redesTxt = nombresRedes(p).join(' · ');
+      if (p.status === 'programado' && p.publish_date && p.publish_time) {
+        v.appendChild(el('span', { class: 'edrow__plain', text: `${fmtDate(p.publish_date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${String(p.publish_time).slice(0, 5)}${redesTxt ? ' · ' + redesTxt : ''}` }));
+      } else {
+        v.appendChild(emptyValue(T('Elegir día, hora y redes', 'Pick day, time and networks')));
+      }
+    },
+    onTap: async (anchor) => {
+      const r = await ctx.pickers.pickSchedule({ post: post(), client: ed.getClient(), anchor, canProgram: true });
+      if (!r || !r.fields) return;
+      const p = post();
+      const TEXTO = new Set(['publish_date', 'publish_time', 'platform', 'tt_options', 'yt_options']);
+      let algo = false;
+      for (const [k, v] of Object.entries(r.fields)) {
+        const antes = p[k] == null ? null : p[k];
+        const cambia = TEXTO.has(k)
+          ? (antes || null) !== (v || null)
+          : (antes == null ? null : Number(antes)) !== (v == null ? null : Number(v));
+        if (cambia) { ed.setField(k, v); algo = true; }
+      }
+      // Todo viaja en UN solo guardado; el estado va al final.
+      if (r.programar) { ed.setField('status', 'programado'); algo = true; }
+      if (algo) await ed.flush();
+      refreshAll();
+    },
+  });
+  const rInstagram = rowSwitch({
+    label: T('Publicar en Instagram', 'Publish on Instagram'),
+    sub: T('Apágalo si esta pieza no va a Instagram (por ejemplo, solo TikTok)', 'Turn it off if this piece does not go to Instagram (for example, TikTok only)'),
+    get: () => { const p = post(); return p.also_instagram == null ? true : Number(p.also_instagram) === 1; },
+    onToggle: (next) => { ed.setField('also_instagram', next ? 1 : 0, { immediate: true }); refreshAll(); return true; },
+  });
+
   // ── Tambien en Facebook (staff) ───────────────────────────────────────────
   // La pieza aprobada se publica a Instagram y, con este interruptor, TAMBIEN
   // a la pagina de Facebook conectada de la marca (Conexiones). El campo
@@ -396,13 +448,14 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rHora, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rLinkedIn, rLinkedInDest, rNotas, ...personRows]),
+    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rProgramar, rInstagram, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rLinkedIn, rLinkedInDest, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente || !aprobacionActiva ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente && aprobacionActiva) addSection(T('Cliente', 'Client'), [rVisible.el]);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, avisoCanales]);
+  const igConectado = !!((ed.getClient() || {}).ig_username);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rProgramar.el, ...(igConectado ? [rInstagram.el] : []), rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
