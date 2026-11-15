@@ -4252,7 +4252,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/family-photo-session-playa-del-carmen</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11419,5 +11419,21 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/new-family-resorts-2026-2027-cancun-riviera-maya"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/new-family-resorts-2026-2027-cancun-riviera-maya"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/blog/tulum-honeymoon-photoshoot-guide</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tulum-honeymoon-photoshoot-guide"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/tulum-honeymoon-photoshoot-guide"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/blog/playa-del-carmen-family-photo-session-guide</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/playa-del-carmen-family-photo-session-guide"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/playa-del-carmen-family-photo-session-guide"/>
   </url>
 </urlset>
