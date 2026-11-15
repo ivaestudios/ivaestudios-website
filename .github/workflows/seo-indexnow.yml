@@ -43,8 +43,25 @@ jobs:
 
       # IndexNow used to fire 25 to 82 s before Cloudflare Pages finished
       # publishing, so a fast crawler could fetch the previous version.
+      # On 2026-11-15 a deploy took about 8 minutes and Bingbot got a 404 on a
+      # brand-new page, so new pages are also polled until they answer 200
+      # (up to 13 minutes) before IndexNow is pinged.
       - name: Wait for Cloudflare Pages to publish
-        run: sleep 150
+        run: |
+          sleep 150
+          git diff --name-only --diff-filter=A HEAD~1 HEAD -- '*.html' 'es/*.html' 'blog/*' 'es/blog/*' 'venues/*' 'comparison/*' > /tmp/nuevas.txt || true
+          while read -r f; do
+            [ -z "$f" ] && continue
+            p="${f%.html}"; p="${p%/index}"; [ "$p" = "index" ] && p=""
+            u="https://ivaestudios.com/${p}"
+            c=000
+            for i in $(seq 1 26); do
+              c=$(curl -s -o /dev/null -w '%{http_code}' "${u}?indexnow=$(date +%s)")
+              [ "$c" = "200" ] && break
+              sleep 30
+            done
+            echo "$c $u"
+          done < /tmp/nuevas.txt
 
       - name: Submit to IndexNow
         env:
