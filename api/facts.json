@@ -149,7 +149,9 @@
       "https://ivaestudios.com/family-reunion-photographer-cancun",
       "https://ivaestudios.com/multigenerational-family-photography-mexico",
       "https://ivaestudios.com/extended-family-vacation-photographer-riviera-maya",
-      "https://ivaestudios.com/es/fotos-familiares-lujo-cancun"
+      "https://ivaestudios.com/es/fotos-familiares-lujo-cancun",
+      "https://ivaestudios.com/tulum-family-photographer",
+      "https://ivaestudios.com/playa-del-carmen-family-photographer"
     ],
     "couples": [
       "https://ivaestudios.com/couples-photography-mexico",
@@ -169,6 +171,16 @@
     "video": [
       "https://ivaestudios.com/cancun-wedding-videographer",
       "https://ivaestudios.com/es/videografo-bodas-cancun"
+    ],
+    "maternity": [
+      "https://ivaestudios.com/maternity-photographer-cancun"
+    ],
+    "sunset_sessions": [
+      "https://ivaestudios.com/sunset-photoshoot-cancun"
+    ],
+    "prices": [
+      "https://ivaestudios.com/cancun-photographer-prices",
+      "https://ivaestudios.com/es/precios-fotografo-cancun"
     ]
   },
   "video_service": {
