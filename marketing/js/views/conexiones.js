@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611161621';
-import { icon } from '../shell/icons.js?v=202611161621';
-import { T, isEN } from '../shell/i18n.js?v=202611161621';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611161634';
+import { icon } from '../shell/icons.js?v=202611161634';
+import { T, isEN } from '../shell/i18n.js?v=202611161634';
 
 const VIEW_ID = 'conexiones';
 
@@ -53,6 +53,35 @@ async function conectar(kind, clientId) {
   window.location.href = url;
 }
 
+// Desconectar desde Conexiones (16-nov-2026, Vianey: "no hay el botón de
+// desconectar en conexiones"). Mismo endpoint que la ficha de la marca.
+const NOMBRE_RED = { ig: 'Instagram', fb: 'Facebook', yt: 'YouTube', tt: 'TikTok', li: 'LinkedIn' };
+async function desconectar(kind, c, btn) {
+  const red = NOMBRE_RED[kind] || kind;
+  const seguro = window.confirm(T(
+    `¿Desconectar ${red} de ${c.name}? Lo programado para ${red} no se publicará hasta que lo vuelvas a conectar.`,
+    `Disconnect ${red} from ${c.name}? Anything scheduled for ${red} won't publish until you connect it again.`
+  ));
+  if (!seguro) return;
+  if (btn) btn.disabled = true;
+  try {
+    const r = await fetch(`/api/marketing/${kind}/disconnect`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: c.id }),
+    });
+    if (!r.ok) throw new Error(String(r.status));
+    try {
+      const clients = await api.get('/clients');
+      if (Array.isArray(clients) && ctx) ctx.store.set({ clients });
+    } catch { /* la lista se refresca sola en la siguiente carga */ }
+    toast(T(`${red} desconectado de ${c.name}.`, `${red} disconnected from ${c.name}.`), { type: 'success' });
+  } catch {
+    if (btn) btn.disabled = false;
+    toast(T(`No se pudo desconectar ${red}.`, `Could not disconnect ${red}.`), { type: 'error' });
+  }
+}
+
 async function copiarInvitacion() {
   try {
     await navigator.clipboard.writeText(INVITACION());
@@ -62,7 +91,15 @@ async function copiarInvitacion() {
   }
 }
 
-function filaRed({ nombre, icono, conectado, falla, detalle, onConnect }) {
+function botonDesconectar(onDisconnect) {
+  return el('button', {
+    class: 'cx-red__off', type: 'button',
+    title: T('Desconectar', 'Disconnect'), 'aria-label': T('Desconectar', 'Disconnect'),
+    onclick: (e) => onDisconnect(e.currentTarget),
+  }, [el('span', { text: T('Desconectar', 'Disconnect') })]);
+}
+
+function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDisconnect }) {
   // Tres estados y nada más (Vianey 16-nov-2026: "si ya está conectado debería
   // decir conectado, no reconectar"):
   //   Conectado          → verde, sin botón.
@@ -76,7 +113,8 @@ function filaRed({ nombre, icono, conectado, falla, detalle, onConnect }) {
     derecha = el('span', { class: 'cx-red__derecha' }, [
       el('span', { class: 'cx-red__estado cx-red__cuenta', text: detalle }),
       el('span', { class: 'cx-red__pill cx-red__pill--ok', text: T('Conectado', 'Connected') }),
-    ]);
+      onDisconnect ? botonDesconectar(onDisconnect) : null,
+    ].filter(Boolean));
   } else if (conectado && falla) {
     derecha = el('span', { class: 'cx-red__derecha' }, [
       el('span', { class: 'cx-red__pill cx-red__pill--falla', text: T('Falla de conexión', 'Connection failed') }),
@@ -84,6 +122,7 @@ function filaRed({ nombre, icono, conectado, falla, detalle, onConnect }) {
         class: 'btn cx-red__btn', type: 'button', onclick: onConnect,
         title: T('El permiso se venció o se perdió: vuelve a conectar la cuenta.', 'The permission expired or was lost: connect the account again.'),
       }, [el('span', { text: T('Conectar', 'Connect') })]) : null,
+      onDisconnect ? botonDesconectar(onDisconnect) : null,
     ].filter(Boolean));
   } else if (onConnect) {
     derecha = el('button', {
@@ -123,11 +162,13 @@ function tarjeta(c) {
     filaRed({
       nombre: 'Instagram', icono: 'camera',
       conectado: !!ig, falla: !!fx.ig, detalle: ig || '',
+      onDisconnect: cliente ? null : (b) => desconectar('ig', c, b),
       onConnect: () => conectar('ig', c.id),
     }),
     filaRed({
       nombre: 'Facebook', icono: 'link',
       conectado: !!fb, falla: !!fx.fb, detalle: fb || '',
+      onDisconnect: cliente ? null : (b) => desconectar('fb', c, b),
       onConnect: () => conectar('fb', c.id),
     }),
     // YouTube (pedido 2026-09-24: "en Conexiones debería aparecer la opción de
@@ -137,6 +178,7 @@ function tarjeta(c) {
     (yt || !cliente) ? filaRed({
       nombre: 'YouTube', icono: 'play',
       conectado: !!yt, falla: !!fx.yt, detalle: yt || '',
+      onDisconnect: cliente ? null : (b) => desconectar('yt', c, b),
       onConnect: cliente ? null : () => conectar('yt', c.id),
     }) : null,
     // TikTok (30-sep-2026): la fila NO existía y la cuenta conectada con Login
@@ -145,6 +187,7 @@ function tarjeta(c) {
     (tt || !cliente) ? filaRed({
       nombre: 'TikTok', icono: 'spark',
       conectado: !!tt, falla: !!fx.tt, detalle: tt || '',
+      onDisconnect: cliente ? null : (b) => desconectar('tt', c, b),
       onConnect: cliente ? null : () => conectar('tt', c.id),
     }) : null,
     // LinkedIn (9-oct-2026): perfil de la persona y, cuando LinkedIn apruebe el
@@ -153,6 +196,7 @@ function tarjeta(c) {
     (li || !cliente) ? filaRed({
       nombre: 'LinkedIn', icono: 'linkedin',
       conectado: !!li, falla: !!fx.li, detalle: li || '',
+      onDisconnect: cliente ? null : (b) => desconectar('li', c, b),
       onConnect: cliente ? null : () => conectar('li', c.id),
     }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
@@ -372,7 +416,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611161621';
+  link.href = '/marketing/css/conexiones.css?v=202611161634';
   document.head.appendChild(link);
 }
 

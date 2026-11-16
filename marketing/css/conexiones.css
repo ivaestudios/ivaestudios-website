@@ -190,3 +190,17 @@
 .cx-red--falla { border-color: color-mix(in srgb, #ef4444 40%, var(--border)); }
 .cx-red--falla .cx-red__ico { color: #ef4444; }
 .cx-red--falla .cx-red__btn { margin-left: 0; }
+
+/* Desconectar (16-nov-2026): discreto, para no competir con el estado. */
+.cx-red__off {
+  flex: none;
+  min-height: 24px; padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.cx-red__off:hover { color: #dc2626; border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
+.cx-red__off:disabled { opacity: .5; cursor: default; }
