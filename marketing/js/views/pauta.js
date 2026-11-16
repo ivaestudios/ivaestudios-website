@@ -13,9 +13,9 @@
 // de siempre. Cada marca conecta SU cuenta publicitaria (agencia o propia).
 // Ver functions/api/marketing/_ads.js y la migración 052.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611161737';
-import { icon } from '../shell/icons.js?v=202611161737';
-import { T, isEN } from '../shell/i18n.js?v=202611161737';
+import { el, clear, toast } from '../api.js?v=202611161739';
+import { icon } from '../shell/icons.js?v=202611161739';
+import { T, isEN } from '../shell/i18n.js?v=202611161739';
 
 const VIEW_ID = 'pauta';
 
@@ -220,7 +220,8 @@ function cabecera(estado) {
     class: 'btn btn-ghost btn-sm pauta-volver', type: 'button',
     onclick: () => { vista = 'todas'; render(); },
   }, [icon('left', 14), el('span', { text: T('Todas las marcas', 'All brands') })]);
-  const desconectar = esMarca() && cuenta ? el('button', {
+  // La cuenta de la casa (sin `modo`) no se desconecta desde aquí.
+  const desconectar = esMarca() && cuenta && cuenta.modo ? el('button', {
     class: 'btn btn-ghost btn-sm', type: 'button', text: T('Desconectar cuenta', 'Disconnect account'),
     onclick: async () => {
       if (!window.confirm(T(
@@ -244,7 +245,7 @@ function cabecera(estado) {
     cuenta ? el('p', { class: 'mk-sub', text: [
       cuenta.name,
       cuenta.currency,
-      cuenta.modo === 'propia' ? T('cuenta propia', 'own account') : (esMarca() ? T('manejada por la agencia', 'managed by the agency') : null),
+      cuenta.modo === 'propia' ? T('cuenta propia', 'own account') : (cuenta.modo === 'agencia' ? T('manejada por la agencia', 'managed by the agency') : T('cuenta de la casa', 'house account')),
     ].filter(Boolean).join(' · ') }) : null,
     el('div', { class: 'pauta-head__acc' }, [sel, desconectar].filter(Boolean)),
   ].filter(Boolean));
@@ -303,7 +304,7 @@ async function renderTodas() {
       el('div', { class: 'pauta-mfila__main' }, [
         el('div', { class: 'pauta-mfila__name', text: nombre }),
         el('div', { class: 'pauta-mfila__sub', text: conectada
-          ? [cuenta && cuenta.nombre, cuenta && cuenta.auto ? T('IA moviendo', 'AI moving') : null].filter(Boolean).join(' · ')
+          ? [cuenta && cuenta.nombre, cuenta && cuenta.modo === 'casa' ? T('cuenta de la casa', 'house account') : null, cuenta && cuenta.auto ? T('IA moviendo', 'AI moving') : null].filter(Boolean).join(' · ')
           : T('Sin cuenta publicitaria', 'No ad account') }),
         datos,
       ].filter(Boolean)),
@@ -645,7 +646,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611161737';
+  link.href = '/marketing/css/pauta.css?v=202611161739';
   document.head.appendChild(link);
 }
 

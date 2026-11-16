@@ -93,6 +93,9 @@ const soloAdmin = (session) => session && session.role === 'admin';
 // y Vianey la maneja con su sesión) y "propia" (un creador, en SU espacio de
 // trabajo, conecta su propio Facebook).
 const wsDe = (session) => (session && session.workspace_id) || 'ivae';
+// La marca IVAE STUDIOS ES la casa: sin cuenta propia usa la de siempre, así no
+// sale como "sin cuenta" ni repetida en el tablero.
+const CASA_MARCA = '6ae5dd2381faa430d9e6966470b29602';
 const limpiarCliente = (v) => (/^[a-zA-Z0-9_-]{3,64}$/.test(String(v || '')) ? String(v) : null);
 // Con la marca se pide además business_management: las cuentas que un cliente
 // comparte desde SU Business Manager no salen sin él.
@@ -118,7 +121,7 @@ async function cuentaDe(env, clientId) {
          LEFT JOIN mkt_clients c ON c.id = a.client_id
         WHERE a.client_id = ?`
     ).bind(clientId).first().catch(() => null);
-    if (!r) return null;
+    if (!r) return clientId === CASA_MARCA ? cuentaDe(env, null) : null;
     return {
       clientId,
       fila: r,
@@ -1670,9 +1673,18 @@ export async function handleAdsMarcas(env, session) {
       ultimo_dia: n ? n.ultimo_dia : null,
     };
   };
+  // IVAE STUDIOS sin cuenta propia = la casa: se pinta en su fila, no aparte.
+  const casaEnMarca = !!casa && marcas.some((m) => m.id === CASA_MARCA) && !porMarca.has(CASA_MARCA);
+  if (casaEnMarca) {
+    porMarca.set(CASA_MARCA, {
+      client_id: CASA_MARCA, ad_account_id: casa.id, nombre: casa.name, moneda: casa.currency || 'MXN',
+      estado: casa.status, modo: 'casa', auto: (await kvGet(env, 'ads_auto')) === '1' ? 1 : 0,
+      tope_diario: Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT,
+    });
+  }
   return json({
     desde,
-    casa: casa ? { cuenta: casa.name, ad_account_id: casa.id, moneda: casa.currency || 'MXN', ...fila({ ad_account_id: casa.id }) } : null,
+    casa: casa && !casaEnMarca ? { cuenta: casa.name, ad_account_id: casa.id, moneda: casa.currency || 'MXN', ...fila({ ad_account_id: casa.id }) } : null,
     marcas: marcas.map((m) => {
       const c = porMarca.get(m.id) || null;
       return {
@@ -1696,6 +1708,7 @@ export async function handleAdsDesconectar(request, env, session) {
   if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
   const ct = await cuentaDe(env, clientId);
   if (!ct) return json({ ok: true, ya: true });
+  if (!ct.clientId) return json({ error: 'Esta es la cuenta de la casa: se conecta y desconecta desde Administración.' }, 409);
   await env.DB.prepare('DELETE FROM mkt_ads_cuentas WHERE client_id = ?').bind(clientId).run();
   await bitacora(env, { cuenta: ct.cuenta.id, cliente: clientId, quien: 'persona', accion: 'desconectar', ok: true, motivo: `Cuenta ${ct.cuenta.name || ct.cuenta.id} desconectada de la marca` });
   return json({ ok: true });
