@@ -167,3 +167,26 @@
   .cx-ia__acciones{ width:100%; }
   .cx-ia__acciones .btn{ flex:1 1 auto; }
 }
+
+/* Estados de la fila (16-nov-2026): Conectado / Falla de conexión / Conectar. */
+.cx-red__cuenta { color: var(--text-dim); font-weight: 500; }
+.cx-red__pill {
+  flex: none;
+  display: inline-flex; align-items: center;
+  min-height: 24px; padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.cx-red__pill--ok {
+  color: #16a34a;
+  background: color-mix(in srgb, #22c55e 14%, transparent);
+  border: 1px solid color-mix(in srgb, #22c55e 45%, transparent);
+}
+.cx-red__pill--falla {
+  color: #dc2626;
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+  border: 1px solid color-mix(in srgb, #ef4444 45%, transparent);
+}
+.cx-red--falla { border-color: color-mix(in srgb, #ef4444 40%, var(--border)); }
+.cx-red--falla .cx-red__ico { color: #ef4444; }
+.cx-red--falla .cx-red__btn { margin-left: 0; }

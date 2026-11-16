@@ -1684,7 +1684,38 @@ function shapeClient(c, counts) {
     yt_channel_title: c.yt_channel_title || null,
     li_person_name: c.li_person_name || null,
     li_org_name: c.li_org_name || null,
+    // ¿La conexión se cayó? (16-nov-2026, Vianey: "si ya está conectado debería
+    // decir conectado, no reconectar"). Solo booleanos: el token nunca viaja.
+    conexion_falla: fallasDeConexion(c),
     counts: counts || { posts: 0, pending: 0 }
+  };
+}
+
+// Una red "falla" cuando sigue con nombre de cuenta pero ya no hay con qué
+// publicar: falta el token o se venció y no hay forma de renovarlo solo.
+// Criterio conservador: ante la duda, NO marcar falla (una alarma falsa
+// manda a Vianey a reconectar algo que funciona).
+function fallasDeConexion(c) {
+  const ahora = Date.now();
+  const vencida = (f) => {
+    if (!f) return false;
+    const t = Date.parse(String(f).replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(String(f)) ? '' : 'Z'));
+    return Number.isFinite(t) && t < ahora;
+  };
+  // Instagram: token de 60 días que el reloj renueva cada ~25. Si la última
+  // renovación pasó de 60 días, ya murió.
+  const igViejo = (() => {
+    if (!c.ig_token_refreshed_at) return false;
+    const t = Date.parse(String(c.ig_token_refreshed_at).replace(' ', 'T') + 'Z');
+    return Number.isFinite(t) && ahora - t > 60 * 86400000;
+  })();
+  return {
+    ig: !!c.ig_username && (!c.ig_access_token || igViejo),
+    fb: !!c.fb_page_name && !c.fb_access_token,
+    tt: !!c.tt_username && (!c.tt_refresh_token || vencida(c.tt_refresh_expires_at)),
+    yt: !!c.yt_channel_title && !c.yt_refresh_token,
+    li: !!(c.li_org_name || c.li_person_name) && (!c.li_access_token
+      || (vencida(c.li_access_expires_at) && (!c.li_refresh_token || vencida(c.li_refresh_expires_at)))),
   };
 }
 

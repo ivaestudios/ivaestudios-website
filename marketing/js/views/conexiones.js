@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611132351';
-import { icon } from '../shell/icons.js?v=202611132351';
-import { T, isEN } from '../shell/i18n.js?v=202611132351';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611161510';
+import { icon } from '../shell/icons.js?v=202611161510';
+import { T, isEN } from '../shell/i18n.js?v=202611161510';
 
 const VIEW_ID = 'conexiones';
 
@@ -62,18 +62,28 @@ async function copiarInvitacion() {
   }
 }
 
-function filaRed({ nombre, icono, conectado, detalle, onConnect }) {
+function filaRed({ nombre, icono, conectado, falla, detalle, onConnect }) {
+  // Tres estados y nada más (Vianey 16-nov-2026: "si ya está conectado debería
+  // decir conectado, no reconectar"):
+  //   Conectado          → verde, sin botón.
+  //   Falla de conexión  → rojo, con botón Conectar para volver a dar acceso.
+  //   Sin conectar       → botón Conectar.
+  // Volver a dar permisos a una red que sí funciona vive en la ficha de la
+  // marca (Desconectar y Conectar).
   let derecha;
-  if (conectado) {
-    // Reconectar (7-oct-2026): un permiso nuevo (los mensajes de la Bandeja)
-    // solo entra volviendo a dar acceso. La fila conectada no tenía botón y el
-    // cliente no podía hacerlo solo.
+  const ok = conectado && !falla;
+  if (ok) {
     derecha = el('span', { class: 'cx-red__derecha' }, [
-      el('span', { class: 'cx-red__estado cx-red__estado--ok', text: detalle }),
+      el('span', { class: 'cx-red__estado cx-red__cuenta', text: detalle }),
+      el('span', { class: 'cx-red__pill cx-red__pill--ok', text: T('Conectado', 'Connected') }),
+    ]);
+  } else if (conectado && falla) {
+    derecha = el('span', { class: 'cx-red__derecha' }, [
+      el('span', { class: 'cx-red__pill cx-red__pill--falla', text: T('Falla de conexión', 'Connection failed') }),
       onConnect ? el('button', {
-        class: 'btn btn-ghost btn-sm cx-red__re', type: 'button', onclick: onConnect,
-        title: T('Vuelve a dar permisos (por ejemplo, mensajes)', 'Grant permissions again (for example, messages)'),
-      }, [el('span', { text: T('Reconectar', 'Reconnect') })]) : null,
+        class: 'btn cx-red__btn', type: 'button', onclick: onConnect,
+        title: T('El permiso se venció o se perdió: vuelve a conectar la cuenta.', 'The permission expired or was lost: connect the account again.'),
+      }, [el('span', { text: T('Conectar', 'Connect') })]) : null,
     ].filter(Boolean));
   } else if (onConnect) {
     derecha = el('button', {
@@ -82,7 +92,7 @@ function filaRed({ nombre, icono, conectado, detalle, onConnect }) {
   } else {
     derecha = el('span', { class: 'cx-red__estado', text: T('En proceso…', 'In progress…') });
   }
-  return el('div', { class: 'cx-red' + (conectado ? ' cx-red--ok' : '') }, [
+  return el('div', { class: 'cx-red' + (ok ? ' cx-red--ok' : '') + (conectado && falla ? ' cx-red--falla' : '') }, [
     el('span', { class: 'cx-red__ico' }, [icon(icono, 16)]),
     el('span', { class: 'cx-red__nombre', text: nombre }),
     derecha,
@@ -97,7 +107,8 @@ function tarjeta(c) {
   const tt = c.tt_username ? '@' + c.tt_username : null;
   // LinkedIn: la página de empresa manda si existe; si no, el perfil de la persona.
   const li = c.li_org_name ? c.li_org_name : (c.li_person_name || null);
-  const completa = !!(ig && fb);
+  const fx = c.conexion_falla || {};
+  const completa = !!(ig && fb && !fx.ig && !fx.fb);
   return el('article', { class: 'cx-card' + (completa ? ' cx-card--full' : '') }, [
     el('header', { class: 'cx-card__head' }, [
       el('span', { class: 'cx-card__dot', style: { background: c.brand_color || 'var(--acc, #7c3aed)' } }),
@@ -111,12 +122,12 @@ function tarjeta(c) {
     // camino de aprobar la solicitud, que sí funciona hoy.
     filaRed({
       nombre: 'Instagram', icono: 'camera',
-      conectado: !!ig, detalle: ig ? `${ig} ✓` : '',
+      conectado: !!ig, falla: !!fx.ig, detalle: ig || '',
       onConnect: () => conectar('ig', c.id),
     }),
     filaRed({
       nombre: 'Facebook', icono: 'link',
-      conectado: !!fb, detalle: fb ? `${fb} ✓` : '',
+      conectado: !!fb, falla: !!fx.fb, detalle: fb || '',
       onConnect: () => conectar('fb', c.id),
     }),
     // YouTube (pedido 2026-09-24: "en Conexiones debería aparecer la opción de
@@ -125,7 +136,7 @@ function tarjeta(c) {
     // (el backend responde 403), así que a él solo se le muestra si ya está.
     (yt || !cliente) ? filaRed({
       nombre: 'YouTube', icono: 'play',
-      conectado: !!yt, detalle: yt ? `${yt} ✓` : '',
+      conectado: !!yt, falla: !!fx.yt, detalle: yt || '',
       onConnect: cliente ? null : () => conectar('yt', c.id),
     }) : null,
     // TikTok (30-sep-2026): la fila NO existía y la cuenta conectada con Login
@@ -133,15 +144,15 @@ function tarjeta(c) {
     // Mismo flujo que la ficha de la marca (/tt/login).
     (tt || !cliente) ? filaRed({
       nombre: 'TikTok', icono: 'spark',
-      conectado: !!tt, detalle: tt ? `${tt} ✓` : '',
+      conectado: !!tt, falla: !!fx.tt, detalle: tt || '',
       onConnect: cliente ? null : () => conectar('tt', c.id),
     }) : null,
     // LinkedIn (9-oct-2026): perfil de la persona y, cuando LinkedIn apruebe el
     // permiso de páginas, la página de empresa. Mismo flujo (/li/login). El
-    // permiso dura 60 días: Reconectar sirve para renovarlo.
+    // permiso dura 60 días: si se vence, la fila dice Falla de conexión.
     (li || !cliente) ? filaRed({
       nombre: 'LinkedIn', icono: 'linkedin',
-      conectado: !!li, detalle: li ? `${li} ✓` : '',
+      conectado: !!li, falla: !!fx.li, detalle: li || '',
       onConnect: cliente ? null : () => conectar('li', c.id),
     }) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
@@ -361,7 +372,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611132351';
+  link.href = '/marketing/css/conexiones.css?v=202611161510';
   document.head.appendChild(link);
 }
 
