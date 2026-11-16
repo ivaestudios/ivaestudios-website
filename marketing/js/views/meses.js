@@ -28,21 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, esCreador, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202611161739';
-import { icon, iconMarca } from '../shell/icons.js?v=202611161739';
-import { T } from '../shell/i18n.js?v=202611161739';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611161739';
-import { confirmar } from '../shell/sheet.js?v=202611161739';
-import { openNewClient } from '../shell/clientswitcher.js?v=202611161739';
+} from '../api.js?v=202611161754';
+import { icon, iconMarca } from '../shell/icons.js?v=202611161754';
+import { T } from '../shell/i18n.js?v=202611161754';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202611161754';
+import { confirmar } from '../shell/sheet.js?v=202611161754';
+import { openNewClient } from '../shell/clientswitcher.js?v=202611161754';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202611161739';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611161739';
+import { errorCard } from '../ui/states.js?v=202611161754';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202611161754';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611161739';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202611161754';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202611161739';
+} from '../lib/video-upload.js?v=202611161754';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2035,8 +2035,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202611161739');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611161739');
+        const mod = await import('../lib/pdf-contenido.js?v=202611161754');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202611161754');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

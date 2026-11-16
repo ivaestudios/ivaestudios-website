@@ -1232,7 +1232,7 @@ export async function handleAdsCreativo(env, session, url) {
     let conjuntos = [];
     try {
       const rs = await fbJson(`${FB_GRAPH}/${camp}/adsets?` + new URLSearchParams({
-        fields: 'id,name,status,daily_budget,optimization_goal,billing_event,start_time,end_time,targeting',
+        fields: 'id,name,status,daily_budget,optimization_goal,billing_event,destination_type,promoted_object,start_time,end_time,targeting',
         limit: '10',
         access_token: tok.t,
       }));
@@ -1270,11 +1270,33 @@ export async function handleAdsCrear(request, env, session) {
   const pagina = String(b.page_id || cuenta.page_id || (clientId ? '' : '134197847330430'));
   if (!pagina) return json({ error: 'Falta la página de Facebook con la que se anuncia esta marca (Pauta → Opciones).' }, 400);
   const presupuesto = Math.max(20, Math.min(5000, Number(b.presupuesto_mxn) || 400));
-  const dias = Math.max(1, Math.min(14, Number(b.dias) || 1));
-  const enlace = String(b.enlace || (clientId ? '' : 'https://ivaestudios.com/cancun-photographer'));
-  if (!enlace && String(b.objetivo || '').toUpperCase() !== 'INTERACCION') {
+  const dias = Math.max(1, Math.min(30, Number(b.dias) || 1));
+  // MENSAJES (16-nov-2026): la forma de la campaña de IVAE que sí trae
+  // conversaciones (OUTCOME_LEADS + CONVERSATIONS + botón de mensaje). La guía
+  // de pauta high ticket: optimizar a conversaciones o leads, nunca a clics.
+  const OBJ = String(b.objetivo || '').toUpperCase();
+  const MENSAJES = {
+    WHATSAPP: { dest: 'WHATSAPP', cta: 'WHATSAPP_MESSAGE', app: 'WHATSAPP' },
+    INSTAGRAM: { dest: 'INSTAGRAM_DIRECT', cta: 'INSTAGRAM_MESSAGE', app: 'INSTAGRAM_DIRECT' },
+    MESSENGER: { dest: 'MESSENGER', cta: 'MESSAGE_PAGE', app: 'MESSENGER' },
+  };
+  const msg = MENSAJES[OBJ] || null;
+  let wa = '';
+  if (msg && msg.dest === 'WHATSAPP') {
+    let numMarca = '';
+    if (clientId) {
+      const fm = await env.DB.prepare('SELECT wa_numero FROM mkt_clients WHERE id = ?').bind(clientId).first().catch(() => null);
+      numMarca = (fm && fm.wa_numero) || '';
+    }
+    wa = String(b.whatsapp || numMarca || '').replace(/\D/g, '');
+    if (wa.length < 10 || wa.length > 15) return json({ error: 'Falta el número de WhatsApp con lada (por ejemplo 5219981234567).' }, 400);
+  }
+  const waLink = wa ? `https://api.whatsapp.com/send?phone=${wa}` : '';
+  const enlace = String(b.enlace || (msg ? (waLink || 'https://fb.com/messenger_doc/') : (clientId ? '' : 'https://ivaestudios.com/cancun-photographer')));
+  if (!enlace && OBJ !== 'INTERACCION') {
     return json({ error: 'Falta el enlace a donde lleva el anuncio (página, WhatsApp o formulario).' }, 400);
   }
+  const ctaMsg = msg ? { type: msg.cta, value: { app_destination: msg.app, ...(waLink ? { link: waLink } : {}) } } : null;
   const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
   if (!b.object_story_id && !b.ig_media_id && (!b.texto || !b.imagen_url)) {
     return json({ error: 'Faltan texto e imagen_url, o el post que se va a anunciar' }, 400);
@@ -1303,14 +1325,27 @@ export async function handleAdsCrear(request, env, session) {
   };
 
   try {
-    const pub = await publicoProbado(env, cuenta, tok);
+    let pub = await publicoProbado(env, cuenta, tok);
+    if (Array.isArray(b.paises) && b.paises.length) {
+      const edad = (v, d) => Math.max(18, Math.min(65, Number(v) || d));
+      pub = {
+        targeting: {
+          geo_locations: { countries: b.paises.slice(0, 25).map((x) => String(x).toUpperCase().slice(0, 2)) },
+          age_min: edad(b.edad_min, 25),
+          age_max: edad(b.edad_max, 65),
+          // Público amplio con Advantage+: el creativo hace la segmentación.
+          targeting_automation: { advantage_audience: 1 },
+        },
+        de: 'elegido en la app',
+      };
+    }
 
     // Un post SIN enlace no se puede optimizar para clics: Meta lo rechaza
     // (code 100/1815520). Para esos, el objetivo honesto es la interaccion.
     const porInteraccion = String(b.objetivo || '').toUpperCase() === 'INTERACCION';
     const camp = await pedir('campaña', `${cuenta.id}/campaigns`, {
       name: nombre,
-      objective: porInteraccion ? 'OUTCOME_ENGAGEMENT' : 'OUTCOME_TRAFFIC',
+      objective: msg ? 'OUTCOME_LEADS' : (porInteraccion ? 'OUTCOME_ENGAGEMENT' : 'OUTCOME_TRAFFIC'),
       status: 'PAUSED',
       special_ad_categories: '[]',
       // Obligatorio desde 2026 cuando el presupuesto vive en el conjunto y no
@@ -1327,10 +1362,15 @@ export async function handleAdsCrear(request, env, session) {
       campaign_id: camp.id,
       daily_budget: String(Math.round(presupuesto * 100)),
       billing_event: 'IMPRESSIONS',
-      optimization_goal: porInteraccion ? 'POST_ENGAGEMENT' : 'LINK_CLICKS',
+      optimization_goal: msg ? 'CONVERSATIONS' : (porInteraccion ? 'POST_ENGAGEMENT' : 'LINK_CLICKS'),
       // En interaccion hay que decirle A QUE se le interactua; sin esto Meta
       // lo toma por objetivo de conversion y pide pixel (code 100/1487888).
       ...(porInteraccion ? { promoted_object: JSON.stringify({ page_id: pagina }), destination_type: 'ON_POST' } : {}),
+      // Mensajes: a dónde llega la conversación.
+      ...(msg ? {
+        destination_type: msg.dest,
+        promoted_object: JSON.stringify(wa ? { page_id: pagina, whatsapp_phone_number: wa } : { page_id: pagina }),
+      } : {}),
       bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
       targeting: JSON.stringify(pub.targeting),
       start_time: inicio.toISOString(),
@@ -1366,11 +1406,11 @@ export async function handleAdsCrear(request, env, session) {
         }
         camposCreativo = {
           ...camposCreativo,
-          object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_actor_id: igActor } : {}) }),
+          object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_user_id: igActor } : {}) }),
           source_instagram_media_id: String(b.ig_media_id),
           // El enlace va SUELTO ademas de dentro del boton: Meta lo exige asi
           // para este tipo de creativo (code 100/2061015, blame_field "link").
-          ...(porInteraccion ? {} : {
+          ...(msg ? { link: enlace, call_to_action: JSON.stringify(ctaMsg) } : porInteraccion ? {} : {
             link: enlace,
             call_to_action: JSON.stringify({ type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } }),
           }),
@@ -1387,9 +1427,9 @@ export async function handleAdsCrear(request, env, session) {
       });
       await bitacora(env, {
         ...lg,
-        quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
+        quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
         despues: `${presupuesto} ${cuenta.currency || 'MXN'}/día · ${dias} día(s) · PAUSADA`,
-        motivo: `Creada por IA sobre un post existente. Público copiado de: ${pub.de || 'amplio México'}`,
+        motivo: `Creada ${b.quien === 'persona' ? 'desde la app' : 'por IA'} sobre un post existente. Público copiado de: ${pub.de || 'amplio México'}`,
         ok: true,
       });
       return json({
@@ -1403,15 +1443,23 @@ export async function handleAdsCrear(request, env, session) {
       });
     }
 
+    let igUser = String(b.instagram_actor_id || '');
+    if (!igUser) {
+      try {
+        const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({ fields: 'instagram_business_account', access_token: tok.t }));
+        igUser = (pg.instagram_business_account && pg.instagram_business_account.id) || '';
+      } catch { /* sin Instagram: el anuncio sale solo en Facebook */ }
+    }
     const story = {
       page_id: pagina,
+      ...(igUser ? { instagram_user_id: igUser } : {}),
       link_data: {
         link: enlace,
         message: String(b.texto),
         name: String(b.titular || '').slice(0, 120) || undefined,
         description: String(b.descripcion || '').slice(0, 200) || undefined,
         picture: String(b.imagen_url),
-        call_to_action: { type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } },
+        call_to_action: ctaMsg || { type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } },
       },
     };
     const creativo = await pedir('creativo', `${cuenta.id}/adcreatives`, {
@@ -1428,9 +1476,9 @@ export async function handleAdsCrear(request, env, session) {
 
     await bitacora(env, {
       ...lg,
-      quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
+      quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
       despues: `${presupuesto} ${cuenta.currency || 'MXN'}/día · ${dias} día(s) · PAUSADA`,
-      motivo: `Creada por IA. Público copiado de: ${pub.de || 'amplio México'}`,
+      motivo: `Creada ${b.quien === 'persona' ? 'desde la app' : 'por IA'}. Público copiado de: ${pub.de || 'amplio México'}`,
       ok: true,
     });
 
@@ -1452,7 +1500,7 @@ export async function handleAdsCrear(request, env, session) {
   } catch (e) {
     const msg = (e && e.message) || 'Error';
     await deshacer();
-    await bitacora(env, { ...lg, quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
+    await bitacora(env, { ...lg, quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
     return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos, deshecho: creados.length }, 400);
   }
 }

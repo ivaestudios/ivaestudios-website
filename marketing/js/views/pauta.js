@@ -13,9 +13,9 @@
 // de siempre. Cada marca conecta SU cuenta publicitaria (agencia o propia).
 // Ver functions/api/marketing/_ads.js y la migración 052.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611161739';
-import { icon } from '../shell/icons.js?v=202611161739';
-import { T, isEN } from '../shell/i18n.js?v=202611161739';
+import { el, clear, toast } from '../api.js?v=202611161754';
+import { icon } from '../shell/icons.js?v=202611161754';
+import { T, isEN } from '../shell/i18n.js?v=202611161754';
 
 const VIEW_ID = 'pauta';
 
@@ -168,11 +168,17 @@ function tarjetaCampana(c, moneda) {
   const bPrender = el('button', {
     class: 'btn btn-sm' + (activa ? '' : ' btn-primary'), type: 'button',
     text: activa ? T('Pausar', 'Pause') : T('Encender', 'Turn on'),
-    onclick: () => accion(
+    onclick: () => {
+      if (!activa && !window.confirm(T(
+        `Al encender "${c.name}" empieza a gastar dinero real: ${presupuesto}. ¿Encender?`,
+        `Turning on "${c.name}" starts spending real money: ${presupuesto}. Turn on?`,
+      ))) return;
+      accion(
       activa ? 'apagar' : 'encender', bPrender,
       activa ? T('Pausando…', 'Pausing…') : T('Encendiendo…', 'Turning on…'),
       activa ? T('Pausada.', 'Paused.') : T('Encendida: ya está gastando.', 'On: it is spending now.'),
-    ),
+      );
+    },
   });
   // Una campaña terminada no se pausa ni se enciende: ya acabó.
   if (!terminada(c)) botones.push(bPrender);
@@ -247,8 +253,155 @@ function cabecera(estado) {
       cuenta.currency,
       cuenta.modo === 'propia' ? T('cuenta propia', 'own account') : (cuenta.modo === 'agencia' ? T('manejada por la agencia', 'managed by the agency') : T('cuenta de la casa', 'house account')),
     ].filter(Boolean).join(' · ') }) : null,
-    el('div', { class: 'pauta-head__acc' }, [sel, desconectar].filter(Boolean)),
+    el('div', { class: 'pauta-head__acc' }, [
+      cuenta ? el('button', { class: 'btn btn-primary btn-sm', type: 'button', text: T('Nueva campaña', 'New campaign'), onclick: () => nuevaCampana(cuenta) }) : null,
+      sel, desconectar,
+    ].filter(Boolean)),
   ].filter(Boolean));
+}
+
+// ── Nueva campaña (16-nov-2026) ─────────────────────────────────────────────
+// Lo que pide la guía de pauta high ticket: optimizar a CONVERSACIONES (WhatsApp,
+// Instagram o Messenger), público amplio con Advantage+ y el creativo hace la
+// segmentación. Nace PAUSADA siempre; encender es aparte y pide confirmar.
+function nuevaCampana(cuenta) {
+  const moneda = cuenta.currency || 'MXN';
+  const f = {
+    objetivo: 'WHATSAPP', whatsapp: '', enlace: '', forma: 'post', post: '',
+    imagen: '', texto: '', titular: '', paises: ['MX'], edadMin: 25, edadMax: 65,
+    presupuesto: 150, dias: 7, nombre: '',
+  };
+  const campo = (etiqueta, input, ayuda) => el('label', { class: 'pauta-f' }, [
+    el('span', { class: 'pauta-f__k', text: etiqueta }), input,
+    ayuda ? el('span', { class: 'pauta-f__help', text: ayuda }) : null,
+  ].filter(Boolean));
+  const entrada = (clave, attrs = {}) => {
+    const i = el('input', { class: 'pauta-f__in', value: String(f[clave] ?? ''), ...attrs });
+    i.addEventListener('input', () => { f[clave] = attrs.type === 'number' ? Number(i.value) : i.value; pintarTotal(); });
+    return i;
+  };
+  const opciones = (clave, lista, alCambiar) => {
+    const g = el('div', { class: 'pauta-seg' });
+    const pintar = () => {
+      clear(g);
+      for (const [v, txt] of lista) {
+        g.appendChild(el('button', {
+          class: 'btn btn-sm' + (f[clave] === v ? ' is-active' : ''), type: 'button', text: txt,
+          onclick: () => { f[clave] = v; pintar(); if (alCambiar) alCambiar(); },
+        }));
+      }
+    };
+    pintar();
+    return g;
+  };
+  const total = el('div', { class: 'pauta-f__total' });
+  function pintarTotal() {
+    const t = (Number(f.presupuesto) || 0) * (Number(f.dias) || 0);
+    total.textContent = T(
+      `Máximo ${gasto(f.presupuesto, moneda)} al día durante ${f.dias} día(s): hasta ${gasto(t, moneda)} en total. Se crea pausada: no gasta nada hasta que la enciendas.`,
+      `Up to ${gasto(f.presupuesto, moneda)} a day for ${f.dias} day(s): up to ${gasto(t, moneda)} total. Created paused: it spends nothing until you turn it on.`,
+    );
+  }
+
+  ctx.sheet.openSheet({
+    title: T('Nueva campaña', 'New campaign'), mode: 'form',
+    build(body, close) {
+      const destino = el('div');
+      const anuncio = el('div');
+      function pintarDestino() {
+        clear(destino);
+        if (f.objetivo === 'WHATSAPP') destino.appendChild(campo(T('WhatsApp que recibe los mensajes', 'WhatsApp that gets the messages'), entrada('whatsapp', { inputmode: 'tel', placeholder: '5219981234567' }), T('Con lada del país. Si la marca tiene WhatsApp conectado, se usa ese.', 'With country code. If the brand has WhatsApp connected, that one is used.')));
+        if (f.objetivo === 'TRAFICO') destino.appendChild(campo(T('Enlace a donde lleva', 'Link it goes to'), entrada('enlace', { type: 'url', placeholder: 'https://' })));
+      }
+      function pintarAnuncio() {
+        clear(anuncio);
+        if (f.forma === 'post') {
+          anuncio.appendChild(campo(T('Enlace del post o reel de Instagram', 'Instagram post or reel link'), entrada('post', { type: 'url', placeholder: 'https://www.instagram.com/p/…' }), T('Se anuncia tal cual, con el botón de mensaje encima.', 'It is advertised as is, with the message button on top.')));
+        } else {
+          anuncio.append(
+            campo(T('Foto (enlace público JPG o PNG)', 'Photo (public JPG or PNG link)'), entrada('imagen', { type: 'url', placeholder: 'https://' })),
+            campo(T('Texto principal', 'Primary text'), (() => { const t = el('textarea', { class: 'pauta-f__in', rows: '4' }); t.addEventListener('input', () => { f.texto = t.value; }); return t; })()),
+            campo(T('Titular', 'Headline'), entrada('titular', { maxlength: '120' })),
+          );
+        }
+      }
+      pintarDestino(); pintarAnuncio(); pintarTotal();
+
+      const paises = el('div', { class: 'pauta-seg' });
+      const pintarPaises = () => {
+        clear(paises);
+        for (const [c, txt] of [['MX', T('México', 'Mexico')], ['US', T('Estados Unidos', 'United States')], ['CA', 'Canadá']]) {
+          const on = f.paises.includes(c);
+          paises.appendChild(el('button', {
+            class: 'btn btn-sm' + (on ? ' is-active' : ''), type: 'button', text: txt,
+            onclick: () => { f.paises = on ? f.paises.filter((x) => x !== c) : [...f.paises, c]; if (!f.paises.length) f.paises = [c]; pintarPaises(); },
+          }));
+        }
+      };
+      pintarPaises();
+
+      const crear = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear pausada', 'Create paused') });
+      crear.addEventListener('click', async () => {
+        crear.disabled = true; crear.textContent = T('Creando en Meta…', 'Creating in Meta…');
+        try {
+          const cuerpo = conMarca({
+            quien: 'persona',
+            objetivo: f.objetivo === 'TRAFICO' ? '' : f.objetivo,
+            whatsapp: f.whatsapp, enlace: f.enlace,
+            presupuesto_mxn: Number(f.presupuesto), dias: Number(f.dias),
+            paises: f.paises, edad_min: Number(f.edadMin), edad_max: Number(f.edadMax),
+            nombre: f.nombre || undefined,
+          });
+          if (f.forma === 'post') {
+            if (!f.post) throw new Error(T('Pega el enlace del post de Instagram.', 'Paste the Instagram post link.'));
+            const p = await (await fetch(`/api/marketing/ads/post?url=${encodeURIComponent(f.post)}${qMarca() ? '&' + qMarca() : ''}`, { credentials: 'include' })).json();
+            if (!p || p.error) throw new Error((p && p.error) || T('No se encontró ese post.', 'That post was not found.'));
+            cuerpo.ig_media_id = p.ig_media_id;
+          } else {
+            if (!f.imagen || !f.texto) throw new Error(T('Falta la foto o el texto.', 'Photo or text missing.'));
+            cuerpo.imagen_url = f.imagen; cuerpo.texto = f.texto; cuerpo.titular = f.titular;
+          }
+          const r = await (await fetch('/api/marketing/ads/crear', {
+            method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo),
+          })).json();
+          if (!r || r.error) throw new Error((r && r.error) || 'Error');
+          toast(T('Campaña creada y PAUSADA. Revísala y enciéndela cuando quieras.', 'Campaign created and PAUSED. Review it and turn it on when ready.'), { type: 'success' });
+          close();
+          render();
+        } catch (e) {
+          toast((e && e.message) || T('No se pudo crear.', 'Could not create.'), { type: 'error' });
+          crear.disabled = false; crear.textContent = T('Crear pausada', 'Create paused');
+        }
+      });
+
+      body.append(
+        campo(T('¿Qué quieres que pase?', 'What should happen?'), opciones('objetivo', [
+          ['WHATSAPP', T('Mensajes a WhatsApp', 'WhatsApp messages')],
+          ['INSTAGRAM', T('Mensajes de Instagram', 'Instagram messages')],
+          ['MESSENGER', 'Messenger'],
+          ['TRAFICO', T('Visitas a un enlace', 'Link visits')],
+        ], pintarDestino)),
+        destino,
+        campo(T('El anuncio', 'The ad'), opciones('forma', [
+          ['post', T('Un post de Instagram', 'An Instagram post')],
+          ['foto', T('Foto y texto', 'Photo and text')],
+        ], pintarAnuncio)),
+        anuncio,
+        campo(T('¿Dónde?', 'Where?'), paises),
+        el('div', { class: 'pauta-f__fila' }, [
+          campo(T('Edad desde', 'Age from'), entrada('edadMin', { type: 'number', min: '18', max: '65' })),
+          campo(T('hasta', 'to'), entrada('edadMax', { type: 'number', min: '18', max: '65' })),
+        ]),
+        el('div', { class: 'pauta-f__fila' }, [
+          campo(T(`Presupuesto al día (${moneda})`, `Daily budget (${moneda})`), entrada('presupuesto', { type: 'number', min: '20', step: '10' })),
+          campo(T('Días', 'Days'), entrada('dias', { type: 'number', min: '1', max: '30' })),
+        ]),
+        campo(T('Nombre (opcional)', 'Name (optional)'), entrada('nombre', { placeholder: T('Se pone solo si lo dejas vacío', 'Auto if empty') })),
+        total,
+        el('div', { class: 'sheet__footer' }, [crear]),
+      );
+    },
+  });
 }
 
 // ── Tablero de TODAS las marcas ─────────────────────────────────────────────
@@ -646,7 +799,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611161739';
+  link.href = '/marketing/css/pauta.css?v=202611161754';
   document.head.appendChild(link);
 }
 
