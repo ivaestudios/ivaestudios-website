@@ -1253,9 +1253,17 @@ export async function handleAdsCreativo(env, session, url) {
 // El Instagram con que se anuncia: el que se pida, el de la cuenta de la marca,
 // el ligado a la página o, si no, el primero que la cuenta publicitaria puede
 // usar. Sin él, el anuncio sale solo en Facebook (prueba del 16-nov-2026).
-async function instagramDeLaCuenta(cuenta, tok, pagina, pedido) {
+async function instagramDeLaCuenta(cuenta, tok, pagina, pedido, env = null, clientId = null) {
   if (pedido) return String(pedido);
   if (cuenta.ig_user_id) return String(cuenta.ig_user_id);
+  // El Instagram que la marca conectó en la app: ig_igsid es el id de su cuenta
+  // profesional (el mismo que pide Meta en anuncios). Sin marca, la casa.
+  if (env) {
+    try {
+      const m = await env.DB.prepare('SELECT ig_igsid FROM mkt_clients WHERE id = ?').bind(clientId || CASA_MARCA).first();
+      if (m && m.ig_igsid) return String(m.ig_igsid);
+    } catch { /* sigue con la página */ }
+  }
   try {
     const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({
       fields: 'instagram_business_account,connected_instagram_account', access_token: tok.t,
@@ -1418,7 +1426,7 @@ export async function handleAdsCrear(request, env, session) {
         // Como el boton "Promocionar" de Instagram: se toma el post tal cual y
         // Meta le AGREGA el boton con enlace, aunque el post original no lleve
         // ninguno. Necesita saber a nombre de que cuenta de Instagram habla.
-        const igActor = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id);
+        const igActor = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id, env, clientId);
         camposCreativo = {
           ...camposCreativo,
           object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_user_id: igActor } : {}) }),
@@ -1458,7 +1466,7 @@ export async function handleAdsCrear(request, env, session) {
       });
     }
 
-    const igUser = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id);
+    const igUser = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id, env, clientId);
     const story = {
       page_id: pagina,
       ...(igUser ? { instagram_user_id: igUser } : {}),
