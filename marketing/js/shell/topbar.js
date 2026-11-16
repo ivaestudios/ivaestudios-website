@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611161510';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611161510';
-import * as store from './store.js?v=202611161510';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611161510';
-import { toast } from './toast.js?v=202611161510';
-import { icon } from './icons.js?v=202611161510';
-import { openClientSwitcher } from './clientswitcher.js?v=202611161510';
-import { T, isEN, setLang } from './i18n.js?v=202611161510';
+import { startTour } from './tour.js?v=202611161621';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611161621';
+import * as store from './store.js?v=202611161621';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611161621';
+import { toast } from './toast.js?v=202611161621';
+import { icon } from './icons.js?v=202611161621';
+import { openClientSwitcher } from './clientswitcher.js?v=202611161621';
+import { T, isEN, setLang } from './i18n.js?v=202611161621';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611161510';
-import { getTheme, setTheme } from './theme.js?v=202611161510';
-import * as version from './version.js?v=202611161510';
-import * as tienda from './tienda.js?v=202611161510';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611161510';
-import * as prefs from './prefs.js?v=202611161510';
+import { abrirBloqueados } from './moderacion.js?v=202611161621';
+import { getTheme, setTheme } from './theme.js?v=202611161621';
+import * as version from './version.js?v=202611161621';
+import * as tienda from './tienda.js?v=202611161621';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611161621';
+import * as prefs from './prefs.js?v=202611161621';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -479,6 +479,11 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ] : []),
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
           ...(me && me.role !== 'client' ? [
+            // Conexiones en el celular (16-nov-2026, Vianey: "desde la versión
+            // web de móvil no veo la sección de conexiones"). En pantallas
+            // chicas el menú de arriba se esconde y la barra de abajo no la
+            // trae; aquí queda a un toque, en la app y en el navegador.
+            ...(visibleIds.has('conexiones') ? [accountRow('link', T('Conexiones', 'Connections'), () => { close(); irA('conexiones'); })] : []),
             accountRow('users', T('Equipo', 'Team'), () => { close(); openTeamSheet(); }),
             // El creador de contenido no tiene clientes: sin accesos de cliente.
             ...(esCreador() ? [] : [accountRow('link', T('Accesos de cliente', 'Client access'), () => { close(); openClientAccessSheet(); })]),
