@@ -1325,7 +1325,10 @@ export async function handleAdsCrear(request, env, session) {
     if (wa.length < 10 || wa.length > 15) return json({ error: 'Falta el número de WhatsApp con lada (por ejemplo 5219981234567).' }, 400);
   }
   const waLink = wa ? `https://api.whatsapp.com/send?phone=${wa}` : '';
-  const enlace = String(b.enlace || (msg ? (waLink || 'https://fb.com/messenger_doc/') : (clientId ? '' : 'https://ivaestudios.com/cancun-photographer')));
+  // El enlace del anuncio de mensajes dice el destino: el de Messenger en un
+  // anuncio de Instagram da code 100/2490279 ("destino inconsistente").
+  const enlaceMsg = msg ? (waLink || (msg.dest === 'INSTAGRAM_DIRECT' ? 'https://www.instagram.com/' : 'https://fb.com/messenger_doc/')) : '';
+  const enlace = String(b.enlace || (msg ? enlaceMsg : (clientId ? '' : 'https://ivaestudios.com/cancun-photographer')));
   if (!enlace && OBJ !== 'INTERACCION') {
     return json({ error: 'Falta el enlace a donde lleva el anuncio (página, WhatsApp o formulario).' }, 400);
   }
