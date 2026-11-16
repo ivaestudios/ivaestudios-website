@@ -1298,9 +1298,12 @@ export async function handleAdsCrear(request, env, session) {
   // de pauta high ticket: optimizar a conversaciones o leads, nunca a clics.
   const OBJ = String(b.objetivo || '').toUpperCase();
   const MENSAJES = {
-    WHATSAPP: { dest: 'WHATSAPP', cta: 'WHATSAPP_MESSAGE', app: 'WHATSAPP' },
-    INSTAGRAM: { dest: 'INSTAGRAM_DIRECT', cta: 'INSTAGRAM_MESSAGE', app: 'INSTAGRAM_DIRECT' },
-    MESSENGER: { dest: 'MESSENGER', cta: 'MESSAGE_PAGE', app: 'MESSENGER' },
+    // WhatsApp: Clientes potenciales + conversaciones (la forma probada de la casa).
+    // Instagram y Messenger: Meta NO deja conversaciones con Clientes potenciales
+    // (code 100/2490408, prueba del 16-nov-2026): van con Interacción.
+    WHATSAPP: { camp: 'OUTCOME_LEADS', dest: 'WHATSAPP', cta: 'WHATSAPP_MESSAGE', app: 'WHATSAPP' },
+    INSTAGRAM: { camp: 'OUTCOME_ENGAGEMENT', dest: 'INSTAGRAM_DIRECT', cta: 'INSTAGRAM_MESSAGE', app: 'INSTAGRAM_DIRECT' },
+    MESSENGER: { camp: 'OUTCOME_ENGAGEMENT', dest: 'MESSENGER', cta: 'MESSAGE_PAGE', app: 'MESSENGER' },
   };
   const msg = MENSAJES[OBJ] || null;
   let wa = '';
@@ -1367,7 +1370,7 @@ export async function handleAdsCrear(request, env, session) {
     const porInteraccion = String(b.objetivo || '').toUpperCase() === 'INTERACCION';
     const camp = await pedir('campaña', `${cuenta.id}/campaigns`, {
       name: nombre,
-      objective: msg ? 'OUTCOME_LEADS' : (porInteraccion ? 'OUTCOME_ENGAGEMENT' : 'OUTCOME_TRAFFIC'),
+      objective: msg ? msg.camp : (porInteraccion ? 'OUTCOME_ENGAGEMENT' : 'OUTCOME_TRAFFIC'),
       status: 'PAUSED',
       special_ad_categories: '[]',
       // Obligatorio desde 2026 cuando el presupuesto vive en el conjunto y no
