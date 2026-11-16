@@ -21,6 +21,40 @@ const GRAPH = 'https://graph.instagram.com/v23.0';
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// FOTOS (16-nov-2026): Instagram ya no deja publicar una foto en cuanto se
+// crea su contenedor. La prueba en el Instagram de ISRAEL respondió "The media
+// is not ready to be published". Antes se asumía que "las fotos no procesan".
+// Ahora: esperar a FINISHED (tolerando el "cannot be found" de los primeros
+// segundos) y reintentar media_publish si aún dice "not ready", igual que el
+// carrusel.
+async function esperarContenedor(tok, creationId, { intentos = 12, cada = 2500 } = {}) {
+  await espera(1500);
+  for (let i = 0; i < intentos; i++) {
+    let st = null;
+    try {
+      st = await gJson(`${GRAPH}/${creationId}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
+    } catch { /* recién creado: todavía no se puede consultar */ }
+    if (st && st.status_code === 'FINISHED') return true;
+    if (st && st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar la foto (debe ser JPEG, entre 4:5 y 1.91:1).');
+    await espera(cada);
+  }
+  return false;   // se intenta publicar de todos modos; el reintento de abajo decide
+}
+
+async function publicarConReintento(client, tok, creationId) {
+  for (let i = 0; i < 4; i++) {
+    try {
+      return await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+        method: 'POST', body: new URLSearchParams({ creation_id: creationId, access_token: tok }),
+      });
+    } catch (e) {
+      if (i < 3 && /not ready/i.test((e && e.message) || '')) { await espera(6000); continue; }
+      throw e;
+    }
+  }
+  return null;
+}
+
 async function gJson(url, init) {
   const res = await fetch(url, init);
   const data = await res.json().catch(() => ({}));
@@ -121,10 +155,9 @@ export async function publicarEnInstagram(env, { client, post, slides, slidesVid
     const c1 = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: p1 });
     if (!c1.id) throw new Error('Instagram no devolvió el contenedor de la foto.');
     if (onContainer) { try { await onContainer(c1.id); } catch { /* best effort */ } }
-    const pub1 = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
-      method: 'POST', body: new URLSearchParams({ creation_id: c1.id, access_token: tok }),
-    });
-    if (!pub1.id) throw new Error('Instagram no confirmó la publicación de la foto.');
+    await esperarContenedor(tok, c1.id);
+    const pub1 = await publicarConReintento(client, tok, c1.id);
+    if (!pub1 || !pub1.id) throw new Error('Instagram no confirmó la publicación de la foto.');
     let link1 = null;
     try {
       const m = await gJson(`${GRAPH}/${pub1.id}?fields=permalink&access_token=${encodeURIComponent(tok)}`);
@@ -233,7 +266,9 @@ export async function publicarEnInstagram(env, { client, post, slides, slidesVid
   if (onContainer) { try { await onContainer(cont.id); } catch { /* best effort */ } }
 
   // 2) Esperar a que IG procese el video (FINISHED). Los reels tardan.
-  let listo = !post.video_url;   // las fotos no procesan
+  //    Las fotos también procesan (16-nov-2026): espera corta.
+  if (!post.video_url) await esperarContenedor(tok, cont.id);
+  let listo = !post.video_url;
   for (let i = 0; !listo && i < 24; i++) {
     await espera(5000);
     const st = await gJson(`${GRAPH}/${cont.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
@@ -242,12 +277,9 @@ export async function publicarEnInstagram(env, { client, post, slides, slidesVid
   }
   if (!listo) throw new Error('Instagram sigue procesando el video — se reintenta en el siguiente ciclo.');
 
-  // 3) Publicar.
-  const pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
-    method: 'POST',
-    body: new URLSearchParams({ creation_id: cont.id, access_token: tok }),
-  });
-  if (!pub.id) throw new Error('Instagram no confirmó la publicación.');
+  // 3) Publicar (con reintento si Meta aún dice "not ready").
+  const pub = await publicarConReintento(client, tok, cont.id);
+  if (!pub || !pub.id) throw new Error('Instagram no confirmó la publicación.');
 
   // 4) El permalink (best-effort: si falla, el id basta).
   let permalink = null;
