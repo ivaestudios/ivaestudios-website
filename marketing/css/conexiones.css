@@ -204,3 +204,21 @@
 }
 .cx-red__off:hover { color: #dc2626; border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
 .cx-red__off:disabled { opacity: .5; cursor: default; }
+
+/* Celular (16-nov-2026, Vianey: "no está adaptado para móvil"). Las filas
+   conectadas (cuenta + Conectado + Desconectar) medían 419px en una pantalla
+   de 390: la tarjeta crecía al ancho de su texto y cortaba los botones.
+   1) La rejilla y la tarjeta ya no crecen con el texto (minmax(0, 1fr)).
+   2) En pantallas chicas la fila conectada usa dos renglones: arriba la red,
+      abajo la cuenta (se recorta con …) y los botones. */
+.cx-grid { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) { .cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .cx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cx-card, .cx-red { min-width: 0; }
+.cx-red__derecha { flex: 1 1 auto; justify-content: flex-end; }
+.cx-red__cuenta { flex: 0 1 auto; min-width: 0; }
+@media (max-width: 520px) {
+  .cx-red--ok, .cx-red--falla { flex-wrap: wrap; row-gap: 6px; }
+  .cx-red--ok .cx-red__derecha, .cx-red--falla .cx-red__derecha { flex: 1 0 100%; margin-left: 0; }
+  .cx-red--ok .cx-red__cuenta { flex: 1 1 auto; text-align: left; }
+}
