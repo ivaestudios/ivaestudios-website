@@ -13,9 +13,9 @@
 // de siempre. Cada marca conecta SU cuenta publicitaria (agencia o propia).
 // Ver functions/api/marketing/_ads.js y la migración 052.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611161754';
-import { icon } from '../shell/icons.js?v=202611161754';
-import { T, isEN } from '../shell/i18n.js?v=202611161754';
+import { el, clear, toast } from '../api.js?v=202611161810';
+import { icon } from '../shell/icons.js?v=202611161810';
+import { T, isEN } from '../shell/i18n.js?v=202611161810';
 
 const VIEW_ID = 'pauta';
 
@@ -39,11 +39,15 @@ function nombreMarca(id) {
   return c ? c.name : '';
 }
 function vistaDesdeStore() {
+  if (ctx && esCliente()) return miMarca() || 'todas';
   const id = ctx && ctx.store.getState().activeClientId;
   return id && id !== 'todos' ? id : 'todas';
 }
 
 function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); }
+// El cliente maneja la pauta de SU marca (16-nov-2026); la dueña, todas.
+function esCliente() { return ((ctx.store.getState().me || {}).role === 'client'); }
+function miMarca() { return (ctx.store.getState().me || {}).client_id || null; }
 
 // Meta manda los presupuestos en centavos de la moneda de la cuenta.
 function dinero(centavos, moneda) {
@@ -222,7 +226,7 @@ function cabecera(estado) {
   })));
   const titulo = vista === 'casa' ? T('Pauta · IVAE (la casa)', 'Ads · IVAE (house)') : `${T('Pauta', 'Ads')} · ${nombreMarca(vista) || T('Marca', 'Brand')}`;
   const cuenta = estado && estado.cuenta;
-  const volver = el('button', {
+  const volver = esCliente() ? null : el('button', {
     class: 'btn btn-ghost btn-sm pauta-volver', type: 'button',
     onclick: () => { vista = 'todas'; render(); },
   }, [icon('left', 14), el('span', { text: T('Todas las marcas', 'All brands') })]);
@@ -514,13 +518,14 @@ async function conectar(marca) {
 async function render() {
   if (!rootEl) return;
   clear(rootEl);
-  if (!esAdmin()) {
+  if (!esAdmin() && !esCliente()) {
     rootEl.appendChild(vacio('lock', T('Solo la dueña', 'Owner only'), T(
-      'La pauta es dinero de la casa: esta sección no se comparte.',
-      "Ads are the studio's own money: this section is not shared.",
+      'La pauta la maneja la dueña de la agencia y cada marca la suya.',
+      'Ads are run by the agency owner, and each brand runs its own.',
     )));
     return;
   }
+  if (esCliente()) vista = miMarca() || 'todas';
   if (vista === 'todas') { await renderTodas(); return; }
 
   const cargando = el('div', { class: 'pauta-empty' }, [el('span', { class: 'spinner' })]);
@@ -545,10 +550,15 @@ async function render() {
       estado && estado.falta_config
         ? estado.falta_config
         : (esMarca()
-          ? T(
-            `Para ver y manejar la pauta de ${nombreMarca(vista)}: si es tu cliente, que agregue a IVAE como socio en su Business Manager con acceso a su cuenta publicitaria; luego conecta con tu Facebook y elige su cuenta.`,
-            `To see and run ads for ${nombreMarca(vista)}: if it is your client, they add IVAE as a partner in their Business Manager with access to their ad account; then connect with your Facebook and pick their account.`,
-          )
+          ? (esCliente()
+            ? T(
+              'Conecta la cuenta publicitaria de tu empresa con el Facebook que la administra. Vas a ver tus campañas, lo que gastan y lo que te devuelven, y podrás crear las tuyas. Tu agencia también la verá para ayudarte.',
+              "Connect your business ad account with the Facebook that manages it. You'll see your campaigns, what they spend and what they return, and you can create your own. Your agency will see it too, to help you.",
+            )
+            : T(
+              `Para ver y manejar la pauta de ${nombreMarca(vista)}: si es tu cliente, que agregue a IVAE como socio en su Business Manager con acceso a su cuenta publicitaria; luego conecta con tu Facebook y elige su cuenta. También la puede conectar el cliente desde su app.`,
+              `To see and run ads for ${nombreMarca(vista)}: if it is your client, they add IVAE as a partner in their Business Manager with access to their ad account; then connect with your Facebook and pick their account. The client can also connect it from their app.`,
+            ))
           : T(
             'Para leer tus campañas y sus números hace falta darle acceso a la cuenta publicitaria de IVAE.',
             "To read your campaigns and their numbers, the app needs access to IVAE's ad account.",
@@ -799,7 +809,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611161754';
+  link.href = '/marketing/css/pauta.css?v=202611161810';
   document.head.appendChild(link);
 }
 

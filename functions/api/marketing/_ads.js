@@ -104,6 +104,8 @@ const ADS_SCOPE_MARCA = 'ads_management,ads_read,business_management,pages_show_
 // Quién toca la pauta: la dueña (admin) de su espacio de trabajo. La cuenta de
 // la casa (sin marca) es solo del espacio de IVAE.
 async function puedePauta(env, session, clientId) {
+  // El cliente (16-nov-2026): SOLO la pauta de su propia marca.
+  if (session && session.role === 'client') return !!clientId && clientId === session.client_id;
   if (!soloAdmin(session)) return false;
   if (!clientId) return wsDe(session) === 'ivae';
   const c = await env.DB.prepare("SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?")
@@ -194,7 +196,8 @@ async function guardarCuentaMarca(env, st, c, tokenId) {
   ).bind(
     rnd(), st.ws || 'ivae', st.c, c.id, c.name || '', c.currency || 'MXN',
     c.timezone_name || 'America/Mexico_City', c.account_status == null ? null : Number(c.account_status),
-    tokenId, (st.ws || 'ivae') === 'ivae' ? 'agencia' : 'propia',
+    // "propia" = la conectó la empresa (o un creador en su espacio); "agencia" = la agencia.
+    tokenId, (st.r === 'client' || (st.ws || 'ivae') !== 'ivae') ? 'propia' : 'agencia',
     (m && m.fb_page_id) || null, (m && m.fb_page_name) || null, st.u || null, ahora, ahora,
   ).run();
 }
@@ -210,6 +213,7 @@ export async function handleAdsLogin(request, env, session, url) {
   const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'es';
   await kvSet(env, `ads_state_${nonce}`, JSON.stringify({
     t: Date.now(), l: lang, c: clientId, ws: wsDe(session), u: (session && session.user_id) || null,
+    r: (session && session.role) || null,
   }));
   const p = new URLSearchParams({
     client_id: env.FB_APP_ID,
@@ -307,7 +311,7 @@ export async function handleAdsCallback(request, env, url) {
         : `<h1>✅ Cuenta publicitaria conectada</h1><p>Quedó ligada a <b>${esc(lista[0].name)}</b>.</p><a href="${back}">Volver a la app</a>`);
     }
     const pickId = rnd();
-    await kvSet(env, `ads_pick_${pickId}`, JSON.stringify({ t: Date.now(), l: st.l, cuentas: lista, c: st.c || null, ws: st.ws || 'ivae', u: st.u || null, tk: tokenId }));
+    await kvSet(env, `ads_pick_${pickId}`, JSON.stringify({ t: Date.now(), l: st.l, cuentas: lista, c: st.c || null, ws: st.ws || 'ivae', u: st.u || null, r: st.r || null, tk: tokenId }));
     const botones = lista.map((c) =>
       `<a href="/api/marketing/ads/callback?pick=${pickId}&cuenta=${encodeURIComponent(c.id)}">📣 ${esc(c.name)} · ${esc(c.currency)}<small style="margin-left:auto">${esc(String(c.id).replace(/^act_/, ''))}</small></a>`
     ).join('');

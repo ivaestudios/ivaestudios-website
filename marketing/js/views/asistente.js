@@ -10,9 +10,9 @@
 // esta vista solo pinta). Se enciende marca por marca: para el STAFF aparece
 // siempre (prueba y encendido), para el cliente solo si su marca lo tiene.
 // ============================================================================
-import { el, clear, api, toast, isClientRole, timeAgo } from '../api.js?v=202611161754';
-import { T } from '../shell/i18n.js?v=202611161754';
-import { icon } from '../shell/icons.js?v=202611161754';
+import { el, clear, api, toast, isClientRole, timeAgo } from '../api.js?v=202611161810';
+import { T } from '../shell/i18n.js?v=202611161810';
+import { icon } from '../shell/icons.js?v=202611161810';
 
 const VIEW_ID = 'asistente';
 

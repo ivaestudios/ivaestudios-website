@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611161754';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611161754';
-import * as store from './store.js?v=202611161754';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611161754';
-import { toast } from './toast.js?v=202611161754';
-import { icon } from './icons.js?v=202611161754';
-import { openClientSwitcher } from './clientswitcher.js?v=202611161754';
-import { T, isEN, setLang } from './i18n.js?v=202611161754';
+import { startTour } from './tour.js?v=202611161810';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611161810';
+import * as store from './store.js?v=202611161810';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611161810';
+import { toast } from './toast.js?v=202611161810';
+import { icon } from './icons.js?v=202611161810';
+import { openClientSwitcher } from './clientswitcher.js?v=202611161810';
+import { T, isEN, setLang } from './i18n.js?v=202611161810';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611161754';
-import { getTheme, setTheme } from './theme.js?v=202611161754';
-import * as version from './version.js?v=202611161754';
-import * as tienda from './tienda.js?v=202611161754';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611161754';
-import * as prefs from './prefs.js?v=202611161754';
+import { abrirBloqueados } from './moderacion.js?v=202611161810';
+import { getTheme, setTheme } from './theme.js?v=202611161810';
+import * as version from './version.js?v=202611161810';
+import * as tienda from './tienda.js?v=202611161810';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611161810';
+import * as prefs from './prefs.js?v=202611161810';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -129,7 +129,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const visibleTabs = isClient
     ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
-      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor')))
+      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones) || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor') || t.id === 'pauta'))
     : DESKTOP_TABS.filter((t) => (t.id !== 'pauta' && t.id !== 'administracion') || esAdmin);
   const irA = (id) => {
     const { activeClientId } = store.getState();

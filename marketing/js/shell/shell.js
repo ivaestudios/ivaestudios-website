@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611161754';
-import { setRoleDefault } from './theme.js?v=202611161754';
-import { vigilarSegmentados } from './segfade.js?v=202611161754';
-import * as store from './store.js?v=202611161754';
-import * as prefs from './prefs.js?v=202611161754';
-import * as router from './router.js?v=202611161754';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611161754';
-import { toast } from './toast.js?v=202611161754';
-import { icon } from './icons.js?v=202611161754';
-import * as iconsMod from './icons.js?v=202611161754';
-import { createTopbar } from './topbar.js?v=202611161754';
-import { createBottomNav } from './bottomnav.js?v=202611161754';
-import { createSearch } from './search.js?v=202611161754';
-import { createNotifications } from './notifications.js?v=202611161754';
-import { T } from './i18n.js?v=202611161754';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611161754';
-import * as version from './version.js?v=202611161754';
-import * as tienda from './tienda.js?v=202611161754';
-import * as pickers from '../ui/pickers.js?v=202611161754';
-import * as dnd from '../ui/dnd.js?v=202611161754';
+import { api, el, clear } from '../api.js?v=202611161810';
+import { setRoleDefault } from './theme.js?v=202611161810';
+import { vigilarSegmentados } from './segfade.js?v=202611161810';
+import * as store from './store.js?v=202611161810';
+import * as prefs from './prefs.js?v=202611161810';
+import * as router from './router.js?v=202611161810';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611161810';
+import { toast } from './toast.js?v=202611161810';
+import { icon } from './icons.js?v=202611161810';
+import * as iconsMod from './icons.js?v=202611161810';
+import { createTopbar } from './topbar.js?v=202611161810';
+import { createBottomNav } from './bottomnav.js?v=202611161810';
+import { createSearch } from './search.js?v=202611161810';
+import { createNotifications } from './notifications.js?v=202611161810';
+import { T } from './i18n.js?v=202611161810';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611161810';
+import * as version from './version.js?v=202611161810';
+import * as tienda from './tienda.js?v=202611161810';
+import * as pickers from '../ui/pickers.js?v=202611161810';
+import * as dnd from '../ui/dnd.js?v=202611161810';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -91,7 +91,11 @@ const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (view === 'metricas' && !soloBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
   || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id))
   // Asistente de IA (piloto): lo decide el servidor marca por marca (/auth/me.asistente_ia).
-  || (view === 'asistente' && !soloBandeja() && !!(store.getState().me || {}).asistente_ia);
+  || (view === 'asistente' && !soloBandeja() && !!(store.getState().me || {}).asistente_ia)
+  // Pauta (16-nov-2026, Vianey: "cada empresa pueda conectar su cuenta
+  // publicitaria y hacer sus pautas como si fuera su propio sitio"): el
+  // cliente ve SOLO la de su marca; el servidor lo vuelve a comprobar.
+  || (view === 'pauta' && !soloBandeja());
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),
@@ -100,6 +104,7 @@ const CONTENT_LABELS = {
   marca: T('Marca', 'Brand'),
   metricas: T('Métricas', 'Metrics'),
   administracion: T('Administración', 'Administration'),
+  pauta: T('Pauta', 'Ads'),
   asistente: T('Asistente', 'Assistant'),
   carrusel: T('Carrusel', 'Carousel'),
   descargar: T('Descargar', 'Download'),
@@ -207,6 +212,7 @@ function updateSubhead() {
     || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true))
     || (view === 'asistente' && (isClientRole() ? clientCanView('asistente') : true))
     || (view === 'administracion' && esAdminShell())
+    || (view === 'pauta' && (isClientRole() ? clientCanView('pauta') : esAdminShell()))
     || (view === 'bandeja' && (!isClientRole() || !!rolBandeja()));
   if (isContent) {
     const client = isClientRole();
@@ -251,6 +257,9 @@ function buildSubhead(root) {
   if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
   // Administración (5-nov-2026): solo la dueña. En el teléfono este seg es su única puerta.
   if (esAdminShell()) segViews.push('administracion');
+  // Pauta: la dueña (todas las marcas) y cada cliente (la suya). En el
+  // teléfono este seg es la única puerta.
+  if (isClientRole() ? clientCanView('pauta') : esAdminShell()) segViews.push('pauta');
   // Asistente de IA (piloto 30-oct-2026): staff siempre (para probar y encender); cliente si su marca lo tiene.
   if (isClientRole() ? clientCanView('asistente') : true) segViews.push('asistente');
   // Bandeja (comentarios + mensajes + CRM): staff, y el equipo de la marca

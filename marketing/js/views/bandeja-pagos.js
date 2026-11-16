@@ -18,10 +18,10 @@
 // fichaCobro(r) en la ficha de la reserva. Estilos: inyectados aquí (sin tocar
 // bandeja.css).
 // ============================================================================
-import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611161754';
-import { toast } from '../shell/toast.js?v=202611161754';
-import { icon } from '../shell/icons.js?v=202611161754';
-import { T } from '../shell/i18n.js?v=202611161754';
+import { api, el, clear, timeAgo, copyText } from '../api.js?v=202611161810';
+import { toast } from '../shell/toast.js?v=202611161810';
+import { icon } from '../shell/icons.js?v=202611161810';
+import { T } from '../shell/i18n.js?v=202611161810';
 
 let d = null;        // deps que pone bandeja.js: ctx(), cid(), nombreDe(v), ponerEnChat(v, texto), alCambiarChat(id), alCambiarReservas()
 let estado = null;   // { client_id, en, aplica, stripe, links, cobros, catalogo }
