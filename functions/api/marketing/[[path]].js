@@ -57,7 +57,7 @@ import { pedirMes } from './_mes-ia.js';
 import { leerEntregable, escribirCopy } from './_entregable-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
-import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta } from './_ads.js';
+import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta, revisarMarcasConAuto, handleAdsMarcas, handleAdsDesconectar } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos, avisarStaff } from './_bandeja.js';
 import { handlePagos } from './_pagos.js';
@@ -4369,10 +4369,14 @@ async function handleCron(request, env) {
     // el resto del cron (respaldos, barridos) tiene que correr igual.
     let pauta = null;
     try {
+      // Guarda el día de TODAS las cuentas (la casa y cada marca, 16-nov-2026).
       pauta = await guardarDiaAds(env);
-      if (pauta && pauta.ok) {
+      if (pauta && (pauta.cuentas || []).length) {
         const rev = await revisarPauta(env).catch((e) => ({ ok: false, error: (e && e.message) || 'error' }));
         pauta.revision = rev && { ok: rev.ok, aplicadas: rev.aplicadas, mueve: rev.mueve, error: rev.error };
+        // Las marcas con la IA prendida; las demás no gastan llamadas.
+        const marcas = await revisarMarcasConAuto(env).catch((e) => [{ ok: false, error: (e && e.message) || 'error' }]);
+        pauta.marcas = (marcas || []).map((m) => ({ client_id: m.client_id, ok: m.ok, aplicadas: m.aplicadas, error: m.error }));
       }
     } catch (e) { pauta = { ok: false, error: (e && e.message) || 'error' }; }
 
@@ -5745,12 +5749,14 @@ async function route(request, env, authCtx) {
 
   // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);
-  if (path === '/ads/estado' && method === 'GET') return handleAdsEstado(env, session);
+  if (path === '/ads/estado' && method === 'GET') return handleAdsEstado(env, session, url);
+  if (path === '/ads/marcas' && method === 'GET') return handleAdsMarcas(env, session);
+  if (path === '/ads/desconectar' && method === 'POST') return handleAdsDesconectar(request, env, session);
   if (path === '/ads/campanas' && method === 'GET') return handleAdsCampanas(env, session, url);
   if (path === '/ads/revisar' && method === 'POST') return handleAdsRevisar(request, env, session);
-  if (path === '/ads/bitacora' && method === 'GET') return handleAdsBitacora(env, session);
+  if (path === '/ads/bitacora' && method === 'GET') return handleAdsBitacora(env, session, url);
   if (path === '/ads/ajustes' && method === 'POST') return handleAdsAjustes(request, env, session);
-  if (path === '/ads/opciones' && method === 'GET') return handleAdsOpciones(env, session);
+  if (path === '/ads/opciones' && method === 'GET') return handleAdsOpciones(env, session, url);
   if (path === '/ads/creativo' && method === 'GET') return handleAdsCreativo(env, session, url);
   if (path === '/ads/post' && method === 'GET') return handleAdsPost(env, session, url);
   if (path === '/ads/crear' && method === 'POST') return handleAdsCrear(request, env, session);

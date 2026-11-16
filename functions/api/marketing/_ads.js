@@ -82,21 +82,138 @@ function faltaConfig(env) {
 // Solo la casa toca la pauta: es dinero de IVAE, no de una marca cliente.
 const soloAdmin = (session) => session && session.role === 'admin';
 
+// ── PAUTA POR MARCA (16-nov-2026) ───────────────────────────────────────────
+// Vianey: "si quiero manejar pautas de todos los clientes, tiene que estar
+// súper bien hecho". Cada marca guarda SU cuenta publicitaria en
+// mkt_ads_cuentas (migración 052) y el permiso de Facebook en mkt_ads_tokens
+// (uno por persona: si Vianey conecta 10 marcas con su Facebook es UN permiso).
+// Sin client_id todo sigue siendo la cuenta de la casa (mkt_kv), como antes:
+// Administración y la vista vieja no cambian.
+// Dos modos: "agencia" (el cliente le da acceso a IVAE en su Business Manager
+// y Vianey la maneja con su sesión) y "propia" (un creador, en SU espacio de
+// trabajo, conecta su propio Facebook).
+const wsDe = (session) => (session && session.workspace_id) || 'ivae';
+const limpiarCliente = (v) => (/^[a-zA-Z0-9_-]{3,64}$/.test(String(v || '')) ? String(v) : null);
+// Con la marca se pide además business_management: las cuentas que un cliente
+// comparte desde SU Business Manager no salen sin él.
+const ADS_SCOPE_MARCA = 'ads_management,ads_read,business_management,pages_show_list,pages_read_engagement';
+
+// Quién toca la pauta: la dueña (admin) de su espacio de trabajo. La cuenta de
+// la casa (sin marca) es solo del espacio de IVAE.
+async function puedePauta(env, session, clientId) {
+  if (!soloAdmin(session)) return false;
+  if (!clientId) return wsDe(session) === 'ivae';
+  const c = await env.DB.prepare("SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?")
+    .bind(clientId, wsDe(session)).first().catch(() => null);
+  return !!c;
+}
+
+// La cuenta con la que se trabaja: la de una MARCA o, sin marca, la de la casa.
+async function cuentaDe(env, clientId) {
+  if (clientId) {
+    const r = await env.DB.prepare(
+      `SELECT a.*, t.token AS token, c.name AS marca, c.brief AS brief
+         FROM mkt_ads_cuentas a
+         JOIN mkt_ads_tokens t ON t.id = a.token_id
+         LEFT JOIN mkt_clients c ON c.id = a.client_id
+        WHERE a.client_id = ?`
+    ).bind(clientId).first().catch(() => null);
+    if (!r) return null;
+    return {
+      clientId,
+      fila: r,
+      cuenta: {
+        id: r.ad_account_id,
+        account_id: String(r.ad_account_id || '').replace(/^act_/, ''),
+        name: r.nombre || '',
+        currency: r.moneda || 'MXN',
+        timezone: r.zona_horaria || 'America/Mexico_City',
+        status: r.estado,
+        modo: r.modo,
+        page_id: r.page_id || null,
+        page_name: r.page_name || null,
+        ig_user_id: r.ig_user_id || null,
+        ig_username: r.ig_username || null,
+        conectada_at: r.conectada_en,
+      },
+      tok: { t: r.token },
+    };
+  }
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  return cuenta && tok ? { clientId: null, fila: null, cuenta, tok } : null;
+}
+
+// Interruptor de la IA y techo de gasto: los de la casa viven en mkt_kv; los
+// de cada marca, en su fila.
+async function ajustesDe(env, ct) {
+  if (ct && ct.clientId) {
+    return { auto: Number(ct.fila.auto) === 1, tope: Number(ct.fila.tope_diario) || TOPE_DIARIO_DEFAULT };
+  }
+  return {
+    auto: (await kvGet(env, 'ads_auto')) === '1',
+    tope: Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT,
+  };
+}
+const claveRevision = (ct) => (ct && ct.clientId ? `ads_ultima_revision:${ct.clientId}` : 'ads_ultima_revision');
+
+async function guardarToken(env, { ws, fbUserId, token, expiraSeg, scopes, creadoPor }) {
+  const ahora = new Date().toISOString();
+  const expira = expiraSeg ? new Date(Date.now() + Number(expiraSeg) * 1000).toISOString() : null;
+  const prev = await env.DB.prepare('SELECT id FROM mkt_ads_tokens WHERE workspace_id = ? AND fb_user_id = ?').bind(ws, fbUserId).first();
+  const id = prev ? prev.id : rnd();
+  await env.DB.prepare(
+    `INSERT INTO mkt_ads_tokens (id, workspace_id, fb_user_id, token, expira_en, scopes, creado_por, creado_en, actualizado_en)
+     VALUES (?,?,?,?,?,?,?,?,?)
+     ON CONFLICT(workspace_id, fb_user_id) DO UPDATE SET
+       token = excluded.token, expira_en = excluded.expira_en,
+       scopes = excluded.scopes, actualizado_en = excluded.actualizado_en`
+  ).bind(id, ws, fbUserId, token, expira, scopes || null, creadoPor || null, ahora, ahora).run();
+  return id;
+}
+
+async function guardarCuentaMarca(env, st, c, tokenId) {
+  const ahora = new Date().toISOString();
+  // La página con la que se anuncia: la que la marca ya tiene conectada.
+  const m = await env.DB.prepare('SELECT fb_page_id, fb_page_name FROM mkt_clients WHERE id = ?').bind(st.c).first().catch(() => null);
+  await env.DB.prepare(
+    `INSERT INTO mkt_ads_cuentas
+       (id, workspace_id, client_id, ad_account_id, nombre, moneda, zona_horaria, estado,
+        token_id, modo, page_id, page_name, conectada_por, conectada_en, actualizada_en)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+     ON CONFLICT(client_id) DO UPDATE SET
+       ad_account_id = excluded.ad_account_id, nombre = excluded.nombre,
+       moneda = excluded.moneda, zona_horaria = excluded.zona_horaria,
+       estado = excluded.estado, token_id = excluded.token_id, modo = excluded.modo,
+       page_id = COALESCE(mkt_ads_cuentas.page_id, excluded.page_id),
+       page_name = COALESCE(mkt_ads_cuentas.page_name, excluded.page_name),
+       conectada_por = excluded.conectada_por, actualizada_en = excluded.actualizada_en`
+  ).bind(
+    rnd(), st.ws || 'ivae', st.c, c.id, c.name || '', c.currency || 'MXN',
+    c.timezone_name || 'America/Mexico_City', c.account_status == null ? null : Number(c.account_status),
+    tokenId, (st.ws || 'ivae') === 'ivae' ? 'agencia' : 'propia',
+    (m && m.fb_page_id) || null, (m && m.fb_page_name) || null, st.u || null, ahora, ahora,
+  ).run();
+}
+
 // ── Conectar ────────────────────────────────────────────────────────────────
 // GET /ads/login → diálogo de Facebook pidiendo acceso a cuentas publicitarias.
 export async function handleAdsLogin(request, env, session, url) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const clientId = limpiarCliente(url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
   const falta = faltaConfig(env);
   if (falta) return json({ error: falta }, 503);
   const nonce = rnd();
   const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'es';
-  await kvSet(env, `ads_state_${nonce}`, JSON.stringify({ t: Date.now(), l: lang }));
+  await kvSet(env, `ads_state_${nonce}`, JSON.stringify({
+    t: Date.now(), l: lang, c: clientId, ws: wsDe(session), u: (session && session.user_id) || null,
+  }));
   const p = new URLSearchParams({
     client_id: env.FB_APP_ID,
     redirect_uri: adsRedirectUri(request),
     state: nonce,
     response_type: 'code',
-    scope: ADS_SCOPE,
+    scope: clientId ? ADS_SCOPE_MARCA : ADS_SCOPE,
     // Si Facebook ya dio por buenos estos permisos antes, salta el diálogo y
     // vuelve con un code de los permisos VIEJOS. auth_type=rerequest obliga a
     // volver a preguntar, que es justo lo que queremos la primera vez.
@@ -128,7 +245,7 @@ async function fbJson(u, init) {
 
 // GET /ads/callback — code → token largo → cuentas publicitarias → elegir.
 export async function handleAdsCallback(request, env, url) {
-  const back = '/marketing/app#/pauta';
+  let back = '/marketing/app#/pauta';
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state') || '';
   const raw = await kvTake(env, `ads_state_${state}`);
@@ -136,6 +253,7 @@ export async function handleAdsCallback(request, env, url) {
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
   const EN = st.l === 'en';
+  if (st.c) back = `/marketing/app#/pauta?cliente=${encodeURIComponent(st.c)}`;
   if (Date.now() - st.t > 10 * 60 * 1000) {
     return html(EN ? `<h1>The attempt expired</h1><a href="${back}">Back</a>` : `<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
   }
@@ -154,7 +272,18 @@ export async function handleAdsCallback(request, env, url) {
       fb_exchange_token: corto.access_token,
     }));
     const tok = largo.access_token || corto.access_token;
-    await kvSet(env, 'ads_token', JSON.stringify({ t: tok, at: Date.now() }));
+    let tokenId = null;
+    if (st.c) {
+      // Pauta de una MARCA: el permiso se guarda por persona de Facebook (no en
+      // la casa), así una misma sesión sirve para todas las marcas que maneja.
+      const yo = await fbJson(`${FB_GRAPH}/me?` + new URLSearchParams({ fields: 'id', access_token: tok }));
+      tokenId = await guardarToken(env, {
+        ws: st.ws || 'ivae', fbUserId: String(yo.id || ''), token: tok,
+        expiraSeg: largo.expires_in, scopes: ADS_SCOPE_MARCA, creadoPor: st.u,
+      });
+    } else {
+      await kvSet(env, 'ads_token', JSON.stringify({ t: tok, at: Date.now() }));
+    }
 
     const cuentas = await fbJson(`${FB_GRAPH}/me/adaccounts?` + new URLSearchParams({
       fields: 'id,account_id,name,currency,timezone_name,account_status,funding_source_details',
@@ -168,15 +297,16 @@ export async function handleAdsCallback(request, env, url) {
         : `<h1>Sin cuentas publicitarias</h1><p>Esta cuenta de Facebook no administra ninguna cuenta publicitaria.</p><a href="${back}">Volver a la app</a>`);
     }
     if (lista.length === 1) {
-      await guardarCuenta(env, lista[0]);
+      if (st.c) await guardarCuentaMarca(env, st, lista[0], tokenId);
+      else await guardarCuenta(env, lista[0]);
       return html(EN
         ? `<h1>✅ Ad account connected</h1><p>Linked to <b>${esc(lista[0].name)}</b>.</p><a href="${back}">Back to the app</a>`
         : `<h1>✅ Cuenta publicitaria conectada</h1><p>Quedó ligada a <b>${esc(lista[0].name)}</b>.</p><a href="${back}">Volver a la app</a>`);
     }
     const pickId = rnd();
-    await kvSet(env, `ads_pick_${pickId}`, JSON.stringify({ t: Date.now(), l: st.l, cuentas: lista }));
+    await kvSet(env, `ads_pick_${pickId}`, JSON.stringify({ t: Date.now(), l: st.l, cuentas: lista, c: st.c || null, ws: st.ws || 'ivae', u: st.u || null, tk: tokenId }));
     const botones = lista.map((c) =>
-      `<a href="/api/marketing/ads/callback?pick=${pickId}&cuenta=${encodeURIComponent(c.id)}">📣 ${esc(c.name)} · ${esc(c.currency)}</a>`
+      `<a href="/api/marketing/ads/callback?pick=${pickId}&cuenta=${encodeURIComponent(c.id)}">📣 ${esc(c.name)} · ${esc(c.currency)}<small style="margin-left:auto">${esc(String(c.id).replace(/^act_/, ''))}</small></a>`
     ).join('');
     return html(EN
       ? `<h1>Which ad account?</h1><p>Your account manages several. Pick the right one:</p>${botones}<small>This link expires in 10 minutes.</small>`
@@ -188,7 +318,7 @@ export async function handleAdsCallback(request, env, url) {
 
 // GET /ads/callback?pick=…&cuenta=… — segundo paso cuando hay varias cuentas.
 export async function handleAdsPick(request, env, url) {
-  const back = '/marketing/app#/pauta';
+  let back = '/marketing/app#/pauta';
   const raw = await kvTake(env, `ads_pick_${url.searchParams.get('pick') || ''}`);
   if (!raw) return html(`<h1>Enlace caducado</h1><a href="${back}">Volver</a>`, 400);
   let st;
@@ -197,7 +327,12 @@ export async function handleAdsPick(request, env, url) {
   if (Date.now() - st.t > 10 * 60 * 1000) return html(EN ? '<h1>The attempt expired</h1>' : '<h1>El intento caducó</h1>', 400);
   const cuenta = (st.cuentas || []).find((c) => c.id === (url.searchParams.get('cuenta') || ''));
   if (!cuenta) return html(EN ? '<h1>Account not found</h1>' : '<h1>Cuenta no encontrada</h1>', 400);
-  await guardarCuenta(env, cuenta);
+  if (st.c) {
+    back = `/marketing/app#/pauta?cliente=${encodeURIComponent(st.c)}`;
+    await guardarCuentaMarca(env, st, cuenta, st.tk);
+  } else {
+    await guardarCuenta(env, cuenta);
+  }
   return html(EN
     ? `<h1>✅ Ad account connected</h1><p>Linked to <b>${esc(cuenta.name)}</b>.</p><a href="${back}">Back to the app</a>`
     : `<h1>✅ Cuenta publicitaria conectada</h1><p>Quedó ligada a <b>${esc(cuenta.name)}</b>.</p><a href="${back}">Volver a la app</a>`);
@@ -218,11 +353,13 @@ async function guardarCuenta(env, c) {
 // ── Estado ──────────────────────────────────────────────────────────────────
 // GET /ads/estado → qué hay conectado y si puede gastar (sin método de pago,
 // Meta no deja publicar: mejor decirlo aquí que dejar a la IA chocar contra eso).
-export async function handleAdsEstado(env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+export async function handleAdsEstado(env, session, url) {
+  const clientId = limpiarCliente(url && url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
   const falta = faltaConfig(env);
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
+  const ct = await cuentaDe(env, clientId);
+  const cuenta = ct && ct.cuenta;
+  const tok = ct && ct.tok;
   if (!cuenta || !tok) return json({ conectada: false, falta_config: falta });
   let pago = null;
   let error = null;
@@ -247,9 +384,11 @@ export async function handleAdsEstado(env, session) {
 // Insights por campaña en una sola llamada (field expansion), que en Acceso
 // limitado importa: el tier bajo tiene pocas llamadas por hora.
 export async function handleAdsCampanas(env, session, url) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
+  const clientId = limpiarCliente(url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const cuenta = ct && ct.cuenta;
+  const tok = ct && ct.tok;
   if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const dias = Math.min(90, Math.max(1, parseInt(url.searchParams.get('dias') || '7', 10) || 7));
   // ⚠️ Los `date_preset` de Meta (last_7d, last_30d…) NO incluyen HOY. Con
@@ -310,10 +449,37 @@ function ayerEnZona(tz) {
   }
 }
 
+// Todas las cuentas: la de la casa y la de cada marca (sin repetir la misma
+// cuenta si una marca usa la de la casa).
+async function todasLasCuentas(env) {
+  const out = [];
+  const casa = await cuentaDe(env, null);
+  if (casa) out.push(casa);
+  let filas = [];
+  try {
+    const r = await env.DB.prepare('SELECT client_id FROM mkt_ads_cuentas').all();
+    filas = r.results || [];
+  } catch { /* tabla nueva: puede no existir en un entorno viejo */ }
+  for (const f of filas) {
+    const ct = await cuentaDe(env, f.client_id);
+    if (ct && !out.some((o) => o.cuenta.id === ct.cuenta.id)) out.push(ct);
+  }
+  return out;
+}
+
 export async function guardarDiaAds(env, { dia = null } = {}) {
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
-  if (!cuenta || !tok) return { ok: false, motivo: 'sin cuenta conectada' };
+  const cuentas = await todasLasCuentas(env);
+  if (!cuentas.length) return { ok: false, motivo: 'sin cuenta conectada' };
+  const res = [];
+  for (const ct of cuentas) {
+    try { res.push({ cuenta: ct.cuenta.id, ...(await guardarDiaCuenta(env, ct, dia)) }); }
+    catch (e) { res.push({ cuenta: ct.cuenta.id, ok: false, error: (e && e.message) || 'error' }); }
+  }
+  return { ok: res.every((r) => r.ok), cuentas: res };
+}
+
+async function guardarDiaCuenta(env, ct, dia) {
+  const { cuenta, tok } = ct;
   const d = dia || ayerEnZona(cuenta.timezone);
 
   // Una sola llamada para TODAS las campanas (level=campaign): el Access Tier
@@ -355,9 +521,10 @@ export async function guardarDiaAds(env, { dia = null } = {}) {
         `INSERT INTO mkt_ads_dia
            (dia, campaign_id, campaign_name, objetivo, estado, presupuesto_diario,
             gasto, impresiones, alcance, clics, resultados, tipo_resultado,
-            costo_resultado, moneda, capturado_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            costo_resultado, moneda, capturado_at, ad_account_id, client_id)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
          ON CONFLICT(dia, campaign_id) DO UPDATE SET
+           ad_account_id = excluded.ad_account_id, client_id = excluded.client_id,
            campaign_name = excluded.campaign_name, objetivo = excluded.objetivo,
            estado = excluded.estado, presupuesto_diario = excluded.presupuesto_diario,
            gasto = excluded.gasto, impresiones = excluded.impresiones,
@@ -371,7 +538,7 @@ export async function guardarDiaAds(env, { dia = null } = {}) {
         Number(f.spend) || 0, Number(f.impressions) || 0, Number(f.reach) || 0,
         Number(f.clicks) || 0, res ? res.valor : null, res ? res.tipo : null,
         res && res.costo != null ? res.costo : null,
-        cuenta.currency || 'MXN', ahora,
+        cuenta.currency || 'MXN', ahora, cuenta.id, ct.clientId || null,
       ).run();
       n += 1;
     } catch (e) { console.error('[ads dia]', f.campaign_id, e && e.message); }
@@ -430,15 +597,19 @@ const DIAS_VENTANA = 90;
 
 async function bitacora(env, fila) {
   try {
+    // Sin cuenta explícita es la de la casa (Administración, fijarTopeDiario).
+    let cuentaId = fila.cuenta;
+    if (cuentaId === undefined) cuentaId = ((await kvJson(env, 'ads_cuenta')) || {}).id || null;
     await env.DB.prepare(
-      `INSERT INTO mkt_ads_log (id, at, quien, accion, campaign_id, campaign_name, antes, despues, motivo, ok, error)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO mkt_ads_log (id, at, quien, accion, campaign_id, campaign_name, antes, despues, motivo, ok, error, ad_account_id, client_id)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(
       rnd(), new Date().toISOString(), fila.quien || 'ia', fila.accion,
       fila.campaign_id || null, fila.campaign_name || null,
       fila.antes == null ? null : String(fila.antes),
       fila.despues == null ? null : String(fila.despues),
       fila.motivo || null, fila.ok ? 1 : 0, fila.error || null,
+      cuentaId || null, fila.cliente || null,
     ).run();
   } catch (e) { console.error('[ads log]', e && e.message); }
 }
@@ -454,11 +625,11 @@ async function fotoParaLaIA(env, cuenta, tok) {
             MAX(tipo_resultado) AS tipo_resultado,
             COUNT(*) AS dias
        FROM mkt_ads_dia
-      WHERE dia >= ?
+      WHERE dia >= ? AND ad_account_id = ?
       GROUP BY campaign_id
       ORDER BY gasto DESC
       LIMIT 40`
-  ).bind(desde).all();
+  ).bind(desde, cuenta.id).all();
 
   const vivas = new Map();
   try {
@@ -516,15 +687,19 @@ const ESQUEMA_DECISIONES = {
   required: ['lectura', 'decisiones'],
 };
 
-async function pedirDecisiones(env, campanas, tope) {
+async function pedirDecisiones(env, campanas, tope, marca = null) {
   if (!env.ANTHROPIC_API_KEY) throw new Error('Falta ANTHROPIC_API_KEY');
-  const prompt = `Eres quien lleva la pauta de IVAE Estudios, un estudio de fotografía de bodas y sesiones en Cancún y Riviera Maya. Decides con números, no con corazonadas.
+  const quien = marca && marca.nombre
+    ? `Eres quien lleva la pauta de ${marca.nombre}${marca.brief ? ` (${String(marca.brief).slice(0, 400)})` : ''}, una marca que maneja la agencia IVAE Marketing.`
+    : 'Eres quien lleva la pauta de IVAE Estudios, un estudio de fotografía de bodas y sesiones en Cancún y Riviera Maya.';
+  const moneda = (marca && marca.moneda) || 'MXN';
+  const prompt = `${quien} Decides con números, no con corazonadas.
 
-Estas son las campañas de los últimos ${DIAS_VENTANA} días, con lo que gastaron y lo que devolvieron (pesos mexicanos):
+Estas son las campañas de los últimos ${DIAS_VENTANA} días, con lo que gastaron y lo que devolvieron (moneda de la cuenta: ${moneda}; los campos "_mxn" están en esa moneda):
 
 ${JSON.stringify(campanas, null, 1)}
 
-Presupuesto tope: ${tope} MXN al día sumando TODAS las campañas activas.
+Presupuesto tope: ${tope} ${moneda} al día sumando TODAS las campañas activas.
 
 Cómo decidir:
 - Compara el costo por resultado entre campañas. Lo caro se pausa, lo barato se alimenta.
@@ -594,20 +769,24 @@ async function ejecutar(env, cuenta, tok, campana, dec, tope, ocupadoYa) {
  * @param {{ejecutar?: boolean, quien?: string}} opts
  */
 export async function revisarPauta(env, opts = {}) {
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
-  if (!cuenta || !tok) return { ok: false, error: 'Cuenta publicitaria no conectada' };
+  const ct = await cuentaDe(env, opts.clientId || null);
+  if (!ct) return { ok: false, error: 'Cuenta publicitaria no conectada' };
+  const { cuenta, tok } = ct;
+  const lg = { cuenta: cuenta.id, cliente: ct.clientId || null };
 
-  const auto = (await kvGet(env, 'ads_auto')) === '1';
+  const aj = await ajustesDe(env, ct);
+  const auto = aj.auto;
   const mueve = opts.ejecutar != null ? !!opts.ejecutar : auto;
-  const tope = Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT;
+  const tope = aj.tope;
 
   const campanas = await fotoParaLaIA(env, cuenta, tok);
   if (!campanas.length) {
     return { ok: true, mueve, lectura: 'Todavía no hay suficiente historia para decidir. El reloj guarda los números cada día; con dos o tres días ya se puede comparar.', decisiones: [], aplicadas: 0 };
   }
 
-  const salida = await pedirDecisiones(env, campanas, tope);
+  const salida = await pedirDecisiones(env, campanas, tope, ct.clientId
+    ? { nombre: ct.fila.marca, brief: ct.fila.brief, moneda: cuenta.currency }
+    : null);
   const porId = new Map(campanas.map((c) => [c.id, c]));
 
   // Lo que ya ocupan de presupuesto diario las que van a seguir vivas.
@@ -629,6 +808,7 @@ export async function revisarPauta(env, opts = {}) {
       ocupado += (parseFloat(r.despues) || 0) - (parseFloat(r.antes) || 0);
     }
     await bitacora(env, {
+      ...lg,
       quien: opts.quien || 'ia', accion: dec.accion,
       campaign_id: c.id, campaign_name: c.nombre,
       antes: r.antes, despues: r.despues, motivo: dec.motivo,
@@ -638,8 +818,24 @@ export async function revisarPauta(env, opts = {}) {
   }
 
   const resumen = { at: new Date().toISOString(), lectura: salida.lectura, decisiones: hechas, mueve, tope };
-  await kvSet(env, 'ads_ultima_revision', JSON.stringify(resumen));
+  await kvSet(env, claveRevision(ct), JSON.stringify(resumen));
   return { ok: true, ...resumen, aplicadas: hechas.filter((h) => h.aplicada).length };
+}
+
+// El reloj de cada noche: además de la casa, las MARCAS que tengan la IA
+// prendida. Las demás no gastan llamadas a Claude ni a Meta.
+export async function revisarMarcasConAuto(env) {
+  let filas = [];
+  try {
+    const r = await env.DB.prepare('SELECT client_id FROM mkt_ads_cuentas WHERE auto = 1').all();
+    filas = r.results || [];
+  } catch { return []; }
+  const out = [];
+  for (const f of filas) {
+    try { out.push({ client_id: f.client_id, ...(await revisarPauta(env, { clientId: f.client_id, quien: 'ia' })) }); }
+    catch (e) { out.push({ client_id: f.client_id, ok: false, error: (e && e.message) || 'error' }); }
+  }
+  return out;
 }
 
 // ── Endpoints del paso 3 ────────────────────────────────────────────────────
@@ -651,10 +847,10 @@ export async function revisarPauta(env, opts = {}) {
  * fila POR DÍA y por campaña de un tirón: 1 llamada en vez de 90, que en
  * Acceso limitado es la diferencia entre poder y no poder. Idempotente.
  */
-export async function rellenarHistoria(env, dias = 90) {
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
-  if (!cuenta || !tok) return { ok: false, motivo: 'sin cuenta conectada' };
+export async function rellenarHistoria(env, dias = 90, clientId = null) {
+  const ct = await cuentaDe(env, clientId);
+  if (!ct) return { ok: false, motivo: 'sin cuenta conectada' };
+  const { cuenta, tok } = ct;
 
   const hasta = ayerEnZona(cuenta.timezone);
   const d0 = new Date(`${hasta}T12:00:00Z`);
@@ -698,9 +894,10 @@ export async function rellenarHistoria(env, dias = 90) {
         `INSERT INTO mkt_ads_dia
            (dia, campaign_id, campaign_name, objetivo, estado, presupuesto_diario,
             gasto, impresiones, alcance, clics, resultados, tipo_resultado,
-            costo_resultado, moneda, capturado_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            costo_resultado, moneda, capturado_at, ad_account_id, client_id)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
          ON CONFLICT(dia, campaign_id) DO UPDATE SET
+           ad_account_id = excluded.ad_account_id, client_id = excluded.client_id,
            campaign_name = excluded.campaign_name, gasto = excluded.gasto,
            impresiones = excluded.impresiones, alcance = excluded.alcance,
            clics = excluded.clics, resultados = excluded.resultados,
@@ -714,7 +911,7 @@ export async function rellenarHistoria(env, dias = 90) {
         Number(f.spend) || 0, Number(f.impressions) || 0, Number(f.reach) || 0,
         Number(f.clicks) || 0, res ? res.valor : null, res ? res.tipo : null,
         res && res.costo != null ? res.costo : null,
-        cuenta.currency || 'MXN', ahora,
+        cuenta.currency || 'MXN', ahora, cuenta.id, ct.clientId || null,
       ).run();
       n += 1;
     } catch (e) { console.error('[ads historia]', dia, e && e.message); }
@@ -723,50 +920,63 @@ export async function rellenarHistoria(env, dias = 90) {
 }
 
 export async function handleAdsRevisar(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
   let body = {};
   try { body = await request.json(); } catch { /* sin cuerpo */ }
+  const clientId = limpiarCliente(body.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
   try {
     // Primera vez: sin historia no hay nada que comparar. Se trae de Meta.
     try {
-      const hay = await env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_ads_dia').first();
-      if (!hay || !Number(hay.n)) await rellenarHistoria(env);
+      const ct = await cuentaDe(env, clientId);
+      const hay = ct && await env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_ads_dia WHERE ad_account_id = ?').bind(ct.cuenta.id).first();
+      if (ct && (!hay || !Number(hay.n))) await rellenarHistoria(env, 90, clientId);
     } catch { /* si falla, revisarPauta lo dirá con todas sus letras */ }
-    const r = await revisarPauta(env, { ejecutar: body.ejecutar, quien: 'ia' });
+    const r = await revisarPauta(env, { ejecutar: body.ejecutar, quien: 'ia', clientId });
     return json(r, r.ok ? 200 : 409);
   } catch (e) {
     return json({ error: (e && e.message) || 'No se pudo revisar' }, 502);
   }
 }
 
-export async function handleAdsBitacora(env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const auto = (await kvGet(env, 'ads_auto')) === '1';
-  const tope = Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT;
-  const ultima = await kvJson(env, 'ads_ultima_revision');
+export async function handleAdsBitacora(env, session, url, clientForzado) {
+  const clientId = clientForzado !== undefined ? clientForzado : limpiarCliente(url && url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const { auto, tope } = await ajustesDe(env, ct || (clientId ? { clientId, fila: {} } : null));
+  const ultima = await kvJson(env, claveRevision(ct || (clientId ? { clientId } : null)));
   let log = [];
   try {
-    const r = await env.DB.prepare('SELECT * FROM mkt_ads_log ORDER BY at DESC LIMIT 50').all();
+    const cuentaId = ct ? ct.cuenta.id : null;
+    const r = cuentaId
+      ? await env.DB.prepare('SELECT * FROM mkt_ads_log WHERE ad_account_id = ? ORDER BY at DESC LIMIT 50').bind(cuentaId).all()
+      : { results: [] };
     log = r.results || [];
   } catch { /* tabla nueva: puede no existir en un entorno viejo */ }
-  return json({ auto, tope, ultima, log });
+  return json({ auto, tope, ultima, log, moneda: (ct && ct.cuenta.currency) || 'MXN' });
 }
 
 // POST /ads/ajustes { auto: bool, tope: number } — el interruptor y el techo.
 export async function handleAdsAjustes(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
   let body = {};
   try { body = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(body.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = clientId ? await cuentaDe(env, clientId) : null;
+  if (clientId && !ct) return json({ error: 'Esta marca no tiene cuenta publicitaria conectada' }, 409);
+  const lg = clientId ? { cuenta: ct.cuenta.id, cliente: clientId } : {};
+  const moneda = (ct && ct.cuenta.currency) || 'MXN';
   if (typeof body.auto === 'boolean') {
-    await kvSet(env, 'ads_auto', body.auto ? '1' : '0');
-    await bitacora(env, { quien: 'persona', accion: body.auto ? 'encender_auto' : 'apagar_auto', ok: true, motivo: 'Interruptor de la pauta automática' });
+    if (clientId) await env.DB.prepare('UPDATE mkt_ads_cuentas SET auto = ?, actualizada_en = ? WHERE client_id = ?').bind(body.auto ? 1 : 0, new Date().toISOString(), clientId).run();
+    else await kvSet(env, 'ads_auto', body.auto ? '1' : '0');
+    await bitacora(env, { ...lg, quien: 'persona', accion: body.auto ? 'encender_auto' : 'apagar_auto', ok: true, motivo: 'Interruptor de la pauta automática' });
   }
   if (body.tope != null) {
     const t = Math.max(50, Math.min(50000, Number(body.tope) || 0));
-    await kvSet(env, 'ads_tope_diario', String(t));
-    await bitacora(env, { quien: 'persona', accion: 'tope_diario', despues: `${t} MXN/día`, ok: true, motivo: 'Techo de gasto diario' });
+    if (clientId) await env.DB.prepare('UPDATE mkt_ads_cuentas SET tope_diario = ?, actualizada_en = ? WHERE client_id = ?').bind(t, new Date().toISOString(), clientId).run();
+    else await kvSet(env, 'ads_tope_diario', String(t));
+    await bitacora(env, { ...lg, quien: 'persona', accion: 'tope_diario', despues: `${t} ${moneda}/día`, ok: true, motivo: 'Techo de gasto diario' });
   }
-  return handleAdsBitacora(env, session);
+  return handleAdsBitacora(env, session, null, clientId);
 }
 
 // ── Para la vista Administración (_negocio.js) ──────────────────────────────
@@ -788,7 +998,8 @@ export async function pautaDelPeriodo(env, desde, hasta) {
   const base = async (error) => {
     let g = 0;
     try {
-      const r = await env.DB.prepare('SELECT COALESCE(SUM(gasto), 0) AS g FROM mkt_ads_dia WHERE dia >= ? AND dia <= ?').bind(desde, hasta).first();
+      // Solo la cuenta de la casa: las marcas tienen su propia historia aquí.
+      const r = await env.DB.prepare('SELECT COALESCE(SUM(gasto), 0) AS g FROM mkt_ads_dia WHERE dia >= ? AND dia <= ? AND ad_account_id = ?').bind(desde, hasta, (cuenta && cuenta.id) || '').first();
       g = Number(r && r.g) || 0;
     } catch { /* sin tabla: cero */ }
     return { conectada: !!(cuenta && tok), origen: 'base', gasto: g, moneda: (cuenta && cuenta.currency) || 'MXN', conversaciones: null, clics: null, activas: [], error: error || null };
@@ -922,10 +1133,12 @@ export async function anunciosDelPeriodo(env, desde, hasta) {
 
 // GET /ads/opciones → con que se puede anunciar: paginas e Instagram ligados a
 // la cuenta, y el limite de gasto que Meta le puso.
-export async function handleAdsOpciones(env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
+export async function handleAdsOpciones(env, session, url) {
+  const clientId = limpiarCliente(url && url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const cuenta = ct && ct.cuenta;
+  const tok = ct && ct.tok;
   if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const out = { cuenta };
   const pide = async (k, path, params) => {
@@ -959,10 +1172,10 @@ async function publicoProbado(env, cuenta, tok) {
   try {
     const r = await env.DB.prepare(
       `SELECT campaign_id, campaign_name, SUM(gasto) g, SUM(COALESCE(resultados,0)) res
-         FROM mkt_ads_dia GROUP BY campaign_id
+         FROM mkt_ads_dia WHERE ad_account_id = ? GROUP BY campaign_id
         HAVING g >= 100 AND res > 0
         ORDER BY (g / res) ASC LIMIT 1`
-    ).first();
+    ).bind(cuenta.id).first();
     mejor = r || null;
   } catch { /* sin historia */ }
   if (!mejor) return { targeting: PUBLICO_FALLBACK, de: null };
@@ -1003,8 +1216,10 @@ async function publicoProbado(env, cuenta, tok) {
 // YA funciona. Sirve para copiar la forma exacta en vez de adivinarla, y para
 // entender por que Meta rechaza una forma nueva.
 export async function handleAdsCreativo(env, session, url) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const tok = await kvJson(env, 'ads_token');
+  const clientId = limpiarCliente(url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const tok = ct && ct.tok;
   if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const camp = url.searchParams.get('campaign_id') || '';
   if (!camp) return json({ error: 'Falta campaign_id' }, 400);
@@ -1038,17 +1253,25 @@ export async function handleAdsCreativo(env, session, url) {
  *         presupuesto_mxn, dias, cta }
  */
 export async function handleAdsCrear(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
-  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(b.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const cuenta = ct && ct.cuenta;
+  const tok = ct && ct.tok;
+  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const lg = { cuenta: cuenta.id, cliente: clientId };
 
-  const pagina = String(b.page_id || '134197847330430');
+  // La casa conserva sus valores de siempre; una marca usa los suyos.
+  const pagina = String(b.page_id || cuenta.page_id || (clientId ? '' : '134197847330430'));
+  if (!pagina) return json({ error: 'Falta la página de Facebook con la que se anuncia esta marca (Pauta → Opciones).' }, 400);
   const presupuesto = Math.max(20, Math.min(5000, Number(b.presupuesto_mxn) || 400));
   const dias = Math.max(1, Math.min(14, Number(b.dias) || 1));
-  const enlace = String(b.enlace || 'https://ivaestudios.com/cancun-photographer');
+  const enlace = String(b.enlace || (clientId ? '' : 'https://ivaestudios.com/cancun-photographer'));
+  if (!enlace && String(b.objetivo || '').toUpperCase() !== 'INTERACCION') {
+    return json({ error: 'Falta el enlace a donde lleva el anuncio (página, WhatsApp o formulario).' }, 400);
+  }
   const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
   if (!b.object_story_id && !b.ig_media_id && (!b.texto || !b.imagen_url)) {
     return json({ error: 'Faltan texto e imagen_url, o el post que se va a anunciar' }, 400);
@@ -1160,8 +1383,9 @@ export async function handleAdsCrear(request, env, session) {
         status: 'PAUSED',
       });
       await bitacora(env, {
+        ...lg,
         quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
-        despues: `${presupuesto} MXN/día · ${dias} día(s) · PAUSADA`,
+        despues: `${presupuesto} ${cuenta.currency || 'MXN'}/día · ${dias} día(s) · PAUSADA`,
         motivo: `Creada por IA sobre un post existente. Público copiado de: ${pub.de || 'amplio México'}`,
         ok: true,
       });
@@ -1200,8 +1424,9 @@ export async function handleAdsCrear(request, env, session) {
     });
 
     await bitacora(env, {
+      ...lg,
       quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
-      despues: `${presupuesto} MXN/día · ${dias} día(s) · PAUSADA`,
+      despues: `${presupuesto} ${cuenta.currency || 'MXN'}/día · ${dias} día(s) · PAUSADA`,
       motivo: `Creada por IA. Público copiado de: ${pub.de || 'amplio México'}`,
       ok: true,
     });
@@ -1224,7 +1449,7 @@ export async function handleAdsCrear(request, env, session) {
   } catch (e) {
     const msg = (e && e.message) || 'Error';
     await deshacer();
-    await bitacora(env, { quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
+    await bitacora(env, { ...lg, quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
     return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos, deshecho: creados.length }, 400);
   }
 }
@@ -1232,12 +1457,15 @@ export async function handleAdsCrear(request, env, session) {
 // POST /ads/encender { campaign_id } — enciende campaña, conjunto y anuncio.
 // Va aparte de crear a propósito: encender es lo que empieza a gastar.
 export async function handleAdsEncender(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const cuenta = await kvJson(env, 'ads_cuenta');
-  const tok = await kvJson(env, 'ads_token');
-  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(b.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const cuenta = ct && ct.cuenta;
+  const tok = ct && ct.tok;
+  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const lg = { cuenta: cuenta.id, cliente: clientId };
   const id = String(b.campaign_id || '');
   if (!id) return json({ error: 'Falta campaign_id' }, 400);
   const prender = async (oid) => fbJson(`${FB_GRAPH}/${oid}`, {
@@ -1251,11 +1479,11 @@ export async function handleAdsEncender(request, env, session) {
       await prender(s.id);
     }
     await prender(id);
-    await bitacora(env, { quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'activar', campaign_id: id, antes: 'PAUSED', despues: 'ACTIVE', motivo: b.motivo || 'Encendida a mano', ok: true });
+    await bitacora(env, { ...lg, quien: b.quien === 'persona' ? 'persona' : 'ia', accion: 'activar', campaign_id: id, antes: 'PAUSED', despues: 'ACTIVE', motivo: b.motivo || 'Encendida a mano', ok: true });
     return json({ ok: true, campaign_id: id, estado: 'ACTIVA' });
   } catch (e) {
     const msg = (e && e.message) || 'Error';
-    await bitacora(env, { quien: 'persona', accion: 'activar', campaign_id: id, ok: false, error: msg });
+    await bitacora(env, { ...lg, quien: 'persona', accion: 'activar', campaign_id: id, ok: false, error: msg });
     return json({ error: msg }, 502);
   }
 }
@@ -1267,11 +1495,14 @@ export async function handleAdsEncender(request, env, session) {
 // mira el detalle, y al reactivar la campaña arrancaría todo de golpe sin que
 // nadie lo haya pedido. Espejo exacto de /ads/encender.
 export async function handleAdsApagar(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const tok = await kvJson(env, 'ads_token');
-  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(b.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const tok = ct && ct.tok;
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const lg = { cuenta: ct.cuenta.id, cliente: clientId };
   const id = String(b.campaign_id || '');
   if (!id) return json({ error: 'Falta campaign_id' }, 400);
   const apagar = async (oid) => fbJson(`${FB_GRAPH}/${oid}`, {
@@ -1285,11 +1516,11 @@ export async function handleAdsApagar(request, env, session) {
       for (const a of (ads.data || [])) await apagar(a.id);
       await apagar(st.id);
     }
-    await bitacora(env, { quien: b.quien === 'ia' ? 'ia' : 'persona', accion: 'pausar', campaign_id: id, antes: 'ACTIVE', despues: 'PAUSED', motivo: b.motivo || 'Apagada desde la app', ok: true });
+    await bitacora(env, { ...lg, quien: b.quien === 'ia' ? 'ia' : 'persona', accion: 'pausar', campaign_id: id, antes: 'ACTIVE', despues: 'PAUSED', motivo: b.motivo || 'Apagada desde la app', ok: true });
     return json({ ok: true, campaign_id: id, estado: 'PAUSADA' });
   } catch (e) {
     const msg = (e && e.message) || 'Error';
-    await bitacora(env, { quien: 'persona', accion: 'pausar', campaign_id: id, ok: false, error: msg });
+    await bitacora(env, { ...lg, quien: 'persona', accion: 'pausar', campaign_id: id, ok: false, error: msg });
     return json({ error: msg }, 400);
   }
 }
@@ -1300,11 +1531,14 @@ export async function handleAdsApagar(request, env, session) {
 // historial de Meta, y ese historial es justo con lo que se decide. Las que ya
 // gastaron se pausan, no se borran.
 export async function handleAdsBorrar(request, env, session) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const tok = await kvJson(env, 'ads_token');
-  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   let b = {};
   try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(b.client_id);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const tok = ct && ct.tok;
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const lg = { cuenta: ct.cuenta.id, cliente: clientId };
   const id = String(b.campaign_id || '');
   if (!id) return json({ error: 'Falta campaign_id' }, 400);
   try {
@@ -1317,11 +1551,11 @@ export async function handleAdsBorrar(request, env, session) {
     }
     const nombre = (await fbJson(`${FB_GRAPH}/${id}?` + new URLSearchParams({ fields: 'name', access_token: tok.t }))).name;
     await fetch(`${FB_GRAPH}/${id}?access_token=${encodeURIComponent(tok.t)}`, { method: 'DELETE' });
-    await bitacora(env, { quien: 'persona', accion: 'borrar', campaign_id: id, campaign_name: nombre, motivo: b.motivo || 'Borrada desde la app (nunca gastó)', ok: true });
+    await bitacora(env, { ...lg, quien: 'persona', accion: 'borrar', campaign_id: id, campaign_name: nombre, motivo: b.motivo || 'Borrada desde la app (nunca gastó)', ok: true });
     return json({ ok: true, campaign_id: id, borrada: true });
   } catch (e) {
     const msg = (e && e.message) || 'Error';
-    await bitacora(env, { quien: 'persona', accion: 'borrar', campaign_id: id, ok: false, error: msg });
+    await bitacora(env, { ...lg, quien: 'persona', accion: 'borrar', campaign_id: id, ok: false, error: msg });
     return json({ error: msg }, 400);
   }
 }
@@ -1342,8 +1576,10 @@ export async function handleAdsBorrar(request, env, session) {
 
 // GET /ads/post?url=https://www.instagram.com/p/XXXX/ → ids para anunciarlo.
 export async function handleAdsPost(env, session, url) {
-  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
-  const tok = await kvJson(env, 'ads_token');
+  const clientId = limpiarCliente(url.searchParams.get('client_id'));
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  const tok = ct && ct.tok;
   if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const enlace = url.searchParams.get('url') || '';
   const m = enlace.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
@@ -1351,9 +1587,10 @@ export async function handleAdsPost(env, session, url) {
   const codigo = m[1];
 
   // 1) El post en Instagram, con la cuenta de la marca.
+  // La marca elegida; sin marca, la casa (IVAE STUDIOS), como siempre.
   const cli = await env.DB.prepare(
-    'SELECT ig_user_id, ig_access_token, fb_page_id, fb_access_token FROM mkt_clients WHERE ig_username = ? OR id = ? LIMIT 1'
-  ).bind('ivae.studios', '6ae5dd2381faa430d9e6966470b29602').first();
+    'SELECT ig_user_id, ig_access_token, fb_page_id, fb_access_token FROM mkt_clients WHERE id = ? LIMIT 1'
+  ).bind(clientId || '6ae5dd2381faa430d9e6966470b29602').first();
   if (!cli || !cli.ig_access_token) return json({ error: 'La marca no tiene Instagram conectado' }, 409);
 
   let post = null;
@@ -1389,4 +1626,77 @@ export async function handleAdsPost(env, session, url) {
     object_story_id: pagePostId,
     se_puede_pautar: !!pagePostId,
   });
+}
+
+// ============================================================================
+// PAUTA DE TODAS LAS MARCAS (16-nov-2026)
+// ============================================================================
+
+// GET /ads/marcas → las marcas del espacio de trabajo con su cuenta
+// publicitaria y lo que gastaron/devolvieron los últimos 30 días según la
+// historia diaria (sin llamar a Meta: el tablero general carga al instante).
+export async function handleAdsMarcas(env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const ws = wsDe(session);
+  const marcas = (await env.DB.prepare(
+    "SELECT id, name, brand_color FROM mkt_clients WHERE COALESCE(workspace_id, 'ivae') = ? AND COALESCE(archived, 0) = 0 ORDER BY name COLLATE NOCASE"
+  ).bind(ws).all()).results || [];
+  let cuentas = [];
+  try {
+    cuentas = (await env.DB.prepare(
+      'SELECT client_id, ad_account_id, nombre, moneda, estado, modo, auto, tope_diario, conectada_en FROM mkt_ads_cuentas WHERE workspace_id = ?'
+    ).bind(ws).all()).results || [];
+  } catch { /* tabla nueva */ }
+  const desde = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  let numeros = [];
+  try {
+    numeros = (await env.DB.prepare(
+      `SELECT ad_account_id, SUM(gasto) AS gasto, SUM(COALESCE(resultados, 0)) AS resultados,
+              SUM(alcance) AS alcance, SUM(clics) AS clics, MAX(dia) AS ultimo_dia
+         FROM mkt_ads_dia WHERE dia >= ? GROUP BY ad_account_id`
+    ).bind(desde).all()).results || [];
+  } catch { /* sin historia */ }
+  const porCuenta = new Map(numeros.map((n) => [n.ad_account_id, n]));
+  const porMarca = new Map(cuentas.map((c) => [c.client_id, c]));
+  const casa = ws === 'ivae' ? await kvJson(env, 'ads_cuenta') : null;
+  const fila = (c) => {
+    const n = c ? porCuenta.get(c.ad_account_id) : null;
+    const gasto = n ? Math.round(Number(n.gasto) * 100) / 100 : 0;
+    const res = n ? Number(n.resultados) || 0 : 0;
+    return {
+      gasto_30d: gasto, resultados_30d: res,
+      costo_resultado: res ? Math.round((gasto / res) * 100) / 100 : null,
+      alcance_30d: n ? Number(n.alcance) || 0 : 0,
+      ultimo_dia: n ? n.ultimo_dia : null,
+    };
+  };
+  return json({
+    desde,
+    casa: casa ? { cuenta: casa.name, ad_account_id: casa.id, moneda: casa.currency || 'MXN', ...fila({ ad_account_id: casa.id }) } : null,
+    marcas: marcas.map((m) => {
+      const c = porMarca.get(m.id) || null;
+      return {
+        client_id: m.id, nombre: m.name, color: m.brand_color || null,
+        conectada: !!c,
+        cuenta: c ? { nombre: c.nombre, ad_account_id: c.ad_account_id, moneda: c.moneda, estado: c.estado, modo: c.modo, auto: Number(c.auto) === 1, tope: c.tope_diario } : null,
+        ...(c ? fila(c) : { gasto_30d: 0, resultados_30d: 0, costo_resultado: null, alcance_30d: 0, ultimo_dia: null }),
+      };
+    }),
+  });
+}
+
+// POST /ads/desconectar { client_id } → la marca deja de usar esa cuenta en la
+// app. No toca nada en Meta (las campañas siguen como estén) ni borra la
+// historia: solo quita el enlace marca ↔ cuenta.
+export async function handleAdsDesconectar(request, env, session) {
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const clientId = limpiarCliente(b.client_id);
+  if (!clientId) return json({ error: 'Falta client_id' }, 400);
+  if (!(await puedePauta(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
+  const ct = await cuentaDe(env, clientId);
+  if (!ct) return json({ ok: true, ya: true });
+  await env.DB.prepare('DELETE FROM mkt_ads_cuentas WHERE client_id = ?').bind(clientId).run();
+  await bitacora(env, { cuenta: ct.cuenta.id, cliente: clientId, quien: 'persona', accion: 'desconectar', ok: true, motivo: `Cuenta ${ct.cuenta.name || ct.cuenta.id} desconectada de la marca` });
+  return json({ ok: true });
 }

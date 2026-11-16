@@ -6,12 +6,16 @@
 // la cuenta publicitaria y VER los números. Decidir y mover va después, con su
 // bitácora y su interruptor, para que ejecutar sea una decisión explícita.
 //
-// Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
-// selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
+// 16-nov-2026 · PAUTA DE TODAS LAS MARCAS. Vianey: "si quiero manejar pautas de
+// todos los clientes, tiene que estar súper bien hecho". Arriba, el tablero de
+// todas las marcas (gasto, resultados y costo de los últimos 30 días); al tocar
+// una, su detalle con campañas, IA y bitácora. "La casa" es la cuenta de IVAE
+// de siempre. Cada marca conecta SU cuenta publicitaria (agencia o propia).
+// Ver functions/api/marketing/_ads.js y la migración 052.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611161642';
-import { icon } from '../shell/icons.js?v=202611161642';
-import { T, isEN } from '../shell/i18n.js?v=202611161642';
+import { el, clear, toast } from '../api.js?v=202611161737';
+import { icon } from '../shell/icons.js?v=202611161737';
+import { T, isEN } from '../shell/i18n.js?v=202611161737';
 
 const VIEW_ID = 'pauta';
 
@@ -21,6 +25,23 @@ let rootEl = null;
 // pantalla decia "nada gasto" justo debajo de decisiones basadas en gasto real,
 // que es la peor mezcla posible: parece que se contradice a si misma.
 let dias = 90;
+// Qué se está viendo: 'todas' (tablero), 'casa' (la cuenta de IVAE) o el id de
+// una marca. Nace de la marca elegida arriba en la app.
+let vista = 'todas';
+let unsubs = [];
+
+// El pedazo de URL / cuerpo que dice de qué marca se habla.
+const esMarca = () => vista && vista !== 'todas' && vista !== 'casa';
+const qMarca = () => (esMarca() ? `client_id=${encodeURIComponent(vista)}` : '');
+const conMarca = (obj) => (esMarca() ? { ...obj, client_id: vista } : obj);
+function nombreMarca(id) {
+  const c = ((ctx && ctx.store.getState().clients) || []).find((x) => x.id === id);
+  return c ? c.name : '';
+}
+function vistaDesdeStore() {
+  const id = ctx && ctx.store.getState().activeClientId;
+  return id && id !== 'todos' ? id : 'todas';
+}
 
 function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); }
 
@@ -132,7 +153,7 @@ function tarjetaCampana(c, moneda) {
       const r = await (await fetch(`/api/marketing/ads/${ruta}`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ campaign_id: c.id, quien: 'persona' }),
+        body: JSON.stringify(conMarca({ campaign_id: c.id, quien: 'persona' })),
       })).json();
       if (r && r.error) { toast(r.error, { type: 'error' }); btn.disabled = false; btn.textContent = antes; return; }
       toast(ok, { type: 'success' });
@@ -187,20 +208,130 @@ function tarjetaCampana(c, moneda) {
   ]);
 }
 
-function cabecera() {
+function cabecera(estado) {
   const sel = el('div', { class: 'pauta-rango' }, [7, 30, 90].map((d) => el('button', {
     class: 'btn btn-sm' + (d === dias ? ' is-active' : ''), type: 'button',
     text: T(`${d} días`, `${d} days`),
     onclick: () => { dias = d; render(); },
   })));
+  const titulo = vista === 'casa' ? T('Pauta · IVAE (la casa)', 'Ads · IVAE (house)') : `${T('Pauta', 'Ads')} · ${nombreMarca(vista) || T('Marca', 'Brand')}`;
+  const cuenta = estado && estado.cuenta;
+  const volver = el('button', {
+    class: 'btn btn-ghost btn-sm pauta-volver', type: 'button',
+    onclick: () => { vista = 'todas'; render(); },
+  }, [icon('left', 14), el('span', { text: T('Todas las marcas', 'All brands') })]);
+  const desconectar = esMarca() && cuenta ? el('button', {
+    class: 'btn btn-ghost btn-sm', type: 'button', text: T('Desconectar cuenta', 'Disconnect account'),
+    onclick: async () => {
+      if (!window.confirm(T(
+        `¿Quitar la cuenta publicitaria "${cuenta.name}" de ${nombreMarca(vista)}? En Meta no se toca nada: las campañas siguen como estén.`,
+        `Remove the ad account "${cuenta.name}" from ${nombreMarca(vista)}? Nothing changes in Meta: campaigns stay as they are.`,
+      ))) return;
+      try {
+        const r = await (await fetch('/api/marketing/ads/desconectar', {
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client_id: vista }),
+        })).json();
+        if (r && r.error) { toast(r.error, { type: 'error' }); return; }
+        toast(T('Cuenta desconectada de la marca.', 'Account disconnected from the brand.'), { type: 'success' });
+        render();
+      } catch { toast(T('No se pudo. Reintenta.', 'Could not do it. Try again.'), { type: 'error' }); }
+    },
+  }) : null;
   return el('div', { class: 'mk-head' }, [
+    volver,
+    el('h1', { class: 'mk-title', text: titulo }),
+    cuenta ? el('p', { class: 'mk-sub', text: [
+      cuenta.name,
+      cuenta.currency,
+      cuenta.modo === 'propia' ? T('cuenta propia', 'own account') : (esMarca() ? T('manejada por la agencia', 'managed by the agency') : null),
+    ].filter(Boolean).join(' · ') }) : null,
+    el('div', { class: 'pauta-head__acc' }, [sel, desconectar].filter(Boolean)),
+  ].filter(Boolean));
+}
+
+// ── Tablero de TODAS las marcas ─────────────────────────────────────────────
+async function renderTodas() {
+  rootEl.appendChild(el('div', { class: 'mk-head' }, [
     el('h1', { class: 'mk-title', text: T('Pauta', 'Ads') }),
     el('p', { class: 'mk-sub', text: T(
-      'Los anuncios pagados de IVAE. Aquí se ve qué gastó cada campaña y qué devolvió.',
-      "IVAE's paid ads. What each campaign spent and what it returned.",
+      'Los anuncios pagados de cada marca: lo que gastó y lo que devolvió en los últimos 30 días. Toca una marca para ver sus campañas.',
+      'Paid ads for every brand: what it spent and returned in the last 30 days. Tap a brand to see its campaigns.',
     ) }),
-    sel,
-  ]);
+  ]));
+  const host = el('div', { class: 'pauta-marcas' }, [el('div', { class: 'pauta-empty' }, [el('span', { class: 'spinner' })])]);
+  rootEl.appendChild(host);
+  let d = null;
+  try { d = await (await fetch('/api/marketing/ads/marcas', { credentials: 'include' })).json(); } catch { /* abajo */ }
+  clear(host);
+  if (!d || d.error) {
+    host.appendChild(vacio('warning', T('No se pudo leer', 'Could not load'), (d && d.error) || T('Reintenta.', 'Try again.')));
+    return;
+  }
+
+  // Totales por moneda (no se suman pesos con dólares).
+  const tot = new Map();
+  const sumar = (moneda, g, r) => {
+    const t = tot.get(moneda) || { g: 0, r: 0, n: 0 };
+    t.g += Number(g) || 0; t.r += Number(r) || 0; t.n += 1;
+    tot.set(moneda, t);
+  };
+  if (d.casa) sumar(d.casa.moneda || 'MXN', d.casa.gasto_30d, d.casa.resultados_30d);
+  for (const m of d.marcas) if (m.conectada) sumar((m.cuenta && m.cuenta.moneda) || 'MXN', m.gasto_30d, m.resultados_30d);
+  if (tot.size) {
+    host.appendChild(el('div', { class: 'pauta-resumen' }, [
+      el('div', { class: 'pauta-resumen__t', text: T('Todas las cuentas · últimos 30 días', 'All accounts · last 30 days') }),
+      el('div', { class: 'pauta-datos' }, [...tot.entries()].flatMap(([mon, t]) => [
+        el('div', { class: 'pauta-dato' }, [el('div', { class: 'pauta-dato__v', text: gasto(t.g, mon) }), el('div', { class: 'pauta-dato__k', text: T(`Gastado (${mon})`, `Spent (${mon})`) })]),
+        el('div', { class: 'pauta-dato' }, [el('div', { class: 'pauta-dato__v', text: num(t.r) }), el('div', { class: 'pauta-dato__k', text: T('Resultados', 'Results') })]),
+        t.r ? el('div', { class: 'pauta-dato' }, [el('div', { class: 'pauta-dato__v', text: gasto(t.g / t.r, mon) }), el('div', { class: 'pauta-dato__k', text: T('Costo por resultado', 'Cost per result') })]) : null,
+      ].filter(Boolean))),
+    ]));
+  }
+
+  const lista = el('div', { class: 'pauta-mlista' });
+  host.appendChild(lista);
+  const filaMarca = ({ id, nombre, color, conectada, cuenta, gasto_30d, resultados_30d, costo_resultado, moneda }) => {
+    const abrir = () => { vista = id; render(); };
+    const datos = conectada ? el('div', { class: 'pauta-mfila__nums' }, [
+      el('span', { text: gasto(gasto_30d, moneda) }),
+      el('span', { text: `${num(resultados_30d)} ${T('resultados', 'results')}` }),
+      el('span', { text: costo_resultado != null ? `${gasto(costo_resultado, moneda)} ${T('c/u', 'each')}` : '—' }),
+    ]) : null;
+    return el('div', { class: 'pauta-mfila' + (conectada ? '' : ' is-off') }, [
+      el('span', { class: 'pauta-mfila__dot', style: { background: color || 'var(--brand, #7c3aed)' } }),
+      el('div', { class: 'pauta-mfila__main' }, [
+        el('div', { class: 'pauta-mfila__name', text: nombre }),
+        el('div', { class: 'pauta-mfila__sub', text: conectada
+          ? [cuenta && cuenta.nombre, cuenta && cuenta.auto ? T('IA moviendo', 'AI moving') : null].filter(Boolean).join(' · ')
+          : T('Sin cuenta publicitaria', 'No ad account') }),
+        datos,
+      ].filter(Boolean)),
+      el('button', {
+        class: 'btn btn-sm' + (conectada ? '' : ' btn-primary'), type: 'button',
+        text: conectada ? T('Ver', 'Open') : T('Conectar', 'Connect'),
+        onclick: () => (conectada ? abrir() : conectar(id)),
+      }),
+    ]);
+  };
+  if (d.casa) {
+    lista.appendChild(filaMarca({
+      id: 'casa', nombre: T('IVAE (la casa)', 'IVAE (house)'), color: '#c8a96a', conectada: true,
+      cuenta: { nombre: d.casa.cuenta }, gasto_30d: d.casa.gasto_30d, resultados_30d: d.casa.resultados_30d,
+      costo_resultado: d.casa.costo_resultado, moneda: d.casa.moneda,
+    }));
+  }
+  for (const m of d.marcas) {
+    lista.appendChild(filaMarca({
+      id: m.client_id, nombre: m.nombre, color: m.color, conectada: m.conectada, cuenta: m.cuenta,
+      gasto_30d: m.gasto_30d, resultados_30d: m.resultados_30d, costo_resultado: m.costo_resultado,
+      moneda: (m.cuenta && m.cuenta.moneda) || 'MXN',
+    }));
+  }
+  host.appendChild(el('p', { class: 'pauta-nota', text: T(
+    'Para manejar la pauta de un cliente: pídele que agregue a IVAE como socio en su Business Manager (Configuración del negocio → Socios) con acceso a su cuenta publicitaria, y luego toca Conectar con tu Facebook. Si la marca es tuya, conecta con el Facebook que administra la cuenta.',
+    "To run a client's ads: ask them to add IVAE as a partner in their Business Manager (Business settings → Partners) with access to their ad account, then tap Connect with your Facebook. If the brand is yours, connect with the Facebook that manages the account.",
+  ) }));
 }
 
 function vacio(iconName, titulo, texto, boton) {
@@ -212,8 +343,10 @@ function vacio(iconName, titulo, texto, boton) {
   ].filter(Boolean));
 }
 
-async function conectar() {
-  const url = `/api/marketing/ads/login${isEN ? '?lang=en' : ''}`;
+async function conectar(marca) {
+  const id = marca !== undefined ? marca : (esMarca() ? vista : null);
+  const qs = [id && id !== 'casa' ? `client_id=${encodeURIComponent(id)}` : null, isEN ? 'lang=en' : null].filter(Boolean).join('&');
+  const url = `/api/marketing/ads/login${qs ? '?' + qs : ''}`;
   const r = await fetch(url, { credentials: 'include', redirect: 'manual' });
   if (r.status === 503) {
     let msg = T('Falta configurar la pauta en la app de Meta.', 'Ads setup is missing in the Meta app.');
@@ -234,35 +367,42 @@ async function render() {
     )));
     return;
   }
-  rootEl.appendChild(cabecera());
+  if (vista === 'todas') { await renderTodas(); return; }
 
   const cargando = el('div', { class: 'pauta-empty' }, [el('span', { class: 'spinner' })]);
   rootEl.appendChild(cargando);
 
   let estado = null;
   try {
-    estado = await (await fetch('/api/marketing/ads/estado', { credentials: 'include' })).json();
+    estado = await (await fetch(`/api/marketing/ads/estado${qMarca() ? '?' + qMarca() : ''}`, { credentials: 'include' })).json();
   } catch {
     cargando.remove();
+    rootEl.appendChild(cabecera(null));
     rootEl.appendChild(vacio('warning', T('Sin conexión', 'Offline'), T('No se pudo consultar. Reintenta.', 'Could not check. Try again.')));
     return;
   }
   cargando.remove();
+  rootEl.appendChild(cabecera(estado));
 
   if (!estado || !estado.conectada) {
     rootEl.appendChild(vacio(
       'link',
-      T('Conecta tu cuenta publicitaria', 'Connect your ad account'),
+      T('Conecta la cuenta publicitaria', 'Connect the ad account'),
       estado && estado.falta_config
         ? estado.falta_config
-        : T(
-          'Para leer tus campañas y sus números hace falta darle acceso a la cuenta publicitaria de IVAE.',
-          "To read your campaigns and their numbers, the app needs access to IVAE's ad account.",
-        ),
+        : (esMarca()
+          ? T(
+            `Para ver y manejar la pauta de ${nombreMarca(vista)}: si es tu cliente, que agregue a IVAE como socio en su Business Manager con acceso a su cuenta publicitaria; luego conecta con tu Facebook y elige su cuenta.`,
+            `To see and run ads for ${nombreMarca(vista)}: if it is your client, they add IVAE as a partner in their Business Manager with access to their ad account; then connect with your Facebook and pick their account.`,
+          )
+          : T(
+            'Para leer tus campañas y sus números hace falta darle acceso a la cuenta publicitaria de IVAE.',
+            "To read your campaigns and their numbers, the app needs access to IVAE's ad account.",
+          )),
       estado && estado.falta_config ? null : el('button', {
         class: 'btn btn-primary', type: 'button',
         text: T('Conectar cuenta publicitaria', 'Connect ad account'),
-        onclick: conectar,
+        onclick: () => conectar(),
       }),
     ));
     return;
@@ -291,7 +431,7 @@ async function render() {
 
   let data = null;
   try {
-    data = await (await fetch(`/api/marketing/ads/campanas?dias=${dias}`, { credentials: 'include' })).json();
+    data = await (await fetch(`/api/marketing/ads/campanas?dias=${dias}${qMarca() ? '&' + qMarca() : ''}`, { credentials: 'include' })).json();
   } catch { /* se trata abajo */ }
   clear(lista);
 
@@ -412,7 +552,7 @@ const ETIQUETA_ACCION = {
 // detalle. Es lo que pidió la dueña ("que tú veas y hagas los movimientos").
 async function pintarCerebro(host) {
   let d = null;
-  try { d = await (await fetch('/api/marketing/ads/bitacora', { credentials: 'include' })).json(); } catch { return; }
+  try { d = await (await fetch(`/api/marketing/ads/bitacora${qMarca() ? '?' + qMarca() : ''}`, { credentials: 'include' })).json(); } catch { return; }
   if (!d || d.error) return;
   clear(host);
 
@@ -425,7 +565,7 @@ async function pintarCerebro(host) {
         await fetch('/api/marketing/ads/ajustes', {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ auto: !d.auto }),
+          body: JSON.stringify(conMarca({ auto: !d.auto })),
         });
         toast(!d.auto
           ? T('Listo: de ahora en adelante muevo la pauta sola.', 'Done: from now on I move the ads myself.')
@@ -446,7 +586,7 @@ async function pintarCerebro(host) {
       try {
         const r = await (await fetch('/api/marketing/ads/revisar', {
           method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }, body: '{}',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(conMarca({})),
         })).json();
         if (r && r.error) toast(r.error, { type: 'error' });
         else toast(r.aplicadas
@@ -491,8 +631,8 @@ async function pintarCerebro(host) {
       ]));
     }
     cuerpo.appendChild(el('div', { class: 'pauta-cerebro__pie', text: T(
-      `Tope: ${d.tope} MXN al día entre todas.`,
-      `Cap: ${d.tope} MXN a day across all.`,
+      `Tope: ${d.tope} ${d.moneda || 'MXN'} al día entre todas.`,
+      `Cap: ${d.tope} ${d.moneda || 'MXN'} a day across all.`,
     ) }));
   }
 
@@ -505,7 +645,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611161642';
+  link.href = '/marketing/css/pauta.css?v=202611161737';
   document.head.appendChild(link);
 }
 
@@ -516,7 +656,14 @@ export default {
     ensureCss();
     rootEl = el('div', { class: 'pauta-root' });
     host.appendChild(rootEl);
+    vista = vistaDesdeStore();
+    // Si cambian la marca arriba, la pauta la sigue.
+    unsubs.push(ctx.store.subscribe(['activeClientId'], () => { vista = vistaDesdeStore(); render(); }));
     render();
   },
-  unmount() { rootEl = null; ctx = null; },
+  unmount() {
+    for (const u of unsubs) { try { u(); } catch { /* noop */ } }
+    unsubs = [];
+    rootEl = null; ctx = null; vista = 'todas';
+  },
 };

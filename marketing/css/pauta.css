@@ -197,3 +197,22 @@
   font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
   letter-spacing: .03em; text-transform: uppercase;
 }
+
+/* ── Pauta de todas las marcas (16-nov-2026) ─────────────────────────────── */
+.pauta-volver { display: inline-flex; align-items: center; gap: 4px; margin: 0 auto 6px; }
+.pauta-head__acc { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 8px; }
+.pauta-marcas { display: grid; gap: 12px; }
+.pauta-mlista { display: grid; gap: 8px; }
+.pauta-mfila {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 12px; border-radius: var(--r-md, 10px);
+  background: var(--surface); border: 1px solid var(--border);
+}
+.pauta-mfila.is-off { opacity: .85; }
+.pauta-mfila__dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.pauta-mfila__main { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+.pauta-mfila__name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pauta-mfila__sub { font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pauta-mfila__nums { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; font-weight: 600; }
+.pauta-mfila .btn { flex: none; }
+.pauta-nota { font-size: 12.5px; line-height: 1.5; color: var(--text-dim); margin: 4px 2px 0; }
