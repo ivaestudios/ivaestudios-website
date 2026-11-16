@@ -1250,6 +1250,28 @@ export async function handleAdsCreativo(env, session, url) {
   }
 }
 
+// El Instagram con que se anuncia: el que se pida, el de la cuenta de la marca,
+// el ligado a la página o, si no, el primero que la cuenta publicitaria puede
+// usar. Sin él, el anuncio sale solo en Facebook (prueba del 16-nov-2026).
+async function instagramDeLaCuenta(cuenta, tok, pagina, pedido) {
+  if (pedido) return String(pedido);
+  if (cuenta.ig_user_id) return String(cuenta.ig_user_id);
+  try {
+    const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({
+      fields: 'instagram_business_account,connected_instagram_account', access_token: tok.t,
+    }));
+    const id = (pg.instagram_business_account && pg.instagram_business_account.id)
+      || (pg.connected_instagram_account && pg.connected_instagram_account.id);
+    if (id) return String(id);
+  } catch { /* el permiso de anuncios no siempre deja leer la página */ }
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/instagram_accounts?` + new URLSearchParams({ fields: 'id,username', limit: '5', access_token: tok.t }));
+    const a = (r && r.data && r.data[0]) || null;
+    if (a && a.id) return String(a.id);
+  } catch { /* sin Instagram ligado */ }
+  return '';
+}
+
 /**
  * POST /ads/crear — arma campana + conjunto + creativo + anuncio, TODO PAUSADO.
  * body: { nombre, titular, texto, descripcion, enlace, imagen_url,
@@ -1393,17 +1415,7 @@ export async function handleAdsCrear(request, env, session) {
         // Como el boton "Promocionar" de Instagram: se toma el post tal cual y
         // Meta le AGREGA el boton con enlace, aunque el post original no lleve
         // ninguno. Necesita saber a nombre de que cuenta de Instagram habla.
-        let igActor = String(b.instagram_actor_id || '');
-        if (!igActor) {
-          try {
-            const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({
-              fields: 'instagram_business_account,connected_instagram_account',
-              access_token: tok.t,
-            }));
-            igActor = (pg.instagram_business_account && pg.instagram_business_account.id)
-              || (pg.connected_instagram_account && pg.connected_instagram_account.id) || '';
-          } catch { /* sin esto, Meta lo dira con todas sus letras */ }
-        }
+        const igActor = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id);
         camposCreativo = {
           ...camposCreativo,
           object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_user_id: igActor } : {}) }),
@@ -1443,13 +1455,7 @@ export async function handleAdsCrear(request, env, session) {
       });
     }
 
-    let igUser = String(b.instagram_actor_id || '');
-    if (!igUser) {
-      try {
-        const pg = await fbJson(`${FB_GRAPH}/${pagina}?` + new URLSearchParams({ fields: 'instagram_business_account', access_token: tok.t }));
-        igUser = (pg.instagram_business_account && pg.instagram_business_account.id) || '';
-      } catch { /* sin Instagram: el anuncio sale solo en Facebook */ }
-    }
+    const igUser = await instagramDeLaCuenta(cuenta, tok, pagina, b.instagram_actor_id);
     const story = {
       page_id: pagina,
       ...(igUser ? { instagram_user_id: igUser } : {}),
