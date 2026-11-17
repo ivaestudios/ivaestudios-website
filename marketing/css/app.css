@@ -1459,3 +1459,11 @@ textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
 
 /* Visita guiada: mientras el paso se acomoda el botón se ve ocupado, no muerto. */
 .tour__next:disabled { opacity: .55; cursor: progress; }
+
+/* ── Branding "ivae." (16-nov-2026, propuesta D) en la pantalla de entrada ── */
+.logo__mark--ivae { background: none !important; box-shadow: none !important; padding: 0 !important; }
+.logo__mark--ivae svg { width: 100% !important; height: 100% !important; display: block; }
+.logo__word--ivae { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1; }
+.logo__nombre { font-weight: 600; letter-spacing: -.045em; font-size: 1.25em; color: var(--text); }
+.logo__punto { color: var(--brand); }
+.logo__sub { font-size: .42em; font-weight: 500; letter-spacing: .32em; color: var(--text-dim); }

@@ -15,8 +15,10 @@ const ESTILO = `
 @media (prefers-color-scheme:dark){:root{--bg:#0A0A0E;--surface:#121218;--surface-2:#16161D;--border:#1E1E26;--text:#ECECF1;--dim:#9A9AA8;--mute:#62626F;--brand:#E24DA0;--brand-2:#9D5BE0;--ok:#22c55e}}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--bg);color:var(--text);font:16px/1.55 Outfit,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-.marca{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 18px;font-weight:700;letter-spacing:.14em;font-size:12px;color:var(--dim)}
-.marca img{width:28px;height:28px;border-radius:8px}
+.marca{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 18px}
+.marca svg{width:32px;height:32px;display:block}
+.marca span{font-size:24px;font-weight:600;letter-spacing:-.045em;color:var(--text);line-height:1}
+.marca i{font-style:normal;color:var(--brand)}
 main{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;box-shadow:0 1px 2px rgba(15,15,35,.04),0 12px 32px rgba(15,15,35,.06)}
 h1{font-size:21px;line-height:1.3;font-weight:700;margin:0 0 10px;letter-spacing:-.01em}
 p{color:var(--dim);margin:0 0 14px}
@@ -30,6 +32,6 @@ p a{display:inline;min-height:0;margin:0;padding:0;border:0;background:none;colo
 `;
 
 export function paginaConexion(body, status = 200, { lang = 'es', titulo = 'IVAE Marketing' } = {}) {
-  const page = `<!doctype html><html lang="${lang === 'en' ? 'en' : 'es'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#F6F6FA"><title>${titulo}</title><style>${ESTILO}</style></head><body><div><div class="marca"><img src="/marketing/icons/icon-192.png" alt="">IVAE MARKETING</div><main>${body}</main></div></body></html>`;
+  const page = `<!doctype html><html lang="${lang === 'en' ? 'en' : 'es'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#F6F6FA"><title>${titulo}</title><style>${ESTILO}</style></head><body><div><div class="marca"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#111111"></rect><rect x="38" y="40" width="11" height="34" rx="5.5" fill="#FFFFFF"></rect><circle cx="43.5" cy="27" r="6.5" fill="#FFFFFF"></circle><circle cx="62" cy="68.5" r="6" fill="#C93E8C"></circle></svg><span>ivae<i>.</i></span></div><main>${body}</main></div></body></html>`;
   return new Response(page, { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }

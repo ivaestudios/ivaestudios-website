@@ -747,7 +747,7 @@
 
 /* Topbar brand word (#7A7A88 on dark). The .tb-brand__mark "iv" stays WHITE:
    it sits on the brand gradient (exception rule). */
-:root[data-theme="light"] .tb-brand__word { color: #5C5C6A; }
+:root[data-theme="light"] .tb-brand__word { color: var(--text); }
 
 /* Pipeline rows: white-alpha hover/track + dark zero-dot */
 :root[data-theme="light"] .dash-pipe__row:hover { background: rgba(15, 15, 35, .04); }

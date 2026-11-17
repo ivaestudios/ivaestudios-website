@@ -24,19 +24,19 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202611162313">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202611162313">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202611162313">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202611162351">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202611162351">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202611162351">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202611162313">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202611162313">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202611162351">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202611162351">
   <!-- Diseño Galería: va AL FINAL para ganarle a todas las hojas anteriores. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap">
-  <link rel="stylesheet" href="/marketing/css/theme-galeria.css?v=202611162313">
+  <link rel="stylesheet" href="/marketing/css/theme-galeria.css?v=202611162351">
   <!-- Galería también de noche (13-nov-2026): generado desde theme-galeria.css por scripts/generar_galeria_oscuro.py -->
-  <link rel="stylesheet" href="/marketing/css/theme-galeria-oscuro.css?v=202611162313">
+  <link rel="stylesheet" href="/marketing/css/theme-galeria-oscuro.css?v=202611162351">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -99,14 +99,9 @@
     <section class="auth-card" aria-labelledby="authTitle">
       <div class="auth-card__brand">
         <span class="logo">
-          <span class="logo__mark" aria-hidden="true">
-            <!-- camera / spark mark -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8.5a2 2 0 0 1 2-2h2l1.2-1.6a1 1 0 0 1 .8-.4h6a1 1 0 0 1 .8.4L17 6.5h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <circle cx="12" cy="12.5" r="3.2"/>
-            </svg>
-          </span>
-          <span class="logo__word"><b>IVAE</b><span class="grad-text">Marketing</span></span>
+          <!-- Branding nuevo "ivae." (16-nov-2026, propuesta D) -->
+          <span class="logo__mark logo__mark--ivae" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#111111"></rect><rect x="38" y="40" width="11" height="34" rx="5.5" fill="#FFFFFF"></rect><circle cx="43.5" cy="27" r="6.5" fill="#FFFFFF"></circle><circle cx="62" cy="68.5" r="6" fill="#C93E8C"></circle></svg></span>
+          <span class="logo__word logo__word--ivae"><span class="logo__nombre">ivae<span class="logo__punto">.</span></span><span class="logo__sub">MARKETING</span></span>
         </span>
       </div>
 
@@ -309,7 +304,7 @@
 
   <!-- Ingles para la pantalla de acceso (?lang=en). Necesario para el video
        de la revision de Meta, que exige la interfaz en ingles. -->
-  <script src="/marketing/js/login-en.js?v=202611162313"></script>
+  <script src="/marketing/js/login-en.js?v=202611162351"></script>
 
   <script type="module">
     import { api, toast } from '/marketing/js/api.js?v=4';

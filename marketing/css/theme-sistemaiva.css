@@ -105,18 +105,15 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .dash-counter.is-ok::after    { background: #3FB984; box-shadow: 0 0 0 4px rgba(63,185,132,.13); }
 .dash-counter:not(.is-warn):not(.is-danger):not(.is-ok):not(.is-brand)::after { background: #34343E; box-shadow: none; }
 
-/* Logo de marca "iv ESTUDIOS" en el topbar (diseño Sistema IVA). */
+/* Logo "ivae." en el topbar (branding nuevo 16-nov-2026, propuesta D). */
 .tb-brand { display: inline-flex; align-items: center; gap: 9px; flex: none; margin-right: 6px; }
-.tb-brand__mark {
-  width: 27px; height: 27px; border-radius: 8px;
-  background: var(--grad);
-  display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 13px; color: #fff; letter-spacing: -.04em;
-}
+.tb-brand__mark { width: 28px; height: 28px; display: inline-flex; flex: none; }
+.tb-brand__mark svg { width: 100%; height: 100%; display: block; }
 .tb-brand__word {
-  font-size: 11.5px; font-weight: 600; letter-spacing: .18em;
-  color: #7A7A88; text-transform: uppercase; white-space: nowrap;
+  font-size: 20px; font-weight: 600; letter-spacing: -.045em; line-height: 1;
+  color: var(--text); white-space: nowrap;
 }
+.tb-brand__punto { color: var(--brand); }
 /* En móvil angosto se oculta la palabra para ahorrar espacio (queda el cuadro). */
 @media (max-width: 560px) { .tb-brand__word { display: none; } .tb-brand { margin-right: 2px; } }
 

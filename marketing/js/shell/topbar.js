@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611162313';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611162313';
-import * as store from './store.js?v=202611162313';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611162313';
-import { toast } from './toast.js?v=202611162313';
-import { icon } from './icons.js?v=202611162313';
-import { openClientSwitcher } from './clientswitcher.js?v=202611162313';
-import { T, isEN, setLang } from './i18n.js?v=202611162313';
+import { startTour } from './tour.js?v=202611162351';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611162351';
+import * as store from './store.js?v=202611162351';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611162351';
+import { toast } from './toast.js?v=202611162351';
+import { icon } from './icons.js?v=202611162351';
+import { openClientSwitcher } from './clientswitcher.js?v=202611162351';
+import { T, isEN, setLang } from './i18n.js?v=202611162351';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611162313';
-import { getTheme, setTheme } from './theme.js?v=202611162313';
-import * as version from './version.js?v=202611162313';
-import * as tienda from './tienda.js?v=202611162313';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611162313';
-import * as prefs from './prefs.js?v=202611162313';
+import { abrirBloqueados } from './moderacion.js?v=202611162351';
+import { getTheme, setTheme } from './theme.js?v=202611162351';
+import * as version from './version.js?v=202611162351';
+import * as tienda from './tienda.js?v=202611162351';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611162351';
+import * as prefs from './prefs.js?v=202611162351';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -239,11 +239,14 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   }
   patchThemeBtn();
 
-  // Logo de marca "iv ESTUDIOS" (diseño Sistema IVA). Aditivo: no cambia el
-  // resto del topbar. En el cliente no se muestra (su portal es de su marca).
+  // Logo de marca (16-nov-2026: branding nuevo "ivae.", propuesta D que eligió
+  // Vianey): la "i" con su punto en cuadro negro y la palabra con punto magenta.
+  // En el cliente no se muestra (su portal es de su marca).
+  const marca = el('span', { class: 'tb-brand__mark' });
+  marca.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#111111"></rect><rect x="38" y="40" width="11" height="34" rx="5.5" fill="#FFFFFF"></rect><circle cx="43.5" cy="27" r="6.5" fill="#FFFFFF"></circle><circle cx="62" cy="68.5" r="6" fill="#C93E8C"></circle></svg>';
   const brand = isClient ? null : el('div', { class: 'tb-brand', 'aria-hidden': 'true' }, [
-    el('span', { class: 'tb-brand__mark', text: 'iv' }),
-    el('span', { class: 'tb-brand__word', text: 'Estudios' }),
+    marca,
+    el('span', { class: 'tb-brand__word' }, ['ivae', el('span', { class: 'tb-brand__punto', text: '.' })]),
   ]);
   const bar = el('div', { class: 'tb-inner' }, [
     ...(brand ? [brand] : []),
