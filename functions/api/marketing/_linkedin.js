@@ -28,6 +28,8 @@
 // Env: LI_CLIENT_ID, LI_CLIENT_SECRET. Sin ellos, aviso amable (503).
 // ============================================================================
 
+import { paginaConexion } from './_pagina-conexion.js';
+
 const LI_AUTH = 'https://www.linkedin.com/oauth/v2/authorization';
 const LI_TOKEN = 'https://www.linkedin.com/oauth/v2/accessToken';
 const LI_API = 'https://api.linkedin.com';
@@ -44,8 +46,7 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 }
 function html(body, status = 200) {
-  const page = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IVAE Marketing · LinkedIn</title><style>body{font-family:-apple-system,system-ui,sans-serif;background:#0f0f14;color:#eee;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px}main{max-width:460px;background:#1a1a22;border:1px solid #2a2a35;border-radius:14px;padding:22px 24px}h1{font-size:20px;margin:0 0 10px}p{line-height:1.5;color:#cfcfd8}a{color:#f5a8d3}ul{padding-left:18px}li{margin:6px 0}</style></head><body><main>${body}</main></body></html>`;
-  return new Response(page, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  return paginaConexion(body, status, { titulo: 'LinkedIn · IVAE Marketing' });
 }
 function rnd() {
   const a = new Uint8Array(16); crypto.getRandomValues(a);

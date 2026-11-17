@@ -34,6 +34,8 @@
 // tope de 100 usuarios). El canal de publicación vive en su propio proyecto.
 // ============================================================================
 
+import { paginaConexion } from './_pagina-conexion.js';
+
 const YT_AUTH = 'https://accounts.google.com/o/oauth2/v2/auth';
 const YT_TOKEN = 'https://oauth2.googleapis.com/token';
 const YT_REVOKE = 'https://oauth2.googleapis.com/revoke';
@@ -52,8 +54,7 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 function html(body, status = 200) {
-  return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>YouTube · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
-    { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+  return paginaConexion(body, status, { titulo: 'YouTube · IVAE Marketing' });
 }
 function rnd() {
   return [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -105,7 +106,7 @@ export async function handleYtLogin(request, env, session, url) {
 
 // GET /yt/callback — code → tokens → canal → guardar en la marca.
 export async function handleYtCallback(request, env, url) {
-  const back = '/marketing/app#/meses';
+  const back = '/marketing/app#/conexiones';
   const err = url.searchParams.get('error');
   if (err) return html(`<h1>No se autorizó</h1><p>Google devolvió: ${esc(err)}</p><a href="${back}">Volver a la app</a>`, 400);
   const code = url.searchParams.get('code');

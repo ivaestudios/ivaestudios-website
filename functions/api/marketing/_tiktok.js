@@ -26,6 +26,8 @@
 // apagar el modo hay que desconectar y reconectar la marca que se usó.
 // ============================================================================
 
+import { paginaConexion } from './_pagina-conexion.js';
+
 const TT_AUTH = 'https://www.tiktok.com/v2/auth/authorize/';
 const TT_API = 'https://open.tiktokapis.com/v2';
 const TT_SCOPE = 'user.info.basic,video.publish,video.upload';
@@ -34,8 +36,7 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 function html(body, status = 200) {
-  return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>TikTok · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
-    { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+  return paginaConexion(body, status, { titulo: 'TikTok · IVAE Marketing' });
 }
 // Las llaves vigentes: sandbox mientras el interruptor esté encendido.
 async function ttCreds(env) {
@@ -91,7 +92,7 @@ export async function handleTtLogin(request, env, session, url) {
 
 // GET /tt/callback — code → tokens (access 24h + refresh 365d) → guardar.
 export async function handleTtCallback(request, env, url) {
-  const back = '/marketing/app#/meses';
+  const back = '/marketing/app#/conexiones';
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state') || '';
   const raw = await kvTake(env, `tt_state_${state}`);
