@@ -1300,8 +1300,10 @@ export async function handleAdsCrear(request, env, session) {
   if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
   const lg = { cuenta: cuenta.id, cliente: clientId };
 
-  // La casa conserva sus valores de siempre; una marca usa los suyos.
-  const pagina = String(b.page_id || cuenta.page_id || (clientId ? '' : '134197847330430'));
+  // La casa conserva sus valores de siempre; una marca usa los suyos. OJO: la
+  // marca IVAE STUDIOS llega con client_id pero ES la casa (ct.clientId null).
+  const esCasa = !ct.clientId;
+  const pagina = String(b.page_id || cuenta.page_id || (esCasa ? '134197847330430' : ''));
   if (!pagina) return json({ error: 'Falta la página de Facebook con la que se anuncia esta marca (Pauta → Opciones).' }, 400);
   const presupuesto = Math.max(20, Math.min(5000, Number(b.presupuesto_mxn) || 400));
   const dias = Math.max(1, Math.min(30, Number(b.dias) || 1));
@@ -1321,8 +1323,8 @@ export async function handleAdsCrear(request, env, session) {
   let wa = '';
   if (msg && msg.dest === 'WHATSAPP') {
     let numMarca = '';
-    if (clientId) {
-      const fm = await env.DB.prepare('SELECT wa_numero FROM mkt_clients WHERE id = ?').bind(clientId).first().catch(() => null);
+    if (ct.clientId) {
+      const fm = await env.DB.prepare('SELECT wa_numero FROM mkt_clients WHERE id = ?').bind(ct.clientId).first().catch(() => null);
       numMarca = (fm && fm.wa_numero) || '';
     }
     wa = String(b.whatsapp || numMarca || '').replace(/\D/g, '');
@@ -1332,7 +1334,7 @@ export async function handleAdsCrear(request, env, session) {
   // El enlace del anuncio de mensajes dice el destino: el de Messenger en un
   // anuncio de Instagram da code 100/2490279 ("destino inconsistente").
   const enlaceMsg = msg ? (waLink || (msg.dest === 'INSTAGRAM_DIRECT' ? 'https://www.instagram.com/' : 'https://fb.com/messenger_doc/')) : '';
-  const enlace = String(b.enlace || (msg ? enlaceMsg : (clientId ? '' : 'https://ivaestudios.com/cancun-photographer')));
+  const enlace = String(b.enlace || (msg ? enlaceMsg : (esCasa ? 'https://ivaestudios.com/cancun-photographer' : '')));
   if (!enlace && OBJ !== 'INTERACCION') {
     return json({ error: 'Falta el enlace a donde lleva el anuncio (página, WhatsApp o formulario).' }, 400);
   }

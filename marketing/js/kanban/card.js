@@ -19,9 +19,9 @@ import {
   CONTENT_TYPES, APPROVALS, PRIORITIES,
   contentTypeLabel, approvalLabel,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202611161810';
-import { icon } from '../shell/icons.js?v=202611161810';
-import { T, isEN } from '../shell/i18n.js?v=202611161810';
+} from '../api.js?v=202611162313';
+import { icon } from '../shell/icons.js?v=202611162313';
+import { T, isEN } from '../shell/i18n.js?v=202611162313';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,

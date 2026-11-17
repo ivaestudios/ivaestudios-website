@@ -225,5 +225,6 @@ textarea.pauta-f__in { resize: vertical; }
 .pauta-f__help { font-size: 12px; color: var(--text-dim); }
 .pauta-f__fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pauta-seg { display: flex; flex-wrap: wrap; gap: 6px; }
-.pauta-seg .btn.is-active { background: var(--text); color: var(--bg, #fff); border-color: var(--text); }
+/* !important: el botón genérico del sheet le ganaba y no se veía qué estaba elegido. */
+.pauta-seg .btn.is-active { background: var(--text) !important; color: var(--bg, #fff) !important; border-color: var(--text) !important; }
 .pauta-f__total { font-size: 13px; line-height: 1.5; padding: 10px 12px; border-radius: 10px; background: var(--surface-2, rgba(0,0,0,.04)); margin-bottom: 12px; }
