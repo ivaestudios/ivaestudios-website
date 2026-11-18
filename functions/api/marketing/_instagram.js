@@ -50,10 +50,8 @@ export async function handleIgLogin(request, env, session, url) {
   // (Vianey lo aprueba). El resto de clientes sigue bloqueado: la conexión la
   // hace la agencia. MISMA lista en marketing/js/views/metricas.js.
   // Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
-  const CLIENT_CAN_CONNECT = [];
-  if (session.role === 'client' && !CLIENT_CAN_CONNECT.includes(session.client_id)) {
-    return json({ error: 'Forbidden' }, 403);
-  }
+  // Vianey 17-nov-2026: "añade la sección de conexiones para que cada cliente le pueda conectar su cuenta". Cualquier cliente conecta SU marca (se fuerza su client_id); desconectar sigue siendo del equipo.
+  if (session.role === 'client' && !session.client_id) return json({ error: 'Forbidden' }, 403);
   if (!env.META_APP_ID || !env.META_APP_SECRET) {
     return json({ error: 'Falta configurar la app de Meta (META_APP_ID y META_APP_SECRET en Cloudflare Pages).' }, 503);
   }

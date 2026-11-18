@@ -57,11 +57,9 @@ function faltaConfig(env) {
 // botón Conectar para el cliente Regeneris). El cliente queda FORZADO a su
 // propia marca: se ignora el client_id de la URL.
 // Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
-const CLIENT_FB_CONNECT = [];
+// Vianey 17-nov-2026: "añade la sección de conexiones para que cada cliente le pueda conectar su cuenta". Cualquier cliente conecta SU marca (se fuerza su client_id); desconectar sigue siendo del equipo.
 export async function handleFbLogin(request, env, session, url) {
-  if (session.role === 'client' && !CLIENT_FB_CONNECT.includes(session.client_id)) {
-    return json({ error: 'Forbidden' }, 403);
-  }
+  if (session.role === 'client' && !session.client_id) return json({ error: 'Forbidden' }, 403);
   const falta = faltaConfig(env);
   if (falta) return json({ error: falta }, 503);
   const clientId = session.role === 'client'

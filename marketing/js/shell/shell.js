@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611172158';
-import { setRoleDefault } from './theme.js?v=202611172158';
-import { vigilarSegmentados } from './segfade.js?v=202611172158';
-import * as store from './store.js?v=202611172158';
-import * as prefs from './prefs.js?v=202611172158';
-import * as router from './router.js?v=202611172158';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611172158';
-import { toast } from './toast.js?v=202611172158';
-import { icon } from './icons.js?v=202611172158';
-import * as iconsMod from './icons.js?v=202611172158';
-import { createTopbar } from './topbar.js?v=202611172158';
-import { createBottomNav } from './bottomnav.js?v=202611172158';
-import { createSearch } from './search.js?v=202611172158';
-import { createNotifications } from './notifications.js?v=202611172158';
-import { T } from './i18n.js?v=202611172158';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611172158';
-import * as version from './version.js?v=202611172158';
-import * as tienda from './tienda.js?v=202611172158';
-import * as pickers from '../ui/pickers.js?v=202611172158';
-import * as dnd from '../ui/dnd.js?v=202611172158';
+import { api, el, clear } from '../api.js?v=202611172243';
+import { setRoleDefault } from './theme.js?v=202611172243';
+import { vigilarSegmentados } from './segfade.js?v=202611172243';
+import * as store from './store.js?v=202611172243';
+import * as prefs from './prefs.js?v=202611172243';
+import * as router from './router.js?v=202611172243';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611172243';
+import { toast } from './toast.js?v=202611172243';
+import { icon } from './icons.js?v=202611172243';
+import * as iconsMod from './icons.js?v=202611172243';
+import { createTopbar } from './topbar.js?v=202611172243';
+import { createBottomNav } from './bottomnav.js?v=202611172243';
+import { createSearch } from './search.js?v=202611172243';
+import { createNotifications } from './notifications.js?v=202611172243';
+import { T } from './i18n.js?v=202611172243';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611172243';
+import * as version from './version.js?v=202611172243';
+import * as tienda from './tienda.js?v=202611172243';
+import * as pickers from '../ui/pickers.js?v=202611172243';
+import * as dnd from '../ui/dnd.js?v=202611172243';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -47,7 +47,9 @@ const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // 26-oct-2026: la Cuadrícula ya no es del cliente (Vianey: "menos cosas
 // irrelevantes"); su pantalla es "Mi contenido" + Calendario para quien escribe
 // notas en la tabla.
-const CLIENT_VIEWS = ['meses', 'entregables', 'marca'];
+// 17-nov-2026 (Vianey: "para ellos ya no va a haber sección de entregables"):
+// Entregables sale de la versión cliente; sus videos se ven en Mi contenido.
+const CLIENT_VIEWS = ['meses', 'marca'];
 // Métricas (con su botón de Reporte PDF) se habilita en la versión CLIENTE
 // solo para las marcas que Vianey aprueba una por una. Hoy: IVAE STUDIOS (su
 // propia marca) y REGENERIS (lo pidió el 2026-07-29). El resto no la ve.
@@ -88,8 +90,10 @@ const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (!soloBandeja() && CLIENT_VIEWS.includes(view))
   || (view === 'contenido' && !soloBandeja() && clientVeContenido())
   || (view === 'bandeja' && !!rolBandeja())
-  || (view === 'metricas' && !soloBandeja() && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
-  || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id))
+  // 17-nov-2026 ("y métricas también"): todas las marcas (el servidor ya limita a SU marca).
+  || (view === 'metricas' && !soloBandeja())
+  // 17-nov-2026 ("que cada cliente le pueda conectar su cuenta"): todas las marcas.
+  || (view === 'conexiones' && !soloBandeja())
   // Asistente de IA (piloto): lo decide el servidor marca por marca (/auth/me.asistente_ia).
   || (view === 'asistente' && !soloBandeja() && !!(store.getState().me || {}).asistente_ia)
   // Pauta: APAGADA para los clientes (17-nov-2026, Vianey: "a todos quita la
@@ -233,7 +237,9 @@ function updateSubhead() {
   // Un seg con UNA sola pestaña no navega a nada: al agente de la Bandeja le
   // ocupaba 48px en cada pantalla del teléfono (auditoría 8-oct-2026).
   const visibles = [...subheadSeg.querySelectorAll('button')].filter((b) => !b.hidden).length;
-  const segUtil = isContent && visibles > 1;
+  // En Mi contenido el cliente ya trae sus 4 pestañas (Feed, Perfil, Métricas,
+  // Conexiones): una segunda barra de pestañas encima lo complicaba.
+  const segUtil = isContent && visibles > 1 && !(isClientRole() && view === 'contenido');
   subheadSeg.hidden = !segUtil;
   const hasSlot = subheadSlot.children.length > 0;
   const show = segUtil || hasSlot;
@@ -256,7 +262,8 @@ function buildSubhead(root) {
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
   // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
   // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
-  if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
+  // Al cliente, Métricas le vive DENTRO de Mi contenido (17-nov-2026): sin pestaña aquí.
+  if (!isClientRole()) segViews.push('metricas');
   // Administración (5-nov-2026): solo la dueña. En el teléfono este seg es su única puerta.
   if (esAdminShell()) segViews.push('administracion');
   // Pauta: la dueña (todas las marcas) y cada cliente (la suya). En el

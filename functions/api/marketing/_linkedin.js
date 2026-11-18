@@ -127,11 +127,12 @@ function comentario(post) {
 
 // GET /li/login?client_id=… (staff) → OAuth de LinkedIn para la marca.
 export async function handleLiLogin(request, env, session, url) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  // Vianey 17-nov-2026: "añade la sección de conexiones para que cada cliente le pueda conectar su cuenta". Cualquier cliente conecta SU marca (se fuerza su client_id); desconectar sigue siendo del equipo.
+  if (session.role === 'client' && !session.client_id) return json({ error: 'Forbidden' }, 403);
   if (!env.LI_CLIENT_ID || !env.LI_CLIENT_SECRET) {
     return json({ error: 'Falta configurar la app de LinkedIn (LI_CLIENT_ID y LI_CLIENT_SECRET en Cloudflare Pages).' }, 503);
   }
-  const clientId = url.searchParams.get('client_id') || '';
+  const clientId = session.role === 'client' ? (session.client_id || '') : (url.searchParams.get('client_id') || '');
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
   const nonce = rnd();

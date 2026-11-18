@@ -1,513 +1,689 @@
 // ============================================================================
-// IVAE Marketing — Vista "Mi contenido": lo que el CLIENTE necesita, y nada más.
+// IVAE Marketing — "Mi contenido" del CLIENTE, como Instagram (17-nov-2026).
 //
-// Pedido de Vianey (26-oct-2026): "la parte donde se ve el contenido no es
-// fácil de ver para el cliente… más sencillo, más visual, con menos cosas
-// irrelevantes, aun si ellos quieren subir su guion", y que se use en la app
-// de las tiendas con el teléfono parado y acostado.
+// Pedido de Vianey: "vamos a rediseñar la parte de los clientes… súper
+// sencillo… se tiene que ver como Instagram", porque "lo han dejado de usar
+// porque es muy complicado de usar". Maqueta aprobada ("super añadelo, y
+// métricas también", y luego "añade la sección de conexiones").
 //
-// La tabla de Calendario es la mesa de trabajo del equipo (columnas de estado,
-// grabación, notas, fechas…). El cliente solo quiere tres cosas:
-//   1) VER sus piezas del mes, con la portada del reel o del carrusel;
-//   2) LEER el guion y ver el video, y aprobar o pedir cambios;
-//   3) MANDAR su propio guion cuando quiera.
-// Todo con los mismos endpoints que ya usa el cliente (posts de SU marca,
-// entregables de SU marca, /approve, /request-changes, /comments).
+// Cuatro pestañas y nada más:
+//   · Feed        → las publicaciones en orden de fecha, como el inicio de
+//                   Instagram: el video, el carrusel que se desliza (o, sin
+//                   fotos todavía, cada slide con su texto), el caption con sus
+//                   hashtags y TRES botones grandes: Aprobar, Pedir cambio y
+//                   Guion (que adentro trae Editar guion y Subir guion nuevo).
+//   · Perfil      → su perfil de Instagram en cuadrícula: lo que viene con su
+//                   portada y su día, encima de lo ya publicado.
+//   · Métricas    → la vista de métricas de siempre (su marca).
+//   · Conexiones  → el cliente conecta SUS redes; el equipo las ve conectadas
+//                   y programa.
+// Sin Entregables (Vianey: "para ellos ya no va a haber sección de
+// entregables"). Eliminar NO existe: solo aprobar, pedir cambio o modificar
+// el guion.
 //
-// Teléfono parado: 2 columnas y la pieza abierta en una columna. Acostado: más
-// columnas y la pieza abierta con el video a la izquierda y el guion a la
-// derecha (css/contenido.css). Respeta las zonas seguras del iPhone.
+// Datos (los mismos endpoints de siempre, todos limitados a SU marca):
+//   · piezas      → store.posts (lo que el equipo escondió no sale)
+//   · fotos/video → GET /posts/:id/slides  { slides, portada, video }
+//   · portada del entregable → GET /deliverables?client_id&month
+//   · perfil      → GET /ig/feed
+//   · decidir     → POST /posts/:id/approve · /request-changes
+//   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, fmtDate, timeAgo, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202611172158';
-import { T } from '../shell/i18n.js?v=202611172158';
-import { icon } from '../shell/icons.js?v=202611172158';
-import { openSheet } from '../shell/sheet.js?v=202611172158';
-import { pushLayer } from '../shell/router.js?v=202611172158';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611172243';
+import { T, isEN } from '../shell/i18n.js?v=202611172243';
+import { openSheet } from '../shell/sheet.js?v=202611172243';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611172243';
 
 const VIEW_ID = 'contenido';
 
 let ctx = null;
 let rootEl = null;
+let cuerpoEl = null;
 let unsubs = [];
-let mes = null;              // 'YYYY-MM' en pantalla
-let filtro = 'todo';         // todo | revisar | aprobado | publicado
 let marcaId = null;
-const dlvCache = new Map();  // `${marca}|${mes}` → Map(post_id → entregable) | 'cargando'
-let abierta = null;          // { id, nodo, soltar }
-let porAbrir = null;         // ?pieza=<id> (de un aviso) mientras llegan las piezas
+let pestana = 'feed';            // feed | perfil | metricas | conexiones
+let verAnteriores = false;
+let porAbrir = null;             // ?pieza=<id> (aviso) hasta que llegue la pieza
+let sub = null;                  // vista montada adentro (métricas o conexiones)
+let observador = null;
+const medios = new Map();        // postId → { slides, portada, video } | 'cargando'
+const dlvMes = new Map();        // `${marca}|${YYYY-MM}` → Map(post_id → entregable) | 'cargando'
+let ig = null;                   // respuesta de /ig/feed | 'cargando'
+const abiertos = new Map();      // postId → 'cambio' | 'guion' | 'editar' | 'nuevo'
 
 // ── Datos ────────────────────────────────────────────────────────────────────
-function estado() { return ctx.store.getState(); }
-
+const estado = () => ctx.store.getState();
+function marca() { return (estado().clients || []).find((c) => c.id === marcaId) || null; }
 function piezasDeMarca() {
-  const st = estado();
-  const id = st.activeClientId;
-  return (st.posts || []).filter((p) => p && p.client_id === id
-    // El equipo la ve como la verá el cliente: lo que tiene escondido no sale.
+  return (estado().posts || []).filter((p) => p && p.client_id === marcaId
     && !(p.client_visible === 0 || p.client_visible === false));
 }
-
 const mesDe = (p) => (p.publish_date ? String(p.publish_date).slice(0, 7) : '');
-function hoyMes() {
+function hoyYmd() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-
-function mesesConContenido() {
-  const s = new Set(piezasDeMarca().map(mesDe).filter(Boolean));
-  s.add(hoyMes());
-  return [...s].sort();
-}
-
-// Aterriza en el mes de hoy si tiene piezas; si no, en el siguiente que sí
-// tenga; si no hay futuro, en el último con contenido.
-function mesInicial() {
-  const meses = mesesConContenido();
-  const hoy = hoyMes();
-  const conPiezas = new Set(piezasDeMarca().map(mesDe).filter(Boolean));
-  if (conPiezas.has(hoy)) return hoy;
-  const futuro = meses.find((m) => m > hoy && conPiezas.has(m));
-  if (futuro) return futuro;
-  const pasado = [...conPiezas].sort().pop();
-  return pasado || hoy;
-}
-
-function nombreMes(m) {
-  const [y, mm] = m.split('-').map(Number);
-  const s = new Date(y, mm - 1, 1).toLocaleDateString(T('es-MX', 'en-US'), { month: 'long' });
-  return `${s.charAt(0).toUpperCase() + s.slice(1)} ${y}`;
-}
-
-// "Mar 6 oct" / "Tue, Oct 6": corto y sin mayúsculas raras.
-function fechaCorta(ymdStr) {
-  const [y, m, d] = String(ymdStr).slice(0, 10).split('-').map(Number);
-  if (!y || !m || !d) return '';
-  const f = new Date(y, m - 1, d);
-  const s = T(
-    `${f.toLocaleDateString('es-MX', { weekday: 'short' }).replace('.', '')} ${d} ${f.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '')}`,
-    f.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-  );
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-const tieneMedio = (d) => !!(d && (d.video_url || d.poster_url || (d.slide_urls && d.slide_urls.length)));
-const esUrl = (u) => /^https?:\/\//i.test(String(u || ''));
-
-function tieneGuion(p) {
-  return !!(String(p.hook || '').trim() || String(p.body || '').trim() || String(p.cta || '').trim() || String(p.caption || '').trim());
-}
-
-// La etapa EN PALABRAS DEL CLIENTE (no el flujo interno del equipo).
-function etapa(p, dlv) {
-  if (p.status === 'publicado') return { k: 'publicado', txt: T('Publicado', 'Published') };
-  if (p.approval_state === 'approved' || p.status === 'aprobado' || p.status === 'programado') return { k: 'aprobado', txt: T('Aprobado', 'Approved') };
-  if (p.approval_state === 'changes') return { k: 'cambios', txt: T('Pediste cambios', 'Changes requested') };
-  if (tieneGuion(p) || tieneMedio(dlv)) return { k: 'revisar', txt: T('Por revisar', 'To review') };
-  return { k: 'preparando', txt: T('En preparación', 'In progress') };
-}
-
-function pasaFiltro(e) {
-  if (filtro === 'todo') return true;
-  if (filtro === 'revisar') return e.k === 'revisar';
-  if (filtro === 'aprobado') return e.k === 'aprobado';
-  if (filtro === 'publicado') return e.k === 'publicado';
-  return true;
-}
-
 function ordenar(a, b) {
   const fa = a.publish_date || '9999-99-99', fb = b.publish_date || '9999-99-99';
   if (fa !== fb) return fa < fb ? -1 : 1;
+  const ha = a.publish_time || '', hb = b.publish_time || '';
+  if (ha !== hb) return ha < hb ? -1 : 1;
   return (Number(a.position) || 0) - (Number(b.position) || 0);
 }
+// Guiones bilingües (inglés y abajo "ESPAÑOL:"): en la portada provisional va solo el primero.
+const primerIdioma = (t) => String(t || '').split(/\n\s*ESPAÑOL:/i)[0].trim();
+const tieneTexto = (p) => !!(String(p.hook || '').trim() || String(p.body || '').trim() || String(p.cta || '').trim() || String(p.caption || '').trim());
+const esCarrusel = (p) => (p.content_type || '') === 'carrusel';
+const esVideo = (p) => ['reel', 'historia', 'pauta', 'video'].includes(p.content_type || 'reel');
 
-// Entregables del mes (reels y carruseles terminados), por pieza vinculada.
-function entregablesDe(m) {
-  const key = `${marcaId}|${m}`;
-  const hit = dlvCache.get(key);
-  if (hit && hit !== 'cargando') return hit;
-  if (!hit && marcaId) {
-    dlvCache.set(key, 'cargando');
-    api.get(`/deliverables?client_id=${encodeURIComponent(marcaId)}&month=${encodeURIComponent(m)}`)
-      .then((r) => {
-        const mapa = new Map();
-        for (const d of ((r && r.deliverables) || [])) if (d.post_id) mapa.set(d.post_id, d);
-        dlvCache.set(key, mapa);
-      })
-      .catch(() => dlvCache.set(key, new Map()))
-      .finally(() => { if (rootEl && mes === m) render(); });
-  }
-  return new Map();
+// El estado EN PALABRAS DEL CLIENTE.
+function etapa(p) {
+  if (p.status === 'publicado') return { k: 'publicado', txt: T('Publicado', 'Published') };
+  if (p.approval_state === 'approved' || p.status === 'aprobado' || p.status === 'programado') return { k: 'aprobado', txt: T('Aprobado', 'Approved') };
+  if (p.approval_state === 'changes') return { k: 'cambio', txt: T('Pediste un cambio', 'You asked for a change') };
+  if (tieneTexto(p)) return { k: 'revisar', txt: T('Por aprobar', 'To approve') };
+  return { k: 'preparando', txt: T('En preparación', 'In progress') };
 }
 
+const handle = () => {
+  const r = ig && ig !== 'cargando' && ig.connected ? (ig.username || (ig.perfil && ig.perfil.username)) : '';
+  const m = marca();
+  return r || (m && m.ig_username) || String((m && m.name) || 'mi.marca').toLowerCase().replace(/[^a-z0-9._]+/g, '');
+};
+const fotoPerfil = () => (ig && ig !== 'cargando' && ig.perfil && ig.perfil.foto) || null;
 
-// ── Portada de la tarjeta ────────────────────────────────────────────────────
-function portada(p, dlv) {
-  if (dlv && dlv.poster_url) {
-    // La tira de un carrusel es ancha: se ve su PRIMER slide (pegado a la izquierda).
-    return el('img', { class: 'cnt-card__img' + (dlv.type === 'carrusel' ? ' is-tira' : ''), src: dlv.poster_url, alt: '', loading: 'lazy', decoding: 'async' });
+function avatar(tam) {
+  const f = fotoPerfil();
+  if (f) return el('img', { class: 'ig-av', src: f, alt: '', style: { width: tam + 'px', height: tam + 'px' } });
+  const m = marca();
+  const ini = String((m && m.name) || '?').trim().charAt(0).toUpperCase();
+  return el('span', { class: 'ig-av ig-av--ini', style: { width: tam + 'px', height: tam + 'px', fontSize: Math.round(tam * 0.42) + 'px', '--c': (m && m.brand_color) || '#111111' }, text: ini });
+}
+
+function fechaLarga(p) {
+  if (!p.publish_date) return T('Sin fecha', 'No date');
+  const [y, m, d] = String(p.publish_date).slice(0, 10).split('-').map(Number);
+  const f = new Date(y, m - 1, d);
+  let s = f.toLocaleDateString(T('es-MX', 'en-US'), { weekday: 'long', day: 'numeric', month: 'long' });
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  if (p.publish_time) {
+    const [hh, mm] = String(p.publish_time).split(':').map(Number);
+    if (!Number.isNaN(hh)) {
+      const h12 = ((hh + 11) % 12) + 1;
+      s += ` · ${h12}:${String(mm || 0).padStart(2, '0')} ${hh < 12 ? 'a.m.' : 'p.m.'}`;
+    }
   }
-  if (dlv && dlv.video_url) {
-    return el('video', { class: 'cnt-card__img', src: dlv.video_url + '#t=0.1', muted: true, playsinline: true, preload: 'metadata' });
+  return s;
+}
+function diaCorto(p) {
+  if (!p.publish_date) return '';
+  const [y, m, d] = String(p.publish_date).slice(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short' }).replace('.', '');
+}
+function nombreMes(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const s = new Date(y, m - 1, 1).toLocaleDateString(T('es-MX', 'en-US'), { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Fotos, portada y video de la pieza (firmados por el servidor), una vez.
+function pedirMedio(id) {
+  if (medios.has(id)) return;
+  medios.set(id, 'cargando');
+  api.get(`/posts/${encodeURIComponent(id)}/slides`)
+    .then((r) => medios.set(id, { slides: (r && r.slides) || [], portada: (r && r.portada) || null, video: (r && r.video) || null }))
+    .catch(() => medios.set(id, { slides: [], portada: null, video: null }))
+    .finally(() => repintarMedio(id));
+}
+// La portada del entregable (la que sube el equipo con el video) por mes.
+function entregable(p) {
+  const ym = mesDe(p);
+  if (!ym) return null;
+  const key = `${marcaId}|${ym}`;
+  const hit = dlvMes.get(key);
+  if (hit && hit !== 'cargando') return hit.get(p.id) || null;
+  if (!hit) {
+    dlvMes.set(key, 'cargando');
+    api.get(`/deliverables?client_id=${encodeURIComponent(marcaId)}&month=${encodeURIComponent(ym)}`)
+      .then((r) => { const mapa = new Map(); for (const d of ((r && r.deliverables) || [])) if (d.post_id) mapa.set(d.post_id, d); dlvMes.set(key, mapa); })
+      .catch(() => dlvMes.set(key, new Map()))
+      .finally(() => { for (const x of piezasDeMarca()) if (mesDe(x) === ym) repintarMedio(x.id); });
   }
-  if (dlv && dlv.slide_urls && dlv.slide_urls.length) {
-    return el('video', { class: 'cnt-card__img', src: dlv.slide_urls[0] + '#t=0.1', muted: true, playsinline: true, preload: 'metadata' });
+  return null;
+}
+function portadaDe(p) {
+  const m = medios.get(p.id);
+  const d = entregable(p);
+  const datos = m && m !== 'cargando' ? m : null;
+  return (datos && (datos.portada || datos.slides[0])) || (d && d.poster_url) || null;
+}
+
+// ── Medio de la publicación ──────────────────────────────────────────────────
+function medio(p) {
+  const caja = el('div', { class: 'ig-media', dataset: { medio: p.id } });
+  llenarMedio(caja, p);
+  return caja;
+}
+function llenarMedio(caja, p) {
+  clear(caja);
+  const m = medios.get(p.id);
+  const datos = m && m !== 'cargando' ? m : null;
+  const d = entregable(p);
+  const video = (datos && datos.video) || (d && d.video_url) || null;
+  const portada = portadaDe(p);
+
+  if (esCarrusel(p)) {
+    const fotos = datos && datos.slides.length ? datos.slides : [];
+    const textos = slidesFromPost(p).filter((t, i, a) => t || (i > 0 && i < a.length - 1));
+    const items = fotos.length ? fotos.map((u) => ({ foto: u })) : (textos.length ? textos.map((t) => ({ texto: t })) : [{ texto: p.title || '' }]);
+    const pista = el('div', { class: 'ig-pista' });
+    items.forEach((it, i) => {
+      pista.appendChild(it.foto
+        ? el('div', { class: 'ig-slide' }, [el('img', { src: it.foto, alt: '', loading: 'lazy', decoding: 'async' })])
+        : el('div', { class: 'ig-slide ig-slide--texto' }, [
+          el('em', { text: i === 0 ? T('PORTADA', 'COVER') : (i === items.length - 1 ? T('CIERRE', 'CLOSING') : `${T('SLIDE', 'SLIDE')} ${i + 1}`) }),
+          el('p', { text: primerIdioma(it.texto) || T('Texto en preparación', 'Text in progress') }),
+          el('small', { text: T('Foto pendiente', 'Photo pending') }),
+        ]));
+    });
+    const cont = el('span', { class: 'ig-cont', text: `1/${items.length}` });
+    pista.addEventListener('scroll', () => {
+      const i = Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth));
+      cont.textContent = `${i + 1}/${items.length}`;
+      const pts = caja.parentNode && caja.parentNode.querySelector('.ig-puntos');
+      if (pts) [...pts.children].forEach((x, k) => x.classList.toggle('is-on', k === i));
+    }, { passive: true });
+    caja.append(...[pista, items.length > 1 ? cont : null].filter(Boolean));
+    caja.dataset.n = String(items.length);
+    return;
   }
-  // Sin video todavía: la tarjeta ES el gancho del guion, en grande.
-  const frase = String(p.hook || p.title || p.body || '').trim();
-  return el('div', { class: 'cnt-card__texto' }, [
-    el('span', { class: 'cnt-card__frase', text: frase.length > 120 ? frase.slice(0, 117) + '…' : (frase || T('Guion en preparación', 'Script in progress')) }),
+  if (esVideo(p)) {
+    if (video) {
+      caja.appendChild(el('video', { src: video, poster: portada || null, controls: true, playsinline: true, preload: 'none' }));
+      return;
+    }
+    if (portada) {
+      caja.append(el('img', { src: portada, alt: '', loading: 'lazy', decoding: 'async' }), el('span', { class: 'ig-chip', text: T('Video en edición', 'Video in editing') }));
+      return;
+    }
+    caja.appendChild(el('div', { class: 'ig-sinvideo' }, [
+      el('em', { text: T('VIDEO EN EDICIÓN', 'VIDEO IN EDITING') }),
+      el('p', { text: primerIdioma(p.hook || p.title) || T('Guion en preparación', 'Script in progress') }),
+    ]));
+    return;
+  }
+  // Post de una foto (o lo que sea).
+  if (portada) { caja.appendChild(el('img', { src: portada, alt: '', loading: 'lazy', decoding: 'async' })); return; }
+  caja.appendChild(el('div', { class: 'ig-sinvideo ig-sinvideo--claro' }, [
+    el('em', { text: T('FOTO PENDIENTE', 'PHOTO PENDING') }),
+    el('p', { text: primerIdioma(p.hook || p.title) }),
+  ]));
+}
+function repintarMedio(id) {
+  if (!rootEl) return;
+  const p = piezasDeMarca().find((x) => x.id === id);
+  if (!p) return;
+  const caja = rootEl.querySelector(`.ig-media[data-medio="${CSS.escape(id)}"]`);
+  if (caja) {
+    llenarMedio(caja, p);
+    const art = caja.closest('.ig-post');
+    const viejo = art && art.querySelector('.ig-puntos');
+    const n = Number(caja.dataset.n || 0);
+    if (viejo) viejo.remove();
+    if (art && n > 1) caja.after(puntos(n));
+  }
+  const celda = rootEl.querySelector(`.ig-celda[data-pieza="${CSS.escape(id)}"]`);
+  if (celda) llenarCelda(celda, p);
+}
+function puntos(n) {
+  return el('div', { class: 'ig-puntos' }, Array.from({ length: n }, (_, i) => el('i', { class: i ? '' : 'is-on' })));
+}
+
+// ── Una publicación ──────────────────────────────────────────────────────────
+function publicacion(p) {
+  const e = etapa(p);
+  const art = el('article', { class: 'ig-post', id: `pieza-${p.id}`, dataset: { pieza: p.id } });
+  const caja = medio(p);
+  const n = Number(caja.dataset.n || 0);
+  const caption = String(p.caption || '').trim();
+  const tags = String(p.hashtags || '').trim();
+  const txt = el('p', { class: 'ig-caption__txt is-corto' }, [
+    el('b', { text: handle() + ' ' }),
+    caption || el('span', { class: 'ig-muted', text: T('El texto de la publicación está en preparación.', 'The caption is in progress.') }),
+    tags ? el('span', { class: 'ig-tags', text: ' ' + tags }) : null,
   ]);
+  const verTodo = el('button', { class: 'ig-mas', type: 'button', text: T('Ver todo', 'See all'), onclick: () => {
+    txt.classList.toggle('is-corto');
+    verTodo.textContent = txt.classList.contains('is-corto') ? T('Ver todo', 'See all') : T('Ver menos', 'See less');
+  } });
+  art.append(...[
+    el('div', { class: 'ig-cuando', text: fechaLarga(p) }),
+    el('div', { class: 'ig-cab' }, [avatar(30), el('div', { class: 'ig-cab__txt' }, [el('b', { text: handle() }), el('span', { text: contentTypeLabel(p.content_type || 'reel') })]), el('span', { class: 'ig-estado', dataset: { k: e.k }, text: e.txt })]),
+    caja,
+    n > 1 ? puntos(n) : null,
+    el('div', { class: 'ig-caption' }, [txt, (caption.length + tags.length) > 90 ? verTodo : null]),
+    e.k === 'cambio' ? el('p', { class: 'ig-pedido', text: T('Pediste un cambio. Tu equipo ya lo tiene y te avisa cuando esté listo.', 'You asked for a change. Your team has it and will let you know when it’s ready.') }) : null,
+    acciones(p, e),
+    panel(p),
+  ].filter(Boolean));
+  return art;
 }
 
-function tarjeta(p, dlv) {
-  const e = etapa(p, dlv);
-  const tipo = p.content_type || 'reel';
-  const esVideo = !!(dlv && (dlv.video_url || (dlv.slide_urls && dlv.slide_urls.length)));
-  return el('button', {
-    class: 'cnt-card', type: 'button', 'data-etapa': e.k,
-    'aria-label': `${contentTypeLabel(tipo)} · ${p.title || ''} · ${e.txt}`,
-    onclick: () => abrir(p.id),
-  }, [
-    el('span', { class: 'cnt-card__media' }, [
-      portada(p, dlv),
-      esVideo ? el('span', { class: 'cnt-card__play', 'aria-hidden': 'true' }, [icon('play', 18)]) : null,
-      el('span', { class: 'cnt-card__tipo', style: { '--tipo': (CONTENT_TYPES[tipo] || {}).color || '#64748b' }, text: contentTypeLabel(tipo) }),
-    ]),
-    el('span', { class: 'cnt-card__pie' }, [
-      el('span', { class: 'cnt-card__titulo', text: p.title || T('Sin título', 'Untitled') }),
-      el('span', { class: 'cnt-card__meta' }, [
-        el('span', { class: 'cnt-card__fecha', text: p.publish_date ? fechaCorta(p.publish_date) : T('Sin fecha', 'No date') }),
-        el('span', { class: 'cnt-etapa', 'data-etapa': e.k, text: e.txt }),
+function acciones(p, e) {
+  const abierto = abiertos.get(p.id);
+  const fila = el('div', { class: 'ig-acciones' + (e.k === 'publicado' ? ' is-una' : '') });
+  if (e.k !== 'publicado') {
+    fila.appendChild(e.k === 'aprobado'
+      ? el('button', { class: 'ig-btn is-listo', type: 'button', disabled: true, text: T('Aprobado ✓', 'Approved ✓') })
+      : el('button', { class: 'ig-btn is-primario', type: 'button', text: T('Aprobar', 'Approve'), onclick: (ev) => aprobar(p, ev.currentTarget) }));
+    fila.appendChild(el('button', {
+      class: 'ig-btn' + (abierto === 'cambio' ? ' is-activo' : ''), type: 'button', text: T('Pedir cambio', 'Ask for a change'),
+      onclick: () => alternar(p, 'cambio'),
+    }));
+  }
+  fila.appendChild(el('button', {
+    class: 'ig-btn' + (abierto && abierto !== 'cambio' ? ' is-activo' : ''), type: 'button', text: T('Guion', 'Script'),
+    onclick: () => alternar(p, 'guion'),
+  }));
+  return fila;
+}
+
+function alternar(p, cual) {
+  const ahora = abiertos.get(p.id);
+  const mismo = cual === 'cambio' ? ahora === 'cambio' : (ahora && ahora !== 'cambio');
+  if (mismo) abiertos.delete(p.id); else abiertos.set(p.id, cual);
+  repintarPost(p.id);
+}
+function repintarPost(id) {
+  const p = piezasDeMarca().find((x) => x.id === id);
+  const viejo = rootEl && rootEl.querySelector(`.ig-post[data-pieza="${CSS.escape(id)}"]`);
+  if (!p || !viejo) return;
+  const nuevo = publicacion(p);
+  viejo.replaceWith(nuevo);
+  vigilar(nuevo);
+  const caja = nuevo.querySelector('textarea, [contenteditable="true"]');
+  if (caja) setTimeout(() => caja.focus(), 30);
+}
+
+// Bloques del guion: reel = Gancho/Desarrollo/Cierre; carrusel = sus slides.
+function bloques(p) {
+  if (esCarrusel(p)) {
+    const s = slidesFromPost(p);
+    return s.map((t, i) => [i === 0 ? T('Portada', 'Cover') : (i === s.length - 1 ? T('Cierre', 'Closing') : `${T('Slide', 'Slide')} ${i + 1}`), t]);
+  }
+  return [[T('Gancho', 'Hook'), p.hook || ''], [T('Desarrollo', 'Body'), p.body || ''], [T('Cierre', 'Closing'), p.cta || '']];
+}
+
+function panel(p) {
+  const cual = abiertos.get(p.id);
+  if (!cual) return null;
+  if (cual === 'cambio') {
+    const caja = el('textarea', { class: 'ig-caja', rows: 4, placeholder: T('Escribe aquí tu cambio. Ejemplo: cambien la música o el texto del final.', 'Write your change here. Example: change the music or the closing text.') });
+    const enviar = el('button', { class: 'ig-btn is-primario', type: 'button', text: T('Enviar cambio', 'Send change'), onclick: async () => {
+      const comment = caja.value.trim();
+      if (!comment) { caja.focus(); return; }
+      enviar.disabled = true;
+      try {
+        const r = await api.post(`/posts/${encodeURIComponent(p.id)}/request-changes`, { comment });
+        if (r && r.post) ctx.store.upsertPost?.(r.post);
+        abiertos.delete(p.id);
+        toast(T('Listo, tu equipo ya tiene tu cambio.', 'Done, your team has your change.'), 'success');
+        repintarPost(p.id);
+      } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
+    } });
+    return el('div', { class: 'ig-panel' }, [el('h4', { text: T('¿Qué quieres cambiar?', 'What would you like to change?') }), caja, el('div', { class: 'ig-fila' }, [enviar])]);
+  }
+
+  if (cual === 'nuevo') {
+    const caja = el('textarea', { class: 'ig-caja ig-caja--grande', rows: 8, placeholder: T('Pega aquí todo tu guion.', 'Paste your whole script here.') });
+    const archivo = el('input', { type: 'file', accept: '.txt,.docx', hidden: true, onchange: async () => {
+      const f = archivo.files && archivo.files[0];
+      if (!f) return;
+      try { caja.value = await leerArchivo(f); caja.focus(); }
+      catch (err) { toast((err && err.message) || T('No se pudo leer el archivo', 'Could not read the file'), 'error'); }
+    } });
+    const enviar = el('button', { class: 'ig-btn is-primario', type: 'button', text: T('Enviar guion', 'Send script'), onclick: async () => {
+      const texto = caja.value.trim();
+      if (!texto) { caja.focus(); return; }
+      enviar.disabled = true;
+      try {
+        const campos = esCarrusel(p) ? fieldsFromSlides(texto.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean)) : { hook: '', body: texto, cta: '' };
+        const r = await api.patch(`/posts/${encodeURIComponent(p.id)}`, campos);
+        if (r && r.id) ctx.store.upsertPost?.(r);
+        // El equipo tiene que enterarse: un guion nuevo cambia la pieza.
+        const r2 = await api.post(`/posts/${encodeURIComponent(p.id)}/request-changes`, { comment: T('Subí un guion nuevo completo para esta pieza.', 'I uploaded a new full script for this piece.') }).catch(() => null);
+        if (r2 && r2.post) ctx.store.upsertPost?.(r2.post);
+        abiertos.set(p.id, 'guion');
+        toast(T('Recibimos tu guion nuevo. Tu equipo lo revisa.', 'We got your new script. Your team will review it.'), 'success', 5000);
+        repintarPost(p.id);
+      } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
+    } });
+    return el('div', { class: 'ig-panel' }, [
+      el('h4', { text: T('Sube tu guion completo', 'Upload your full script') }),
+      caja,
+      el('label', { class: 'ig-archivo' }, [T('o ', 'or '), el('u', { text: T('elige un archivo', 'choose a file') }), T(' (Word o texto)', ' (Word or text)'), archivo]),
+      esCarrusel(p) ? el('p', { class: 'ig-muted ig-nota', text: T('Separa cada slide con una línea en blanco.', 'Separate each slide with a blank line.') }) : null,
+      el('div', { class: 'ig-fila' }, [enviar, el('button', { class: 'ig-btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => { abiertos.set(p.id, 'guion'); repintarPost(p.id); } })]),
+    ]);
+  }
+
+  const editando = cual === 'editar';
+  const lista = bloques(p);
+  const cajas = [];
+  const cont = el('div', { class: 'ig-panel' + (editando ? ' is-editando' : '') });
+  for (const [etq, txt] of lista) {
+    const t = String(txt || '').trim();
+    if (!editando && !t) continue;
+    const nodo = editando
+      ? el('textarea', { class: 'ig-caja', rows: Math.min(10, Math.max(2, Math.ceil(t.length / 38))), text: t })
+      : el('div', { class: 'ig-bloque__txt', text: t });
+    if (editando) { nodo.value = t; cajas.push(nodo); }
+    cont.appendChild(el('div', { class: 'ig-bloque' }, [el('label', { text: etq }), nodo]));
+  }
+  if (!editando && !cont.children.length) cont.appendChild(el('p', { class: 'ig-muted', text: T('El guion todavía no está listo. Si ya tienes uno, súbelo aquí.', 'The script is not ready yet. If you have one, upload it here.') }));
+  if (editando) {
+    const guardar = el('button', { class: 'ig-btn is-primario', type: 'button', text: T('Guardar', 'Save'), onclick: async () => {
+      guardar.disabled = true;
+      const textos = cajas.map((c) => c.value.trim());
+      const campos = esCarrusel(p) ? fieldsFromSlides(textos) : { hook: textos[0] || '', body: textos[1] || '', cta: textos[2] || '' };
+      try {
+        const r = await api.patch(`/posts/${encodeURIComponent(p.id)}`, campos);
+        if (r && r.id) ctx.store.upsertPost?.(r);
+        abiertos.set(p.id, 'guion');
+        toast(T('Guardamos tu guion. Tu equipo ya lo ve.', 'Your script is saved. Your team can see it.'), 'success');
+        repintarPost(p.id);
+      } catch (err) { guardar.disabled = false; toast((err && err.message) || T('No se pudo guardar', 'Could not save'), 'error'); }
+    } });
+    cont.appendChild(el('div', { class: 'ig-fila' }, [guardar, el('button', { class: 'ig-btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => { abiertos.set(p.id, 'guion'); repintarPost(p.id); } })]));
+  } else if (etapa(p).k !== 'publicado') {
+    cont.appendChild(el('div', { class: 'ig-fila' }, [
+      el('button', { class: 'ig-btn', type: 'button', text: T('Editar guion', 'Edit script'), onclick: () => { abiertos.set(p.id, 'editar'); repintarPost(p.id); } }),
+      el('button', { class: 'ig-btn', type: 'button', text: T('Subir guion nuevo', 'Upload new script'), onclick: () => { abiertos.set(p.id, 'nuevo'); repintarPost(p.id); } }),
+    ]));
+  }
+  return cont;
+}
+
+async function aprobar(p, boton) {
+  boton.disabled = true;
+  try {
+    const r = await api.post(`/posts/${encodeURIComponent(p.id)}/approve`, {});
+    if (r && r.post) ctx.store.upsertPost?.(r.post);
+    abiertos.delete(p.id);
+    toast(T('¡Aprobado! Tu equipo ya lo sabe.', 'Approved! Your team knows.'), 'success');
+    repintarPost(p.id);
+  } catch (err) { boton.disabled = false; toast((err && err.message) || T('No se pudo aprobar', 'Could not approve'), 'error'); }
+}
+
+// Word (.docx) sin librerías: es un ZIP; se abre word/document.xml y se saca
+// el texto de los párrafos. Texto plano (.txt) tal cual.
+async function leerArchivo(f) {
+  const nombre = String(f.name || '').toLowerCase();
+  if (nombre.endsWith('.txt')) return (await f.text()).trim();
+  if (!nombre.endsWith('.docx')) throw new Error(T('Usa un archivo de Word (.docx) o pega el texto.', 'Use a Word file (.docx) or paste the text.'));
+  const buf = new Uint8Array(await f.arrayBuffer());
+  const dv = new DataView(buf.buffer);
+  let fin = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 66000); i--) { if (dv.getUint32(i, true) === 0x06054b50) { fin = i; break; } }
+  if (fin < 0) throw new Error(T('No se pudo abrir el Word.', 'Could not open the Word file.'));
+  const total = dv.getUint16(fin + 10, true);
+  let pos = dv.getUint32(fin + 16, true);
+  for (let k = 0; k < total; k++) {
+    const metodo = dv.getUint16(pos + 10, true);
+    const comp = dv.getUint32(pos + 20, true);
+    const ln = dv.getUint16(pos + 28, true), le = dv.getUint16(pos + 30, true), lc = dv.getUint16(pos + 32, true);
+    const local = dv.getUint32(pos + 42, true);
+    const n = new TextDecoder().decode(buf.slice(pos + 46, pos + 46 + ln));
+    if (n === 'word/document.xml') {
+      const inicio = local + 30 + dv.getUint16(local + 26, true) + dv.getUint16(local + 28, true);
+      const datos = buf.slice(inicio, inicio + comp);
+      let xml;
+      if (metodo === 0) xml = new TextDecoder().decode(datos);
+      else {
+        const s = new Blob([datos]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        xml = await new Response(s).text();
+      }
+      return xml.replace(/<w:tab\/>/g, '\t').replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+        .replace(/\n{3,}/g, '\n\n').trim();
+    }
+    pos += 46 + ln + le + lc;
+  }
+  throw new Error(T('Ese Word no tiene texto.', 'That Word file has no text.'));
+}
+
+// Las fotos se piden cuando la publicación está por aparecer en pantalla.
+function vigilar(nodo) {
+  const caja = nodo.querySelector ? (nodo.matches('.ig-media') ? nodo : nodo.querySelector('.ig-media')) : null;
+  if (!caja) return;
+  if (!observador) {
+    observador = new IntersectionObserver((ents) => {
+      for (const en of ents) {
+        if (!en.isIntersecting) continue;
+        observador.unobserve(en.target);
+        pedirMedio(en.target.dataset.medio || en.target.dataset.pieza);
+      }
+    }, { rootMargin: '800px 0px' });
+  }
+  observador.observe(caja);
+}
+
+// ── Pestaña Feed ─────────────────────────────────────────────────────────────
+function pintarFeed() {
+  const todas = piezasDeMarca().sort(ordenar);
+  const corte = hoyYmd().slice(0, 7) + '-01';
+  const anteriores = todas.filter((p) => p.publish_date && p.publish_date < corte);
+  const lista = verAnteriores ? todas : todas.filter((p) => !p.publish_date || p.publish_date >= corte);
+  const frag = el('div', { class: 'ig-feed' });
+  if (anteriores.length && !verAnteriores) {
+    frag.appendChild(el('button', { class: 'ig-anteriores', type: 'button', text: T(`Ver publicaciones anteriores (${anteriores.length})`, `See earlier posts (${anteriores.length})`), onclick: () => { verAnteriores = true; pintar(); } }));
+  }
+  if (!lista.length) {
+    frag.appendChild(el('div', { class: 'ig-vacio' }, [
+      el('p', { class: 'ig-vacio__t', text: T('Todavía no hay publicaciones para revisar.', 'Nothing to review yet.') }),
+      el('p', { class: 'ig-muted', text: T('Cuando tu equipo prepare tu contenido, aparecerá aquí como en Instagram.', 'When your team prepares your content, it will show here like on Instagram.') }),
+    ]));
+  }
+  let mesActual = '';
+  for (const p of lista) {
+    const ym = mesDe(p) || 'sin';
+    if (ym !== mesActual) {
+      mesActual = ym;
+      frag.appendChild(el('h2', { class: 'ig-mes', text: ym === 'sin' ? T('Sin fecha todavía', 'No date yet') : nombreMes(ym) }));
+    }
+    const art = publicacion(p);
+    frag.appendChild(art);
+  }
+  frag.appendChild(el('div', { class: 'ig-otra' }, [
+    el('p', { text: T('¿Tienes otra idea?', 'Got another idea?') }),
+    el('button', { class: 'ig-btn', type: 'button', text: T('Mandar un guion', 'Send a script'), onclick: abrirIdea }),
+  ]));
+  cuerpoEl.appendChild(frag);
+  for (const art of frag.querySelectorAll('.ig-post')) vigilar(art);
+}
+
+// ── Pestaña Perfil ───────────────────────────────────────────────────────────
+function pedirIg() {
+  if (ig) return;
+  ig = 'cargando';
+  api.get('/ig/feed').then((r) => { ig = r || { connected: false }; }).catch(() => { ig = { connected: false }; })
+    .finally(() => { if (rootEl) pintar(); });
+}
+const num = (n) => (n == null ? '–' : Number(n).toLocaleString(T('es-MX', 'en-US')));
+
+function llenarCelda(celda, p) {
+  clear(celda);
+  const cara = portadaDe(p);
+  if (cara) celda.appendChild(el('img', { src: cara, alt: '', loading: 'lazy', decoding: 'async' }));
+  else celda.appendChild(el('span', { class: 'ig-celda__txt', text: primerIdioma(p.hook || p.title).slice(0, 90) }));
+  if (p.publish_date) celda.appendChild(el('span', { class: 'ig-celda__dia', text: diaCorto(p) }));
+}
+
+function pintarPerfil() {
+  pedirIg();
+  const m = marca() || {};
+  const datos = ig && ig !== 'cargando' && ig.connected && !ig.error ? ig : null;
+  const pf = (datos && datos.perfil) || {};
+  const cab = el('div', { class: 'ig-perfil' }, [
+    el('div', { class: 'ig-perfil__fila' }, [
+      avatar(84),
+      el('div', { class: 'ig-nums' }, [
+        el('div', {}, [el('b', { text: num(pf.media_count) }), el('span', { text: T('publicaciones', 'posts') })]),
+        el('div', {}, [el('b', { text: num(pf.followers) }), el('span', { text: T('seguidores', 'followers') })]),
+        el('div', {}, [el('b', { text: num(pf.follows) }), el('span', { text: T('seguidos', 'following') })]),
       ]),
     ]),
+    el('p', { class: 'ig-bio' }, [el('b', { text: pf.name || m.name || '' }), pf.biography ? el('span', { text: pf.biography }) : null]),
   ]);
+  cuerpoEl.appendChild(cab);
+  if (ig === 'cargando') cuerpoEl.appendChild(el('p', { class: 'ig-muted ig-centro', text: T('Cargando tu perfil…', 'Loading your profile…') }));
+  else if (!datos) cuerpoEl.appendChild(el('p', { class: 'ig-aviso' }, [
+    T('Conecta tu Instagram para ver aquí tus publicaciones reales. ', 'Connect your Instagram to see your real posts here. '),
+    el('button', { class: 'ig-link', type: 'button', text: T('Conectar', 'Connect'), onclick: () => cambiar('conexiones') }),
+  ]));
+  cuerpoEl.appendChild(el('div', { class: 'ig-leyenda' }, [
+    el('span', {}, [el('i', { class: 'is-viene' }), T('Lo que viene', 'Coming up')]),
+    el('span', {}, [el('i'), T('Ya publicado', 'Published')]),
+  ]));
+
+  // Lo que viene: lo más lejano arriba a la izquierda, como lo acomoda Instagram.
+  const hoy = hoyYmd();
+  const viene = piezasDeMarca().filter((p) => p.status !== 'publicado' && p.publish_date && p.publish_date >= hoy).sort(ordenar).reverse();
+  const grid = el('div', { class: 'ig-rejilla' });
+  for (const p of viene) {
+    const celda = el('button', { class: 'ig-celda is-viene', type: 'button', dataset: { pieza: p.id, medio: p.id }, 'aria-label': `${contentTypeLabel(p.content_type || 'reel')} · ${diaCorto(p)}`, onclick: () => irAPieza(p.id) });
+    llenarCelda(celda, p);
+    grid.appendChild(celda);
+    pedirMedio(p.id);
+  }
+  for (const x of (datos && datos.posts) || []) {
+    const celda = x.permalink
+      ? el('a', { class: 'ig-celda', href: x.permalink, target: '_blank', rel: 'noopener' })
+      : el('div', { class: 'ig-celda' });
+    if (x.thumb) celda.appendChild(x.portadaEsVideo
+      ? el('video', { src: x.thumb + '#t=0.1', muted: true, playsinline: true, preload: 'metadata' })
+      : el('img', { src: x.thumb, alt: '', loading: 'lazy', decoding: 'async' }));
+    grid.appendChild(celda);
+  }
+  cuerpoEl.appendChild(grid);
+  if (viene.length) cuerpoEl.appendChild(el('p', { class: 'ig-muted ig-centro', text: T('Toca una publicación con borde de color para verla y aprobarla.', 'Tap a post with a colored border to see and approve it.') }));
+}
+
+function irAPieza(id) {
+  cambiar('feed');
+  const p = piezasDeMarca().find((x) => x.id === id);
+  if (p && p.publish_date && p.publish_date < hoyYmd().slice(0, 7) + '-01' && !verAnteriores) { verAnteriores = true; pintar(); }
+  setTimeout(() => {
+    const art = rootEl && rootEl.querySelector(`.ig-post[data-pieza="${CSS.escape(id)}"]`);
+    if (art) art.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
+// ── Métricas y Conexiones: las vistas de siempre, montadas aquí adentro ─────
+async function montarSub(nombre) {
+  const host = el('div', { class: 'ig-sub' });
+  cuerpoEl.appendChild(host);
+  try {
+    const mod = nombre === 'metricas'
+      ? await import('./metricas.js?v=202611172243')
+      : await import('./conexiones.js?v=202611172243');
+    if (!rootEl || pestana !== nombre) return;
+    const vista = mod.default;
+    vista.mount(host, ctx);
+    sub = vista;
+  } catch {
+    host.appendChild(el('p', { class: 'ig-muted ig-centro', text: T('No se pudo abrir. Intenta de nuevo.', 'Could not open. Try again.') }));
+  }
+}
+function desmontarSub() {
+  if (sub) { try { sub.unmount(); } catch { /* noop */ } }
+  sub = null;
 }
 
 // ── Pantalla ─────────────────────────────────────────────────────────────────
-// Abre la pieza pedida por la URL en cuanto exista en la marca (las piezas
-// pueden llegar después del montaje).
+const PESTANAS = () => [
+  ['feed', T('Feed', 'Feed')],
+  ['perfil', T('Perfil', 'Profile')],
+  ['metricas', T('Métricas', 'Metrics')],
+  ['conexiones', T('Conexiones', 'Connections')],
+];
+
+function cambiar(cual) {
+  if (cual === pestana) return;
+  pestana = cual;
+  try { history.replaceState(null, '', location.hash.replace(/([?&])tab=[^&]*/, '$1').replace(/[?&]$/, '')); } catch { /* noop */ }
+  pintar();
+  window.scrollTo({ top: 0 });
+}
+
+function pintar() {
+  if (!rootEl) return;
+  desmontarSub();
+  if (observador) { observador.disconnect(); observador = null; }
+  clear(rootEl);
+  const m = marca() || {};
+  rootEl.appendChild(el('header', { class: 'ig-top' }, [
+    el('div', { class: 'ig-marca' }, [avatar(36), el('div', {}, [el('b', { text: m.name || T('Mi marca', 'My brand') }), el('small', { text: '@' + handle() })])]),
+    el('nav', { class: 'ig-tabs', role: 'tablist' }, PESTANAS().map(([k, txt]) => el('button', {
+      class: 'ig-tab' + (pestana === k ? ' is-on' : ''), type: 'button', role: 'tab', 'aria-selected': pestana === k ? 'true' : 'false',
+      text: txt, onclick: () => cambiar(k),
+    }))),
+  ]));
+  cuerpoEl = el('div', { class: 'ig-cuerpo' });
+  rootEl.appendChild(cuerpoEl);
+  if (pestana === 'feed') { pedirIg(); pintarFeed(); }
+  else if (pestana === 'perfil') pintarPerfil();
+  else montarSub(pestana);
+}
+
+// Mientras escribe en un panel no se repinta (perdería lo escrito).
+function ocupado() {
+  const a = document.activeElement;
+  return !!(rootEl && a && rootEl.contains(a) && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT'));
+}
+
 function abrirPendiente() {
   if (!porAbrir || !rootEl) return;
   const p = piezasDeMarca().find((x) => x.id === porAbrir);
   if (!p) return;
+  const id = porAbrir;
   porAbrir = null;
-  if (mesDe(p)) { mes = mesDe(p); filtro = 'todo'; }
-  render();
-  abrir(p.id);
+  irAPieza(id);
 }
 
-function render() {
-  if (!rootEl) return;
-  const meses = mesesConContenido();
-  if (!mes || !meses.includes(mes)) mes = mesInicial();
-  const dlvs = entregablesDe(mes);
-  const delMes = piezasDeMarca().filter((p) => mesDe(p) === mes).sort(ordenar);
-  const conEtapa = delMes.map((p) => ({ p, d: dlvs.get(p.id), e: etapa(p, dlvs.get(p.id)) }));
-  const cuenta = (k) => conEtapa.filter((x) => x.e.k === k).length;
-  const visibles = conEtapa.filter((x) => pasaFiltro(x.e));
-
-  clear(rootEl);
-  const ix = meses.indexOf(mes);
-  const cab = el('div', { class: 'cnt-cab' }, [
-    el('div', { class: 'cnt-mes' }, [
-      el('button', { class: 'cnt-mes__btn', type: 'button', 'aria-label': T('Mes anterior', 'Previous month'), disabled: ix <= 0, onclick: () => { mes = meses[ix - 1]; filtro = 'todo'; render(); } }, [icon('left', 20)]),
-      el('h1', { class: 'cnt-mes__nombre', text: nombreMes(mes) }),
-      el('button', { class: 'cnt-mes__btn', type: 'button', 'aria-label': T('Mes siguiente', 'Next month'), disabled: ix >= meses.length - 1, onclick: () => { mes = meses[ix + 1]; filtro = 'todo'; render(); } }, [icon('right', 20)]),
-    ]),
-    el('button', { class: 'btn btn-primary cnt-subir', type: 'button', onclick: abrirSubirGuion }, [icon('plus', 18), el('span', { text: T('Subir mi guion', 'Send my script') })]),
-  ]);
-  const opciones = [
-    ['todo', T('Todo', 'All'), conEtapa.length],
-    ['revisar', T('Por revisar', 'To review'), cuenta('revisar')],
-    ['aprobado', T('Aprobado', 'Approved'), cuenta('aprobado')],
-    ['publicado', T('Publicado', 'Published'), cuenta('publicado')],
-  ];
-  const filtros = el('div', { class: 'cnt-filtros', role: 'tablist' }, opciones.map(([k, txt, n]) => el('button', {
-    class: 'cnt-filtro' + (filtro === k ? ' is-on' : '') + (k === 'revisar' && n ? ' is-alerta' : ''),
-    type: 'button', role: 'tab', 'aria-selected': filtro === k ? 'true' : 'false',
-    onclick: () => { filtro = k; render(); },
-  }, [el('span', { text: txt }), el('b', { text: String(n) })])));
-
-  rootEl.append(cab, filtros);
-
-  if (!visibles.length) {
-    rootEl.appendChild(el('div', { class: 'cnt-vacio' }, [
-      el('p', { class: 'cnt-vacio__t', text: delMes.length
-        ? T('Nada en este filtro.', 'Nothing in this filter.')
-        : T('Todavía no hay contenido este mes.', 'No content this month yet.') }),
-      delMes.length ? null : el('p', { class: 'cnt-vacio__s', text: T('¿Tienes una idea o un guion? Mándalo y tu equipo lo prepara.', 'Have an idea or a script? Send it and your team will prepare it.') }),
-      delMes.length ? null : el('button', { class: 'btn btn-primary', type: 'button', onclick: abrirSubirGuion, text: T('Subir mi guion', 'Send my script') }),
-    ]));
-    return;
-  }
-  rootEl.appendChild(el('div', { class: 'cnt-grid' }, visibles.map((x) => tarjeta(x.p, x.d))));
-}
-
-// ── La pieza abierta ─────────────────────────────────────────────────────────
-function seccion(titulo, texto, { copiar = false } = {}) {
-  const t = String(texto || '').trim();
-  if (!t) return null;
-  return el('section', { class: 'cnt-sec' }, [
-    el('div', { class: 'cnt-sec__cab' }, [
-      el('h3', { class: 'cnt-sec__t', text: titulo }),
-      copiar ? el('button', {
-        class: 'cnt-sec__copiar', type: 'button', text: T('Copiar', 'Copy'),
-        onclick: async () => {
-          try { await navigator.clipboard.writeText(t); toast(T('Copiado ✓', 'Copied ✓'), 'success', 1800); }
-          catch { toast(T('No se pudo copiar', 'Could not copy'), 'error'); }
-        },
-      }) : null,
-    ]),
-    el('p', { class: 'cnt-sec__txt', text: t }),
-  ]);
-}
-
-// Una tira de IMÁGENES (carrusel) se ve partida en sus slides, deslizables.
-function tiraEnSlides(url) {
-  const fila = el('div', { class: 'cnt-slides' });
-  const img = new Image();
-  img.onload = () => {
-    const n = Math.max(1, Math.min(20, Math.round((img.naturalWidth / img.naturalHeight) / 0.8)));
-    for (let k = 0; k < n; k++) {
-      fila.appendChild(el('div', {
-        class: 'cnt-slide cnt-slide--img', role: 'img', 'aria-label': `${T('Slide', 'Slide')} ${k + 1}/${n}`,
-        style: { backgroundImage: `url("${url}")`, backgroundSize: `${n * 100}% 100%`, backgroundPosition: n > 1 ? `${(k / (n - 1)) * 100}% 0` : '0 0' },
-      }));
-    }
-  };
-  img.src = url;
-  return fila;
-}
-
-function medio(p, dlv) {
-  if (!dlv) return null;
-  if (dlv.slide_urls && dlv.slide_urls.length) {
-    return el('div', { class: 'cnt-slides' }, dlv.slide_urls.map((u, k) => el('video', {
-      class: 'cnt-slide', src: u, controls: true, playsinline: true, preload: 'metadata',
-      'aria-label': `${T('Slide', 'Slide')} ${k + 1}/${dlv.slide_urls.length}`,
-    })));
-  }
-  if (dlv.video_url) {
-    return el('video', { class: 'cnt-video', src: dlv.video_url, poster: dlv.poster_url || null, controls: true, playsinline: true, preload: 'metadata' });
-  }
-  if (dlv.type === 'carrusel' && dlv.poster_url) return tiraEnSlides(dlv.poster_url);
-  if (dlv.link && esUrl(dlv.link)) {
-    return el('a', { class: 'btn cnt-link', href: dlv.link, target: '_blank', rel: 'noopener', text: T('Ver carrusel', 'View carousel') });
-  }
-  return null;
-}
-
-function comentarioNodo(c) {
-  const mio = c.author_role === 'client' || c._mine;
-  return el('div', { class: 'cnt-com' + (mio ? ' is-mio' : '') }, [
-    el('div', { class: 'cnt-com__cab' }, [
-      el('b', { text: c.author_name || (mio ? T('Tú', 'You') : T('Equipo', 'Team')) }),
-      el('span', { text: c.created_at ? timeAgo(c.created_at) : '' }),
-    ]),
-    el('p', { text: c.body || '' }),
-  ]);
-}
-
-function abrir(id) {
-  const p = piezasDeMarca().find((x) => x.id === id);
-  if (!p) return;
-  cerrar();
-  const dlv = entregablesDe(mesDe(p) || mes).get(p.id);
-  const e = etapa(p, dlv);
-  const tipo = p.content_type || 'reel';
-  const decidir = e.k === 'revisar' || e.k === 'preparando' || e.k === 'cambios';
-
-  const listaCom = el('div', { class: 'cnt-coms' }, [el('p', { class: 'cnt-muted', text: T('Cargando comentarios…', 'Loading comments…') })]);
-  const caja = el('textarea', { class: 'input cnt-caja', rows: 2, placeholder: T('Escribe un comentario para tu equipo…', 'Write a comment for your team…'), 'aria-label': T('Comentario', 'Comment') });
-  const enviarCom = el('button', {
-    class: 'btn', type: 'button', text: T('Enviar', 'Send'),
-    onclick: async () => {
-      const body = caja.value.trim();
-      if (!body) { caja.focus(); return; }
-      enviarCom.disabled = true;
-      try {
-        const c = await api.post(`/posts/${encodeURIComponent(p.id)}/comments`, { body });
-        caja.value = '';
-        const vacio = listaCom.querySelector('.cnt-muted');
-        if (vacio) vacio.remove();
-        listaCom.appendChild(comentarioNodo({ ...(c || {}), body, _mine: true, author_name: (c && c.author_name) || T('Tú', 'You'), created_at: (c && c.created_at) || new Date().toISOString() }));
-      } catch (err) { toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
-      enviarCom.disabled = false;
-    },
-  });
-
-  const acciones = decidir ? el('div', { class: 'cnt-acciones' }, [
-    el('button', {
-      class: 'btn cnt-cambios', type: 'button', text: T('Pedir cambios', 'Request changes'),
-      onclick: () => pedirCambios(p),
-    }),
-    el('button', {
-      class: 'btn btn-primary cnt-aprobar', type: 'button', text: T('Aprobar', 'Approve'),
-      onclick: async (ev) => {
-        const b = ev.currentTarget; b.disabled = true;
+// ── Mandar una idea nueva (pieza nueva en SU marca) ─────────────────────────
+function abrirIdea() {
+  openSheet({
+    title: T('Mandar un guion', 'Send a script'),
+    mode: 'form',
+    build(body, close) {
+      const tipos = [['reel', T('Reel', 'Reel')], ['carrusel', T('Carrusel', 'Carousel')], ['post', T('Foto', 'Photo')]];
+      let tipo = 'reel';
+      const chips = el('div', { class: 'ig-chips' });
+      const pintarChips = () => { clear(chips); for (const [k, txt] of tipos) chips.appendChild(el('button', { class: 'ig-chipbtn' + (tipo === k ? ' is-on' : ''), type: 'button', text: txt, onclick: () => { tipo = k; pintarChips(); } })); };
+      pintarChips();
+      const guion = el('textarea', { class: 'ig-caja ig-caja--grande', rows: 8, placeholder: T('Escribe o pega aquí tu guion…', 'Write or paste your script here…') });
+      const archivo = el('input', { type: 'file', accept: '.txt,.docx', hidden: true, onchange: async () => {
+        const f = archivo.files && archivo.files[0];
+        if (!f) return;
+        try { guion.value = await leerArchivo(f); } catch (err) { toast((err && err.message) || T('No se pudo leer el archivo', 'Could not read the file'), 'error'); }
+      } });
+      const enviar = el('button', { class: 'btn btn-primary', type: 'button', text: T('Enviar a mi equipo', 'Send to my team'), onclick: async () => {
+        const texto = guion.value.trim();
+        if (!texto) { guion.focus(); return; }
+        enviar.disabled = true;
+        const me = estado().me || {};
         try {
-          const r = await api.post(`/posts/${encodeURIComponent(p.id)}/approve`, {});
-          if (r && r.post) ctx.store.upsertPost?.(r.post);
-          toast(T('¡Aprobado! Tu equipo ya lo sabe ✨', 'Approved! Your team knows ✨'), 'success');
-          cerrar(); render();
-        } catch (err) { b.disabled = false; toast((err && err.message) || T('No se pudo aprobar', 'Could not approve'), 'error'); }
-      },
-    }),
-  ]) : null;
-
-  const lado = medio(p, dlv);
-  const nodo = el('div', { class: 'cnt-pieza', role: 'dialog', 'aria-modal': 'true', 'aria-label': p.title || contentTypeLabel(tipo) }, [
-    el('header', { class: 'cnt-pieza__cab' }, [
-      el('button', { class: 'cnt-pieza__x', type: 'button', 'aria-label': T('Cerrar', 'Close'), onclick: () => cerrar() }, [icon('left', 22)]),
-      el('div', { class: 'cnt-pieza__tit' }, [
-        el('b', { text: p.title || contentTypeLabel(tipo) }),
-        el('span', { text: [contentTypeLabel(tipo), p.publish_date ? fmtDate(p.publish_date, { weekday: 'long', day: 'numeric', month: 'long' }) : ''].filter(Boolean).join(' · ') }),
-      ]),
-      el('span', { class: 'cnt-etapa', 'data-etapa': e.k, text: e.txt }),
-    ]),
-    el('div', { class: 'cnt-pieza__cuerpo' + (lado ? ' con-medio' : '') }, [
-      lado ? el('div', { class: 'cnt-pieza__medio' }, [lado]) : null,
-      el('div', { class: 'cnt-pieza__texto' }, [
-        seccion(T('Gancho', 'Hook'), p.hook),
-        seccion(T('Guion', 'Script'), p.body),
-        seccion(T('Cierre', 'Call to action'), p.cta),
-        seccion(T('Texto de la publicación', 'Post caption'), p.caption, { copiar: true }),
-        seccion('Hashtags', p.hashtags, { copiar: true }),
-        (!tieneGuion(p) && !lado) ? el('p', { class: 'cnt-muted', text: T('Tu equipo está preparando esta pieza. Aquí verás el guion y el video en cuanto estén listos.', 'Your team is preparing this piece. The script and video will show here when ready.') }) : null,
-        p.inspo_url && esUrl(p.inspo_url) ? el('a', { class: 'cnt-ref', href: p.inspo_url, target: '_blank', rel: 'noopener' }, [icon('link', 16), el('span', { text: T('Ver referencia', 'See reference') })]) : null,
-        el('section', { class: 'cnt-sec' }, [
-          el('h3', { class: 'cnt-sec__t', text: T('Comentarios', 'Comments') }),
-          listaCom,
-          el('div', { class: 'cnt-nuevo-com' }, [caja, enviarCom]),
-        ]),
-      ]),
-    ]),
-    acciones,
-  ]);
-  document.body.appendChild(nodo);
-  document.body.classList.add('cnt-abierta');
-  const soltar = pushLayer(() => cerrar({ desdeAtras: true }));
-  abierta = { id: p.id, nodo, soltar };
-  const x = nodo.querySelector('.cnt-pieza__x');
-  if (x) x.focus();
-
-  api.get(`/posts/${encodeURIComponent(p.id)}`).then((data) => {
-    if (!abierta || abierta.id !== p.id) return;
-    const coms = ((data && data.comments) || []).filter((c) => !c.internal);
-    clear(listaCom);
-    if (!coms.length) listaCom.appendChild(el('p', { class: 'cnt-muted', text: T('Sin comentarios todavía.', 'No comments yet.') }));
-    for (const c of coms) listaCom.appendChild(comentarioNodo(c));
-  }).catch(() => {
-    if (!abierta || abierta.id !== p.id) return;
-    clear(listaCom);
-    listaCom.appendChild(el('p', { class: 'cnt-muted', text: T('No se pudieron cargar los comentarios.', 'Could not load comments.') }));
-  });
-}
-
-function cerrar(info = {}) {
-  if (!abierta) return;
-  const { nodo, soltar } = abierta;
-  abierta = null;
-  for (const v of nodo.querySelectorAll('video')) { try { v.pause(); } catch { /* noop */ } }
-  nodo.remove();
-  document.body.classList.remove('cnt-abierta');
-  if (!info.desdeAtras && soltar) soltar();
-}
-
-function pedirCambios(p) {
-  openSheet({
-    title: T('¿Qué te gustaría cambiar?', 'What would you like to change?'),
-    mode: 'form',
-    build(body, close) {
-      const txt = el('textarea', { class: 'input cnt-caja', rows: 5, placeholder: T('Cuéntale a tu equipo qué cambiar…', 'Tell your team what to change…'), 'aria-label': T('Cambios', 'Changes') });
-      const enviar = el('button', {
-        class: 'btn btn-primary', type: 'button', text: T('Enviar cambios', 'Send changes'),
-        onclick: async () => {
-          const comment = txt.value.trim();
-          if (!comment) { txt.focus(); return; }
-          enviar.disabled = true;
-          try {
-            const r = await api.post(`/posts/${encodeURIComponent(p.id)}/request-changes`, { comment });
-            if (r && r.post) ctx.store.upsertPost?.(r.post);
-            close({ source: 'done' });
-            toast(T('Listo, tu equipo ya tiene tus cambios.', 'Done, your team has your changes.'), 'success');
-            cerrar(); render();
-          } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
-        },
-      });
-      body.append(txt, el('div', { class: 'sheet__footer' }, [
-        el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
-        enviar,
-      ]));
-      setTimeout(() => txt.focus(), 60);
-    },
-  });
-}
-
-// ── Subir mi guion ───────────────────────────────────────────────────────────
-// Crea la pieza en SU marca (el servidor fuerza la marca del cliente y nace
-// como idea, pendiente de su equipo). El guion completo va en `body`.
-function abrirSubirGuion() {
-  const tipos = [['reel', T('Reel', 'Reel')], ['carrusel', T('Carrusel', 'Carousel')], ['post', T('Post', 'Post')], ['historia', T('Historia', 'Story')]];
-  let tipo = 'reel';
-  openSheet({
-    title: T('Subir mi guion', 'Send my script'),
-    mode: 'form',
-    build(body, close) {
-      const chips = el('div', { class: 'cnt-tipos', role: 'radiogroup', 'aria-label': T('¿Qué es?', 'What is it?') });
-      const pintar = () => {
-        clear(chips);
-        for (const [k, txt] of tipos) {
-          chips.appendChild(el('button', {
-            class: 'cnt-tipo' + (tipo === k ? ' is-on' : ''), type: 'button', role: 'radio', 'aria-checked': tipo === k ? 'true' : 'false',
-            text: txt, onclick: () => { tipo = k; pintar(); },
-          }));
-        }
-      };
-      pintar();
-      const titulo = el('input', { class: 'input', id: 'cnt-g-titulo', type: 'text', maxlength: 120, placeholder: T('Ej. Testimonio de María', 'E.g. María’s testimonial') });
-      const fecha = el('input', { class: 'input', id: 'cnt-g-fecha', type: 'date' });
-      const guion = el('textarea', { class: 'input cnt-caja cnt-caja--grande', id: 'cnt-g-guion', rows: 8, placeholder: T('Escribe o pega aquí tu guion…', 'Write or paste your script here…') });
-      const link = el('input', { class: 'input', id: 'cnt-g-link', type: 'url', inputmode: 'url', placeholder: T('Link de referencia (opcional)', 'Reference link (optional)') });
-      const campo = (lbl, nodo, idFor) => el('label', { class: 'cnt-campo', for: idFor }, [el('span', { text: lbl }), nodo]);
-      const enviar = el('button', {
-        class: 'btn btn-primary', type: 'button', text: T('Enviar a mi equipo', 'Send to my team'),
-        onclick: async () => {
-          const texto = guion.value.trim();
-          if (!texto) { toast(T('Escribe o pega tu guion.', 'Write or paste your script.'), 'error'); guion.focus(); return; }
-          const ref = link.value.trim();
-          if (ref && !esUrl(ref)) { toast(T('El link debe empezar con https://', 'The link must start with https://'), 'error'); link.focus(); return; }
-          enviar.disabled = true;
-          const me = estado().me || {};
-          const data = {
-            client_id: estado().activeClientId,
-            content_type: tipo,
-            title: titulo.value.trim() || `${T('Guion de', 'Script by')} ${me.name || T('cliente', 'client')}`,
-            body: texto,
-          };
-          if (fecha.value) data.publish_date = fecha.value;
-          if (ref) data.inspo_url = ref;
-          try {
-            const creado = await api.post('/posts', data);
-            if (creado && creado.id) ctx.store.upsertPost?.(creado);
-            close({ source: 'done' });
-            toast(T('¡Recibido! Tu equipo ya tiene tu guion.', 'Received! Your team has your script.'), 'success', 5000);
-            if (fecha.value) { mes = fecha.value.slice(0, 7); filtro = 'todo'; }
-            render();
-          } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
-        },
-      });
-      body.append(
-        el('div', { class: 'cnt-campo' }, [el('span', { text: T('¿Qué es?', 'What is it?') }), chips]),
-        campo(T('Título (opcional)', 'Title (optional)'), titulo, 'cnt-g-titulo'),
-        campo(T('¿Para qué fecha? (opcional)', 'For which date? (optional)'), fecha, 'cnt-g-fecha'),
-        campo(T('Tu guion', 'Your script'), guion, 'cnt-g-guion'),
-        campo(T('Referencia', 'Reference'), link, 'cnt-g-link'),
-        el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
-          enviar,
-        ]),
-      );
+          const creado = await api.post('/posts', { client_id: marcaId, content_type: tipo, title: `${T('Guion de', 'Script by')} ${me.name || T('cliente', 'client')}`, body: texto });
+          if (creado && creado.id) ctx.store.upsertPost?.(creado);
+          close({ source: 'done' });
+          toast(T('¡Recibido! Tu equipo ya tiene tu guion.', 'Received! Your team has your script.'), 'success', 5000);
+          pintar();
+        } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
+      } });
+      body.append(chips, guion,
+        el('label', { class: 'ig-archivo' }, [T('o ', 'or '), el('u', { text: T('elige un archivo', 'choose a file') }), T(' (Word o texto)', ' (Word or text)'), archivo]),
+        el('div', { class: 'sheet__footer' }, [el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }), enviar]));
       setTimeout(() => guion.focus(), 60);
     },
   });
@@ -519,7 +695,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611172158';
+  link.href = '/marketing/css/contenido.css?v=202611172243';
   document.head.appendChild(link);
 }
 
@@ -528,29 +704,31 @@ export default {
   mount(host, c) {
     ctx = c;
     ensureCss();
-    rootEl = el('div', { class: 'cnt' });
+    rootEl = el('div', { class: 'ig' + (isEN ? ' is-en' : '') });
     host.appendChild(rootEl);
     marcaId = estado().activeClientId || null;
+    const prm = (c && c.params) || {};
+    if (prm.tab && PESTANAS().some(([k]) => k === prm.tab)) pestana = prm.tab;
     unsubs.push(ctx.store.subscribe(['posts', 'clients', 'activeClientId'], () => {
       const ahora = estado().activeClientId || null;
-      if (ahora !== marcaId) { marcaId = ahora; mes = null; filtro = 'todo'; cerrar(); }
-      render();
+      if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); abiertos.clear(); verAnteriores = false; }
+      if (pestana === 'feed' || pestana === 'perfil') { if (!ocupado()) pintar(); }
       abrirPendiente();
     }));
-    render();
-    porAbrir = (c.params && c.params.pieza) || null;
+    pintar();
+    porAbrir = prm.pieza || null;
     abrirPendiente();
   },
   onParams(params) {
-    if (params && params.pieza && (!abierta || abierta.id !== params.pieza)) {
-      porAbrir = params.pieza;
-      abrirPendiente();
-    }
+    if (params && params.tab && params.tab !== pestana && PESTANAS().some(([k]) => k === params.tab)) cambiar(params.tab);
+    if (params && params.pieza) { porAbrir = params.pieza; abrirPendiente(); }
   },
   unmount() {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
-    cerrar();
-    rootEl = null; ctx = null; mes = null; filtro = 'todo'; porAbrir = null;
+    desmontarSub();
+    if (observador) { observador.disconnect(); observador = null; }
+    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false;
+    abiertos.clear();
   },
 };

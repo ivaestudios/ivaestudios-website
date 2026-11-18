@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611172158';
-import { icon } from '../shell/icons.js?v=202611172158';
-import { T, isEN } from '../shell/i18n.js?v=202611172158';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611172243';
+import { icon } from '../shell/icons.js?v=202611172243';
+import { T, isEN } from '../shell/i18n.js?v=202611172243';
 
 const VIEW_ID = 'conexiones';
 
@@ -32,9 +32,10 @@ function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); 
 // Clientes que SÍ ven esta sección en su portal (pedido 2026-08-27: solo
 // Regeneris). MISMA lista en shell.js y topbar.js — cámbialas juntas.
 // Vianey 13-nov-2026: "las conexiones nadie más que nosotros". Ningún cliente conecta redes; solo el equipo.
-const CLIENT_CONEXIONES_IDS = [];
+// Vianey 17-nov-2026: "añade la sección de conexiones para que cada cliente le pueda conectar su cuenta" ('*' = todas las marcas).
+const CLIENT_CONEXIONES_IDS = ['*'];
 function clientAllowed() {
-  return CLIENT_CONEXIONES_IDS.includes((ctx.store.getState().me || {}).client_id);
+  return CLIENT_CONEXIONES_IDS.includes('*') || CLIENT_CONEXIONES_IDS.includes((ctx.store.getState().me || {}).client_id);
 }
 
 async function conectar(kind, clientId) {
@@ -175,39 +176,34 @@ function tarjeta(c) {
     // conectar YouTube"). Mismo flujo que la ficha de la marca (/yt/login con
     // la cuenta de Google del canal). El cliente no puede conectar YouTube
     // (el backend responde 403), así que a él solo se le muestra si ya está.
-    (yt || !cliente) ? filaRed({
+    filaRed({
       nombre: 'YouTube', icono: 'play',
       conectado: !!yt, falla: !!fx.yt, detalle: yt || '',
       onDisconnect: cliente ? null : (b) => desconectar('yt', c, b),
-      onConnect: cliente ? null : () => conectar('yt', c.id),
-    }) : null,
+      onConnect: () => conectar('yt', c.id),
+    }),
     // TikTok (30-sep-2026): la fila NO existía y la cuenta conectada con Login
     // Kit no se veía por ningún lado ("no se conecta con el de ivae studios").
     // Mismo flujo que la ficha de la marca (/tt/login).
-    (tt || !cliente) ? filaRed({
+    filaRed({
       nombre: 'TikTok', icono: 'spark',
       conectado: !!tt, falla: !!fx.tt, detalle: tt || '',
       onDisconnect: cliente ? null : (b) => desconectar('tt', c, b),
-      onConnect: cliente ? null : () => conectar('tt', c.id),
-    }) : null,
+      onConnect: () => conectar('tt', c.id),
+    }),
     // LinkedIn (9-oct-2026): perfil de la persona y, cuando LinkedIn apruebe el
     // permiso de páginas, la página de empresa. Mismo flujo (/li/login). El
     // permiso dura 60 días: si se vence, la fila dice Falla de conexión.
-    (li || !cliente) ? filaRed({
+    filaRed({
       nombre: 'LinkedIn', icono: 'linkedin',
       conectado: !!li, falla: !!fx.li, detalle: li || '',
       onDisconnect: cliente ? null : (b) => desconectar('li', c, b),
-      onConnect: cliente ? null : () => conectar('li', c.id),
-    }) : null,
+      onConnect: () => conectar('li', c.id),
+    }),
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
     // El creador conecta SU página él mismo: no hay dueño a quien invitar.
-    (fb || esCreador()) ? null : (cliente
-      ? el('p', { class: 'cx-nota', text: T(
-          'Te enviamos una solicitud de acceso a tu página de Facebook. Apruébala en: tu página → Configuración → Acceso a la página → Solicitudes pendientes → Aprobar. Con eso quedará conectada.',
-          'We sent an access request to your Facebook Page. Approve it at: your Page → Settings → Page access → Pending requests → Approve. That will complete the connection.'
-        ) })
-      : el('button', {
+    (fb || esCreador() || cliente) ? null : (el('button', {
           class: 'cx-invitar', type: 'button', onclick: copiarInvitacion,
         }, [icon('copy', 14), ' ' + T('Copiar invitación para el dueño', "Copy the owner's invite")])),
   ].filter(Boolean));
@@ -416,7 +412,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611172158';
+  link.href = '/marketing/css/conexiones.css?v=202611172243';
   document.head.appendChild(link);
 }
 

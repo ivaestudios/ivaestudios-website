@@ -66,12 +66,13 @@ function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, (c) => ({
 
 // GET /tt/login?client_id=… (staff) → OAuth de TikTok.
 export async function handleTtLogin(request, env, session, url) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  // Vianey 17-nov-2026: "añade la sección de conexiones para que cada cliente le pueda conectar su cuenta". Cualquier cliente conecta SU marca (se fuerza su client_id); desconectar sigue siendo del equipo.
+  if (session.role === 'client' && !session.client_id) return json({ error: 'Forbidden' }, 403);
   const cred = await ttCreds(env);
   if (!cred.key || !cred.secret) {
     return json({ error: 'Falta configurar la app de TikTok (TT_CLIENT_KEY y TT_CLIENT_SECRET en Cloudflare Pages) — checklist paso 7.' }, 503);
   }
-  const clientId = url.searchParams.get('client_id') || '';
+  const clientId = session.role === 'client' ? (session.client_id || '') : (url.searchParams.get('client_id') || '');
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
   const nonce = rnd();
