@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611172243';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611172243';
-import * as store from './store.js?v=202611172243';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611172243';
-import { toast } from './toast.js?v=202611172243';
-import { icon } from './icons.js?v=202611172243';
-import { openClientSwitcher } from './clientswitcher.js?v=202611172243';
-import { T, isEN, setLang } from './i18n.js?v=202611172243';
+import { startTour } from './tour.js?v=202611172249';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611172249';
+import * as store from './store.js?v=202611172249';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611172249';
+import { toast } from './toast.js?v=202611172249';
+import { icon } from './icons.js?v=202611172249';
+import { openClientSwitcher } from './clientswitcher.js?v=202611172249';
+import { T, isEN, setLang } from './i18n.js?v=202611172249';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611172243';
-import { getTheme, setTheme } from './theme.js?v=202611172243';
-import * as version from './version.js?v=202611172243';
-import * as tienda from './tienda.js?v=202611172243';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611172243';
-import * as prefs from './prefs.js?v=202611172243';
+import { abrirBloqueados } from './moderacion.js?v=202611172249';
+import { getTheme, setTheme } from './theme.js?v=202611172249';
+import * as version from './version.js?v=202611172249';
+import * as tienda from './tienda.js?v=202611172249';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611172249';
+import * as prefs from './prefs.js?v=202611172249';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -131,7 +131,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const visibleTabs = isClient
     ? (rolBj === 'agente' || (rolBj && (store.getState().me || {}).solo_crm)
       ? DESKTOP_TABS.filter((t) => t.id === 'bandeja')
-      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || t.id === 'meses' || t.id === 'marca' || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor')))
+      : DESKTOP_TABS.filter((t) => (t.id === 'contenido' && clientSeesContenido) || (t.id === 'asistente' && clientSeesAsistente) || (t.id === 'bandeja' && rolBj === 'supervisor')))
     : DESKTOP_TABS.filter((t) => (t.id !== 'pauta' && t.id !== 'administracion') || esAdmin);
   const irA = (id) => {
     const { activeClientId } = store.getState();
@@ -498,7 +498,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // ajustaba nada. Ahora abre el interruptor de los avisos al telefono.
           // Visita guiada (1-oct-2026): repetirla a mano desde aquí.
           // En la demo del CRM se repite SU visita (la general habla del calendario).
-          accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true, modo: me && me.bandeja_demo ? 'crm' : 'general' }), 380); }),
+          // El cliente ya no tiene la visita del calendario (17-nov-2026): su pantalla
+          // es Mi contenido y la explicarán los videos tutoriales.
+          ...((me && me.role === 'client' && !me.bandeja_demo) ? [] : [accountRow('spark', T('Visita guiada', 'Guided tour'), () => { close(); setTimeout(() => startTour({ router, store, prefs, closeAll, me, forzar: true, modo: me && me.bandeja_demo ? 'crm' : 'general' }), 380); })]),
           accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Sugerencias y problemas (8-oct-2026): formulario dentro de la app

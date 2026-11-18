@@ -17,8 +17,8 @@
 // Tu cuenta → Visita guiada. router/store/prefs/closeAll llegan por
 // parámetro: shell.js importa este módulo y no puede haber ciclo.
 // ============================================================================
-import { el, esCreador } from '../api.js?v=202611172243';
-import { T } from './i18n.js?v=202611172243';
+import { el, esCreador } from '../api.js?v=202611172249';
+import { T } from './i18n.js?v=202611172249';
 
 export const TOUR_VERSION = 2;
 let activo = null;
@@ -394,6 +394,9 @@ async function esperarEl(sel, ms) {
 }
 
 export async function startTour({ router, store, prefs, closeAll, me, forzar = false, modo = 'general' }) {
+  // La visita general del CLIENTE recorría el Calendario, que ya no es suyo
+  // (17-nov-2026): no se arranca. La del CRM (demo de la Bandeja) sigue igual.
+  if (me && me.role === 'client' && modo !== 'crm') return;
   if (activo) return;
   const crm = modo === 'crm';
   if (!forzar && !(crm ? tourCrmPendiente(me) : tourPendiente(me))) return;

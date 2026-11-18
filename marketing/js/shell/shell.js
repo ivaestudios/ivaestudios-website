@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611172243';
-import { setRoleDefault } from './theme.js?v=202611172243';
-import { vigilarSegmentados } from './segfade.js?v=202611172243';
-import * as store from './store.js?v=202611172243';
-import * as prefs from './prefs.js?v=202611172243';
-import * as router from './router.js?v=202611172243';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611172243';
-import { toast } from './toast.js?v=202611172243';
-import { icon } from './icons.js?v=202611172243';
-import * as iconsMod from './icons.js?v=202611172243';
-import { createTopbar } from './topbar.js?v=202611172243';
-import { createBottomNav } from './bottomnav.js?v=202611172243';
-import { createSearch } from './search.js?v=202611172243';
-import { createNotifications } from './notifications.js?v=202611172243';
-import { T } from './i18n.js?v=202611172243';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611172243';
-import * as version from './version.js?v=202611172243';
-import * as tienda from './tienda.js?v=202611172243';
-import * as pickers from '../ui/pickers.js?v=202611172243';
-import * as dnd from '../ui/dnd.js?v=202611172243';
+import { api, el, clear } from '../api.js?v=202611172249';
+import { setRoleDefault } from './theme.js?v=202611172249';
+import { vigilarSegmentados } from './segfade.js?v=202611172249';
+import * as store from './store.js?v=202611172249';
+import * as prefs from './prefs.js?v=202611172249';
+import * as router from './router.js?v=202611172249';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611172249';
+import { toast } from './toast.js?v=202611172249';
+import { icon } from './icons.js?v=202611172249';
+import * as iconsMod from './icons.js?v=202611172249';
+import { createTopbar } from './topbar.js?v=202611172249';
+import { createBottomNav } from './bottomnav.js?v=202611172249';
+import { createSearch } from './search.js?v=202611172249';
+import { createNotifications } from './notifications.js?v=202611172249';
+import { T } from './i18n.js?v=202611172249';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611172249';
+import * as version from './version.js?v=202611172249';
+import * as tienda from './tienda.js?v=202611172249';
+import * as pickers from '../ui/pickers.js?v=202611172249';
+import * as dnd from '../ui/dnd.js?v=202611172249';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -49,7 +49,9 @@ const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // notas en la tabla.
 // 17-nov-2026 (Vianey: "para ellos ya no va a haber sección de entregables"):
 // Entregables sale de la versión cliente; sus videos se ven en Mi contenido.
-const CLIENT_VIEWS = ['meses', 'marca'];
+// 17-nov-2026 (Vianey: "a calendario no ya no… y marca tampoco"): el cliente
+// solo usa Mi contenido (Feed, Perfil, Métricas, Conexiones).
+const CLIENT_VIEWS = [];
 // Métricas (con su botón de Reporte PDF) se habilita en la versión CLIENTE
 // solo para las marcas que Vianey aprueba una por una. Hoy: IVAE STUDIOS (su
 // propia marca) y REGENERIS (lo pidió el 2026-07-29). El resto no la ve.
