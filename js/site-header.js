@@ -161,6 +161,7 @@
     '/es/fotografo-bodas-guadalajara': '/guadalajara-wedding-photographer',
     '/es/acerca-de': '/about',
     '/es/fotos-familiares-lujo-cancun': '/luxury-family-photos-cancun',
+    '/es/paquetes-sesion-fotos-cancun': '/cancun-family-photoshoot-packages',
     '/es/fotografia-parejas-mexico': '/couples-photography-mexico',
     '/es/editorial-de-lujo': '/luxury-editorial',
     '/es/fotografo-bodas-destino-mexico': '/luxury-weddings',
@@ -223,7 +224,7 @@
   var destItems = [
     { en: '/destination-family-photographer-mexico', es: '/es/fotografo-familiar-destino-mexico', enL: 'Across Mexico \u00b7 Families', esL: 'Todo M\u00e9xico \u00b7 Familias' },
     { en: '/destination-couples-photographer-mexico', es: '/es/fotografo-parejas-destino-mexico', enL: 'Across Mexico \u00b7 Couples', esL: 'Todo M\u00e9xico \u00b7 Parejas' },
-    { en: '/cancun-wedding-photographer', es: '/es/fotografo-bodas-cancun', enL: 'Canc\u00fan \u00b7 Weddings', esL: 'Canc\u00fan \u00b7 Bodas' },
+    { en: '/cancun-wedding-photographer', es: '/es/fotografo-bodas-cancun', enL: 'Cancun \u00b7 Weddings', esL: 'Canc\u00fan \u00b7 Bodas' },
     { en: '/playa-mujeres-wedding-photographer', es: '/es/fotografo-bodas-playa-mujeres', enL: 'Playa Mujeres', esL: 'Playa Mujeres' },
     { en: '/playa-del-carmen-wedding-photographer', es: '/es/fotografo-bodas-playa-del-carmen', enL: 'Playa del Carmen', esL: 'Playa del Carmen' },
     { en: '/tulum-wedding-photographer', es: '/es/fotografo-bodas-tulum', enL: 'Tulum', esL: 'Tulum' },
