@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611172301';
-import { T, isEN } from '../shell/i18n.js?v=202611172301';
-import { openSheet } from '../shell/sheet.js?v=202611172301';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611172301';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611180829';
+import { T, isEN } from '../shell/i18n.js?v=202611180829';
+import { openSheet } from '../shell/sheet.js?v=202611180829';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611180829';
 
 const VIEW_ID = 'contenido';
 
@@ -48,9 +48,11 @@ let porAbrir = null;             // ?pieza=<id> (aviso) hasta que llegue la piez
 let sub = null;                  // vista montada adentro (métricas o conexiones)
 let observador = null;
 const medios = new Map();        // postId → { slides, portada, video } | 'cargando'
-const dlvMes = new Map();        // `${marca}|${YYYY-MM}` → Map(post_id → entregable) | 'cargando'
+const dlvMarca = new Map();      // marca → Map(post_id → entregable) | 'cargando'
+let cargadoEn = 0;               // cuándo se pidieron los medios (para refrescar al volver a la app)
 let ig = null;                   // respuesta de /ig/feed | 'cargando'
 const abiertos = new Map();      // postId → 'cambio' | 'guion' | 'editar' | 'nuevo'
+const desplegadas = new Set();   // Contenido: barritas con el guion desplegado
 
 // ── Datos ────────────────────────────────────────────────────────────────────
 const estado = () => ctx.store.getState();
@@ -136,22 +138,67 @@ function pedirMedio(id) {
     .catch(() => medios.set(id, { slides: [], portada: null, video: null }))
     .finally(() => repintarMedio(id));
 }
-// La portada del entregable (la que sube el equipo con el video) por mes.
+// El entregable ligado a la pieza (video, portada, tira o slides que sube el
+// equipo). Se busca por post_id en TODOS los meses de la marca: hay entregables
+// archivados en otro mes que su post (REGENERIS: los de octubre son de posts de
+// noviembre) y buscarlos solo en el mes del post los dejaba fuera (18-nov-2026).
+const pesoDlv = (d) => (d.video_url ? 4 : 0) + ((d.slide_urls || []).length ? 4 : 0) + (d.poster_url ? 1 : 0);
 function entregable(p) {
-  const ym = mesDe(p);
-  if (!ym) return null;
-  const key = `${marcaId}|${ym}`;
-  const hit = dlvMes.get(key);
+  if (!marcaId) return null;
+  const marca = marcaId;
+  const hit = dlvMarca.get(marca);
   if (hit && hit !== 'cargando') return hit.get(p.id) || null;
   if (!hit) {
-    dlvMes.set(key, 'cargando');
-    api.get(`/deliverables?client_id=${encodeURIComponent(marcaId)}&month=${encodeURIComponent(ym)}`)
-      .then((r) => { const mapa = new Map(); for (const d of ((r && r.deliverables) || [])) if (d.post_id) mapa.set(d.post_id, d); dlvMes.set(key, mapa); })
-      .catch(() => dlvMes.set(key, new Map()))
-      .finally(() => { for (const x of piezasDeMarca()) if (mesDe(x) === ym) repintarMedio(x.id); });
+    dlvMarca.set(marca, 'cargando');
+    if (!cargadoEn) cargadoEn = Date.now();
+    api.get(`/deliverables?client_id=${encodeURIComponent(marca)}`)
+      .then((r) => {
+        const mapa = new Map();
+        for (const d of ((r && r.deliverables) || [])) {
+          if (!d.post_id) continue;
+          const ya = mapa.get(d.post_id);
+          if (!ya || pesoDlv(d) > pesoDlv(ya)) mapa.set(d.post_id, d);
+        }
+        dlvMarca.set(marca, mapa);
+      })
+      // Una falla NO se queda guardada: se vuelve a pedir al regresar a la app.
+      .catch(() => dlvMarca.set(marca, Object.assign(new Map(), { fallo: true })))
+      .finally(() => { if (marca === marcaId) for (const x of piezasDeMarca()) repintarMedio(x.id); });
   }
   return null;
 }
+// El video de la pieza, venga de donde venga: subido a la pieza, en su
+// entregable, o pegado como enlace directo en la pieza (MELISA: el enlace
+// público del entregable vive en video_url y no hay entregable ligado).
+function videoDirecto(u) {
+  const s = String(u || '').trim();
+  if (!/^https?:\/\//i.test(s)) return null;
+  return (/\/api\/marketing\/(publico\/entregable|deliverables)\/[^/?#]+\/video/i.test(s) || /\.(mp4|mov|m4v|webm)(\?|#|$)/i.test(s)) ? s : null;
+}
+function videoDe(p) {
+  const m = medios.get(p.id);
+  const datos = m && m !== 'cargando' ? m : null;
+  const d = entregable(p);
+  return (datos && datos.video) || (d && d.video_url) || videoDirecto(p.video_url) || null;
+}
+// Sin portada, el video enseña su primer cuadro (antes salía un recuadro negro).
+const conPrimerCuadro = (u) => (u.includes('#') ? u : `${u}#t=0.1`);
+// Al volver a la app (o a esta vista) después de un rato, los medios se piden de
+// nuevo: la app del teléfono se queda abierta días y enseñaba lo de la primera
+// carga aunque el equipo ya hubiera subido el video.
+function refrescarSiViejo() {
+  const hayFallo = [...dlvMarca.values()].some((v) => v && v.fallo);
+  if (!hayFallo && (!cargadoEn || Date.now() - cargadoEn < 60000)) return;
+  cargadoEn = Date.now();
+  medios.clear();
+  dlvMarca.clear();
+  if (!rootEl) return;
+  for (const n of rootEl.querySelectorAll('.ig-media[data-medio], .ig-celda[data-pieza]')) {
+    if (observador) observador.observe(n); else pedirMedio(n.dataset.medio || n.dataset.pieza);
+  }
+  for (const x of piezasDeMarca()) repintarMedio(x.id);
+}
+const alVolver = () => { if (document.visibilityState === 'visible') refrescarSiViejo(); };
 function portadaDe(p) {
   const m = medios.get(p.id);
   const d = entregable(p);
@@ -170,7 +217,7 @@ function llenarMedio(caja, p) {
   const m = medios.get(p.id);
   const datos = m && m !== 'cargando' ? m : null;
   const d = entregable(p);
-  const video = (datos && datos.video) || (d && d.video_url) || null;
+  const video = videoDe(p);
   const portada = portadaDe(p);
 
   if (esCarrusel(p)) {
@@ -193,7 +240,9 @@ function llenarMedio(caja, p) {
   }
   if (esVideo(p)) {
     if (video) {
-      caja.appendChild(el('video', { src: video, poster: portada || null, controls: true, playsinline: true, preload: 'none' }));
+      caja.appendChild(el('video', portada
+        ? { src: video, poster: portada, controls: true, playsinline: true, preload: 'none' }
+        : { src: conPrimerCuadro(video), controls: true, playsinline: true, preload: 'metadata' }));
       return;
     }
     if (portada) {
@@ -538,7 +587,8 @@ function pintarFeed() {
 // ── Contenido: los meses y las piezas en barritas por tipo ───────────────────
 // Vianey (17-nov-2026): "que aparezcan como barritas de video 1, video 2…
 // carrusel 1, carrusel 2… por secciones… cuando aprieten en contenido tienen
-// que aparecer los meses". Tocar una barrita la abre en el Feed.
+// que aparecer los meses". Tocar una barrita despliega ahí mismo su guion
+// (Vianey 18-nov-2026: "si le hago clic en el video 1, que se desglose el guión y ya").
 function tituloCorto(p) {
   const t = primerIdioma(p.title || p.hook || '').replace(/^\s*(reel|carrusel|post|foto|historia|pauta|video)\s*\d*\s*[·:\-–]\s*/i, '').trim();
   return t || T('Sin título', 'Untitled');
@@ -588,17 +638,48 @@ function pintarLista() {
     ]);
     items.forEach((p, i) => {
       const e = etapa(p);
-      sec.appendChild(el('button', { class: 'ig-barra', type: 'button', onclick: () => irAPieza(p.id) }, [
+      const item = el('div', { class: 'ig-item' });
+      const barra = el('button', { class: 'ig-barra', type: 'button', 'aria-expanded': 'false', onclick: () => alternarDesglose(item, barra, p) }, [
         el('span', { class: 'ig-barra__num', text: `${uno} ${i + 1}` }),
         el('span', { class: 'ig-barra__txt' }, [
           el('b', { text: tituloCorto(p) }),
           el('small', { text: p.publish_date ? diaCorto(p) : T('Sin fecha', 'No date') }),
         ]),
         el('span', { class: 'ig-estado', dataset: { k: e.k }, text: e.txt }),
-      ]));
+        el('span', { class: 'ig-barra__flecha', 'aria-hidden': 'true' }),
+      ]);
+      item.appendChild(barra);
+      sec.appendChild(item);
+      if (desplegadas.has(p.id)) alternarDesglose(item, barra, p, true);
     });
     cuerpoEl.appendChild(sec);
   }
+}
+
+// El guion de una barrita, solo para leer: video = Gancho/Desarrollo/Cierre,
+// carrusel = sus slides, foto = su copy. Se abre y se cierra sin repintar la
+// pantalla (así no brinca el scroll).
+function desglose(p) {
+  const caja = el('div', { class: 'ig-desglose' });
+  for (const [etq, txt] of bloques(p)) {
+    const s = String(txt || '').trim();
+    if (s) caja.appendChild(el('div', { class: 'ig-bloque' }, [el('label', { text: etq }), el('div', { class: 'ig-bloque__txt', text: s })]));
+  }
+  if (!caja.children.length && String(p.caption || '').trim()) {
+    caja.appendChild(el('div', { class: 'ig-bloque' }, [el('label', { text: T('Copy', 'Caption') }), el('div', { class: 'ig-bloque__txt', text: String(p.caption).trim() })]));
+  }
+  if (!caja.children.length) caja.appendChild(el('p', { class: 'ig-muted', text: T('El guion todavía no está listo.', 'The script is not ready yet.') }));
+  return caja;
+}
+function alternarDesglose(item, barra, p, abrir) {
+  const abierto = abrir != null ? !abrir : item.classList.contains('is-open');
+  const viejo = item.querySelector('.ig-desglose');
+  if (viejo) viejo.remove();
+  item.classList.toggle('is-open', !abierto);
+  barra.setAttribute('aria-expanded', abierto ? 'false' : 'true');
+  if (abierto) { desplegadas.delete(p.id); return; }
+  desplegadas.add(p.id);
+  item.appendChild(desglose(p));
 }
 
 // ── Pestaña Perfil ───────────────────────────────────────────────────────────
@@ -621,7 +702,9 @@ function llenarCelda(celda, p) {
   const m = medios.get(p.id);
   const d = entregable(p);
   const esTira = esCarrusel(p) && !(m && m !== 'cargando' && m.slides.length) && d && d.type === 'carrusel' && d.poster_url === cara;
+  const vid = !cara && esVideo(p) ? videoDe(p) : null;
   if (cara) celda.appendChild(el('img', { src: cara, alt: '', loading: 'lazy', decoding: 'async', class: esTira ? 'is-tira' : null }));
+  else if (vid) celda.appendChild(el('video', { src: conPrimerCuadro(vid), muted: true, playsinline: true, preload: 'metadata', 'aria-hidden': 'true', tabindex: '-1' }));
   else celda.appendChild(el('span', { class: 'ig-celda__txt', text: primerIdioma(p.hook || p.title).slice(0, 90) }));
   if (p.publish_date) celda.appendChild(el('span', { class: 'ig-celda__dia', text: diaCorto(p) }));
 }
@@ -707,8 +790,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611172301')
-      : await import('./conexiones.js?v=202611172301');
+      ? await import('./metricas.js?v=202611180829')
+      : await import('./conexiones.js?v=202611180829');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -824,7 +907,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611172301';
+  link.href = '/marketing/css/contenido.css?v=202611180829';
   document.head.appendChild(link);
 }
 
@@ -840,11 +923,13 @@ export default {
     if (prm.tab && tabValida(prm.tab)) pestana = prm.tab;
     unsubs.push(ctx.store.subscribe(['posts', 'clients', 'activeClientId'], () => {
       const ahora = estado().activeClientId || null;
-      if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); abiertos.clear(); verAnteriores = false; }
+      if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); dlvMarca.clear(); abiertos.clear(); verAnteriores = false; }
       if (pestana === 'feed' || pestana === 'perfil' || pestana === 'lista') { if (!ocupado()) pintar(); }
       abrirPendiente();
     }));
     pedirIg();
+    refrescarSiViejo();
+    document.addEventListener('visibilitychange', alVolver);
     pintar();
     porAbrir = prm.pieza || null;
     abrirPendiente();
@@ -858,6 +943,7 @@ export default {
     if (params && params.pieza) { porAbrir = params.pieza; abrirPendiente(); }
   },
   unmount() {
+    document.removeEventListener('visibilitychange', alVolver);
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     desmontarSub();

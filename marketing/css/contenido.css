@@ -171,3 +171,12 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
 .ig-barra__txt small { font-size: 13px; color: var(--ig-dim); }
 .ig-barra .ig-estado { flex: none; font-size: 12px; padding: 4px 8px; }
 @media (max-width: 380px) { .ig-barra__num { min-width: 72px; font-size: 14px; } }
+/* Contenido: la barrita se despliega y muestra su guion */
+.ig-item { margin-bottom: 8px; }
+.ig-item .ig-barra { margin-bottom: 0; }
+.ig-barra__flecha { flex: none; width: 8px; height: 8px; margin: 0 2px 3px 2px; border-right: 2px solid var(--ig-dim); border-bottom: 2px solid var(--ig-dim); transform: rotate(45deg); transition: transform .18s ease; }
+.ig-item.is-open .ig-barra { border-radius: 14px 14px 0 0; border-bottom-color: transparent; }
+.ig-item.is-open .ig-barra__flecha { transform: rotate(-135deg); margin-bottom: -3px; }
+.ig-desglose { padding: 4px 16px 14px; border: 1.5px solid var(--ig-line); border-top: 0; border-radius: 0 0 14px 14px; background: var(--ig-card); }
+.ig-desglose .ig-bloque:first-child { padding-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .ig-barra__flecha { transition: none; } }
