@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611162351';
-import { setRoleDefault } from './theme.js?v=202611162351';
-import { vigilarSegmentados } from './segfade.js?v=202611162351';
-import * as store from './store.js?v=202611162351';
-import * as prefs from './prefs.js?v=202611162351';
-import * as router from './router.js?v=202611162351';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611162351';
-import { toast } from './toast.js?v=202611162351';
-import { icon } from './icons.js?v=202611162351';
-import * as iconsMod from './icons.js?v=202611162351';
-import { createTopbar } from './topbar.js?v=202611162351';
-import { createBottomNav } from './bottomnav.js?v=202611162351';
-import { createSearch } from './search.js?v=202611162351';
-import { createNotifications } from './notifications.js?v=202611162351';
-import { T } from './i18n.js?v=202611162351';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611162351';
-import * as version from './version.js?v=202611162351';
-import * as tienda from './tienda.js?v=202611162351';
-import * as pickers from '../ui/pickers.js?v=202611162351';
-import * as dnd from '../ui/dnd.js?v=202611162351';
+import { api, el, clear } from '../api.js?v=202611172158';
+import { setRoleDefault } from './theme.js?v=202611172158';
+import { vigilarSegmentados } from './segfade.js?v=202611172158';
+import * as store from './store.js?v=202611172158';
+import * as prefs from './prefs.js?v=202611172158';
+import * as router from './router.js?v=202611172158';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611172158';
+import { toast } from './toast.js?v=202611172158';
+import { icon } from './icons.js?v=202611172158';
+import * as iconsMod from './icons.js?v=202611172158';
+import { createTopbar } from './topbar.js?v=202611172158';
+import { createBottomNav } from './bottomnav.js?v=202611172158';
+import { createSearch } from './search.js?v=202611172158';
+import { createNotifications } from './notifications.js?v=202611172158';
+import { T } from './i18n.js?v=202611172158';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611172158';
+import * as version from './version.js?v=202611172158';
+import * as tienda from './tienda.js?v=202611172158';
+import * as pickers from '../ui/pickers.js?v=202611172158';
+import * as dnd from '../ui/dnd.js?v=202611172158';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -92,10 +92,12 @@ const clientCanView = (view) => (soloBandeja() ? view === 'bandeja' : false)
   || (view === 'conexiones' && !soloBandeja() && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id))
   // Asistente de IA (piloto): lo decide el servidor marca por marca (/auth/me.asistente_ia).
   || (view === 'asistente' && !soloBandeja() && !!(store.getState().me || {}).asistente_ia)
-  // Pauta (16-nov-2026, Vianey: "cada empresa pueda conectar su cuenta
-  // publicitaria y hacer sus pautas como si fuera su propio sitio"): el
-  // cliente ve SOLO la de su marca; el servidor lo vuelve a comprobar.
-  || (view === 'pauta' && !soloBandeja());
+  // Pauta: APAGADA para los clientes (17-nov-2026, Vianey: "a todos quita la
+  // opción de pauta porque todavía no está habilitada"; Meta aún no aprueba
+  // los permisos de anuncios). Para volver a darla, regresa esta línea:
+  //   || (view === 'pauta' && !soloBandeja())
+  // y 't.id === pauta' en el filtro de pestañas del cliente (topbar.js).
+  || false;
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),

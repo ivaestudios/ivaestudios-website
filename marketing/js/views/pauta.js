@@ -13,9 +13,9 @@
 // de siempre. Cada marca conecta SU cuenta publicitaria (agencia o propia).
 // Ver functions/api/marketing/_ads.js y la migración 052.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202611162351';
-import { icon } from '../shell/icons.js?v=202611162351';
-import { T, isEN } from '../shell/i18n.js?v=202611162351';
+import { el, clear, toast } from '../api.js?v=202611172158';
+import { icon } from '../shell/icons.js?v=202611172158';
+import { T, isEN } from '../shell/i18n.js?v=202611172158';
 
 const VIEW_ID = 'pauta';
 
@@ -809,7 +809,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202611162351';
+  link.href = '/marketing/css/pauta.css?v=202611172158';
   document.head.appendChild(link);
 }
 
