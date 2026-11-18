@@ -11,11 +11,11 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202611172249';
-import * as store from './store.js?v=202611172249';
-import * as prefs from './prefs.js?v=202611172249';
-import { icon } from './icons.js?v=202611172249';
-import { T } from './i18n.js?v=202611172249';
+import { el, clear } from '../api.js?v=202611172301';
+import * as store from './store.js?v=202611172301';
+import * as prefs from './prefs.js?v=202611172301';
+import { icon } from './icons.js?v=202611172301';
+import { T } from './i18n.js?v=202611172301';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -70,6 +70,21 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     onTap: () => openNotifications(tabAvisos),
   });
 
+  // El CLIENTE (17-nov-2026, Vianey): abajo van Feed · Contenido · Avisos.
+  // Feed = sus publicaciones como Instagram; Contenido = los meses con sus
+  // piezas en barritas (Video 1, Carrusel 1…). Las dos viven en views/contenido.js.
+  function irCliente(tab) {
+    const { view, activeClientId } = store.getState();
+    if (view === 'contenido' && document.body.dataset.cntTab === tab) {
+      router.navigate('contenido', { ...(activeClientId ? { cliente: activeClientId } : {}), tab });
+      scrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    router.navigate('contenido', { ...(activeClientId ? { cliente: activeClientId } : {}), tab });
+  }
+  const tabFeedCli = makeTab({ id: 'feed-cli', label: T('Feed', 'Feed'), ic: 'home', onTap: () => irCliente('feed') });
+  const tabListaCli = makeTab({ id: 'lista-cli', label: T('Contenido', 'Content'), ic: 'calendar', onTap: () => irCliente('lista') });
+
   // Bandeja con equipo (migración 040): el agente de la marca solo trabaja en
   // la Bandeja; el supervisor ve su Contenido y la Bandeja.
   const tabBandeja = makeTab({
@@ -83,7 +98,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   } else if (meBn.role === 'client' && meBn.bandeja_rol === 'supervisor') {
     clear(root).append(tabContenido, tabBandeja, tabAvisos);
   } else if (meBn.role === 'client') {
-    clear(root).append(tabContenido, tabAvisos);
+    clear(root).append(tabFeedCli, tabListaCli, tabAvisos);
   } else {
     clear(root).append(tabInicio, tabContenido, tabTrabajo, tabAvisos);
   }
@@ -91,7 +106,9 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   // ── Parches quirurgicos ────────────────────────────────────────────────────
   function patchActive() {
     const { view } = store.getState();
+    const cli = (store.getState().me || {}).role === 'client' && root.querySelector('[data-tab="feed-cli"]');
     const activeTab =
+      (cli && view === 'contenido') ? (document.body.dataset.cntTab === 'lista' ? 'lista-cli' : (document.body.dataset.cntTab === 'feed' ? 'feed-cli' : null)) :
       view === 'inicio' ? 'inicio' :
       CONTENT_VIEWS.includes(view) ? 'contenido' :
       view === 'mi-trabajo' ? 'mi-trabajo' :
@@ -117,6 +134,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   }
 
   store.subscribe(['view'], patchActive);
+  window.addEventListener('cnt:tab', patchActive);
   store.subscribe(['unreadCount'], patchUnread);
   patchActive(); patchUnread();
 

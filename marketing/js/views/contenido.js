@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611172249';
-import { T, isEN } from '../shell/i18n.js?v=202611172249';
-import { openSheet } from '../shell/sheet.js?v=202611172249';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611172249';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611172301';
+import { T, isEN } from '../shell/i18n.js?v=202611172301';
+import { openSheet } from '../shell/sheet.js?v=202611172301';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611172301';
 
 const VIEW_ID = 'contenido';
 
@@ -41,7 +41,8 @@ let rootEl = null;
 let cuerpoEl = null;
 let unsubs = [];
 let marcaId = null;
-let pestana = 'feed';            // feed | perfil | metricas | conexiones
+let pestana = 'feed';            // feed | perfil | metricas | conexiones | lista (Contenido, desde la barra de abajo)
+let mesLista = null;             // mes elegido en Contenido ('YYYY-MM' o 'sin')
 let verAnteriores = false;
 let porAbrir = null;             // ?pieza=<id> (aviso) hasta que llegue la pieza
 let sub = null;                  // vista montada adentro (métricas o conexiones)
@@ -174,27 +175,20 @@ function llenarMedio(caja, p) {
 
   if (esCarrusel(p)) {
     const fotos = datos && datos.slides.length ? datos.slides : [];
+    // Sin fotos sueltas: el carrusel puede vivir en ENTREGABLES (ADAGIO, 17-nov-2026:
+    // "los carruseles de adagio no están sincronizados"), como slides en video o
+    // como UNA tira ancha con todos los slides.
+    if (!fotos.length && d && d.slide_urls && d.slide_urls.length) {
+      pintarPista(caja, d.slide_urls.map((u) => ({ video: u })));
+      return;
+    }
+    if (!fotos.length && d && d.type === 'carrusel' && d.poster_url) {
+      pintarTira(caja, d.poster_url);
+      return;
+    }
     const textos = slidesFromPost(p).filter((t, i, a) => t || (i > 0 && i < a.length - 1));
     const items = fotos.length ? fotos.map((u) => ({ foto: u })) : (textos.length ? textos.map((t) => ({ texto: t })) : [{ texto: p.title || '' }]);
-    const pista = el('div', { class: 'ig-pista' });
-    items.forEach((it, i) => {
-      pista.appendChild(it.foto
-        ? el('div', { class: 'ig-slide' }, [el('img', { src: it.foto, alt: '', loading: 'lazy', decoding: 'async' })])
-        : el('div', { class: 'ig-slide ig-slide--texto' }, [
-          el('em', { text: i === 0 ? T('PORTADA', 'COVER') : (i === items.length - 1 ? T('CIERRE', 'CLOSING') : `${T('SLIDE', 'SLIDE')} ${i + 1}`) }),
-          el('p', { text: primerIdioma(it.texto) || T('Texto en preparación', 'Text in progress') }),
-          el('small', { text: T('Foto pendiente', 'Photo pending') }),
-        ]));
-    });
-    const cont = el('span', { class: 'ig-cont', text: `1/${items.length}` });
-    pista.addEventListener('scroll', () => {
-      const i = Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth));
-      cont.textContent = `${i + 1}/${items.length}`;
-      const pts = caja.parentNode && caja.parentNode.querySelector('.ig-puntos');
-      if (pts) [...pts.children].forEach((x, k) => x.classList.toggle('is-on', k === i));
-    }, { passive: true });
-    caja.append(...[pista, items.length > 1 ? cont : null].filter(Boolean));
-    caja.dataset.n = String(items.length);
+    pintarPista(caja, items);
     return;
   }
   if (esVideo(p)) {
@@ -219,19 +213,59 @@ function llenarMedio(caja, p) {
     el('p', { text: primerIdioma(p.hook || p.title) }),
   ]));
 }
+// La pista deslizable (fotos, videos o textos) con su contador y sus puntos.
+function pintarPista(caja, items) {
+  clear(caja);
+  const pista = el('div', { class: 'ig-pista' });
+  items.forEach((it, i) => {
+    if (it.foto) pista.appendChild(el('div', { class: 'ig-slide' }, [el('img', { src: it.foto, alt: '', loading: 'lazy', decoding: 'async' })]));
+    else if (it.video) pista.appendChild(el('div', { class: 'ig-slide' }, [el('video', { src: it.video + '#t=0.1', muted: true, playsinline: true, controls: true, preload: 'metadata' })]));
+    else if (it.tira) pista.appendChild(el('div', { class: 'ig-slide ig-slide--tira', role: 'img', style: { backgroundImage: `url("${it.tira}")`, backgroundSize: `${it.n * 100}% 100%`, backgroundPosition: it.n > 1 ? `${(i / (it.n - 1)) * 100}% 0` : '0 0' } }));
+    else {
+      pista.appendChild(el('div', { class: 'ig-slide ig-slide--texto' }, [
+        el('em', { text: i === 0 ? T('PORTADA', 'COVER') : (i === items.length - 1 ? T('CIERRE', 'CLOSING') : `${T('SLIDE', 'SLIDE')} ${i + 1}`) }),
+        el('p', { text: primerIdioma(it.texto) || T('Texto en preparación', 'Text in progress') }),
+        el('small', { text: T('Foto pendiente', 'Photo pending') }),
+      ]));
+    }
+  });
+  const cont = el('span', { class: 'ig-cont', text: `1/${items.length}` });
+  pista.addEventListener('scroll', () => {
+    const i = Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth));
+    cont.textContent = `${i + 1}/${items.length}`;
+    const pts = caja.parentNode && caja.parentNode.querySelector('.ig-puntos');
+    if (pts) [...pts.children].forEach((x, k) => x.classList.toggle('is-on', k === i));
+  }, { passive: true });
+  caja.append(...[pista, items.length > 1 ? cont : null].filter(Boolean));
+  caja.dataset.n = String(items.length);
+  ponerPuntos(caja);
+}
+// Una tira ancha (todos los slides en una imagen): se parte en slides de 4:5.
+function pintarTira(caja, url) {
+  clear(caja);
+  caja.appendChild(el('img', { src: url, alt: '', class: 'ig-tira-espera' }));
+  const img = new Image();
+  img.onload = () => {
+    const n = Math.max(1, Math.min(20, Math.round((img.naturalWidth / img.naturalHeight) / 0.8)));
+    pintarPista(caja, Array.from({ length: n }, () => ({ tira: url, n })));
+  };
+  img.src = url;
+}
+function ponerPuntos(caja) {
+  const art = caja.closest && caja.closest('.ig-post');
+  if (!art) return;
+  const viejo = art.querySelector('.ig-puntos');
+  if (viejo) viejo.remove();
+  const n = Number(caja.dataset.n || 0);
+  if (n > 1) caja.after(puntos(n));
+}
+
 function repintarMedio(id) {
   if (!rootEl) return;
   const p = piezasDeMarca().find((x) => x.id === id);
   if (!p) return;
   const caja = rootEl.querySelector(`.ig-media[data-medio="${CSS.escape(id)}"]`);
-  if (caja) {
-    llenarMedio(caja, p);
-    const art = caja.closest('.ig-post');
-    const viejo = art && art.querySelector('.ig-puntos');
-    const n = Number(caja.dataset.n || 0);
-    if (viejo) viejo.remove();
-    if (art && n > 1) caja.after(puntos(n));
-  }
+  if (caja) { llenarMedio(caja, p); ponerPuntos(caja); }
   const celda = rootEl.querySelector(`.ig-celda[data-pieza="${CSS.escape(id)}"]`);
   if (celda) llenarCelda(celda, p);
 }
@@ -475,9 +509,8 @@ function pintarFeed() {
   const anteriores = todas.filter((p) => p.publish_date && p.publish_date < corte);
   const lista = verAnteriores ? todas : todas.filter((p) => !p.publish_date || p.publish_date >= corte);
   const frag = el('div', { class: 'ig-feed' });
-  if (anteriores.length && !verAnteriores) {
-    frag.appendChild(el('button', { class: 'ig-anteriores', type: 'button', text: T(`Ver publicaciones anteriores (${anteriores.length})`, `See earlier posts (${anteriores.length})`), onclick: () => { verAnteriores = true; pintar(); } }));
-  }
+  // Los meses pasados se ven en Contenido (barra de abajo), no aquí (17-nov-2026).
+  void anteriores;
   if (!lista.length) {
     frag.appendChild(el('div', { class: 'ig-vacio' }, [
       el('p', { class: 'ig-vacio__t', text: T('Todavía no hay publicaciones para revisar.', 'Nothing to review yet.') }),
@@ -502,19 +535,93 @@ function pintarFeed() {
   for (const art of frag.querySelectorAll('.ig-post')) vigilar(art);
 }
 
+// ── Contenido: los meses y las piezas en barritas por tipo ───────────────────
+// Vianey (17-nov-2026): "que aparezcan como barritas de video 1, video 2…
+// carrusel 1, carrusel 2… por secciones… cuando aprieten en contenido tienen
+// que aparecer los meses". Tocar una barrita la abre en el Feed.
+function tituloCorto(p) {
+  const t = primerIdioma(p.title || p.hook || '').replace(/^\s*(reel|carrusel|post|foto|historia|pauta|video)\s*\d*\s*[·:\-–]\s*/i, '').trim();
+  return t || T('Sin título', 'Untitled');
+}
+function nombreMesCorto(ym) {
+  if (ym === 'sin') return T('Sin fecha', 'No date');
+  const [y, m] = ym.split('-').map(Number);
+  const s = new Date(y, m - 1, 1).toLocaleDateString(T('es-MX', 'en-US'), { month: 'short' }).replace('.', '');
+  return `${s.charAt(0).toUpperCase() + s.slice(1)} ${y}`;
+}
+function pintarLista() {
+  const todas = piezasDeMarca();
+  const meses = [...new Set(todas.map(mesDe).filter(Boolean))].sort();
+  const haySinFecha = todas.some((p) => !p.publish_date);
+  const opciones = [...meses, ...(haySinFecha ? ['sin'] : [])];
+  if (!mesLista || !opciones.includes(mesLista)) {
+    const hoy = hoyYmd().slice(0, 7);
+    mesLista = meses.includes(hoy) ? hoy : (meses.find((m) => m > hoy) || meses[meses.length - 1] || (haySinFecha ? 'sin' : hoy));
+  }
+  const chips = el('div', { class: 'ig-meses', role: 'tablist' }, opciones.map((ym) => el('button', {
+    class: 'ig-mesbtn' + (ym === mesLista ? ' is-on' : ''), type: 'button', role: 'tab', 'aria-selected': ym === mesLista ? 'true' : 'false',
+    text: nombreMesCorto(ym), onclick: () => { mesLista = ym; pintar(); },
+  })));
+  cuerpoEl.appendChild(chips);
+  setTimeout(() => { const on = chips.querySelector('.is-on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' }); }, 0);
+
+  const delMes = todas.filter((p) => (mesLista === 'sin' ? !p.publish_date : mesDe(p) === mesLista)).sort(ordenar);
+  if (!delMes.length) {
+    cuerpoEl.appendChild(el('div', { class: 'ig-vacio' }, [el('p', { class: 'ig-vacio__t', text: T('Todavía no hay contenido este mes.', 'No content this month yet.') })]));
+    return;
+  }
+  const porAprobar = delMes.filter((p) => etapa(p).k === 'revisar').length;
+  cuerpoEl.appendChild(el('p', { class: 'ig-resumen' }, [
+    el('b', { text: mesLista === 'sin' ? T('Sin fecha', 'No date') : nombreMes(mesLista) }),
+    el('span', { text: ` · ${delMes.length} ${delMes.length === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')}` + (porAprobar ? ` · ${porAprobar} ${T('por aprobar', 'to approve')}` : '') }),
+  ]));
+  const grupos = [
+    ['video', T('Videos', 'Videos'), T('Video', 'Video'), (p) => esVideo(p)],
+    ['carrusel', T('Carruseles', 'Carousels'), T('Carrusel', 'Carousel'), (p) => esCarrusel(p)],
+    ['foto', T('Fotos', 'Photos'), T('Foto', 'Photo'), (p) => !esVideo(p) && !esCarrusel(p)],
+  ];
+  for (const [k, titulo, uno, es] of grupos) {
+    const items = delMes.filter(es);
+    if (!items.length) continue;
+    const sec = el('section', { class: 'ig-seccion', dataset: { tipo: k } }, [
+      el('h3', { class: 'ig-seccion__t' }, [el('span', { text: titulo }), el('b', { text: String(items.length) })]),
+    ]);
+    items.forEach((p, i) => {
+      const e = etapa(p);
+      sec.appendChild(el('button', { class: 'ig-barra', type: 'button', onclick: () => irAPieza(p.id) }, [
+        el('span', { class: 'ig-barra__num', text: `${uno} ${i + 1}` }),
+        el('span', { class: 'ig-barra__txt' }, [
+          el('b', { text: tituloCorto(p) }),
+          el('small', { text: p.publish_date ? diaCorto(p) : T('Sin fecha', 'No date') }),
+        ]),
+        el('span', { class: 'ig-estado', dataset: { k: e.k }, text: e.txt }),
+      ]));
+    });
+    cuerpoEl.appendChild(sec);
+  }
+}
+
 // ── Pestaña Perfil ───────────────────────────────────────────────────────────
 function pedirIg() {
   if (ig) return;
   ig = 'cargando';
   api.get('/ig/feed').then((r) => { ig = r || { connected: false }; }).catch(() => { ig = { connected: false }; })
-    .finally(() => { if (rootEl) pintar(); });
+    .finally(() => {
+      if (!rootEl) return;
+      // En el Perfil cambia todo; en las demás solo la foto y el @ (sin
+      // redibujar: perdería dónde va deslizando).
+      if (pestana === 'perfil') pintar(); else repintarCabeceras();
+    });
 }
 const num = (n) => (n == null ? '–' : Number(n).toLocaleString(T('es-MX', 'en-US')));
 
 function llenarCelda(celda, p) {
   clear(celda);
   const cara = portadaDe(p);
-  if (cara) celda.appendChild(el('img', { src: cara, alt: '', loading: 'lazy', decoding: 'async' }));
+  const m = medios.get(p.id);
+  const d = entregable(p);
+  const esTira = esCarrusel(p) && !(m && m !== 'cargando' && m.slides.length) && d && d.type === 'carrusel' && d.poster_url === cara;
+  if (cara) celda.appendChild(el('img', { src: cara, alt: '', loading: 'lazy', decoding: 'async', class: esTira ? 'is-tira' : null }));
   else celda.appendChild(el('span', { class: 'ig-celda__txt', text: primerIdioma(p.hook || p.title).slice(0, 90) }));
   if (p.publish_date) celda.appendChild(el('span', { class: 'ig-celda__dia', text: diaCorto(p) }));
 }
@@ -569,14 +676,29 @@ function pintarPerfil() {
   if (viene.length) cuerpoEl.appendChild(el('p', { class: 'ig-muted ig-centro', text: T('Toca una publicación con borde de color para verla y aprobarla.', 'Tap a post with a colored border to see and approve it.') }));
 }
 
+function repintarCabeceras() {
+  const marcaEl = rootEl && rootEl.querySelector('.ig-marca');
+  if (marcaEl) {
+    const m = marca() || {};
+    clear(marcaEl).append(avatar(36), el('div', {}, [el('b', { text: m.name || T('Mi marca', 'My brand') }), el('small', { text: '@' + handle() })]));
+  }
+  for (const cab of (rootEl ? rootEl.querySelectorAll('.ig-cab') : [])) {
+    const viejo = cab.querySelector('.ig-av');
+    if (viejo) viejo.replaceWith(avatar(30));
+    const b = cab.querySelector('.ig-cab__txt b');
+    if (b) b.textContent = handle();
+  }
+  for (const b of (rootEl ? rootEl.querySelectorAll('.ig-caption__txt > b') : [])) b.textContent = handle() + ' ';
+}
+
 function irAPieza(id) {
   cambiar('feed');
   const p = piezasDeMarca().find((x) => x.id === id);
   if (p && p.publish_date && p.publish_date < hoyYmd().slice(0, 7) + '-01' && !verAnteriores) { verAnteriores = true; pintar(); }
-  setTimeout(() => {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
     const art = rootEl && rootEl.querySelector(`.ig-post[data-pieza="${CSS.escape(id)}"]`);
-    if (art) art.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 60);
+    if (art) art.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }));
 }
 
 // ── Métricas y Conexiones: las vistas de siempre, montadas aquí adentro ─────
@@ -585,8 +707,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611172249')
-      : await import('./conexiones.js?v=202611172249');
+      ? await import('./metricas.js?v=202611172301')
+      : await import('./conexiones.js?v=202611172301');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -608,9 +730,12 @@ const PESTANAS = () => [
   ['conexiones', T('Conexiones', 'Connections')],
 ];
 
+const tabValida = (k) => k === 'lista' || PESTANAS().some(([x]) => x === k);
+
 function cambiar(cual) {
   if (cual === pestana) return;
   pestana = cual;
+  verAnteriores = false;   // el Feed vuelve a empezar en el mes actual
   try { history.replaceState(null, '', location.hash.replace(/([?&])tab=[^&]*/, '$1').replace(/[?&]$/, '')); } catch { /* noop */ }
   pintar();
   window.scrollTo({ top: 0 });
@@ -633,7 +758,11 @@ function pintar() {
   rootEl.appendChild(cuerpoEl);
   if (pestana === 'feed') { pedirIg(); pintarFeed(); }
   else if (pestana === 'perfil') pintarPerfil();
+  else if (pestana === 'lista') pintarLista();
   else montarSub(pestana);
+  // La barra de abajo del cliente (Feed · Contenido · Avisos) marca dónde está.
+  document.body.dataset.cntTab = pestana;
+  try { window.dispatchEvent(new CustomEvent('cnt:tab', { detail: pestana })); } catch { /* noop */ }
 }
 
 // Mientras escribe en un panel no se repinta (perdería lo escrito).
@@ -695,7 +824,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611172249';
+  link.href = '/marketing/css/contenido.css?v=202611172301';
   document.head.appendChild(link);
 }
 
@@ -708,19 +837,24 @@ export default {
     host.appendChild(rootEl);
     marcaId = estado().activeClientId || null;
     const prm = (c && c.params) || {};
-    if (prm.tab && PESTANAS().some(([k]) => k === prm.tab)) pestana = prm.tab;
+    if (prm.tab && tabValida(prm.tab)) pestana = prm.tab;
     unsubs.push(ctx.store.subscribe(['posts', 'clients', 'activeClientId'], () => {
       const ahora = estado().activeClientId || null;
       if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); abiertos.clear(); verAnteriores = false; }
-      if (pestana === 'feed' || pestana === 'perfil') { if (!ocupado()) pintar(); }
+      if (pestana === 'feed' || pestana === 'perfil' || pestana === 'lista') { if (!ocupado()) pintar(); }
       abrirPendiente();
     }));
+    pedirIg();
     pintar();
     porAbrir = prm.pieza || null;
     abrirPendiente();
   },
   onParams(params) {
-    if (params && params.tab && params.tab !== pestana && PESTANAS().some(([k]) => k === params.tab)) cambiar(params.tab);
+    if (params && params.tab && tabValida(params.tab)) {
+      if (params.tab !== pestana) cambiar(params.tab);
+      else if (pestana === 'feed' && verAnteriores) { verAnteriores = false; pintar(); window.scrollTo({ top: 0 }); }
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     if (params && params.pieza) { porAbrir = params.pieza; abrirPendiente(); }
   },
   unmount() {
@@ -728,7 +862,9 @@ export default {
     unsubs = [];
     desmontarSub();
     if (observador) { observador.disconnect(); observador = null; }
-    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false;
+    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false; mesLista = null;
+    delete document.body.dataset.cntTab;
+    try { window.dispatchEvent(new CustomEvent('cnt:tab', { detail: null })); } catch { /* noop */ }
     abiertos.clear();
   },
 };
