@@ -58,6 +58,13 @@
    "indexada": 203,
    "rastreada": 434,
    "total": 909
+  },
+  "2026-11-20": {
+   "desconocida": 255,
+   "descubierta": 17,
+   "indexada": 203,
+   "rastreada": 434,
+   "total": 909
   }
  },
  "ivaestudios.com": {
@@ -123,6 +130,14 @@
    "indexada": 1305,
    "problema": 1,
    "rastreada": 126,
+   "total": 1481
+  },
+  "2026-11-20": {
+   "desconocida": 10,
+   "descubierta": 38,
+   "indexada": 1307,
+   "problema": 1,
+   "rastreada": 125,
    "total": 1481
   }
  }
