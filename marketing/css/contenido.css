@@ -180,3 +180,20 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
 .ig-desglose { padding: 4px 16px 14px; border: 1.5px solid var(--ig-line); border-top: 0; border-radius: 0 0 14px 14px; background: var(--ig-card); }
 .ig-desglose .ig-bloque:first-child { padding-top: 6px; }
 @media (prefers-reduced-motion: reduce) { .ig-barra__flecha { transition: none; } }
+
+/* Métricas y Conexiones se montan dentro de esta columna de 520 px, pero sus
+   rejillas se reparten según el ancho de la PANTALLA. En la compu metían 3
+   columnas en 520 px: cada tarjeta de Conexiones quedaba de 155 px, el nombre
+   de la red se encimaba con "Conectado" y los botones se salían de la tarjeta
+   (Vianey, 21-nov-2026: "terrible de compu"). Aquí adentro se acomodan como en
+   el celular, que es el ancho que de verdad tienen. */
+.ig .cx-grid { grid-template-columns: 1fr; }
+.ig .mt-aud { grid-template-columns: 1fr; }
+.ig .mt-posts { display: flex; flex-direction: column; }
+.ig .mt-post:nth-child(2) { border-top: 1px solid var(--border); }
+.ig .mt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.ig .mt-num { border-right: 0; padding: 12px 0 4px; }
+.ig .mt-num--hero { grid-column: 1 / -1; }
+.ig .mt-kpis .mt-num:last-child:nth-child(even) { grid-column: 1 / -1; }
+.ig .mt-kpis--acct .mt-num:last-child:nth-child(even) { grid-column: auto; }
+.ig .mt-kpis--acct .mt-num:only-child { grid-column: 1 / -1; }

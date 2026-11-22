@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611180829';
-import { T, isEN } from '../shell/i18n.js?v=202611180829';
-import { openSheet } from '../shell/sheet.js?v=202611180829';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611180829';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212306';
+import { T, isEN } from '../shell/i18n.js?v=202611212306';
+import { openSheet } from '../shell/sheet.js?v=202611212306';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212306';
 
 const VIEW_ID = 'contenido';
 
@@ -686,7 +686,12 @@ function alternarDesglose(item, barra, p, abrir) {
 function pedirIg() {
   if (ig) return;
   ig = 'cargando';
-  api.get('/ig/feed').then((r) => { ig = r || { connected: false }; }).catch(() => { ig = { connected: false }; })
+  // Con client_id: el equipo abre esta vista como "Vista del cliente" y, sin
+  // él, el servidor contestaba 400 ("client_id requerido") y el Perfil decía
+  // "Conecta tu Instagram" aunque sí estuviera conectado. A un cliente el
+  // servidor le pone su propia marca de todos modos.
+  const m = marca();
+  api.get('/ig/feed' + (m ? `?client_id=${encodeURIComponent(m.id)}` : '')).then((r) => { ig = r || { connected: false }; }).catch(() => { ig = { connected: false }; })
     .finally(() => {
       if (!rootEl) return;
       // En el Perfil cambia todo; en las demás solo la foto y el @ (sin
@@ -790,8 +795,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611180829')
-      : await import('./conexiones.js?v=202611180829');
+      ? await import('./metricas.js?v=202611212306')
+      : await import('./conexiones.js?v=202611212306');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -907,7 +912,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611180829';
+  link.href = '/marketing/css/contenido.css?v=202611212306';
   document.head.appendChild(link);
 }
 
