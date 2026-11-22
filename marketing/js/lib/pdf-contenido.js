@@ -14,14 +14,14 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202611212306';
-import { slidesFromPost } from '../editor/slides.js?v=202611212306';
+import { T } from '../shell/i18n.js?v=202611212313';
+import { slidesFromPost } from '../editor/slides.js?v=202611212313';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas, pastilla,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202611212306';
+} from './pdf-lienzo.js?v=202611212313';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
@@ -45,13 +45,25 @@ function fechaBonita(publishDate) {
 // ── Página de una pieza: PRIMERO la inspiración, DESPUÉS el guion ───────────
 // (Pedido de Vianey: "primero ve el video de inspiración y luego ve el
 // guion — sube el link de la inspo primero".)
-// Si el guion no cabe ni a 24px (carruseles de 8 slides, guiones largos), la
-// pieza CONTINÚA en la página siguiente en vez de salirse de la hoja (Israel,
-// 2026-10-06: "el carrusel 1 sale de la hoja del pdf"). Para eso el folio y
-// el total se calculan ANTES de dibujar (contarPaginasGuion).
+//
+// El guion se arma RENGLÓN POR RENGLÓN y fluye de una hoja a la siguiente
+// (Vianey, 21-nov-2026, PDF de diciembre de MELISA: "está desordenado"). Antes
+// se repartía por secciones completas: un guion de YouTube dejaba el gancho
+// solo en una hoja, el desarrollo apretado a 24 px en otra y el cierre solo en
+// una tercera; y si el desarrollo no cabía, se recortaba con "…" y perdía
+// todos sus saltos de línea. Ahora:
+//  - si la pieza cabe en una hoja a 30 o 27 px, va en una hoja (como siempre);
+//  - si no, el texto corre a 27 px y pasa a la siguiente hoja donde se acabe
+//    el espacio, con "Desarrollo · continúa" arriba; nada se recorta;
+//  - un renglón vacío deja aire entre párrafos;
+//  - un renglón en MAYÚSCULAS ("FULL BODY", "CALENTAMIENTO · 3 min") es un
+//    subtítulo y un renglón entre paréntesis es una nota de producción
+//    ("(En pantalla: …)"): se ven distintos del texto que se dice.
 const Y_TOP_BASE = 360;
 const Y_LIMITE = PIE_TOP - 40;
 const ALTO_INSPO = 12 + 32 + 132 + 236;   // rótulo + botón + nota + "DESPUÉS — LEE…"
+const ALTO_ETIQUETA = 44;
+const AIRE_SECCION = 46;
 
 // Dónde arranca el primer bloque de texto según lleve TAG y/o inspo.
 function yTopDe(cx, { tag, inspo }) {
@@ -63,41 +75,119 @@ function yTopDe(cx, { tag, inspo }) {
   if (inspo) yTop += ALTO_INSPO;
   return yTop;
 }
-function altoSeccion(cx, s, size) {
-  const lineH = Math.round(size * 1.62);
-  const n = parrafo(cx, s.texto, { x: MX, size, peso: 300, y: 0 }, CONT_W, lineH, true);
-  return 44 + n * lineH + 46;
+
+const LETRAS = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g;
+function esSubtitulo(linea) {
+  const t = linea.trim();
+  if (!t || t.length > 100) return false;
+  const cabeza = t.split(/\s·\s|\s\(|:/)[0];
+  const letras = (cabeza.match(LETRAS) || []).join('');
+  return letras.length >= 3 && letras === letras.toUpperCase();
 }
-// Reparte las secciones en páginas. Primero intenta UNA página con auto-ajuste
-// 30 → 27 → 24 px; si ni a 24 cabe, parte a 24 px: la primera página arranca
-// en yTop1 (con inspo y tag) y las siguientes en yTopN.
-function repartir(cx, secciones, yTop1, yTopN) {
-  for (const size of [30, 27, 24]) {
-    const alto = secciones.reduce((a, s) => a + altoSeccion(cx, s, size), 0) - 46;
-    if (yTop1 + alto <= Y_LIMITE) return { size, paginas: [secciones] };
+const esNota = (linea) => /^\(.*\)$/.test(linea.trim());
+
+// Corta un renglón en líneas que caben en `maxW` (sin dibujar).
+function envolver(cx, str, o, maxW) {
+  const lineas = [];
+  let linea = '';
+  for (const p of String(str).split(/\s+/).filter(Boolean)) {
+    const cand = linea ? `${linea} ${p}` : p;
+    if (anchoTexto(cx, cand, o) <= maxW || !linea) linea = cand;
+    else { lineas.push(linea); linea = p; }
   }
-  const size = 24;
-  const paginas = []; let actual = []; let y = yTop1;
-  for (const s of secciones) {
-    const alto = altoSeccion(cx, s, size);
-    if (actual.length && y + alto - 46 > Y_LIMITE) { paginas.push(actual); actual = []; y = yTopN; }
-    actual.push(s); y += alto;
-  }
-  if (actual.length) paginas.push(actual);
-  return { size, paginas };
+  if (linea) lineas.push(linea);
+  return lineas;
 }
+
+// Estilos de cada tipo de renglón (mismo papel de imprenta del lienzo).
+const estiloTexto = (sz) => ({ x: MX, size: sz, peso: 300, color: TINTA, esp: 0 });
+const ESTILO_ETIQUETA = { x: MX, size: 21, peso: 500, esp: 0.3, mayus: true, color: HUMO };
+const ESTILO_SUBTITULO = { x: MX, size: 22, peso: 700, esp: 0.12, mayus: true, color: TINTA };
+const estiloNota = (sz) => ({ x: MX, size: Math.round(sz * 0.8), peso: 400, esp: 0, color: HUMO });
+
+// Las secciones → una lista de renglones con su alto. `seccion` dice a qué
+// sección pertenece cada renglón (para el "· continúa" de la hoja nueva).
+function renglonesDe(cx, secciones, sz) {
+  const lineH = Math.round(sz * 1.62);
+  const out = [];
+  secciones.forEach((s, i) => {
+    if (i > 0) out.push({ k: 'aire', alto: AIRE_SECCION, seccion: s.etiqueta });
+    out.push({ k: 'etiqueta', texto: s.etiqueta, alto: ALTO_ETIQUETA, seccion: s.etiqueta });
+    let previo = 'etiqueta';
+    for (const crudo of String(s.texto).split('\n')) {
+      const linea = crudo.trim();
+      if (!linea) {
+        if (previo !== 'etiqueta' && previo !== 'hueco') out.push({ k: 'hueco', alto: Math.round(sz * 0.55), seccion: s.etiqueta });
+        previo = 'hueco';
+        continue;
+      }
+      if (esSubtitulo(linea)) {
+        // Puede ocupar dos renglones ("BLOQUE 2 · FUERZA Y ESTABILIDAD · 5 min (…)").
+        const arriba = previo === 'etiqueta' ? 0 : 18;
+        envolver(cx, linea.toUpperCase(), ESTILO_SUBTITULO, CONT_W).forEach((l, j) => {
+          const extra = j === 0 ? arriba : 0;
+          out.push({ k: 'subtitulo', texto: l, alto: extra + 32, base: extra + 22, seccion: s.etiqueta });
+        });
+        out[out.length - 1].alto += 8;
+        previo = 'subtitulo';
+        continue;
+      }
+      if (esNota(linea)) {
+        const o = estiloNota(sz);
+        const lh = Math.round(o.size * 1.5);
+        envolver(cx, linea, o, CONT_W).forEach((l, j) => {
+          out.push({ k: 'nota', texto: l, alto: lh + (j === 0 ? 6 : 0), base: o.size + (j === 0 ? 6 : 0), seccion: s.etiqueta });
+        });
+        previo = 'nota';
+        continue;
+      }
+      envolver(cx, linea, estiloTexto(sz), CONT_W).forEach((l) => {
+        out.push({ k: 'texto', texto: l, alto: lineH, base: sz, seccion: s.etiqueta });
+      });
+      previo = 'texto';
+    }
+  });
+  return out;
+}
+
+// Acomoda los renglones en hojas. Una etiqueta o un subtítulo nunca se queda
+// solo al pie de una hoja: se va con su primer renglón.
+function acomodar(renglones, yTop1, yTopN) {
+  const paginas = [];
+  let pag = []; let y = yTop1;
+  renglones.forEach((r, i) => {
+    if ((r.k === 'aire' || r.k === 'hueco') && !pag.length) return;
+    const sigue = renglones[i + 1];
+    const junto = (r.k === 'etiqueta' || r.k === 'subtitulo') && sigue ? sigue.alto : 0;
+    if (pag.length && y + r.alto + junto > Y_LIMITE) {
+      paginas.push(pag); pag = []; y = yTopN;
+      if (r.k === 'aire' || r.k === 'hueco') return;
+      if (r.k !== 'etiqueta') { pag.push({ k: 'etiqueta', texto: `${r.seccion} · continúa`, alto: ALTO_ETIQUETA, y }); y += ALTO_ETIQUETA; }
+    }
+    pag.push({ ...r, y });
+    y += r.alto;
+  });
+  if (pag.length) paginas.push(pag);
+  return paginas;
+}
+
 function planDe(opts) {
   const conTexto = (opts.secciones || []).filter((s) => s.texto);
   if (!conTexto.length) return { size: 30, paginas: [[]] };
   const { cx } = nuevaPagina();   // lienzo de medición, se descarta
   const yTop1 = yTopDe(cx, opts);
   const yTopN = yTopDe(cx, { tag: opts.tag, inspo: null });
-  return repartir(cx, conTexto, yTop1, yTopN);
+  // Una sola hoja si cabe a 30 o a 27 px; si no, corre a 27 px por varias.
+  for (const size of [30, 27]) {
+    const paginas = acomodar(renglonesDe(cx, conTexto, size), yTop1, yTopN);
+    if (paginas.length === 1) return { size, paginas };
+  }
+  return { size: 27, paginas: acomodar(renglonesDe(cx, conTexto, 27), yTop1, yTopN) };
 }
 export function contarPaginasGuion(opts) { return planDe(opts).paginas.length; }
 
-// Dibuja UNA página con las secciones que le tocan (ya repartidas).
-function dibujarPaginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, secciones, inspo, tag, pendiente, folio, total, size, sigue }) {
+// Dibuja UNA hoja con los renglones que le tocan (ya acomodados).
+function dibujarPaginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, renglones, inspo, tag, pendiente, folio, total, size, sigue }) {
   const { cv, cx } = nuevaPagina();
   cab(cx, handle, marca);
   tituloSeccion(cx, titulo, etiqueta || 'guion', sub);
@@ -121,47 +211,16 @@ function dibujarPaginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fe
     regla(cx, W / 2, CONT_W, y0 + 32 + 132 + 96);
     const lee = (etiqueta === 'carrusel' || etiqueta === 'post') ? 'DESPUÉS — LEE LOS TEXTOS' : 'DESPUÉS — LEE EL GUION';
     texto(cx, lee, { x: MX, y: y0 + 32 + 132 + 158, size: 21, peso: 500, esp: 0.3, color: HUMO });
-    yTop = y0 + ALTO_INSPO - 12;   // aire entre el rótulo del paso y el primer bloque
   }
-  const yLimite = Y_LIMITE;
 
-  const conTexto = (secciones || []).filter((s) => s.texto);
-  const dibujarGuion = (sz, medir) => {
-    const lineH = Math.round(sz * 1.62);
-    const o = { x: MX, size: sz, peso: 300, color: TINTA, esp: 0 };
-    let y = yTop;
-    for (const s of conTexto) {
-      if (!medir) texto(cx, s.etiqueta, { x: MX, y, size: 21, peso: 500, esp: 0.3, mayus: true, color: HUMO });
-      y += 44;
-      const n = parrafo(cx, s.texto, { ...o, y: y + sz }, CONT_W, lineH, medir);
-      y += n * lineH + 46;
+  if (renglones && renglones.length) {
+    const sz = size || 27;
+    for (const r of renglones) {
+      if (r.k === 'etiqueta') texto(cx, r.texto, { ...ESTILO_ETIQUETA, y: r.y });
+      else if (r.k === 'subtitulo') texto(cx, r.texto, { ...ESTILO_SUBTITULO, y: r.y + r.base });
+      else if (r.k === 'nota') texto(cx, r.texto, { ...estiloNota(sz), y: r.y + r.base });
+      else if (r.k === 'texto') texto(cx, r.texto, { ...estiloTexto(sz), y: r.y + r.base });
     }
-    return y - 46;
-  };
-
-  if (conTexto.length) {
-    const sz = size || 24;
-    if (dibujarGuion(sz, true) > yLimite) {
-      // Un solo bloque más largo que la hoja: se recorta el final con "…"
-      // (jamás encimarse con el pie).
-      const lineH = Math.round(sz * 1.62);
-      const maxLineasUlt = () => {
-        let y = yTop;
-        for (let i = 0; i < conTexto.length - 1; i++) {
-          y += 44;
-          y += parrafo(cx, conTexto[i].texto, { x: MX, size: sz, peso: 300, y: 0 }, CONT_W, lineH, true) * lineH + 46;
-        }
-        return Math.max(1, Math.floor((yLimite - y - 44) / lineH));
-      };
-      const ult = conTexto[conTexto.length - 1];
-      const cabe = maxLineasUlt();
-      const palabras = String(ult.texto).split(/\s+/);
-      while (palabras.length > 1 && parrafo(cx, palabras.join(' ') + '…', { x: MX, size: sz, peso: 300, y: 0 }, CONT_W, lineH, true) > cabe) {
-        palabras.pop();
-      }
-      ult.texto = palabras.join(' ') + '…';
-    }
-    dibujarGuion(sz, false);
     if (sigue) texto(cx, 'Sigue en la siguiente página →', { x: W - MX, y: PIE_TOP - 6, size: 21, peso: 500, esp: 0.26, color: HUMO, alinear: 'right' });
   } else if (pendiente) {
     // TESTIMONIO sin material: el guion va EN BLANCO a propósito — lo que
@@ -170,7 +229,7 @@ function dibujarPaginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fe
     texto(cx, 'Pendiente de enviar', { x: W / 2, y: yVacio, size: 64, cursiva: true, alinear: 'center' });
     parrafo(cx, pendiente, { x: W / 2, y: yVacio + 86, size: 27, peso: 300, color: 'rgba(23,23,27,.72)', alinear: 'center' }, CONT_W - 60, 46);
   } else {
-    const yVacio = inspo ? yTop + 260 : 760;
+    const yVacio = inspo ? yTop + ALTO_INSPO + 260 : 760;
     texto(cx, 'Guion en preparación', { x: W / 2, y: yVacio, size: 64, cursiva: true, alinear: 'center' });
     texto(cx, 'Te lo compartimos en cuanto esté escrito.', { ...NOTA, x: W / 2, y: yVacio + 80 });
   }
@@ -179,13 +238,13 @@ function dibujarPaginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fe
   return { dataUrl: exportar(cv), links };
 }
 
-// Una pieza → una o varias páginas (continuaciones con "· continúa" en el
+// Una pieza → una o varias hojas (continuaciones con "· continúa" en el
 // subtítulo, sin repetir el botón de inspiración). `folio` es el de la primera.
 function paginasGuion(opts) {
   const { size, paginas } = planDe(opts);
-  return paginas.map((secs, i) => dibujarPaginaGuion({
+  return paginas.map((renglones, i) => dibujarPaginaGuion({
     ...opts,
-    secciones: secs,
+    renglones,
     size,
     inspo: i === 0 ? opts.inspo : null,
     sub: i === 0 ? opts.sub : `${opts.sub ? `${opts.sub} · ` : ''}continúa`,

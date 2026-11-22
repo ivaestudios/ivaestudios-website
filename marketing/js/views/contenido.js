@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212306';
-import { T, isEN } from '../shell/i18n.js?v=202611212306';
-import { openSheet } from '../shell/sheet.js?v=202611212306';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212306';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212313';
+import { T, isEN } from '../shell/i18n.js?v=202611212313';
+import { openSheet } from '../shell/sheet.js?v=202611212313';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212313';
 
 const VIEW_ID = 'contenido';
 
@@ -795,8 +795,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611212306')
-      : await import('./conexiones.js?v=202611212306');
+      ? await import('./metricas.js?v=202611212313')
+      : await import('./conexiones.js?v=202611212313');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -912,7 +912,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611212306';
+  link.href = '/marketing/css/contenido.css?v=202611212313';
   document.head.appendChild(link);
 }
 
