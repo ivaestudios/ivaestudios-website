@@ -29,11 +29,11 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611220131';
-import { T, isEN } from '../shell/i18n.js?v=202611220131';
-import { openSheet } from '../shell/sheet.js?v=202611220131';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611220131';
-import { multipartUpload } from '../lib/video-upload.js?v=202611220131';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611220222';
+import { T, isEN } from '../shell/i18n.js?v=202611220222';
+import { openSheet } from '../shell/sheet.js?v=202611220222';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611220222';
+import { multipartUpload } from '../lib/video-upload.js?v=202611220222';
 
 const VIEW_ID = 'contenido';
 
@@ -374,11 +374,14 @@ function acciones(p, e) {
     const archivo = el('input', { type: 'file', accept: 'video/*', hidden: true });
     const subir = el('label', { class: 'ig-btn is-primario' }, [el('span', { text: videoDe(p) ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video') }), archivo]);
     archivo.addEventListener('change', () => subirVideo(p, archivo, subir));
-    return el('div', { class: 'ig-acciones' }, [
-      subir,
-      el('button', { class: 'ig-btn', type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }),
+    // Solo las piezas de VIDEO llevan "Subir video"; un carrusel o un post de
+    // foto suben sus imágenes al abrir la pieza.
+    const sinVideo = !esVideo(p);
+    return el('div', { class: 'ig-acciones' + (sinVideo ? ' is-dos' : '') }, [
+      sinVideo ? null : subir,
+      el('button', { class: 'ig-btn' + (sinVideo ? ' is-primario' : ''), type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }),
       el('button', { class: 'ig-btn' + (abierto && abierto !== 'cambio' ? ' is-activo' : ''), type: 'button', text: T('Guion', 'Script'), onclick: () => alternar(p, 'guion') }),
-    ]);
+    ].filter(Boolean));
   }
   const fila = el('div', { class: 'ig-acciones' + (e.k === 'publicado' ? ' is-una' : '') });
   if (e.k !== 'publicado') {
@@ -978,8 +981,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611220131')
-      : await import('./conexiones.js?v=202611220131');
+      ? await import('./metricas.js?v=202611220222')
+      : await import('./conexiones.js?v=202611220222');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -1096,7 +1099,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611220131';
+  link.href = '/marketing/css/contenido.css?v=202611220222';
   document.head.appendChild(link);
 }
 
