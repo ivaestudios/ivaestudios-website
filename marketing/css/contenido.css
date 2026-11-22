@@ -270,3 +270,18 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
   .ig[data-tab="lista"] .ig-cuerpo { max-width: 720px; margin: 0 auto; }
   .ig[data-tab="lista"] .ig-meses { margin: 0; padding-inline: 0; }
 }
+
+/* ── Comentarios en cada publicación: el mismo hilo que ve el equipo (22-nov-2026) ── */
+.ig .ig-hilo { display: grid; gap: 6px; padding: 12px 14px 2px; }
+.ig .ig-hilo__mas { justify-self: start; padding: 0; border: 0; background: none; color: var(--ig-dim); font: inherit; font-size: 14px; cursor: pointer; }
+.ig .ig-com { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ig-tx); overflow-wrap: anywhere; }
+.ig .ig-com b { font-weight: 600; }
+.ig .ig-com__tag { display: inline-block; margin-right: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ig-acc); vertical-align: 1px; }
+.ig .ig-com small { margin-left: 6px; color: var(--ig-dim); font-size: 12px; white-space: nowrap; }
+.ig .ig-hilo__comp { display: flex; align-items: center; gap: 8px; margin-top: 4px; border-top: 1px solid var(--ig-line); }
+.ig .ig-hilo__comp:focus-within { border-top-color: var(--ig-tx); }
+.ig .ig-hilo__caja { flex: 1; min-width: 0; padding: 10px 0; border: 0; background: transparent; color: var(--ig-tx); font: inherit; font-size: 14px; outline: none; }
+.ig .ig-hilo__caja::placeholder { color: var(--ig-dim); }
+.ig .ig-hilo__enviar { flex: none; padding: 8px 2px; border: 0; background: none; color: var(--ig-acc); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ig .ig-hilo__enviar:disabled { opacity: .5; cursor: default; }
+.ig .ig-hilo__enviar:focus-visible { outline: 2px solid var(--ig-acc); outline-offset: 2px; border-radius: 6px; }

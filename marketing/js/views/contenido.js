@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212318';
-import { T, isEN } from '../shell/i18n.js?v=202611212318';
-import { openSheet } from '../shell/sheet.js?v=202611212318';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212318';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611220110';
+import { T, isEN } from '../shell/i18n.js?v=202611220110';
+import { openSheet } from '../shell/sheet.js?v=202611220110';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611220110';
 
 const VIEW_ID = 'contenido';
 
@@ -52,7 +52,9 @@ const dlvMarca = new Map();      // marca → Map(post_id → entregable) | 'car
 let cargadoEn = 0;               // cuándo se pidieron los medios (para refrescar al volver a la app)
 let ig = null;                   // respuesta de /ig/feed | 'cargando'
 const abiertos = new Map();      // postId → 'cambio' | 'guion' | 'editar' | 'nuevo'
-const desplegadas = new Set();   // Contenido: barritas con el guion desplegado
+const desplegadas = new Set();
+const hilos = new Map();         // postId → comentarios[] | 'cargando': el MISMO hilo que ve el equipo en su app
+const hilosTodos = new Set();    // postIds con todos sus comentarios a la vista   // Contenido: barritas con el guion desplegado
 
 // ── Datos ────────────────────────────────────────────────────────────────────
 const estado = () => ctx.store.getState();
@@ -347,9 +349,10 @@ function publicacion(p) {
     caja,
     n > 1 ? puntos(n) : null,
     el('div', { class: 'ig-caption' }, [txt, (caption.length + tags.length) > 90 ? verTodo : null]),
-    e.k === 'cambio' ? el('p', { class: 'ig-pedido', text: T('Pediste un cambio. Tu equipo ya lo tiene y te avisa cuando esté listo.', 'You asked for a change. Your team has it and will let you know when it’s ready.') }) : null,
+    e.k === 'cambio' ? el('p', { class: 'ig-pedido', text: T('Pediste un cambio. Tu equipo ya lo tiene; su respuesta te aparece aquí abajo, en los comentarios.', 'You asked for a change. Your team has it and will let you know when it’s ready.') }) : null,
     acciones(p, e),
     panel(p),
+    hilo(p),
   ].filter(Boolean));
   return art;
 }
@@ -390,6 +393,75 @@ function repintarPost(id) {
   if (caja) setTimeout(() => caja.focus(), 30);
 }
 
+// ── Comentarios: un solo hilo por pieza (el cliente y su equipo ven lo mismo) ──
+// Antes el cliente solo podía "Pedir cambio" y nunca veía lo que le contestaban
+// (Vianey, 22-nov-2026: "si pide el cambio, también le debe permitir ver la
+// respuesta"). El servidor ya guarda y avisa: GET /posts/:id trae el hilo sin
+// los comentarios internos, y POST /posts/:id/comments avisa al equipo.
+function pedirHilo(id, forzar) {
+  if (!id || (!forzar && hilos.has(id))) return;
+  if (!forzar) hilos.set(id, 'cargando');
+  api.get(`/posts/${encodeURIComponent(id)}`)
+    .then((r) => hilos.set(id, ((r && r.comments) || []).filter((c) => String(c.body || '').trim())))
+    .catch(() => { if (!Array.isArray(hilos.get(id))) hilos.set(id, []); })
+    .finally(() => repintarHilo(id));
+}
+function cuandoComento(c) {
+  const t = String(c.created_at || '');
+  const d = new Date(/Z$|[+-]\d\d:?\d\d$/.test(t) ? t : t.replace(' ', 'T') + 'Z');
+  if (isNaN(d.getTime())) return '';
+  const min = Math.round((Date.now() - d.getTime()) / 60000);
+  if (min < 1) return T('ahora', 'now');
+  if (min < 60) return T(`hace ${min} min`, `${min} min ago`);
+  if (min < 1440) return T(`hace ${Math.round(min / 60)} h`, `${Math.round(min / 60)} h ago`);
+  return d.toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short' });
+}
+function hilo(p) {
+  const id = p.id;
+  const lista = hilos.get(id);
+  const caja = el('div', { class: 'ig-hilo', dataset: { hilo: id } });
+  if (Array.isArray(lista) && lista.length) {
+    const todos = hilosTodos.has(id) || lista.length <= 2;
+    if (!todos) caja.appendChild(el('button', { class: 'ig-hilo__mas', type: 'button', text: T(`Ver los ${lista.length} comentarios`, `View all ${lista.length} comments`), onclick: () => { hilosTodos.add(id); repintarHilo(id); } }));
+    for (const c of (todos ? lista : lista.slice(-2))) {
+      const equipo = !!c.author_role && c.author_role !== 'client';
+      caja.appendChild(el('p', { class: 'ig-com' + (equipo ? ' is-equipo' : '') }, [
+        el('b', { text: (c.author_name || (equipo ? T('Tu equipo', 'Your team') : T('Tú', 'You'))) + ' ' }),
+        equipo ? el('span', { class: 'ig-com__tag', text: T('Tu equipo', 'Your team') }) : null,
+        el('span', { text: String(c.body || '').trim() }),
+        el('small', { text: cuandoComento(c) }),
+      ].filter(Boolean)));
+    }
+  }
+  const entrada = el('input', { class: 'ig-hilo__caja', type: 'text', maxlength: 2000, placeholder: T('Escribe un comentario…', 'Add a comment…'), 'aria-label': T('Escribe un comentario', 'Add a comment') });
+  const enviar = el('button', { class: 'ig-hilo__enviar', type: 'button', text: T('Enviar', 'Post'), onclick: () => comentar(p, entrada, enviar) });
+  entrada.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); comentar(p, entrada, enviar); } });
+  caja.appendChild(el('div', { class: 'ig-hilo__comp' }, [entrada, enviar]));
+  return caja;
+}
+async function comentar(p, entrada, boton) {
+  const body = entrada.value.trim();
+  if (!body) { entrada.focus(); return; }
+  boton.disabled = true;
+  try {
+    await api.post(`/posts/${encodeURIComponent(p.id)}/comments`, { body });
+    entrada.value = '';
+    toast(T('Listo, tu equipo ya lo ve.', 'Done, your team can see it.'), 'success');
+    pedirHilo(p.id, true);
+  } catch (err) { toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
+  finally { boton.disabled = false; }
+}
+function repintarHilo(id) {
+  const p = piezasDeMarca().find((x) => x.id === id);
+  const viejo = rootEl && rootEl.querySelector(`.ig-hilo[data-hilo="${CSS.escape(id)}"]`);
+  if (!p || !viejo) return;
+  const activo = document.activeElement;
+  const escrito = viejo.contains(activo) && activo.classList.contains('ig-hilo__caja') ? activo.value : null;
+  const nuevo = hilo(p);
+  viejo.replaceWith(nuevo);
+  if (escrito !== null) { const c = nuevo.querySelector('.ig-hilo__caja'); c.value = escrito; c.focus(); }
+}
+
 // Bloques del guion: reel = Gancho/Desarrollo/Cierre; carrusel = sus slides.
 function bloques(p) {
   if (esCarrusel(p)) {
@@ -414,6 +486,7 @@ function panel(p) {
         abiertos.delete(p.id);
         toast(T('Listo, tu equipo ya tiene tu cambio.', 'Done, your team has your change.'), 'success');
         repintarPost(p.id);
+        pedirHilo(p.id, true);
       } catch (err) { enviar.disabled = false; toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
     } });
     return el('div', { class: 'ig-panel' }, [el('h4', { text: T('¿Qué quieres cambiar?', 'What would you like to change?') }), caja, el('div', { class: 'ig-fila' }, [enviar])]);
@@ -547,6 +620,8 @@ function vigilar(nodo) {
         if (!en.isIntersecting) continue;
         observador.unobserve(en.target);
         pedirMedio(en.target.dataset.medio || en.target.dataset.pieza);
+        const post = en.target.closest('.ig-post');
+        if (post) pedirHilo(post.dataset.pieza);
       }
     }, { rootMargin: '800px 0px' });
   }
@@ -863,8 +938,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611212318')
-      : await import('./conexiones.js?v=202611212318');
+      ? await import('./metricas.js?v=202611220110')
+      : await import('./conexiones.js?v=202611220110');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -981,7 +1056,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611212318';
+  link.href = '/marketing/css/contenido.css?v=202611220110';
   document.head.appendChild(link);
 }
 
