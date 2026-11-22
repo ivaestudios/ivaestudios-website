@@ -29,10 +29,10 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212313';
-import { T, isEN } from '../shell/i18n.js?v=202611212313';
-import { openSheet } from '../shell/sheet.js?v=202611212313';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212313';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611212318';
+import { T, isEN } from '../shell/i18n.js?v=202611212318';
+import { openSheet } from '../shell/sheet.js?v=202611212318';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611212318';
 
 const VIEW_ID = 'contenido';
 
@@ -317,6 +317,8 @@ function repintarMedio(id) {
   if (caja) { llenarMedio(caja, p); ponerPuntos(caja); }
   const celda = rootEl.querySelector(`.ig-celda[data-pieza="${CSS.escape(id)}"]`);
   if (celda) llenarCelda(celda, p);
+  const mini = rootEl.querySelector(`.ig-lado__mini[data-pieza="${CSS.escape(id)}"]`);
+  if (mini) llenarMini(mini, p);
 }
 function puntos(n) {
   return el('div', { class: 'ig-puntos' }, Array.from({ length: n }, (_, i) => el('i', { class: i ? '' : 'is-on' })));
@@ -581,7 +583,71 @@ function pintarFeed() {
     el('button', { class: 'ig-btn', type: 'button', text: T('Mandar un guion', 'Send a script'), onclick: abrirIdea }),
   ]));
   cuerpoEl.appendChild(frag);
+  cuerpoEl.appendChild(ladoFeed());
   for (const art of frag.querySelectorAll('.ig-post')) vigilar(art);
+}
+
+// ── Panel de la derecha del Feed (solo en la compu, ≥ 1024 px) ──────────────
+// Vianey, 21-nov-2026: "la versión de computadora no puede ser igual que la del
+// móvil, se ve mucho vacío en los costados". La marca, el resumen de lo que hay
+// en el feed, lo que viene (toca y brinca a la publicación) y el acceso a
+// Contenido por mes, que en el celular vive en la barra de abajo y en la compu
+// no existía. En el celular este panel no se muestra (CSS).
+function llenarMini(mini, p) {
+  clear(mini);
+  const cara = portadaDe(p);
+  if (cara) mini.appendChild(el('img', { src: cara, alt: '', loading: 'lazy', decoding: 'async' }));
+  else mini.appendChild(el('span', { text: contentTypeLabel(p.content_type || 'reel').charAt(0) }));
+}
+function ladoFeed() {
+  const m = marca() || {};
+  const datos = ig && ig !== 'cargando' && ig.connected && !ig.error ? ig : null;
+  const pf = (datos && datos.perfil) || {};
+  const hoy = hoyYmd();
+  const corte = hoy.slice(0, 7) + '-01';
+  const enFeed = piezasDeMarca().filter((p) => !p.publish_date || p.publish_date >= corte);
+  const cuenta = (k) => enFeed.filter((p) => etapa(p).k === k).length;
+  const viene = piezasDeMarca().filter((p) => p.status !== 'publicado' && p.publish_date && p.publish_date >= hoy).sort(ordenar).slice(0, 5);
+  const dato = (k, txt) => {
+    const n = cuenta(k);
+    return el('div', { class: 'ig-lado__dato' + (n ? '' : ' is-cero') }, [el('span', { class: 'ig-estado', dataset: { k }, text: txt }), el('b', { text: String(n) })]);
+  };
+  return el('aside', { class: 'ig-lado', 'aria-label': T('Resumen', 'Summary') }, [
+    el('div', { class: 'ig-lado__marca' }, [
+      avatar(56),
+      el('div', {}, [
+        el('b', { text: m.name || T('Mi marca', 'My brand') }),
+        el('small', { text: '@' + handle() }),
+        pf.followers != null ? el('small', { text: `${num(pf.followers)} ${T('seguidores', 'followers')}` }) : null,
+      ].filter(Boolean)),
+    ]),
+    el('section', { class: 'ig-lado__caja' }, [
+      el('h3', { text: T('Tu contenido', 'Your content') }),
+      dato('revisar', T('Por aprobar', 'To approve')),
+      dato('cambio', T('Con cambio pedido', 'Change requested')),
+      dato('aprobado', T('Aprobadas', 'Approved')),
+      dato('publicado', T('Publicadas', 'Published')),
+    ]),
+    viene.length ? el('section', { class: 'ig-lado__caja' }, [
+      el('h3', { text: T('Lo que viene', 'Coming up') }),
+      ...viene.map((p) => {
+        const mini = el('span', { class: 'ig-lado__mini', dataset: { pieza: p.id } });
+        llenarMini(mini, p);
+        pedirMedio(p.id);
+        const e = etapa(p);
+        return el('button', { class: 'ig-lado__pieza', type: 'button', title: e.txt, onclick: () => irAPieza(p.id) }, [
+          mini,
+          el('span', { class: 'ig-lado__txt' }, [el('b', { text: tituloCorto(p) }), el('small', { text: `${diaCorto(p)} · ${contentTypeLabel(p.content_type || 'reel')}` })]),
+          el('i', { class: 'ig-lado__punto', dataset: { k: e.k } }),
+        ]);
+      }),
+    ]) : null,
+    el('section', { class: 'ig-lado__caja' }, [
+      el('h3', { text: T('Todo tu contenido', 'All your content') }),
+      el('p', { class: 'ig-muted', text: T('Tus meses anteriores y lo que viene, por tipo de publicación.', 'Past months and what is coming, by post type.') }),
+      el('button', { class: 'ig-btn', type: 'button', text: T('Ver por mes', 'View by month'), onclick: () => cambiar('lista') }),
+    ]),
+  ].filter(Boolean));
 }
 
 // ── Contenido: los meses y las piezas en barritas por tipo ───────────────────
@@ -777,6 +843,8 @@ function repintarCabeceras() {
     if (b) b.textContent = handle();
   }
   for (const b of (rootEl ? rootEl.querySelectorAll('.ig-caption__txt > b') : [])) b.textContent = handle() + ' ';
+  const lado = rootEl && rootEl.querySelector('.ig-lado');
+  if (lado) lado.replaceWith(ladoFeed());
 }
 
 function irAPieza(id) {
@@ -795,8 +863,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611212313')
-      : await import('./conexiones.js?v=202611212313');
+      ? await import('./metricas.js?v=202611212318')
+      : await import('./conexiones.js?v=202611212318');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -834,6 +902,7 @@ function pintar() {
   desmontarSub();
   if (observador) { observador.disconnect(); observador = null; }
   clear(rootEl);
+  rootEl.dataset.tab = pestana;
   const m = marca() || {};
   rootEl.appendChild(el('header', { class: 'ig-top' }, [
     el('div', { class: 'ig-marca' }, [avatar(36), el('div', {}, [el('b', { text: m.name || T('Mi marca', 'My brand') }), el('small', { text: '@' + handle() })])]),
@@ -912,7 +981,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611212313';
+  link.href = '/marketing/css/contenido.css?v=202611212318';
   document.head.appendChild(link);
 }
 

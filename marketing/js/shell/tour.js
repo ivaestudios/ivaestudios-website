@@ -17,8 +17,8 @@
 // Tu cuenta → Visita guiada. router/store/prefs/closeAll llegan por
 // parámetro: shell.js importa este módulo y no puede haber ciclo.
 // ============================================================================
-import { el, esCreador } from '../api.js?v=202611212313';
-import { T } from './i18n.js?v=202611212313';
+import { el, esCreador } from '../api.js?v=202611212318';
+import { T } from './i18n.js?v=202611212318';
 
 export const TOUR_VERSION = 2;
 let activo = null;

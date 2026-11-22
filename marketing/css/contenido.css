@@ -188,12 +188,85 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
    (Vianey, 21-nov-2026: "terrible de compu"). Aquí adentro se acomodan como en
    el celular, que es el ancho que de verdad tienen. */
 .ig .cx-grid { grid-template-columns: 1fr; }
-.ig .mt-aud { grid-template-columns: 1fr; }
-.ig .mt-posts { display: flex; flex-direction: column; }
-.ig .mt-post:nth-child(2) { border-top: 1px solid var(--border); }
-.ig .mt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
-.ig .mt-num { border-right: 0; padding: 12px 0 4px; }
-.ig .mt-num--hero { grid-column: 1 / -1; }
-.ig .mt-kpis .mt-num:last-child:nth-child(even) { grid-column: 1 / -1; }
-.ig .mt-kpis--acct .mt-num:last-child:nth-child(even) { grid-column: auto; }
-.ig .mt-kpis--acct .mt-num:only-child { grid-column: 1 / -1; }
+@media (max-width: 1023px) {
+  .ig .mt-aud { grid-template-columns: 1fr; }
+  .ig .mt-posts { display: flex; flex-direction: column; }
+  .ig .mt-post:nth-child(2) { border-top: 1px solid var(--border); }
+  .ig .mt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+  .ig .mt-num { border-right: 0; padding: 12px 0 4px; }
+  .ig .mt-num--hero { grid-column: 1 / -1; }
+  .ig .mt-kpis .mt-num:last-child:nth-child(even) { grid-column: 1 / -1; }
+  .ig .mt-kpis--acct .mt-num:last-child:nth-child(even) { grid-column: auto; }
+  .ig .mt-kpis--acct .mt-num:only-child { grid-column: 1 / -1; }
+}
+
+
+/* ══ Computadora (≥ 1024 px) ══════════════════════════════════════════════════
+   Vianey, 21-nov-2026: "la versión de computadora no puede ser igual que la del
+   móvil, se ve mucho vacío en los costados". La columna crece y cada pestaña
+   usa el ancho a su manera:
+   · Feed: las publicaciones como tarjetas y, a la derecha, un panel fijo con
+     la marca, el resumen, lo que viene y el acceso a Contenido por mes.
+   · Perfil: como Instagram en la compu (foto grande, números al lado, rejilla
+     grande de 3).
+   · Métricas: su diseño de escritorio completo.
+   · Conexiones y Contenido: centradas a un ancho cómodo.
+   En el celular nada de esto aplica. */
+.ig-lado { display: none; }
+@media (min-width: 1024px) {
+  .ig { max-width: 1120px; padding-bottom: 56px; }
+  .ig-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0; padding: 0 8px; }
+  .ig-marca { padding: 14px 0; }
+  .ig-tabs { display: flex; gap: 4px; }
+  .ig-tab { padding: 20px 18px 18px; }
+
+  /* Feed + panel */
+  .ig[data-tab="feed"] .ig-cuerpo { display: grid; grid-template-columns: minmax(0, 600px) 330px; justify-content: center; column-gap: 56px; align-items: start; padding-top: 8px; }
+  .ig[data-tab="feed"] .ig-feed { min-width: 0; }
+  .ig[data-tab="feed"] .ig-mes { margin: 18px 4px 10px; }
+  .ig[data-tab="feed"] .ig-post { margin: 0 0 24px; border: 1px solid var(--ig-line); border-radius: 16px; background: var(--ig-card); overflow: hidden; padding-bottom: 16px; }
+  .ig-lado { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 84px; padding-top: 18px; }
+  .ig-lado__marca { display: flex; align-items: center; gap: 14px; padding: 0 4px 4px; }
+  .ig-lado__marca b { display: block; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .ig-lado__marca small { display: block; font-size: 13.5px; color: var(--ig-dim); line-height: 1.35; }
+  .ig-lado__caja { border: 1px solid var(--ig-line); border-radius: 16px; background: var(--ig-card); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .ig-lado__caja h3 { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ig-dim); margin: 0 0 2px; }
+  .ig-lado__caja p { margin: 0; font-size: 14px; line-height: 1.45; }
+  .ig-lado__caja .ig-btn { min-height: 42px; margin-top: 4px; }
+  .ig-lado__dato { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ig-lado__dato b { font-size: 16px; font-weight: 700; }
+  .ig-lado__dato.is-cero { opacity: .45; }
+  .ig-lado__pieza { display: flex; align-items: center; gap: 10px; width: calc(100% + 12px); padding: 6px; margin: 0 -6px; border: 0; border-radius: 10px; background: none; text-align: left; }
+  .ig-lado__pieza:hover { background: var(--ig-soft); }
+  .ig-lado__pieza:focus-visible { outline: 2px solid var(--ig-acc); outline-offset: 0; }
+  .ig-lado__mini { flex: none; width: 44px; height: 55px; border-radius: 8px; overflow: hidden; background: var(--ig-soft); display: grid; place-items: center; font-weight: 700; color: var(--ig-dim); }
+  .ig-lado__mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ig-lado__txt { flex: 1; min-width: 0; line-height: 1.25; }
+  .ig-lado__txt b { display: block; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ig-lado__txt small { display: block; font-size: 12.5px; color: var(--ig-dim); }
+  .ig-lado__punto { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--ig-dim); }
+  .ig-lado__punto[data-k="revisar"] { background: var(--ig-warn); }
+  .ig-lado__punto[data-k="aprobado"], .ig-lado__punto[data-k="publicado"] { background: var(--ig-ok); }
+  .ig-lado__punto[data-k="cambio"] { background: var(--ig-cambio); }
+
+  /* Perfil: como Instagram en la compu */
+  .ig[data-tab="perfil"] .ig-cuerpo { max-width: 935px; margin: 0 auto; }
+  .ig[data-tab="perfil"] .ig-perfil { display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 64px; row-gap: 12px; align-items: center; padding: 36px 48px 30px; }
+  .ig[data-tab="perfil"] .ig-perfil__fila { display: contents; }
+  .ig[data-tab="perfil"] .ig-perfil__fila .ig-av { grid-row: 1 / span 2; width: 150px !important; height: 150px !important; font-size: 62px !important; }
+  .ig[data-tab="perfil"] .ig-nums { display: flex; gap: 40px; text-align: left; align-self: end; }
+  .ig[data-tab="perfil"] .ig-nums > div { display: flex; align-items: baseline; gap: 6px; }
+  .ig[data-tab="perfil"] .ig-nums b { display: inline; }
+  .ig[data-tab="perfil"] .ig-nums span { font-size: 15px; color: var(--ig-tx); }
+  .ig[data-tab="perfil"] .ig-bio { align-self: start; margin: 0; font-size: 15px; }
+  .ig[data-tab="perfil"] .ig-rejilla { margin: 0; gap: 4px; }
+  .ig[data-tab="perfil"] .ig-celda__dia { left: 10px; bottom: 10px; font-size: 13px; }
+
+  /* Métricas: su diseño de escritorio */
+  .ig[data-tab="metricas"] .ig-cuerpo { max-width: 1000px; margin: 0 auto; }
+
+  /* Conexiones y Contenido: centradas */
+  .ig[data-tab="conexiones"] .ig-cuerpo { max-width: 680px; margin: 0 auto; }
+  .ig[data-tab="lista"] .ig-cuerpo { max-width: 720px; margin: 0 auto; }
+  .ig[data-tab="lista"] .ig-meses { margin: 0; padding-inline: 0; }
+}
