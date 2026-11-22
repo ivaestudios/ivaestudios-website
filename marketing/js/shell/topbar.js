@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611220110';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611220110';
-import * as store from './store.js?v=202611220110';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611220110';
-import { toast } from './toast.js?v=202611220110';
-import { icon } from './icons.js?v=202611220110';
-import { openClientSwitcher } from './clientswitcher.js?v=202611220110';
-import { T, isEN, setLang } from './i18n.js?v=202611220110';
+import { startTour } from './tour.js?v=202611220131';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611220131';
+import * as store from './store.js?v=202611220131';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611220131';
+import { toast } from './toast.js?v=202611220131';
+import { icon } from './icons.js?v=202611220131';
+import { openClientSwitcher } from './clientswitcher.js?v=202611220131';
+import { T, isEN, setLang } from './i18n.js?v=202611220131';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611220110';
-import { getTheme, setTheme } from './theme.js?v=202611220110';
-import * as version from './version.js?v=202611220110';
-import * as tienda from './tienda.js?v=202611220110';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611220110';
-import * as prefs from './prefs.js?v=202611220110';
+import { abrirBloqueados } from './moderacion.js?v=202611220131';
+import { getTheme, setTheme } from './theme.js?v=202611220131';
+import * as version from './version.js?v=202611220131';
+import * as tienda from './tienda.js?v=202611220131';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611220131';
+import * as prefs from './prefs.js?v=202611220131';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -40,12 +40,15 @@ const DESKTOP_TABS = [
   // Mi contenido = la vista sencilla del cliente; para el equipo se llama
   // "Vista cliente" (createTopbar la renombra).
   { id: 'contenido', label: T('Mi contenido', 'My content') },
+  // Feed de la AGENCIA (22-nov-2026): solo equipo; el cliente no lo ve (su
+  // filtro de abajo es lista blanca).
+  { id: 'agencia', label: 'Feed' },
   { id: 'meses', label: T('Calendario', 'Calendar') },
   { id: 'calendario', label: T('Cuadrícula', 'Grid') },
   // ⚠️ Una vista solo aparece si está EN ESTA LISTA: ponerla en DESKTOP_GRUPOS
   // no basta (el grupo filtra por los ids que existen aquí). A Feed le pasó:
   // estaba en el grupo Contenido y no se pintaba en ningún menú.
-  { id: 'feed', label: 'Feed' },
+  { id: 'feed', label: T('Simulador de Instagram', 'Instagram preview') },
   { id: 'entregables', label: T('Entregables', 'Deliverables') },
   { id: 'marca', label: T('Marca', 'Brand') },
   { id: 'carrusel', label: T('Carrusel', 'Carousel') },
@@ -72,12 +75,23 @@ const DESKTOP_TABS = [
 // Diez pestañas planas ya no cabían: "Video IA" se partía en dos renglones.
 // Se agrupan en cuatro menús. Un grupo que se quede con UNA sola vista visible
 // (le pasa al cliente) se pinta como pestaña normal, sin desplegable.
+// El CLIENTE conserva su menú de siempre (súper sencillo). Un grupo con una
+// sola vista visible se pinta como pestaña normal.
 const DESKTOP_GRUPOS = [
   { id: 'g-inicio', label: T('Inicio', 'Home'), items: ['inicio'] },
   { id: 'g-bandeja', label: T('Bandeja', 'Inbox'), items: ['bandeja'] },
   { id: 'g-contenido', label: T('Contenido', 'Content'), items: ['contenido', 'meses', 'calendario', 'feed', 'entregables', 'marca'] },
   { id: 'g-crear', label: T('Crear', 'Create'), items: ['carrusel', 'video-ia', 'descargar'] },
   { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['administracion', 'metricas', 'conexiones', 'pauta'] },
+];
+// La AGENCIA (22-nov-2026, rediseño aprobado por Vianey): Bandeja · Feed ·
+// Calendario · Resultados · Más. "Vista cliente" y lo demás viven en Más.
+const DESKTOP_GRUPOS_AGENCIA = [
+  { id: 'g-bandeja', label: T('Bandeja', 'Inbox'), items: ['bandeja'] },
+  { id: 'g-feed', label: 'Feed', items: ['agencia'] },
+  { id: 'g-calendario', label: T('Calendario', 'Calendar'), items: ['meses', 'calendario'] },
+  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'administracion', 'pauta'] },
+  { id: 'g-mas', label: T('Más', 'More'), items: ['contenido', 'inicio', 'entregables', 'marca', 'carrusel', 'video-ia', 'descargar', 'conexiones', 'asistente', 'feed'] },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -143,7 +157,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const menus = [];
   const cerrarMenus = (menos) => menus.forEach((m) => { if (m !== menos) m.cerrar(); });
 
-  for (const g of DESKTOP_GRUPOS) {
+  for (const g of (isClient ? DESKTOP_GRUPOS : DESKTOP_GRUPOS_AGENCIA)) {
     const dentro = g.items.filter((id) => visibleIds.has(id));
     if (!dentro.length) continue;
 

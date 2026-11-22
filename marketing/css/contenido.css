@@ -285,3 +285,8 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
 .ig .ig-hilo__enviar { flex: none; padding: 8px 2px; border: 0; background: none; color: var(--ig-acc); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .ig .ig-hilo__enviar:disabled { opacity: .5; cursor: default; }
 .ig .ig-hilo__enviar:focus-visible { outline: 2px solid var(--ig-acc); outline-offset: 2px; border-radius: 6px; }
+
+/* La agencia en el mismo Feed (22-nov-2026): su botón de subir es un <label> */
+.ig label.ig-btn { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.ig .ig-btn.is-cargando { opacity: .7; pointer-events: none; }
+.ig .ig-com__tag.is-cliente { color: var(--ig-dim); }

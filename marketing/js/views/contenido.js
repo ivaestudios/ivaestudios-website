@@ -29,10 +29,11 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611220110';
-import { T, isEN } from '../shell/i18n.js?v=202611220110';
-import { openSheet } from '../shell/sheet.js?v=202611220110';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611220110';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611220131';
+import { T, isEN } from '../shell/i18n.js?v=202611220131';
+import { openSheet } from '../shell/sheet.js?v=202611220131';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611220131';
+import { multipartUpload } from '../lib/video-upload.js?v=202611220131';
 
 const VIEW_ID = 'contenido';
 
@@ -59,9 +60,18 @@ const hilosTodos = new Set();    // postIds con todos sus comentarios a la vista
 // ── Datos ────────────────────────────────────────────────────────────────────
 const estado = () => ctx.store.getState();
 function marca() { return (estado().clients || []).find((c) => c.id === marcaId) || null; }
+// El Feed de la AGENCIA (views/agencia.js) usa este mismo código: ve TODAS
+// las piezas de la marca, también las que el cliente todavía no ve, y tiene
+// sus propios botones (Vianey, 22-nov-2026).
+// Modo agencia SOLO cuando lo monta views/agencia.js (pestaña "Feed" del
+// equipo). La vista del cliente y la "Vista cliente" del equipo quedan IGUAL.
+let modo = 'cliente';
+export function ponerModo(m) { modo = m === 'agencia' ? 'agencia' : 'cliente'; }
+const esEquipo = () => modo === 'agencia' && ((estado().me || {}).role || 'client') !== 'client';
+const oculta = (p) => p.client_visible === 0 || p.client_visible === false;
 function piezasDeMarca() {
-  return (estado().posts || []).filter((p) => p && p.client_id === marcaId
-    && !(p.client_visible === 0 || p.client_visible === false));
+  const equipo = esEquipo();
+  return (estado().posts || []).filter((p) => p && p.client_id === marcaId && (equipo || !oculta(p)));
 }
 const mesDe = (p) => (p.publish_date ? String(p.publish_date).slice(0, 7) : '');
 function hoyYmd() {
@@ -344,12 +354,12 @@ function publicacion(p) {
     verTodo.textContent = txt.classList.contains('is-corto') ? T('Ver todo', 'See all') : T('Ver menos', 'See less');
   } });
   art.append(...[
-    el('div', { class: 'ig-cuando', text: fechaLarga(p) }),
+    el('div', { class: 'ig-cuando', text: fechaLarga(p) + (esEquipo() && oculta(p) ? T(' · El cliente todavía no la ve', ' · Not visible to the client yet') : '') }),
     el('div', { class: 'ig-cab' }, [avatar(30), el('div', { class: 'ig-cab__txt' }, [el('b', { text: handle() }), el('span', { text: contentTypeLabel(p.content_type || 'reel') })]), el('span', { class: 'ig-estado', dataset: { k: e.k }, text: e.txt })]),
     caja,
     n > 1 ? puntos(n) : null,
     el('div', { class: 'ig-caption' }, [txt, (caption.length + tags.length) > 90 ? verTodo : null]),
-    e.k === 'cambio' ? el('p', { class: 'ig-pedido', text: T('Pediste un cambio. Tu equipo ya lo tiene; su respuesta te aparece aquí abajo, en los comentarios.', 'You asked for a change. Your team has it and will let you know when it’s ready.') }) : null,
+    e.k === 'cambio' ? el('p', { class: 'ig-pedido', text: esEquipo() ? T('El cliente pidió un cambio. Su comentario está abajo: respóndele ahí.', 'The client asked for a change. Reply to their comment below.') : T('Pediste un cambio. Tu equipo ya lo tiene; su respuesta te aparece aquí abajo, en los comentarios.', 'You asked for a change. Your team has it and will let you know when it’s ready.') }) : null,
     acciones(p, e),
     panel(p),
     hilo(p),
@@ -359,6 +369,17 @@ function publicacion(p) {
 
 function acciones(p, e) {
   const abierto = abiertos.get(p.id);
+  if (esEquipo()) {
+    // Botones de la agencia: subir el video final a ESTA pieza, abrirla y su guion.
+    const archivo = el('input', { type: 'file', accept: 'video/*', hidden: true });
+    const subir = el('label', { class: 'ig-btn is-primario' }, [el('span', { text: videoDe(p) ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video') }), archivo]);
+    archivo.addEventListener('change', () => subirVideo(p, archivo, subir));
+    return el('div', { class: 'ig-acciones' }, [
+      subir,
+      el('button', { class: 'ig-btn', type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }),
+      el('button', { class: 'ig-btn' + (abierto && abierto !== 'cambio' ? ' is-activo' : ''), type: 'button', text: T('Guion', 'Script'), onclick: () => alternar(p, 'guion') }),
+    ]);
+  }
   const fila = el('div', { class: 'ig-acciones' + (e.k === 'publicado' ? ' is-una' : '') });
   if (e.k !== 'publicado') {
     fila.appendChild(e.k === 'aprobado'
@@ -374,6 +395,25 @@ function acciones(p, e) {
     onclick: () => alternar(p, 'guion'),
   }));
   return fila;
+}
+
+async function subirVideo(p, archivo, boton) {
+  const f = archivo.files && archivo.files[0];
+  if (!f) return;
+  const txt = boton.querySelector('span');
+  boton.classList.add('is-cargando');
+  try {
+    const r = await multipartUpload(api, `/posts/${encodeURIComponent(p.id)}/video`, f, (pct) => { txt.textContent = T(`Subiendo ${Math.round(pct)}%`, `Uploading ${Math.round(pct)}%`); });
+    if (r && r.id) ctx.store.upsertPost?.(r);
+    medios.delete(p.id);
+    toast(T('Video subido. Ya se ve en la publicación.', 'Video uploaded.'), 'success');
+  } catch (err) {
+    toast((err && err.message) || T('No se pudo subir el video', 'Could not upload the video'), 'error');
+  } finally {
+    boton.classList.remove('is-cargando');
+    repintarPost(p.id);
+    pedirMedio(p.id);
+  }
 }
 
 function alternar(p, cual) {
@@ -427,13 +467,13 @@ function hilo(p) {
       const equipo = !!c.author_role && c.author_role !== 'client';
       caja.appendChild(el('p', { class: 'ig-com' + (equipo ? ' is-equipo' : '') }, [
         el('b', { text: (c.author_name || (equipo ? T('Tu equipo', 'Your team') : T('Tú', 'You'))) + ' ' }),
-        equipo ? el('span', { class: 'ig-com__tag', text: T('Tu equipo', 'Your team') }) : null,
+        (equipo || esEquipo()) ? el('span', { class: 'ig-com__tag' + (equipo ? '' : ' is-cliente'), text: equipo ? (esEquipo() ? T('Equipo', 'Team') : T('Tu equipo', 'Your team')) : T('Cliente', 'Client') }) : null,
         el('span', { text: String(c.body || '').trim() }),
         el('small', { text: cuandoComento(c) }),
       ].filter(Boolean)));
     }
   }
-  const entrada = el('input', { class: 'ig-hilo__caja', type: 'text', maxlength: 2000, placeholder: T('Escribe un comentario…', 'Add a comment…'), 'aria-label': T('Escribe un comentario', 'Add a comment') });
+  const entrada = el('input', { class: 'ig-hilo__caja', type: 'text', maxlength: 2000, placeholder: esEquipo() ? T('Responder al cliente…', 'Reply to the client…') : T('Escribe un comentario…', 'Add a comment…'), 'aria-label': esEquipo() ? T('Responder al cliente', 'Reply to the client') : T('Escribe un comentario', 'Add a comment') });
   const enviar = el('button', { class: 'ig-hilo__enviar', type: 'button', text: T('Enviar', 'Post'), onclick: () => comentar(p, entrada, enviar) });
   entrada.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); comentar(p, entrada, enviar); } });
   caja.appendChild(el('div', { class: 'ig-hilo__comp' }, [entrada, enviar]));
@@ -446,7 +486,7 @@ async function comentar(p, entrada, boton) {
   try {
     await api.post(`/posts/${encodeURIComponent(p.id)}/comments`, { body });
     entrada.value = '';
-    toast(T('Listo, tu equipo ya lo ve.', 'Done, your team can see it.'), 'success');
+    toast(esEquipo() ? T('Enviado. Al cliente le llega un aviso.', 'Sent. The client gets a notice.') : T('Listo, tu equipo ya lo ve.', 'Done, your team can see it.'), 'success');
     pedirHilo(p.id, true);
   } catch (err) { toast((err && err.message) || T('No se pudo enviar', 'Could not send'), 'error'); }
   finally { boton.disabled = false; }
@@ -556,7 +596,7 @@ function panel(p) {
   } else if (etapa(p).k !== 'publicado') {
     cont.appendChild(el('div', { class: 'ig-fila' }, [
       el('button', { class: 'ig-btn', type: 'button', text: T('Editar guion', 'Edit script'), onclick: () => { abiertos.set(p.id, 'editar'); repintarPost(p.id); } }),
-      el('button', { class: 'ig-btn', type: 'button', text: T('Subir guion nuevo', 'Upload new script'), onclick: () => { abiertos.set(p.id, 'nuevo'); repintarPost(p.id); } }),
+      esEquipo() ? el('button', { class: 'ig-btn', type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }) : el('button', { class: 'ig-btn', type: 'button', text: T('Subir guion nuevo', 'Upload new script'), onclick: () => { abiertos.set(p.id, 'nuevo'); repintarPost(p.id); } }),
     ]));
   }
   return cont;
@@ -938,8 +978,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611220110')
-      : await import('./conexiones.js?v=202611220110');
+      ? await import('./metricas.js?v=202611220131')
+      : await import('./conexiones.js?v=202611220131');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -1056,7 +1096,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611220110';
+  link.href = '/marketing/css/contenido.css?v=202611220131';
   document.head.appendChild(link);
 }
 
