@@ -1160,3 +1160,9 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 @media (prefers-reduced-motion: reduce) {
   .av-switch, .av-switch__knob, .av-switch__knob::after { transition: none; }
 }
+
+/* "Más" del equipo en el celular (22-nov-2026) */
+.bn-mas { display: grid; gap: 2px; padding: 4px 0 10px; }
+.bn-mas button { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 12px; font-size: 15.5px; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.bn-mas button:hover, .bn-mas button.is-on { background: var(--surface-2); }
+.bn-mas button svg { flex: none; color: var(--text-dim); }

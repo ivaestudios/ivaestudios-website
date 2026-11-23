@@ -1,8 +1,9 @@
 // ============================================================================
 // IVAE Marketing v2 — Bottom-nav movil (4 tabs) + FAB configurable.
 //
-// Tabs: Inicio (dashboard), Contenido (ultima vista de contenido usada),
-//       Mi trabajo, Avisos (abre el panel de avisos, no navega).
+// Tabs del EQUIPO (22-nov-2026): Bandeja · Feed · Calendario · Resultados · Más
+//       (Más abre una hoja con el resto; los avisos viven en la campana de arriba).
+// Tabs del CLIENTE: Feed · Contenido · Avisos (sin cambios).
 // - fixed bottom 56px + env(safe-area-inset-bottom), blur, iconos 24 + label
 //   10px, target completo >=44px, aria-current=page.
 // - Badges: Avisos = no leidas (store.unreadCount); Mi trabajo = vencidos
@@ -11,11 +12,12 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202611220222';
-import * as store from './store.js?v=202611220222';
-import * as prefs from './prefs.js?v=202611220222';
-import { icon } from './icons.js?v=202611220222';
-import { T } from './i18n.js?v=202611220222';
+import { el, clear } from '../api.js?v=202611222124';
+import * as store from './store.js?v=202611222124';
+import * as prefs from './prefs.js?v=202611222124';
+import { icon } from './icons.js?v=202611222124';
+import { T } from './i18n.js?v=202611222124';
+import { openSheet } from './sheet.js?v=202611222124';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -85,6 +87,39 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   const tabFeedCli = makeTab({ id: 'feed-cli', label: T('Feed', 'Feed'), ic: 'home', onTap: () => irCliente('feed') });
   const tabListaCli = makeTab({ id: 'lista-cli', label: T('Contenido', 'Content'), ic: 'calendar', onTap: () => irCliente('lista') });
 
+  const esAdminBn = ((store.getState().me || {}).role === 'admin');
+  const tabFeedAg = makeTab({ id: 'agencia', label: 'Feed', ic: 'home', onTap: () => goOrTop('agencia') });
+  const tabCalendario = makeTab({ id: 'meses', label: T('Calendario', 'Calendar'), ic: 'calendar', onTap: () => goOrTop('meses') });
+  const tabResultados = makeTab({ id: 'metricas', label: T('Resultados', 'Results'), ic: 'activity', onTap: () => goOrTop('metricas') });
+  const MAS = [
+    ['contenido', T('Vista cliente', 'Client view'), 'eye'],
+    ['inicio', T('Inicio', 'Home'), 'home'],
+    ['mi-trabajo', T('Mi trabajo', 'My work'), 'briefcase'],
+    ['calendario', T('Cuadrícula', 'Grid'), 'board'],
+    ['entregables', T('Entregables', 'Deliverables'), 'archive'],
+    ['marca', T('Marca', 'Brand'), 'book'],
+    ['carrusel', T('Carrusel', 'Carousel'), 'copy'],
+    ['video-ia', T('Video IA', 'AI video'), 'play'],
+    ['descargar', T('Descargar', 'Download'), 'download'],
+    ['conexiones', T('Conexiones', 'Connections'), 'link'],
+    ['asistente', T('Asistente', 'Assistant'), 'sparkles'],
+    ['feed', T('Simulador de Instagram', 'Instagram preview'), 'camera'],
+  ].concat(esAdminBn ? [['administracion', T('Administración', 'Administration'), 'gauge'], ['pauta', T('Pauta', 'Ads'), 'zap']] : []);
+  const MAS_VIEWS = MAS.map(([id]) => id);
+  const tabMas = makeTab({
+    id: 'mas', label: T('Más', 'More'), ic: 'dots',
+    onTap: () => openSheet({
+      title: T('Más', 'More'), mode: 'menu',
+      build(body, close) {
+        const { view } = store.getState();
+        body.appendChild(el('div', { class: 'bn-mas' }, MAS.map(([id, label, ic]) => el('button', {
+          type: 'button', class: id === view ? 'is-on' : '',
+          onclick: () => { close({ source: 'mas' }); goOrTop(id); },
+        }, [icon(ic, 20), el('span', { text: label })]))));
+      },
+    }),
+  });
+
   // Bandeja con equipo (migración 040): el agente de la marca solo trabaja en
   // la Bandeja; el supervisor ve su Contenido y la Bandeja.
   const tabBandeja = makeTab({
@@ -100,14 +135,25 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   } else if (meBn.role === 'client') {
     clear(root).append(tabFeedCli, tabListaCli, tabAvisos);
   } else {
-    clear(root).append(tabInicio, tabContenido, tabTrabajo, tabAvisos);
+    // EQUIPO (22-nov-2026, rediseño de agencias aprobado por Vianey): igual que
+    // en la compu, Bandeja · Feed · Calendario · Resultados · Más. Los avisos
+    // siguen en la campana de arriba; lo demás vive en Más.
+    clear(root).append(tabBandeja, tabFeedAg, tabCalendario, tabResultados, tabMas);
   }
 
   // ── Parches quirurgicos ────────────────────────────────────────────────────
   function patchActive() {
     const { view } = store.getState();
     const cli = (store.getState().me || {}).role === 'client' && root.querySelector('[data-tab="feed-cli"]');
-    const activeTab =
+    const equipo = (store.getState().me || {}).role !== 'client';
+    const activeTab = equipo ? (
+      view === 'agencia' ? 'agencia' :
+      view === 'bandeja' ? 'bandeja' :
+      view === 'metricas' ? 'metricas' :
+      view === 'meses' ? 'meses' :
+      MAS_VIEWS.includes(view) ? 'mas' :
+      CONTENT_VIEWS.includes(view) ? 'meses' : null
+    ) :
       (cli && view === 'contenido') ? (document.body.dataset.cntTab === 'lista' ? 'lista-cli' : (document.body.dataset.cntTab === 'feed' ? 'feed-cli' : null)) :
       view === 'inicio' ? 'inicio' :
       CONTENT_VIEWS.includes(view) ? 'contenido' :
