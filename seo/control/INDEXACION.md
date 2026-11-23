@@ -1,33 +1,37 @@
 # Control de indexacion en Google
 
-Actualizado: 2026-11-22. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
+Actualizado: 2026-11-23. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
 
 ## ivaestudios.com
 
-**1308 de 1481 paginas estan en Google (88.3%).**
+**1310 de 1485 paginas estan en Google (88.2%).**
 
 | Estado | Paginas | Cambio desde ayer |
 |---|---:|---:|
-| En Google | 1308 |  |
+| En Google | 1310 | +2 |
 | Leidas por Google, todavia sin entrar | 125 |  |
-| Descubiertas, todavia sin leer | 38 |  |
-| Google aun no las conoce | 9 |  |
+| Descubiertas, todavia sin leer | 39 | +1 |
+| Google aun no las conoce | 10 | +1 |
 | Con problema (hay que arreglar) | 1 |  |
 
-En cola para mandar a Google: 19 (salen 140 al dia).
+En cola para mandar a Google: 4 (salen 140 al dia).
 
-### Paginas nuevas de los ultimos 30 dias: 163 (155 ya en Google)
+### Paginas nuevas de los ultimos 30 dias: 167 (155 ya en Google)
 
 | Pagina | Alta | Estado | Ultimo envio |
 |---|---|---|---|
 | /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
 | /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
-| /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Google aun no las conoce | 2026-11-19 |
+| /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-family-photographer-playa-del-carmen | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-family-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-honeymoon-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-maternity-photographer-cancun | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
-| /isla-mujeres-family-photographer | 2026-11-17 | Google aun no las conoce | 2026-11-19 |
+| /isla-mujeres-family-photographer | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
+| /isla-mujeres-couples-photographer | 2026-11-23 | Google aun no las conoce | en cola |
+| /isla-mujeres-proposal-photographer | 2026-11-23 | Google aun no las conoce | en cola |
+| /playa-del-carmen-proposal-photographer | 2026-11-23 | Google aun no las conoce | en cola |
+| /puerto-morelos-family-photographer | 2026-11-23 | Google aun no las conoce | en cola |
 
 ### Con problema
 
@@ -41,72 +45,84 @@ En cola para mandar a Google: 19 (salen 140 al dia).
 |---|---:|---:|
 | En Google | 203 |  |
 | Leidas por Google, todavia sin entrar | 434 |  |
-| Descubiertas, todavia sin leer | 20 | +4 |
-| Google aun no las conoce | 252 | -4 |
+| Descubiertas, todavia sin leer | 22 | +2 |
+| Google aun no las conoce | 250 | -2 |
 
 En cola para mandar a Google: 180 (salen 60 al dia).
 
-## Mandadas a Google desde ayer: 67
+## Entraron a Google hoy: 2
 
-- https://bodasmx.com.mx/tradiciones/apellido-de-casada-en-mexico-se-cambia-o-no
-- https://bodasmx.com.mx/tradiciones/arras-de-boda-precio-oro-plata-o-bano-de-oro
-- https://bodasmx.com.mx/tradiciones/arras-lazo-y-padrinos-de-boda
-- https://bodasmx.com.mx/tradiciones/arras-lazo-y-velacion-en-la-boda
-- https://bodasmx.com.mx/tradiciones/arroz-globos-y-pirotecnia-en-la-boda
-- https://bodasmx.com.mx/tradiciones/boda-cristiana-evangelica-en-mexico-requisitos
-- https://bodasmx.com.mx/tradiciones/boda-en-oaxaca-cuanto-cuesta-la-calenda
-- https://bodasmx.com.mx/tradiciones/boda-en-templo-sud-quien-puede-entrar
-- https://bodasmx.com.mx/tradiciones/boda-mixta-catolico-y-no-catolico
-- https://bodasmx.com.mx/tradiciones/boda-religiosa-fuera-del-templo-playa-o-jardin
-- https://bodasmx.com.mx/tradiciones/brindis-de-boda-cuantas-botellas-por-invitado
-- https://bodasmx.com.mx/tradiciones/casarse-por-la-iglesia-si-eres-divorciado
-- https://bodasmx.com.mx/tradiciones/ceremonia-civil-religiosa-o-simbolica-cual-vale
-- https://bodasmx.com.mx/tradiciones/ceremonia-en-resort-de-cancun-ventana-de-tiempo
-- https://bodasmx.com.mx/tradiciones/ceremonia-maya-en-la-riviera-maya
-- https://bodasmx.com.mx/tradiciones/ceremonia-simbolica-que-es-y-que-no-resuelve
-- https://bodasmx.com.mx/tradiciones/como-decir-que-no-a-una-tradicion-sin-pleito
-- https://bodasmx.com.mx/tradiciones/cuanto-cuesta-casarte-por-la-iglesia-arancel
-- https://bodasmx.com.mx/tradiciones/cuanto-cuesta-ser-padrino-de-boda-en-mexico
-- https://bodasmx.com.mx/tradiciones/cuanto-dura-la-misa-de-boda-y-que-pasa-en-cada-parte
-- https://bodasmx.com.mx/tradiciones/cuantos-testigos-necesitas-boda-civil-y-religiosa
-- https://bodasmx.com.mx/tradiciones/discursos-de-boda-quien-habla-y-cuanto-dura
-- https://bodasmx.com.mx/tradiciones/donde-queda-registrada-tu-boda-por-la-iglesia
-- https://bodasmx.com.mx/tradiciones/epistola-melchor-ocampo-boda-civil
-- https://bodasmx.com.mx/tradiciones/hora-loca-en-la-boda-mexicana-cuanto-cuesta
-- https://bodasmx.com.mx/tradiciones/lazo-de-boda-comprarlo-rentarlo-o-heredarlo
-- https://bodasmx.com.mx/tradiciones/marcha-nupcial-y-musica-en-la-iglesia
-- https://bodasmx.com.mx/tradiciones/mariachi-en-la-boda-precio-por-hora-y-cuantos
-- https://bodasmx.com.mx/tradiciones/orden-de-la-fiesta-de-boda-mexicana
-- https://bodasmx.com.mx/tradiciones/padrinos-de-boda-cuantos-y-que-le-toca-a-cada-uno
-- https://bodasmx.com.mx/tradiciones/padrinos-de-boda-cuantos-y-que-paga-cada-uno
-- https://bodasmx.com.mx/tradiciones/pagina-2
-- https://bodasmx.com.mx/tradiciones/pagina-3
-- https://bodasmx.com.mx/tradiciones/primer-baile-de-boda-precio-de-clases-de-vals
-- https://bodasmx.com.mx/tradiciones/quien-entrega-a-la-novia-y-como-entra-el-cortejo
-- https://bodasmx.com.mx/tradiciones/quien-paga-la-boda-en-mexico
-- https://bodasmx.com.mx/tradiciones/quien-puede-casarte-por-la-iglesia
-- https://bodasmx.com.mx/tradiciones/regalo-para-los-padrinos-de-boda-cuanto-gastar
-- https://bodasmx.com.mx/tradiciones/tornaboda-en-mexico-que-es-y-cuanto-cuesta
-- https://bodasmx.com.mx/tradiciones/tradiciones-de-boda-por-region-de-mexico
-- https://bodasmx.com.mx/tradiciones/tradiciones-mexicanas-en-boda-en-riviera-maya
-- https://bodasmx.com.mx/tradiciones/traslado-de-expediente-matrimonial-a-otra-parroquia
-- https://bodasmx.com.mx/tradiciones/viboras-de-la-mar-como-se-baila-y-que-riesgos
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-cdmx-en-linea
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-guanajuato-en-linea
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-nuevo-leon-en-linea
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-quintana-roo-como-sacarla
-- https://bodasmx.com.mx/tramites/acta-de-presentacion-matrimonial-puebla-8-dias
-- https://bodasmx.com.mx/tramites/analisis-prenupciales-estado-de-mexico-donde
-- https://bodasmx.com.mx/tramites/analisis-prenupciales-nuevo-leon
-- https://bodasmx.com.mx/tramites/analisis-prenupciales-que-incluyen-y-vigencia
-- https://bodasmx.com.mx/tramites/apostilla-acta-nacimiento-para-casarse-en-mexico
-- https://bodasmx.com.mx/tramites/apostilla-vs-legalizacion-acta-para-boda
-- https://bodasmx.com.mx/tramites/boda-civil-acapulco-requisitos-costo-y-cita
-- https://bodasmx.com.mx/tramites/boda-civil-cancun-benito-juarez-requisitos
-- https://bodasmx.com.mx/tramites/boda-civil-cdmx-extranjeros-requisitos
-- https://bodasmx.com.mx/tramites/boda-civil-chetumal-vs-cancun-diferencias-qroo
-- https://bodasmx.com.mx/tramites/boda-civil-fuera-de-circunscripcion-cdmx
-- https://bodasmx.com.mx/tramites/boda-civil-mismo-sexo-por-estado-2026
-- https://bodasmx.com.mx/tramites/boda-civil-monterrey-costo-y-cita
-- y 7 mas
+- https://ivaestudios.com/blog/best-costa-mujeres-resorts-couples-photos
+- https://ivaestudios.com/blog/best-photographers-mayakoba
+
+## Paginas nuevas detectadas hoy: 4
+
+- https://ivaestudios.com/isla-mujeres-couples-photographer
+- https://ivaestudios.com/isla-mujeres-proposal-photographer
+- https://ivaestudios.com/playa-del-carmen-proposal-photographer
+- https://ivaestudios.com/puerto-morelos-family-photographer
+
+## Mandadas a Google desde ayer: 79
+
+- https://bodasmx.com.mx/tramites/boda-civil-oaxaca-de-juarez-requisitos-y-costo
+- https://bodasmx.com.mx/tramites/boda-civil-progreso-valladolid-vs-merida-costos
+- https://bodasmx.com.mx/tramites/boda-civil-queretaro-costo-y-cita
+- https://bodasmx.com.mx/tramites/boda-civil-san-miguel-de-allende-requisitos
+- https://bodasmx.com.mx/tramites/boda-civil-toluca-y-municipios-edomex-costo
+- https://bodasmx.com.mx/tramites/boda-civil-veracruz-puerto-vs-xalapa-que-cambia
+- https://bodasmx.com.mx/tramites/cambiar-de-apellido-al-casarse-en-mexico
+- https://bodasmx.com.mx/tramites/cancelar-o-cambiar-fecha-boda-civil-reembolso
+- https://bodasmx.com.mx/tramites/cita-registro-civil-cdmx-como-se-saca
+- https://bodasmx.com.mx/tramites/cita-registro-civil-estado-de-mexico-en-linea
+- https://bodasmx.com.mx/tramites/cita-registro-civil-jalisco-en-linea
+- https://bodasmx.com.mx/tramites/cita-registro-civil-quintana-roo-como-sacarla
+- https://bodasmx.com.mx/tramites/constancia-de-no-matrimonio-por-estado-donde-se-pide
+- https://bodasmx.com.mx/tramites/costo-boda-civil-cdmx-oficina-vs-domicilio
+- https://bodasmx.com.mx/tramites/curp-y-acta-como-corregir-un-error-antes-de-la-boda
+- https://bodasmx.com.mx/tramites/curso-prematrimonial-dif-jalisco-obligatorio
+- https://bodasmx.com.mx/tramites/divorciado-que-documento-necesito-para-recasarme
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-boda-civil-playa-del-carmen
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-cdmx-boda-civil-costo
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-monterrey-boda-civil
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-puebla-boda-civil
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-san-miguel-de-allende
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-baja-california-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-campeche-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-cdmx-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-chiapas-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-jalisco-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-oaxaca-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-puebla-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-queretaro-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-quintana-roo-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-san-luis-potosi-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-sinaloa-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-sonora-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-tabasco-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-tamaulipas-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-tlaxcala-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-zacatecas-2026
+- https://bodasmx.com.mx/tramites/testigos-extranjeros-boda-civil-mexico-pasaporte
+- https://bodasmx.com.mx/tramites/viudo-que-documento-necesito-para-casarme
+- https://bodasmx.com.mx/ultimo-minuto/accidente-de-un-invitado-quien-responde-legalmente
+- https://bodasmx.com.mx/ultimo-minuto/alerta-de-sargazo-la-semana-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/calor-extremo-el-dia-de-la-boda-que-preparar
+- https://bodasmx.com.mx/ultimo-minuto/cancelacion-de-invitados-a-3-dias-se-recupera-dinero
+- https://bodasmx.com.mx/ultimo-minuto/checklist-de-la-manana-de-la-boda-hora-por-hora
+- https://bodasmx.com.mx/ultimo-minuto/como-posponer-una-boda-sin-perder-todo
+- https://bodasmx.com.mx/ultimo-minuto/corte-de-luz-en-la-boda-quien-responde
+- https://bodasmx.com.mx/ultimo-minuto/cuanto-cuesta-rentar-una-carpa-de-ultimo-minuto
+- https://bodasmx.com.mx/ultimo-minuto/el-dj-no-llego-que-hacer-en-30-minutos
+- https://bodasmx.com.mx/ultimo-minuto/el-pastel-llego-mal-que-se-puede-exigir
+- https://bodasmx.com.mx/ultimo-minuto/el-proveedor-pide-mas-dinero-el-mismo-dia
+- https://bodasmx.com.mx/ultimo-minuto/errores-de-ultima-hora-que-mas-cuestan-dinero
+- https://bodasmx.com.mx/ultimo-minuto/extranjero-sin-permiso-del-inm-para-casarse-en-mexico
+- https://bodasmx.com.mx/ultimo-minuto/identificacion-oficial-vencida-para-la-boda-civil
+- https://bodasmx.com.mx/ultimo-minuto/invitado-de-mas-de-ultimo-minuto-cuanto-cuesta
+- https://bodasmx.com.mx/ultimo-minuto/la-novia-o-el-novio-se-enferma-el-dia-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/lista-de-telefonos-de-emergencia-para-el-dia-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/plan-b-de-lluvia-cuantas-horas-antes-se-activa
+- https://bodasmx.com.mx/ultimo-minuto/propinas-de-boda-cuanto-y-a-quien
+- https://bodasmx.com.mx/ultimo-minuto/protocolo-si-un-invitado-se-pasa-de-copas
+- y 19 mas
 
