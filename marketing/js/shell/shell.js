@@ -19,26 +19,26 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202611222124';
-import { setRoleDefault } from './theme.js?v=202611222124';
-import { vigilarSegmentados } from './segfade.js?v=202611222124';
-import * as store from './store.js?v=202611222124';
-import * as prefs from './prefs.js?v=202611222124';
-import * as router from './router.js?v=202611222124';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611222124';
-import { toast } from './toast.js?v=202611222124';
-import { icon } from './icons.js?v=202611222124';
-import * as iconsMod from './icons.js?v=202611222124';
-import { createTopbar } from './topbar.js?v=202611222124';
-import { createBottomNav } from './bottomnav.js?v=202611222124';
-import { createSearch } from './search.js?v=202611222124';
-import { createNotifications } from './notifications.js?v=202611222124';
-import { T } from './i18n.js?v=202611222124';
-import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611222124';
-import * as version from './version.js?v=202611222124';
-import * as tienda from './tienda.js?v=202611222124';
-import * as pickers from '../ui/pickers.js?v=202611222124';
-import * as dnd from '../ui/dnd.js?v=202611222124';
+import { api, el, clear } from '../api.js?v=202611222220';
+import { setRoleDefault } from './theme.js?v=202611222220';
+import { vigilarSegmentados } from './segfade.js?v=202611222220';
+import * as store from './store.js?v=202611222220';
+import * as prefs from './prefs.js?v=202611222220';
+import * as router from './router.js?v=202611222220';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202611222220';
+import { toast } from './toast.js?v=202611222220';
+import { icon } from './icons.js?v=202611222220';
+import * as iconsMod from './icons.js?v=202611222220';
+import { createTopbar } from './topbar.js?v=202611222220';
+import { createBottomNav } from './bottomnav.js?v=202611222220';
+import { createSearch } from './search.js?v=202611222220';
+import { createNotifications } from './notifications.js?v=202611222220';
+import { T } from './i18n.js?v=202611222220';
+import { startTour, tourPendiente, tourCrmPendiente } from './tour.js?v=202611222220';
+import * as version from './version.js?v=202611222220';
+import * as tienda from './tienda.js?v=202611222220';
+import * as pickers from '../ui/pickers.js?v=202611222220';
+import * as dnd from '../ui/dnd.js?v=202611222220';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -241,7 +241,11 @@ function updateSubhead() {
   const visibles = [...subheadSeg.querySelectorAll('button')].filter((b) => !b.hidden).length;
   // En Mi contenido el cliente ya trae sus 4 pestañas (Feed, Perfil, Métricas,
   // Conexiones): una segunda barra de pestañas encima lo complicaba.
-  const segUtil = isContent && visibles > 1 && !(isClientRole() && view === 'contenido');
+  // El EQUIPO ya no usa esta fila (22-nov-2026, diseño de agencias aprobado por
+  // Vianey): en el celular navega con la barra de abajo (Bandeja · Feed ·
+  // Calendario · Resultados · Más) y en la compu con el menú de arriba. Los
+  // controles de cada vista (el slot) siguen saliendo. El cliente no cambia.
+  const segUtil = isClientRole() && isContent && visibles > 1 && view !== 'contenido';
   subheadSeg.hidden = !segUtil;
   const hasSlot = subheadSlot.children.length > 0;
   const show = segUtil || hasSlot;
@@ -810,6 +814,9 @@ export async function boot() {
     scrollEl: viewScrollEl,
     router,
     openNotifications: (anchor, opts) => notifications.openPanel(anchor, opts),
+    // En el celular del equipo, Buscar y Tu cuenta viven en "Más" (22-nov-2026).
+    openSearch: () => search.open(),
+    openAccount: () => topbar?.openAccount?.(),
   });
 
   offlineBar = el('div', { class: 'offline-bar', hidden: true, text: T('Sin conexión', 'Offline') });

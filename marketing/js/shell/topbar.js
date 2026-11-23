@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611222124';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611222124';
-import * as store from './store.js?v=202611222124';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611222124';
-import { toast } from './toast.js?v=202611222124';
-import { icon } from './icons.js?v=202611222124';
-import { openClientSwitcher } from './clientswitcher.js?v=202611222124';
-import { T, isEN, setLang } from './i18n.js?v=202611222124';
+import { startTour } from './tour.js?v=202611222220';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611222220';
+import * as store from './store.js?v=202611222220';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611222220';
+import { toast } from './toast.js?v=202611222220';
+import { icon } from './icons.js?v=202611222220';
+import { openClientSwitcher } from './clientswitcher.js?v=202611222220';
+import { T, isEN, setLang } from './i18n.js?v=202611222220';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611222124';
-import { getTheme, setTheme } from './theme.js?v=202611222124';
-import * as version from './version.js?v=202611222124';
-import * as tienda from './tienda.js?v=202611222124';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611222124';
-import * as prefs from './prefs.js?v=202611222124';
+import { abrirBloqueados } from './moderacion.js?v=202611222220';
+import { getTheme, setTheme } from './theme.js?v=202611222220';
+import * as version from './version.js?v=202611222220';
+import * as tienda from './tienda.js?v=202611222220';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611222220';
+import * as prefs from './prefs.js?v=202611222220';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -202,7 +202,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') cerrarMenus(null); });
 
   const searchBtn = el('button', {
-    class: 'tb-iconbtn', type: 'button', 'aria-label': T('Buscar', 'Search'),
+    class: 'tb-iconbtn tb-buscar', type: 'button', 'aria-label': T('Buscar', 'Search'),
     onclick: () => openSearch(),
   }, [icon('search', 22)]);
 
@@ -473,7 +473,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     openSheet({
       title: T('Tu cuenta', 'Your account'),
       mode: 'menu',
-      anchor: avatarBtn,
+      // Si el avatar no se ve (celular/tablet del equipo: se abre desde "Más"),
+      // sin ancla: en la tablet sale centrada en vez de en la esquina.
+      anchor: avatarBtn.getClientRects().length ? avatarBtn : null,
       build(body, close) {
         body.append(
           el('div', { class: 'acct-head' }, [
@@ -1067,5 +1069,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       bellBtn.hidden = !notifAvailable;
     },
     get notifAvailable() { return notifAvailable; },
+    /** "Tu cuenta" (la abre el "Más" del celular del equipo, 22-nov-2026). */
+    openAccount() { openAccountSheet(); },
   };
 }

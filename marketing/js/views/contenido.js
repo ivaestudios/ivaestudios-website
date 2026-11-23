@@ -29,11 +29,11 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611222124';
-import { T, isEN } from '../shell/i18n.js?v=202611222124';
-import { openSheet } from '../shell/sheet.js?v=202611222124';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611222124';
-import { multipartUpload } from '../lib/video-upload.js?v=202611222124';
+import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611222220';
+import { T, isEN } from '../shell/i18n.js?v=202611222220';
+import { openSheet } from '../shell/sheet.js?v=202611222220';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611222220';
+import { multipartUpload } from '../lib/video-upload.js?v=202611222220';
 
 const VIEW_ID = 'contenido';
 
@@ -44,6 +44,7 @@ let unsubs = [];
 let marcaId = null;
 let pestana = 'feed';            // feed | perfil | metricas | conexiones | lista (Contenido, desde la barra de abajo)
 let mesLista = null;             // mes elegido en Contenido ('YYYY-MM' o 'sin')
+let mesFeed = null;              // mes elegido en el Feed de la AGENCIA ('YYYY-MM' o 'sin')
 let verAnteriores = false;
 let porAbrir = null;             // ?pieza=<id> (aviso) hasta que llegue la pieza
 let sub = null;                  // vista montada adentro (métricas o conexiones)
@@ -95,7 +96,7 @@ const esVideo = (p) => ['reel', 'historia', 'pauta', 'video'].includes(p.content
 function etapa(p) {
   if (p.status === 'publicado') return { k: 'publicado', txt: T('Publicado', 'Published') };
   if (p.approval_state === 'approved' || p.status === 'aprobado' || p.status === 'programado') return { k: 'aprobado', txt: T('Aprobado', 'Approved') };
-  if (p.approval_state === 'changes') return { k: 'cambio', txt: T('Pediste un cambio', 'You asked for a change') };
+  if (p.approval_state === 'changes') return { k: 'cambio', txt: esEquipo() ? T('Cambio pedido', 'Change requested') : T('Pediste un cambio', 'You asked for a change') };
   if (tieneTexto(p)) return { k: 'revisar', txt: T('Por aprobar', 'To approve') };
   return { k: 'preparando', txt: T('En preparación', 'In progress') };
 }
@@ -331,6 +332,12 @@ function repintarMedio(id) {
   if (celda) llenarCelda(celda, p);
   const mini = rootEl.querySelector(`.ig-lado__mini[data-pieza="${CSS.escape(id)}"]`);
   if (mini) llenarMini(mini, p);
+  // Agencia: el botón dice "Cambiar video" en cuanto se sabe que ya tiene uno
+  // (antes se quedaba en "Subir video" hasta repintar todo).
+  if (esEquipo()) {
+    const txt = rootEl.querySelector(`.ig-post[data-pieza="${CSS.escape(id)}"] .ig-acciones label.ig-btn:not(.is-cargando) > span`);
+    if (txt) txt.textContent = videoDe(p) ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video');
+  }
 }
 function puntos(n) {
   return el('div', { class: 'ig-puntos' }, Array.from({ length: n }, (_, i) => el('i', { class: i ? '' : 'is-on' })));
@@ -673,6 +680,7 @@ function vigilar(nodo) {
 
 // ── Pestaña Feed ─────────────────────────────────────────────────────────────
 function pintarFeed() {
+  if (esEquipo()) { pintarFeedAgencia(); return; }
   const todas = piezasDeMarca().sort(ordenar);
   const corte = hoyYmd().slice(0, 7) + '-01';
   const anteriores = todas.filter((p) => p.publish_date && p.publish_date < corte);
@@ -718,6 +726,7 @@ function llenarMini(mini, p) {
   else mini.appendChild(el('span', { text: contentTypeLabel(p.content_type || 'reel').charAt(0) }));
 }
 function ladoFeed() {
+  if (esEquipo()) return ladoAgencia();
   const m = marca() || {};
   const datos = ig && ig !== 'cargando' && ig.connected && !ig.error ? ig : null;
   const pf = (datos && datos.perfil) || {};
@@ -766,6 +775,184 @@ function ladoFeed() {
       el('button', { class: 'ig-btn', type: 'button', text: T('Ver por mes', 'View by month'), onclick: () => cambiar('lista') }),
     ]),
   ].filter(Boolean));
+}
+
+// ── Feed de la AGENCIA (22-nov-2026, diseño aprobado por Vianey) ────────────
+// Arriba, los meses y "Subir"; un mes a la vez. En la compu, a la derecha, los
+// videos del mes y cómo va cada pieza. Nada de esto le sale al cliente.
+function opcionesMesFeed() {
+  const todas = piezasDeMarca();
+  const meses = [...new Set(todas.map(mesDe).filter(Boolean))].sort();
+  return { meses, opciones: [...meses, ...(todas.some((p) => !p.publish_date) ? ['sin'] : [])] };
+}
+// Arranca en el mes de hoy; si no tiene piezas, en el siguiente que tenga.
+function asegurarMesFeed() {
+  const { meses, opciones } = opcionesMesFeed();
+  if (mesFeed && opciones.includes(mesFeed)) return opciones;
+  const hoy = hoyYmd().slice(0, 7);
+  mesFeed = meses.includes(hoy) ? hoy : (meses.find((x) => x > hoy) || meses[meses.length - 1] || (opciones.includes('sin') ? 'sin' : hoy));
+  return opciones;
+}
+const piezasDelMes = () => piezasDeMarca().filter((p) => (mesDe(p) || 'sin') === mesFeed).sort(ordenar);
+const textoMes = (ym) => (ym === 'sin' ? T('Sin fecha', 'No date') : nombreMes(ym));
+
+function cabezaAgencia() {
+  const opciones = asegurarMesFeed();
+  const chips = el('div', { class: 'ig-meses', role: 'tablist', 'aria-label': T('Mes', 'Month') }, opciones.map((ym) => el('button', {
+    class: 'ig-mesbtn' + (ym === mesFeed ? ' is-on' : ''), type: 'button', role: 'tab', 'aria-selected': ym === mesFeed ? 'true' : 'false',
+    text: nombreMesCorto(ym),
+    onclick: () => {
+      if (ym === mesFeed) return;
+      mesFeed = ym;
+      pintar();
+      // La que se desplaza es #viewScroll (no la ventana): el mes nuevo empieza arriba.
+      const sc = rootEl && rootEl.closest('#viewScroll');
+      if (sc) sc.scrollTo({ top: 0 }); else window.scrollTo({ top: 0 });
+    },
+  })));
+  // Si el mes elegido no se alcanza a ver, la fila se corre hasta él (sin mover la página).
+  setTimeout(() => {
+    const on = chips.querySelector('.is-on');
+    if (!on) return;
+    const izq = on.offsetLeft;   // la fila es position: relative (contenido.css)
+    if (izq < chips.scrollLeft || izq + on.offsetWidth > chips.scrollLeft + chips.clientWidth) chips.scrollLeft = Math.max(0, izq - 8);
+  }, 0);
+  return el('header', { class: 'ig-top ig-top--agencia' }, [
+    el('h2', { class: 'ig-top__titulo', text: T('Feed', 'Feed') }),
+    chips,
+    el('div', { class: 'ig-top__der' }, [
+      el('button', {
+        class: 'ig-btn ig-btn--chico solo-compu', type: 'button', text: T('Ver como cliente', 'View as client'),
+        onclick: () => { if (ctx) ctx.router.navigate('contenido', marcaId ? { cliente: marcaId } : {}); },
+      }),
+      el('button', { class: 'ig-btn ig-btn--chico is-primario solo-cel', type: 'button', text: T('Subir', 'Upload'), onclick: abrirSubida }),
+    ]),
+  ]);
+}
+
+function pintarFeedAgencia() {
+  const lista = piezasDelMes();
+  const frag = el('div', { class: 'ig-feed' });
+  if (!lista.length) {
+    frag.appendChild(el('div', { class: 'ig-vacio' }, [
+      el('p', { class: 'ig-vacio__t', text: T('Esta marca no tiene piezas en este mes.', 'This brand has no pieces this month.') }),
+      el('p', { class: 'ig-muted', text: T('Las piezas se crean en el Calendario.', 'Pieces are created in the Calendar.') }),
+    ]));
+  }
+  for (const p of lista) frag.appendChild(publicacion(p));
+  cuerpoEl.appendChild(frag);
+  cuerpoEl.appendChild(ladoFeed());
+  for (const art of frag.querySelectorAll('.ig-post')) vigilar(art);
+}
+
+function ladoAgencia() {
+  const m = marca() || {};
+  const datos = ig && ig !== 'cargando' && ig.connected && !ig.error ? ig : null;
+  const pf = (datos && datos.perfil) || {};
+  const ps = piezasDelMes();
+  const videos = ps.filter(esVideo).length;
+  const dato = (k, txt) => {
+    const n = ps.filter((p) => etapa(p).k === k).length;
+    return el('div', { class: 'ig-lado__dato' + (n ? '' : ' is-cero') }, [el('span', { class: 'ig-estado', dataset: { k }, text: txt }), el('b', { text: String(n) })]);
+  };
+  return el('aside', { class: 'ig-lado', 'aria-label': T('Resumen del mes', 'Month summary') }, [
+    el('div', { class: 'ig-lado__marca' }, [
+      avatar(56),
+      el('div', {}, [
+        el('b', { text: m.name || T('Marca', 'Brand') }),
+        el('small', { text: '@' + handle() }),
+        pf.followers != null ? el('small', { text: `${num(pf.followers)} ${T('seguidores', 'followers')}` }) : null,
+      ].filter(Boolean)),
+    ]),
+    el('section', { class: 'ig-lado__caja' }, [
+      el('h3', { text: T('Videos del mes', 'Videos this month') }),
+      el('p', { text: videos
+        ? T(`${textoMes(mesFeed)}: ${videos} ${videos === 1 ? 'pieza' : 'piezas'} de video. Sube el de cada una.`, `${textoMes(mesFeed)}: ${videos} video ${videos === 1 ? 'piece' : 'pieces'}. Upload each one.`)
+        : T('Este mes no tiene piezas de video.', 'No video pieces this month.') }),
+      videos ? el('button', { class: 'ig-btn is-primario', type: 'button', text: T('Subir videos', 'Upload videos'), onclick: abrirSubida }) : null,
+    ].filter(Boolean)),
+    el('section', { class: 'ig-lado__caja' }, [
+      el('h3', { text: T('Estado del mes', 'This month') }),
+      dato('preparando', T('En preparación', 'In progress')),
+      dato('revisar', T('Por aprobar', 'To approve')),
+      dato('cambio', T('Cambio pedido', 'Change requested')),
+      dato('aprobado', T('Aprobadas', 'Approved')),
+      dato('publicado', T('Publicadas', 'Published')),
+    ]),
+  ]);
+}
+
+// "Subir": los videos del mes en una lista, cada uno con su botón. Se sube
+// directo a su pieza (lo mismo que "Subir video" en cada publicación).
+function revisarVideo(p) {
+  return new Promise((resolve) => {
+    const t0 = Date.now();
+    const mira = () => {
+      if (!ctx) { resolve(false); return; }   // se salió de la vista: ya no hay a quién avisar
+      if (!medios.has(p.id)) pedirMedio(p.id);
+      const dl = marcaId ? dlvMarca.get(marcaId) : null;
+      if (marcaId && !dl) entregable(p);
+      const m = medios.get(p.id);
+      const listo = m && m !== 'cargando' && (!marcaId || (dl && dl !== 'cargando'));
+      if (listo || Date.now() - t0 > 12000) { resolve(!!videoDe(p)); return; }
+      setTimeout(mira, 200);
+    };
+    mira();
+  });
+}
+function filaSubida(p) {
+  const st = ctx && ctx.store;
+  const estado = el('small', { class: 'ig-subida__estado', text: T('Revisando…', 'Checking…') });
+  const txt = el('span', { text: T('Subir video', 'Upload video') });
+  const archivo = el('input', { type: 'file', accept: 'video/*', hidden: true });
+  const boton = el('label', { class: 'ig-btn ig-btn--chico' }, [txt, archivo]);
+  const pintarEstado = (tiene) => {
+    estado.textContent = tiene ? T('Ya tiene video', 'Has a video') : T('Falta el video', 'Video missing');
+    estado.dataset.k = tiene ? 'ok' : 'falta';
+    txt.textContent = tiene ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video');
+    boton.classList.toggle('is-primario', !tiene);
+  };
+  revisarVideo(p).then(pintarEstado);
+  archivo.addEventListener('change', async () => {
+    const f = archivo.files && archivo.files[0];
+    if (!f) return;
+    boton.classList.add('is-cargando');
+    try {
+      const r = await multipartUpload(api, `/posts/${encodeURIComponent(p.id)}/video`, f, (pct) => { txt.textContent = T(`Subiendo ${Math.round(pct)}%`, `Uploading ${Math.round(pct)}%`); });
+      medios.delete(p.id);
+      if (r && r.id && st) st.upsertPost?.(r);
+      if (!medios.has(p.id)) pedirMedio(p.id);
+      pintarEstado(true);
+      toast(T('Video subido. Ya se ve en la publicación.', 'Video uploaded.'), 'success');
+    } catch (err) {
+      toast((err && err.message) || T('No se pudo subir el video', 'Could not upload the video'), 'error');
+      pintarEstado(!!videoDe(p));
+    } finally {
+      boton.classList.remove('is-cargando');
+      archivo.value = '';
+    }
+  });
+  return el('div', { class: 'ig-subida__fila' }, [
+    el('span', { class: 'ig-subida__tipo', text: contentTypeLabel(p.content_type || 'reel') }),
+    el('span', { class: 'ig-subida__txt' }, [el('b', { text: tituloCorto(p) }), el('span', {}, [diaCorto(p) ? `${diaCorto(p)} · ` : '', estado])]),
+    boton,
+  ]);
+}
+function abrirSubida() {
+  const lista = piezasDelMes().filter(esVideo);
+  const mes = textoMes(mesFeed);
+  openSheet({
+    title: T('Subir videos', 'Upload videos'),
+    mode: 'menu',
+    build(body) {
+      if (!lista.length) {
+        body.appendChild(el('p', { class: 'ig-subida__nota', text: T(`${mes}: esta marca no tiene piezas de video.`, `${mes}: this brand has no video pieces.`) }));
+        return;
+      }
+      body.appendChild(el('p', { class: 'ig-subida__nota', text: T(`${mes}. Elige el video de cada pieza: se sube directo a su publicación.`, `${mes}. Choose the video for each piece: it goes straight to its post.`) }));
+      body.appendChild(el('div', { class: 'ig-subida' }, lista.map(filaSubida)));
+    },
+  });
 }
 
 // ── Contenido: los meses y las piezas en barritas por tipo ───────────────────
@@ -968,7 +1155,10 @@ function repintarCabeceras() {
 function irAPieza(id) {
   cambiar('feed');
   const p = piezasDeMarca().find((x) => x.id === id);
-  if (p && p.publish_date && p.publish_date < hoyYmd().slice(0, 7) + '-01' && !verAnteriores) { verAnteriores = true; pintar(); }
+  if (p && esEquipo()) {
+    const ym = mesDe(p) || 'sin';
+    if (ym !== mesFeed) { mesFeed = ym; pintar(); }
+  } else if (p && p.publish_date && p.publish_date < hoyYmd().slice(0, 7) + '-01' && !verAnteriores) { verAnteriores = true; pintar(); }
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const art = rootEl && rootEl.querySelector(`.ig-post[data-pieza="${CSS.escape(id)}"]`);
     if (art) art.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -981,8 +1171,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611222124')
-      : await import('./conexiones.js?v=202611222124');
+      ? await import('./metricas.js?v=202611222220')
+      : await import('./conexiones.js?v=202611222220');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -1022,7 +1212,8 @@ function pintar() {
   clear(rootEl);
   rootEl.dataset.tab = pestana;
   const m = marca() || {};
-  rootEl.appendChild(el('header', { class: 'ig-top' }, [
+  if (esEquipo()) rootEl.appendChild(cabezaAgencia());
+  else rootEl.appendChild(el('header', { class: 'ig-top' }, [
     el('div', { class: 'ig-marca' }, [avatar(36), el('div', {}, [el('b', { text: m.name || T('Mi marca', 'My brand') }), el('small', { text: '@' + handle() })])]),
     el('nav', { class: 'ig-tabs', role: 'tablist' }, PESTANAS().map(([k, txt]) => el('button', {
       class: 'ig-tab' + (pestana === k ? ' is-on' : ''), type: 'button', role: 'tab', 'aria-selected': pestana === k ? 'true' : 'false',
@@ -1099,7 +1290,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611222124';
+  link.href = '/marketing/css/contenido.css?v=202611222220';
   document.head.appendChild(link);
 }
 
@@ -1112,7 +1303,7 @@ export default {
     host.appendChild(rootEl);
     marcaId = estado().activeClientId || null;
     const prm = (c && c.params) || {};
-    if (prm.tab && tabValida(prm.tab)) pestana = prm.tab;
+    if (!esEquipo() && prm.tab && tabValida(prm.tab)) pestana = prm.tab;
     unsubs.push(ctx.store.subscribe(['posts', 'clients', 'activeClientId'], () => {
       const ahora = estado().activeClientId || null;
       if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); dlvMarca.clear(); abiertos.clear(); verAnteriores = false; }
@@ -1127,7 +1318,7 @@ export default {
     abrirPendiente();
   },
   onParams(params) {
-    if (params && params.tab && tabValida(params.tab)) {
+    if (params && params.tab && tabValida(params.tab) && !esEquipo()) {
       if (params.tab !== pestana) cambiar(params.tab);
       else if (pestana === 'feed' && verAnteriores) { verAnteriores = false; pintar(); window.scrollTo({ top: 0 }); }
       else window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1140,7 +1331,7 @@ export default {
     unsubs = [];
     desmontarSub();
     if (observador) { observador.disconnect(); observador = null; }
-    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false; mesLista = null;
+    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false; mesLista = null; mesFeed = null;
     delete document.body.dataset.cntTab;
     try { window.dispatchEvent(new CustomEvent('cnt:tab', { detail: null })); } catch { /* noop */ }
     abiertos.clear();

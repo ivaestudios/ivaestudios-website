@@ -12,17 +12,17 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202611222124';
-import * as store from './store.js?v=202611222124';
-import * as prefs from './prefs.js?v=202611222124';
-import { icon } from './icons.js?v=202611222124';
-import { T } from './i18n.js?v=202611222124';
-import { openSheet } from './sheet.js?v=202611222124';
+import { el, clear } from '../api.js?v=202611222220';
+import * as store from './store.js?v=202611222220';
+import * as prefs from './prefs.js?v=202611222220';
+import { icon } from './icons.js?v=202611222220';
+import { T } from './i18n.js?v=202611222220';
+import { openSheet } from './sheet.js?v=202611222220';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 
-export function createBottomNav({ root, fabHost, scrollEl, router, openNotifications }) {
+export function createBottomNav({ root, fabHost, scrollEl, router, openNotifications, openSearch, openAccount }) {
   const badges = new Map(); // tabId -> badge element
   let notifAvailable = true;
 
@@ -91,7 +91,11 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   const tabFeedAg = makeTab({ id: 'agencia', label: 'Feed', ic: 'home', onTap: () => goOrTop('agencia') });
   const tabCalendario = makeTab({ id: 'meses', label: T('Calendario', 'Calendar'), ic: 'calendar', onTap: () => goOrTop('meses') });
   const tabResultados = makeTab({ id: 'metricas', label: T('Resultados', 'Results'), ic: 'activity', onTap: () => goOrTop('metricas') });
+  // Las que empiezan con "_" no son vistas: Buscar y Tu cuenta (en el celular
+  // del equipo ya no están arriba, como en el diseño aprobado).
+  const ACCIONES_MAS = { _buscar: () => openSearch?.(), _cuenta: () => openAccount?.() };
   const MAS = [
+    ...(openSearch ? [['_buscar', T('Buscar', 'Search'), 'search']] : []),
     ['contenido', T('Vista cliente', 'Client view'), 'eye'],
     ['inicio', T('Inicio', 'Home'), 'home'],
     ['mi-trabajo', T('Mi trabajo', 'My work'), 'briefcase'],
@@ -104,8 +108,9 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     ['conexiones', T('Conexiones', 'Connections'), 'link'],
     ['asistente', T('Asistente', 'Assistant'), 'sparkles'],
     ['feed', T('Simulador de Instagram', 'Instagram preview'), 'camera'],
-  ].concat(esAdminBn ? [['administracion', T('Administración', 'Administration'), 'gauge'], ['pauta', T('Pauta', 'Ads'), 'zap']] : []);
-  const MAS_VIEWS = MAS.map(([id]) => id);
+  ].concat(esAdminBn ? [['administracion', T('Administración', 'Administration'), 'gauge'], ['pauta', T('Pauta', 'Ads'), 'zap']] : [])
+    .concat(openAccount ? [['_cuenta', T('Tu cuenta', 'Your account'), 'user']] : []);
+  const MAS_VIEWS = MAS.map(([id]) => id).filter((id) => !id.startsWith('_'));
   const tabMas = makeTab({
     id: 'mas', label: T('Más', 'More'), ic: 'dots',
     onTap: () => openSheet({
@@ -114,7 +119,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
         const { view } = store.getState();
         body.appendChild(el('div', { class: 'bn-mas' }, MAS.map(([id, label, ic]) => el('button', {
           type: 'button', class: id === view ? 'is-on' : '',
-          onclick: () => { close({ source: 'mas' }); goOrTop(id); },
+          onclick: () => { close({ source: 'mas' }); if (ACCIONES_MAS[id]) ACCIONES_MAS[id](); else goOrTop(id); },
         }, [icon(ic, 20), el('span', { text: label })]))));
       },
     }),

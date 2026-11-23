@@ -1166,3 +1166,17 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .bn-mas button { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 12px; font-size: 15.5px; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .bn-mas button:hover, .bn-mas button.is-on { background: var(--surface-2); }
 .bn-mas button svg { flex: none; color: var(--text-dim); }
+
+/* ── EQUIPO en celular y tablet (22-nov-2026, diseño de agencias aprobado) ────
+   Arriba solo el logo, la marca y la campana, como en el diseño. Buscar y Tu
+   cuenta (con idioma y tema adentro) viven en "Más" de la barra de abajo. La
+   fila vieja de botones ya no sale (shell.js); si una vista trae sus propios
+   controles, van a la derecha como en la compu. El cliente no cambia. */
+@media (max-width: 1023px) {
+  body:not(.is-client) .tb-buscar,
+  body:not(.is-client) .tb-avatar,
+  body:not(.is-client) .tb-lang,
+  body:not(.is-client) .tb-theme { display: none; }
+  body:not(.is-client) .tb-client { max-width: 64vw; }
+  body:not(.is-client) #subhead { justify-content: flex-end; }
+}
