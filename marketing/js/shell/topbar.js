@@ -10,21 +10,21 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { startTour } from './tour.js?v=202611222220';
-import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611222220';
-import * as store from './store.js?v=202611222220';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611222220';
-import { toast } from './toast.js?v=202611222220';
-import { icon } from './icons.js?v=202611222220';
-import { openClientSwitcher } from './clientswitcher.js?v=202611222220';
-import { T, isEN, setLang } from './i18n.js?v=202611222220';
+import { startTour } from './tour.js?v=202611222250';
+import { api, el, clear, avatar, timeAgo, initials, copyText, esCreador } from '../api.js?v=202611222250';
+import * as store from './store.js?v=202611222250';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202611222250';
+import { toast } from './toast.js?v=202611222250';
+import { icon } from './icons.js?v=202611222250';
+import { openClientSwitcher } from './clientswitcher.js?v=202611222250';
+import { T, isEN, setLang } from './i18n.js?v=202611222250';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202611222220';
-import { getTheme, setTheme } from './theme.js?v=202611222220';
-import * as version from './version.js?v=202611222220';
-import * as tienda from './tienda.js?v=202611222220';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611222220';
-import * as prefs from './prefs.js?v=202611222220';
+import { abrirBloqueados } from './moderacion.js?v=202611222250';
+import { getTheme, setTheme } from './theme.js?v=202611222250';
+import * as version from './version.js?v=202611222250';
+import * as tienda from './tienda.js?v=202611222250';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202611222250';
+import * as prefs from './prefs.js?v=202611222250';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -43,6 +43,8 @@ const DESKTOP_TABS = [
   // Feed de la AGENCIA (22-nov-2026): solo equipo; el cliente no lo ve (su
   // filtro de abajo es lista blanca).
   { id: 'agencia', label: 'Feed' },
+  // Calendario de la AGENCIA (22-nov-2026): solo equipo (el filtro del cliente es lista blanca).
+  { id: 'plan', label: T('Calendario', 'Calendar') },
   { id: 'meses', label: T('Calendario', 'Calendar') },
   { id: 'calendario', label: T('Cuadrícula', 'Grid') },
   // ⚠️ Una vista solo aparece si está EN ESTA LISTA: ponerla en DESKTOP_GRUPOS
@@ -89,9 +91,10 @@ const DESKTOP_GRUPOS = [
 const DESKTOP_GRUPOS_AGENCIA = [
   { id: 'g-bandeja', label: T('Bandeja', 'Inbox'), items: ['bandeja'] },
   { id: 'g-feed', label: 'Feed', items: ['agencia'] },
-  { id: 'g-calendario', label: T('Calendario', 'Calendar'), items: ['meses', 'calendario'] },
+  { id: 'g-calendario', label: T('Calendario', 'Calendar'), items: ['plan'] },
   { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'administracion', 'pauta'] },
-  { id: 'g-mas', label: T('Más', 'More'), items: ['contenido', 'inicio', 'entregables', 'marca', 'carrusel', 'video-ia', 'descargar', 'conexiones', 'asistente', 'feed'] },
+  // "Hoja del mes" = el calendario de siempre (Generar mes con IA, PDF, agregar piezas).
+  { id: 'g-mas', label: T('Más', 'More'), items: ['contenido', 'inicio', 'meses', 'calendario', 'entregables', 'marca', 'carrusel', 'video-ia', 'descargar', 'conexiones', 'asistente', 'feed'] },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -152,7 +155,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     router.navigate(id, activeClientId ? { cliente: activeClientId } : {});
   };
   const visibleIds = new Set(visibleTabs.map((t) => t.id));
-  const etiqueta = (id) => (id === 'contenido' && !isClient ? T('Vista cliente', 'Client view') : (DESKTOP_TABS.find((t) => t.id === id) || {}).label || id);
+  const etiqueta = (id) => (id === 'contenido' && !isClient ? T('Vista cliente', 'Client view')
+    : id === 'meses' && !isClient ? T('Hoja del mes', 'Month sheet')
+    : (DESKTOP_TABS.find((t) => t.id === id) || {}).label || id);
   // Cada grupo abierto se apunta aquí para poder cerrarlo desde fuera.
   const menus = [];
   const cerrarMenus = (menos) => menus.forEach((m) => { if (m !== menos) m.cerrar(); });

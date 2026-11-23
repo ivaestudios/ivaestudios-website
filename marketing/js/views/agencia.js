@@ -5,11 +5,11 @@
 // cliente en el hilo de comentarios. La vista del cliente NO cambia: el modo se
 // prende solo mientras esta pestaña está montada.
 // ============================================================================
-import contenido, { ponerModo } from './contenido.js?v=202611222220';
+import contenido, { ponerModo } from './contenido.js?v=202611222250';
 
 export default {
   id: 'agencia',
-  mount(host, c) { ponerModo('agencia'); return contenido.mount(host, c); },
+  mount(host, c) { ponerModo('agencia', 'feed'); return contenido.mount(host, c); },
   onParams(params) { return contenido.onParams ? contenido.onParams(params) : undefined; },
   unmount() { const r = contenido.unmount ? contenido.unmount() : undefined; ponerModo('cliente'); return r; },
 };

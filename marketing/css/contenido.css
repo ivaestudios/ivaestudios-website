@@ -327,3 +327,48 @@ body .ig-caja { width: 100%; box-sizing: border-box; }
 .ig-subida label.ig-btn.is-primario { background: var(--text, #111); color: var(--bg, #fff); border-color: var(--text, #111); }
 .ig-subida label.ig-btn.is-cargando { opacity: .7; pointer-events: none; }
 .ig-subida label.ig-btn:focus-within { outline: 2px solid var(--brand, #C93E8C); outline-offset: 2px; }
+
+/* ── Calendario de la AGENCIA (22-nov-2026, diseño aprobado por Vianey) ──────
+   Celular: arriba "Cliente · Subir videos" y debajo los meses; en la compu una
+   sola fila "Calendario · meses · Ver como cliente · Subir videos". Renglones
+   por tipo con su número de la Hoja del mes, video y comentarios. */
+.ig-top--cal { flex-wrap: wrap; row-gap: 10px; }
+.ig-top--cal .ig-top__der { margin-left: auto; }
+@media (max-width: 1023px) {
+  .ig-top--cal .ig-top__der { order: 1; }
+  .ig-top--cal .ig-meses { order: 2; flex: 1 1 100%; }
+}
+.ig-resumen--cal { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 14px; margin: 14px 2px 2px; }
+.ig-resumen--cal .is-falta { color: var(--ig-warn); font-weight: 600; }
+.ig-resumen--cal .is-ok { color: var(--ig-ok); font-weight: 600; }
+.ig .ig-enlace { margin-left: auto; padding: 6px 0; border: 0; background: none; font-size: 14px; font-weight: 600; color: var(--ig-tx); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.ig-cal .ig-cal__barra { gap: 10px; min-height: 60px; }
+.ig-cal__tipo { flex: none; min-width: 46px; padding: 3px 6px; border: 1px solid var(--ig-line); border-radius: 6px; font-size: 11.5px; font-weight: 600; text-align: center; color: var(--ig-dim); }
+.ig-cal .ig-barra__txt b { font-weight: 600; }
+.ig-cal__num { color: var(--ig-dim); font-weight: 500; }
+.ig-cal__com, .ig-cal__video { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; }
+.ig-cal__com { color: var(--ig-tx); }
+.ig-cal__com[hidden], .ig-cal__video[hidden] { display: none; }
+.ig-cal__video[data-k="ok"] { color: var(--ig-ok); }
+.ig-cal__video[data-k="falta"] { color: var(--ig-warn); }
+.ig-cal__desglose { display: grid; gap: 14px; padding: 10px 16px 16px; }
+.ig-cal__cols { display: grid; gap: 6px 22px; }
+.ig-cal__h { margin: 6px 0 0; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ig-dim); }
+.ig-cal__vfila { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px; margin-top: 4px; }
+.ig-cal__mini { flex: none; width: 48px; height: 64px; border-radius: 8px; object-fit: cover; background: var(--ig-soft); display: grid; place-items: center; color: var(--ig-dim); }
+.ig-cal__vtxt { font-size: 14px; color: var(--ig-tx); }
+.ig-cal__vtxt.is-falta { color: var(--ig-warn); font-weight: 600; }
+.ig-cal__nota { display: block; margin-top: 4px; font-size: 13px; color: var(--ig-dim); }
+.ig-cal__coms { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; padding: 10px 12px; border-radius: 12px; background: var(--ig-soft); font-size: 14px; color: var(--ig-tx); }
+.ig-cal__coms svg { flex: none; color: var(--ig-dim); }
+.ig-cal__coms .ig-btn { margin-left: auto; background: var(--ig-card); }
+.ig-cal__acc { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (min-width: 1024px) {
+  /* El encabezado y la lista del mismo ancho (antes la lista quedaba corrida). */
+  .ig.is-agencia[data-tab="lista"] { max-width: 960px; }
+  .ig.is-agencia[data-tab="lista"] .ig-cuerpo { max-width: none; }
+  .ig.is-agencia[data-tab="feed"] { max-width: 1002px; }
+  .ig-top--cal { flex-wrap: nowrap; }
+  .ig-cal__cols { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .ig-cal__tipo { min-width: 52px; }
+}

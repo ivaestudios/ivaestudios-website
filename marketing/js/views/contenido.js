@@ -29,11 +29,12 @@
 //   · decidir     → POST /posts/:id/approve · /request-changes
 //   · guion       → PATCH /posts/:id { hook, body, cta }
 // ============================================================================
-import { el, clear, api, toast, contentTypeLabel } from '../api.js?v=202611222220';
-import { T, isEN } from '../shell/i18n.js?v=202611222220';
-import { openSheet } from '../shell/sheet.js?v=202611222220';
-import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611222220';
-import { multipartUpload } from '../lib/video-upload.js?v=202611222220';
+import { el, clear, api, toast, contentTypeLabel, CONTENT_TYPE_ORDER, STATUSES } from '../api.js?v=202611222250';
+import { icon } from '../shell/icons.js?v=202611222250';
+import { T, isEN } from '../shell/i18n.js?v=202611222250';
+import { openSheet } from '../shell/sheet.js?v=202611222250';
+import { slidesFromPost, fieldsFromSlides } from '../editor/slides.js?v=202611222250';
+import { multipartUpload } from '../lib/video-upload.js?v=202611222250';
 
 const VIEW_ID = 'contenido';
 
@@ -67,7 +68,8 @@ function marca() { return (estado().clients || []).find((c) => c.id === marcaId)
 // Modo agencia SOLO cuando lo monta views/agencia.js (pestaña "Feed" del
 // equipo). La vista del cliente y la "Vista cliente" del equipo quedan IGUAL.
 let modo = 'cliente';
-export function ponerModo(m) { modo = m === 'agencia' ? 'agencia' : 'cliente'; }
+let vistaAg = 'feed';            // en modo agencia: 'feed' (Feed) o 'lista' (Calendario)
+export function ponerModo(m, vista) { modo = m === 'agencia' ? 'agencia' : 'cliente'; vistaAg = vista === 'lista' ? 'lista' : 'feed'; }
 const esEquipo = () => modo === 'agencia' && ((estado().me || {}).role || 'client') !== 'client';
 const oculta = (p) => p.client_visible === 0 || p.client_visible === false;
 function piezasDeMarca() {
@@ -91,6 +93,10 @@ const primerIdioma = (t) => String(t || '').split(/\n\s*ESPAÑOL:/i)[0].trim();
 const tieneTexto = (p) => !!(String(p.hook || '').trim() || String(p.body || '').trim() || String(p.cta || '').trim() || String(p.caption || '').trim());
 const esCarrusel = (p) => (p.content_type || '') === 'carrusel';
 const esVideo = (p) => ['reel', 'historia', 'pauta', 'video'].includes(p.content_type || 'reel');
+// Para la AGENCIA: los tipos que llevan video final (los del PDF de contenido,
+// más los testimonios "Experiencia", que también son video).
+const TIPOS_VIDEO_AG = ['reel', 'tiktok', 'historia', 'informativo', 'pauta', 'tratamientos', 'experiencia', 'video'];
+const esVideoAg = (p) => TIPOS_VIDEO_AG.includes(p.content_type || 'reel');
 
 // El estado EN PALABRAS DEL CLIENTE.
 function etapa(p) {
@@ -332,6 +338,7 @@ function repintarMedio(id) {
   if (celda) llenarCelda(celda, p);
   const mini = rootEl.querySelector(`.ig-lado__mini[data-pieza="${CSS.escape(id)}"]`);
   if (mini) llenarMini(mini, p);
+  if (esEquipo() && pestana === 'lista') { actualizarCalVideo(id); return; }
   // Agencia: el botón dice "Cambiar video" en cuanto se sabe que ya tiene uno
   // (antes se quedaba en "Subir video" hasta repintar todo).
   if (esEquipo()) {
@@ -383,7 +390,7 @@ function acciones(p, e) {
     archivo.addEventListener('change', () => subirVideo(p, archivo, subir));
     // Solo las piezas de VIDEO llevan "Subir video"; un carrusel o un post de
     // foto suben sus imágenes al abrir la pieza.
-    const sinVideo = !esVideo(p);
+    const sinVideo = !esVideoAg(p);
     return el('div', { class: 'ig-acciones' + (sinVideo ? ' is-dos' : '') }, [
       sinVideo ? null : subir,
       el('button', { class: 'ig-btn' + (sinVideo ? ' is-primario' : ''), type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }),
@@ -502,6 +509,8 @@ async function comentar(p, entrada, boton) {
   finally { boton.disabled = false; }
 }
 function repintarHilo(id) {
+  if (!rootEl) return;   // la respuesta llegó después de salir de la vista
+  if (esEquipo() && pestana === 'lista') { actualizarCalComs(id); return; }
   const p = piezasDeMarca().find((x) => x.id === id);
   const viejo = rootEl && rootEl.querySelector(`.ig-hilo[data-hilo="${CSS.escape(id)}"]`);
   if (!p || !viejo) return;
@@ -796,7 +805,7 @@ function asegurarMesFeed() {
 const piezasDelMes = () => piezasDeMarca().filter((p) => (mesDe(p) || 'sin') === mesFeed).sort(ordenar);
 const textoMes = (ym) => (ym === 'sin' ? T('Sin fecha', 'No date') : nombreMes(ym));
 
-function cabezaAgencia() {
+function chipsMes() {
   const opciones = asegurarMesFeed();
   const chips = el('div', { class: 'ig-meses', role: 'tablist', 'aria-label': T('Mes', 'Month') }, opciones.map((ym) => el('button', {
     class: 'ig-mesbtn' + (ym === mesFeed ? ' is-on' : ''), type: 'button', role: 'tab', 'aria-selected': ym === mesFeed ? 'true' : 'false',
@@ -817,13 +826,18 @@ function cabezaAgencia() {
     const izq = on.offsetLeft;   // la fila es position: relative (contenido.css)
     if (izq < chips.scrollLeft || izq + on.offsetWidth > chips.scrollLeft + chips.clientWidth) chips.scrollLeft = Math.max(0, izq - 8);
   }, 0);
+  return chips;
+}
+const irVista = (vista, extra = {}) => { if (ctx) ctx.router.navigate(vista, { ...(marcaId ? { cliente: marcaId } : {}), ...extra }); };
+
+function cabezaAgencia() {
   return el('header', { class: 'ig-top ig-top--agencia' }, [
     el('h2', { class: 'ig-top__titulo', text: T('Feed', 'Feed') }),
-    chips,
+    chipsMes(),
     el('div', { class: 'ig-top__der' }, [
       el('button', {
         class: 'ig-btn ig-btn--chico solo-compu', type: 'button', text: T('Ver como cliente', 'View as client'),
-        onclick: () => { if (ctx) ctx.router.navigate('contenido', marcaId ? { cliente: marcaId } : {}); },
+        onclick: () => irVista('contenido'),
       }),
       el('button', { class: 'ig-btn ig-btn--chico is-primario solo-cel', type: 'button', text: T('Subir', 'Upload'), onclick: abrirSubida }),
     ]),
@@ -850,7 +864,7 @@ function ladoAgencia() {
   const datos = ig && ig !== 'cargando' && ig.connected && !ig.error ? ig : null;
   const pf = (datos && datos.perfil) || {};
   const ps = piezasDelMes();
-  const videos = ps.filter(esVideo).length;
+  const videos = ps.filter(esVideoAg).length;
   const dato = (k, txt) => {
     const n = ps.filter((p) => etapa(p).k === k).length;
     return el('div', { class: 'ig-lado__dato' + (n ? '' : ' is-cero') }, [el('span', { class: 'ig-estado', dataset: { k }, text: txt }), el('b', { text: String(n) })]);
@@ -900,8 +914,22 @@ function revisarVideo(p) {
     mira();
   });
 }
-function filaSubida(p) {
+// Sube el video final de una pieza y avisa. `txt` (opcional) enseña el avance.
+async function subirVideoPieza(p, f, txt) {
   const st = ctx && ctx.store;
+  try {
+    const r = await multipartUpload(api, `/posts/${encodeURIComponent(p.id)}/video`, f, (pct) => { if (txt) txt.textContent = T(`Subiendo ${Math.round(pct)}%`, `Uploading ${Math.round(pct)}%`); });
+    medios.delete(p.id);
+    if (r && r.id && st) st.upsertPost?.(r);
+    if (!medios.has(p.id)) pedirMedio(p.id);
+    toast(T('Video subido. Ya se ve en la publicación.', 'Video uploaded.'), 'success');
+    return true;
+  } catch (err) {
+    toast((err && err.message) || T('No se pudo subir el video', 'Could not upload the video'), 'error');
+    return false;
+  }
+}
+function filaSubida(p) {
   const estado = el('small', { class: 'ig-subida__estado', text: T('Revisando…', 'Checking…') });
   const txt = el('span', { text: T('Subir video', 'Upload video') });
   const archivo = el('input', { type: 'file', accept: 'video/*', hidden: true });
@@ -917,20 +945,10 @@ function filaSubida(p) {
     const f = archivo.files && archivo.files[0];
     if (!f) return;
     boton.classList.add('is-cargando');
-    try {
-      const r = await multipartUpload(api, `/posts/${encodeURIComponent(p.id)}/video`, f, (pct) => { txt.textContent = T(`Subiendo ${Math.round(pct)}%`, `Uploading ${Math.round(pct)}%`); });
-      medios.delete(p.id);
-      if (r && r.id && st) st.upsertPost?.(r);
-      if (!medios.has(p.id)) pedirMedio(p.id);
-      pintarEstado(true);
-      toast(T('Video subido. Ya se ve en la publicación.', 'Video uploaded.'), 'success');
-    } catch (err) {
-      toast((err && err.message) || T('No se pudo subir el video', 'Could not upload the video'), 'error');
-      pintarEstado(!!videoDe(p));
-    } finally {
-      boton.classList.remove('is-cargando');
-      archivo.value = '';
-    }
+    const ok = await subirVideoPieza(p, f, txt);
+    pintarEstado(ok ? true : !!videoDe(p));
+    boton.classList.remove('is-cargando');
+    archivo.value = '';
   });
   return el('div', { class: 'ig-subida__fila' }, [
     el('span', { class: 'ig-subida__tipo', text: contentTypeLabel(p.content_type || 'reel') }),
@@ -939,7 +957,7 @@ function filaSubida(p) {
   ]);
 }
 function abrirSubida() {
-  const lista = piezasDelMes().filter(esVideo);
+  const lista = piezasDelMes().filter(esVideoAg);
   const mes = textoMes(mesFeed);
   openSheet({
     title: T('Subir videos', 'Upload videos'),
@@ -953,6 +971,278 @@ function abrirSubida() {
       body.appendChild(el('div', { class: 'ig-subida' }, lista.map(filaSubida)));
     },
   });
+}
+
+// ── Calendario de la AGENCIA (22-nov-2026, diseño aprobado por Vianey) ─────
+// Las piezas del mes en renglones por tipo, con la MISMA numeración que la
+// Hoja del mes ("Pauta 2" aquí es "PAUTA 2" allá), si ya tienen su video y
+// cuántos comentarios llevan. Al tocar una se abre ahí mismo: guion, video,
+// cuándo sale y a dónde ir. Lo de siempre (Generar mes, PDF, agregar piezas)
+// sigue en la Hoja del mes, a un toque ("Hoja completa").
+const abiertasCal = new Set();   // piezas abiertas en el Calendario
+let resumenCalEl = null;
+const TIPO_CORTO_AG = () => ({
+  reel: 'Reel', post: 'Post', tiktok: 'TikTok', informativo: 'Info', carrusel: T('Carr', 'Car'),
+  experiencia: 'Exp', pauta: T('Pauta', 'Ad'), tratamientos: T('Trat', 'Treat'), historia: T('Hist', 'Story'),
+  foto: T('Foto', 'Photo'), video: 'Video',
+});
+// Título de cada grupo del Calendario (en plural, para no confundirlo con "Reel 1").
+const GRUPO_AG = () => ({
+  reel: 'Reels', post: 'Posts', tiktok: 'TikToks', informativo: T('Informativos', 'Informational'), carrusel: T('Carruseles', 'Carousels'),
+  experiencia: T('Testimonios', 'Testimonials'), pauta: T('Pautas', 'Ads'), tratamientos: T('Tratamientos', 'Treatments'),
+  historia: T('Historias', 'Stories'), foto: T('Fotos', 'Photos'), video: 'Videos',
+});
+// El mismo orden con el que la Hoja del mes numera (meses.js, computePieceNums).
+function ordenHoja(a, b) {
+  const da = String(a.publish_date || '9999-99-99'), db = String(b.publish_date || '9999-99-99');
+  if (da !== db) return da < db ? -1 : 1;
+  const pa = Number(a.position) || 0, pb = Number(b.position) || 0;
+  if (pa !== pb) return pa - pb;
+  const ca = String(a.created_at || ''), cb = String(b.created_at || '');
+  if (ca !== cb) return ca < cb ? -1 : 1;
+  return String(a.id).localeCompare(String(b.id));
+}
+function gruposCal(lista) {
+  const orden = [...CONTENT_TYPE_ORDER, 'video'];
+  const pos = (k) => { const i = orden.indexOf(k); return i < 0 ? 99 : i; };
+  const por = new Map();
+  for (const p of lista) { const k = p.content_type || ''; if (!por.has(k)) por.set(k, []); por.get(k).push(p); }
+  return [...por.keys()].sort((a, b) => pos(a) - pos(b)).map((k) => ({ k, lista: por.get(k).sort(ordenHoja) }));
+}
+function horaDe(p) {
+  if (!p.publish_time) return '';
+  const [hh, mm] = String(p.publish_time).split(':').map(Number);
+  if (Number.isNaN(hh)) return '';
+  return `${((hh + 11) % 12) + 1}:${String(mm || 0).padStart(2, '0')} ${hh < 12 ? 'a.m.' : 'p.m.'}`;
+}
+// ¿Ya tiene su video? 'ok' | 'falta' | null (todavía no se sabe).
+function estadoVideo(p) {
+  if (videoDe(p)) return 'ok';
+  const m = medios.get(p.id);
+  const dl = marcaId ? dlvMarca.get(marcaId) : null;
+  if (!m || m === 'cargando' || !dl || dl === 'cargando') return null;
+  return 'falta';
+}
+
+function cabezaCalendario() {
+  return el('header', { class: 'ig-top ig-top--agencia ig-top--cal' }, [
+    el('h2', { class: 'ig-top__titulo', text: T('Calendario', 'Calendar') }),
+    chipsMes(),
+    el('div', { class: 'ig-top__der' }, [
+      el('button', { class: 'ig-btn ig-btn--chico', type: 'button', onclick: () => irVista('contenido') }, [
+        el('span', { class: 'solo-cel', text: T('Cliente', 'Client') }),
+        el('span', { class: 'solo-compu', text: T('Ver como cliente', 'View as client') }),
+      ]),
+      el('button', { class: 'ig-btn ig-btn--chico is-primario', type: 'button', text: T('Subir videos', 'Upload videos'), onclick: abrirSubida }),
+    ]),
+  ]);
+}
+
+function pintarCalendarioAgencia() {
+  const delMes = piezasDelMes();
+  // Para saber cuáles ya tienen video y cuántos comentarios lleva cada una.
+  for (const p of delMes) { if (esVideoAg(p)) pedirMedio(p.id); pedirHilo(p.id); }
+  if (delMes.length) entregable(delMes[0]);
+  resumenCalEl = el('div', { class: 'ig-resumen ig-resumen--cal' });
+  pintarResumenCal();
+  cuerpoEl.appendChild(resumenCalEl);
+  if (!delMes.length) {
+    cuerpoEl.appendChild(el('div', { class: 'ig-vacio' }, [
+      el('p', { class: 'ig-vacio__t', text: T('Esta marca no tiene piezas en este mes.', 'This brand has no pieces this month.') }),
+      el('p', { class: 'ig-muted', text: T('Créalas en la Hoja del mes (Generar mes con IA o una por una).', 'Create them in the Month sheet (AI month or one by one).') }),
+    ]));
+    return;
+  }
+  for (const g of gruposCal(delMes)) {
+    const sec = el('section', { class: 'ig-seccion ig-cal-grupo', dataset: { tipo: g.k || 'sin' } }, [
+      el('h3', { class: 'ig-seccion__t' }, [el('span', { text: !g.k ? T('Sin tipo', 'No type') : (GRUPO_AG()[g.k] || contentTypeLabel(g.k)) }), el('b', { text: String(g.lista.length) })]),
+    ]);
+    g.lista.forEach((p, i) => sec.appendChild(filaCal(p, i + 1)));
+    cuerpoEl.appendChild(sec);
+  }
+}
+
+function pintarResumenCal() {
+  if (!resumenCalEl) return;
+  const delMes = piezasDelMes();
+  const partes = [`${delMes.length} ${delMes.length === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')}`];
+  const porAprobar = delMes.filter((p) => etapa(p).k === 'revisar').length;
+  if (porAprobar) partes.push(`${porAprobar} ${T('por aprobar', 'to approve')}`);
+  const estados = delMes.filter(esVideoAg).map(estadoVideo);
+  let videos = null;
+  if (estados.length && estados.every(Boolean)) {
+    const faltan = estados.filter((x) => x === 'falta').length;
+    videos = el('span', {
+      class: faltan ? 'is-falta' : 'is-ok',
+      text: faltan ? T(faltan === 1 ? 'falta 1 video' : `faltan ${faltan} videos`, `${faltan} ${faltan === 1 ? 'video' : 'videos'} missing`) : T('todos los videos listos', 'all videos ready'),
+    });
+  }
+  clear(resumenCalEl);
+  resumenCalEl.append(
+    el('span', { class: 'ig-resumen__txt' }, [el('b', { text: textoMes(mesFeed) }), ` · ${partes.join(' · ')}`, videos ? ' · ' : '', videos || '']),
+    el('button', { class: 'ig-enlace', type: 'button', text: T('Hoja completa', 'Full sheet'), onclick: () => irVista('meses') }),
+  );
+}
+
+function filaCal(p, n) {
+  const e = etapa(p);
+  const tipo = p.content_type || '';
+  const item = el('div', { class: 'ig-item ig-cal' + (abiertasCal.has(p.id) ? ' is-open' : ''), dataset: { pieza: p.id } });
+  const cuando = [diaCorto(p) || T('Sin fecha', 'No date'), horaDe(p)].filter(Boolean).join(' · ');
+  const barra = el('button', {
+    class: 'ig-barra ig-cal__barra', type: 'button', 'aria-expanded': abiertasCal.has(p.id) ? 'true' : 'false',
+    onclick: () => alternarCal(item, barra, p),
+  }, [
+    el('span', { class: 'ig-cal__tipo', text: TIPO_CORTO_AG()[tipo] || contentTypeLabel(tipo) || '—' }),
+    el('span', { class: 'ig-barra__txt' }, [
+      el('b', {}, [el('span', { class: 'ig-cal__num', text: `${contentTypeLabel(tipo || 'reel')} ${n} · ` }), tituloCorto(p)]),
+      el('small', {}, [cuando, el('span', { class: 'solo-cel', text: ` · ${e.txt}` })]),
+    ]),
+    badgeCal(p),
+    videoCal(p),
+    el('span', { class: 'ig-estado ig-cal__estado solo-compu', dataset: { k: e.k }, text: e.txt }),
+    el('span', { class: 'ig-barra__flecha', 'aria-hidden': 'true' }),
+  ]);
+  item.appendChild(barra);
+  if (abiertasCal.has(p.id)) item.appendChild(desgloseCal(p));
+  return item;
+}
+function badgeCal(p) {
+  const s = el('span', { class: 'ig-cal__com', dataset: { comDe: p.id } });
+  pintarBadgeCal(s, p.id);
+  return s;
+}
+function pintarBadgeCal(s, id) {
+  const l = hilos.get(id);
+  const n = Array.isArray(l) ? l.length : 0;
+  clear(s);
+  s.hidden = !n;
+  if (!n) return;
+  s.title = T(`${n} ${n === 1 ? 'comentario' : 'comentarios'}`, `${n} ${n === 1 ? 'comment' : 'comments'}`);
+  s.append(icon('chat', 14), el('span', { text: String(n) }));
+}
+function videoCal(p) {
+  const s = el('span', { class: 'ig-cal__video', dataset: { videoDe: p.id } });
+  pintarVideoCal(s, p);
+  return s;
+}
+function pintarVideoCal(s, p) {
+  clear(s);
+  s.hidden = !esVideoAg(p);
+  if (s.hidden) return;
+  const est = estadoVideo(p);
+  s.dataset.k = est || 'cargando';
+  s.removeAttribute('title');
+  if (est === 'ok') { s.title = T('Ya tiene su video', 'Has its video'); s.append(icon('check', 15), el('span', { class: 'solo-compu', text: T('Video', 'Video') })); }
+  else if (est === 'falta') { s.title = T('Falta el video', 'Video missing'); s.append(icon('play', 15), el('span', { class: 'solo-compu', text: T('Sin video', 'No video') })); }
+}
+function alternarCal(item, barra, p) {
+  const abrir = !abiertasCal.has(p.id);
+  if (abrir) abiertasCal.add(p.id); else abiertasCal.delete(p.id);
+  item.classList.toggle('is-open', abrir);
+  barra.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+  const viejo = item.querySelector('.ig-cal__desglose');
+  if (viejo) viejo.remove();
+  if (abrir) item.appendChild(desgloseCal(p));
+}
+
+// Lo que se ve al abrir una pieza del Calendario.
+function desgloseCal(p) {
+  const guion = el('div', { class: 'ig-cal__col' }, [el('h4', { class: 'ig-cal__h', text: T('Guion', 'Script') }), ...desglose(p).childNodes]);
+  const der = el('div', { class: 'ig-cal__col' });
+  if (esVideoAg(p)) der.appendChild(bloqueVideoCal(p));
+  der.appendChild(bloqueCuandoCal(p));
+  const coms = el('div', { class: 'ig-cal__coms', dataset: { comsDe: p.id } });
+  pintarComsCal(coms, p);
+  return el('div', { class: 'ig-desglose ig-cal__desglose' }, [
+    el('div', { class: 'ig-cal__cols' }, [guion, der]),
+    coms,
+    el('div', { class: 'ig-cal__acc' }, [
+      el('button', { class: 'ig-btn ig-btn--chico is-primario', type: 'button', text: T('Abrir pieza', 'Open piece'), onclick: () => { location.hash = '#/post/' + encodeURIComponent(p.id); } }),
+      el('button', { class: 'ig-btn ig-btn--chico', type: 'button', text: T('Como lo ve el cliente', 'As the client sees it'), onclick: () => irVista('contenido', { pieza: p.id }) }),
+    ]),
+  ]);
+}
+function bloqueVideoCal(p) {
+  const b = el('div', { class: 'ig-bloque ig-cal__vbloque', dataset: { vbDe: p.id } });
+  pintarBloqueVideo(b, p);
+  return b;
+}
+function pintarBloqueVideo(b, p) {
+  clear(b);
+  b.appendChild(el('label', { text: T('Video final', 'Final video') }));
+  const est = estadoVideo(p);
+  if (!est) { b.appendChild(el('div', { class: 'ig-cal__vfila' }, [el('span', { class: 'ig-muted', text: T('Revisando…', 'Checking…') })])); return; }
+  const archivo = el('input', { type: 'file', accept: 'video/*', hidden: true });
+  const txt = el('span', { text: est === 'ok' ? T('Cambiar video', 'Replace video') : T('Subir este video', 'Upload this video') });
+  const boton = el('label', { class: 'ig-btn ig-btn--chico' + (est === 'ok' ? '' : ' is-primario') }, [txt, archivo]);
+  archivo.addEventListener('change', async () => {
+    const f = archivo.files && archivo.files[0];
+    if (!f) return;
+    boton.classList.add('is-cargando');
+    const ok = await subirVideoPieza(p, f, txt);
+    boton.classList.remove('is-cargando');
+    archivo.value = '';
+    if (!ok && b.isConnected) pintarBloqueVideo(b, p);
+  });
+  const cara = est === 'ok' ? portadaDe(p) : null;
+  b.appendChild(el('div', { class: 'ig-cal__vfila' }, [
+    est === 'ok'
+      ? (cara ? el('img', { class: 'ig-cal__mini', src: cara, alt: '', loading: 'lazy', decoding: 'async' }) : el('span', { class: 'ig-cal__mini' }, [icon('play', 18)]))
+      : null,
+    el('span', { class: 'ig-cal__vtxt' + (est === 'ok' ? '' : ' is-falta'), text: est === 'ok' ? T('Ya tiene su video.', 'It has its video.') : T('Falta el video.', 'Video missing.') }),
+    boton,
+  ].filter(Boolean)));
+}
+function bloqueCuandoCal(p) {
+  const redes = String(p.platform || '').split(/[,/]+/).map((x) => x.trim()).filter(Boolean);
+  const est = p.status === 'publicado' ? T('Ya se publicó.', 'Already published.')
+    : p.status === 'programado' ? T('Programada: sale sola a su hora.', 'Scheduled: it goes out on its own.')
+    : T('Todavía no está programada. Se programa al abrir la pieza.', 'Not scheduled yet. Schedule it from the piece.');
+  return el('div', { class: 'ig-bloque' }, [
+    el('label', { text: T('Cuándo y dónde sale', 'When and where') }),
+    el('div', { class: 'ig-bloque__txt', text: fechaLarga(p) + (redes.length ? ` · ${redes.join(', ')}` : '') }),
+    el('small', { class: 'ig-cal__nota', text: est }),
+  ]);
+}
+function pintarComsCal(c, p) {
+  clear(c);
+  const l = hilos.get(p.id);
+  const n = Array.isArray(l) ? l.length : 0;
+  c.append(
+    icon('chat', 16),
+    el('span', { text: !Array.isArray(l) ? T('Cargando comentarios…', 'Loading comments…') : (n ? T(`${n} ${n === 1 ? 'comentario' : 'comentarios'}`, `${n} ${n === 1 ? 'comment' : 'comments'}`) : T('Sin comentarios', 'No comments')) }),
+    el('button', { class: 'ig-btn ig-btn--chico', type: 'button', text: n ? T('Ver y responder en el Feed', 'See and reply in the Feed') : T('Ver en el Feed', 'See in the Feed'), onclick: () => irVista('agencia', { pieza: p.id }) }),
+  );
+}
+// Cuando llega el video o los comentarios de una pieza, se actualiza solo su renglón.
+function actualizarCalVideo(id) {
+  const p = piezasDeMarca().find((x) => x.id === id);
+  if (!p) return;
+  const s = rootEl.querySelector(`.ig-cal__video[data-video-de="${CSS.escape(id)}"]`);
+  if (s) pintarVideoCal(s, p);
+  const b = rootEl.querySelector(`.ig-cal__vbloque[data-vb-de="${CSS.escape(id)}"]`);
+  if (b && !b.querySelector('.is-cargando')) pintarBloqueVideo(b, p);
+  pintarResumenCal();
+}
+function actualizarCalComs(id) {
+  const s = rootEl.querySelector(`.ig-cal__com[data-com-de="${CSS.escape(id)}"]`);
+  if (s) pintarBadgeCal(s, id);
+  const c = rootEl.querySelector(`.ig-cal__coms[data-coms-de="${CSS.escape(id)}"]`);
+  const p = c && piezasDeMarca().find((x) => x.id === id);
+  if (c && p) pintarComsCal(c, p);
+}
+// ?pieza=<id> en el Calendario: su mes y la pieza abierta.
+function abrirEnCalendario(id) {
+  const p = piezasDeMarca().find((x) => x.id === id);
+  if (!p) return;
+  abiertasCal.add(id);
+  mesFeed = mesDe(p) || 'sin';
+  pintar();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const it = rootEl && rootEl.querySelector(`.ig-cal[data-pieza="${CSS.escape(id)}"]`);
+    if (it) it.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }));
 }
 
 // ── Contenido: los meses y las piezas en barritas por tipo ───────────────────
@@ -971,6 +1261,7 @@ function nombreMesCorto(ym) {
   return `${s.charAt(0).toUpperCase() + s.slice(1)} ${y}`;
 }
 function pintarLista() {
+  if (esEquipo()) { pintarCalendarioAgencia(); return; }
   const todas = piezasDeMarca();
   const meses = [...new Set(todas.map(mesDe).filter(Boolean))].sort();
   const haySinFecha = todas.some((p) => !p.publish_date);
@@ -1153,6 +1444,7 @@ function repintarCabeceras() {
 }
 
 function irAPieza(id) {
+  if (esEquipo() && pestana === 'lista') { abrirEnCalendario(id); return; }
   cambiar('feed');
   const p = piezasDeMarca().find((x) => x.id === id);
   if (p && esEquipo()) {
@@ -1171,8 +1463,8 @@ async function montarSub(nombre) {
   cuerpoEl.appendChild(host);
   try {
     const mod = nombre === 'metricas'
-      ? await import('./metricas.js?v=202611222220')
-      : await import('./conexiones.js?v=202611222220');
+      ? await import('./metricas.js?v=202611222250')
+      : await import('./conexiones.js?v=202611222250');
     if (!rootEl || pestana !== nombre) return;
     const vista = mod.default;
     vista.mount(host, ctx);
@@ -1212,7 +1504,8 @@ function pintar() {
   clear(rootEl);
   rootEl.dataset.tab = pestana;
   const m = marca() || {};
-  if (esEquipo()) rootEl.appendChild(cabezaAgencia());
+  rootEl.classList.toggle('is-agencia', esEquipo());
+  if (esEquipo()) rootEl.appendChild(pestana === 'lista' ? cabezaCalendario() : cabezaAgencia());
   else rootEl.appendChild(el('header', { class: 'ig-top' }, [
     el('div', { class: 'ig-marca' }, [avatar(36), el('div', {}, [el('b', { text: m.name || T('Mi marca', 'My brand') }), el('small', { text: '@' + handle() })])]),
     el('nav', { class: 'ig-tabs', role: 'tablist' }, PESTANAS().map(([k, txt]) => el('button', {
@@ -1290,7 +1583,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/contenido.css?v=202611222220';
+  link.href = '/marketing/css/contenido.css?v=202611222250';
   document.head.appendChild(link);
 }
 
@@ -1303,11 +1596,20 @@ export default {
     host.appendChild(rootEl);
     marcaId = estado().activeClientId || null;
     const prm = (c && c.params) || {};
-    if (!esEquipo() && prm.tab && tabValida(prm.tab)) pestana = prm.tab;
+    if (esEquipo()) pestana = vistaAg;
+    else if (prm.tab && tabValida(prm.tab)) pestana = prm.tab;
     unsubs.push(ctx.store.subscribe(['posts', 'clients', 'activeClientId'], () => {
       const ahora = estado().activeClientId || null;
       if (ahora !== marcaId) { marcaId = ahora; ig = null; medios.clear(); dlvMarca.clear(); abiertos.clear(); verAnteriores = false; }
-      if (pestana === 'feed' || pestana === 'perfil' || pestana === 'lista') { if (!ocupado()) pintar(); }
+      if (pestana === 'feed' || pestana === 'perfil' || pestana === 'lista') {
+        if (!ocupado()) {
+          // Agencia: tras subir un video o guardar algo, la lista se queda donde estaba.
+          const sc = esEquipo() && rootEl ? rootEl.closest('#viewScroll') : null;
+          const y = sc ? sc.scrollTop : 0;
+          pintar();
+          if (sc) sc.scrollTop = y;
+        }
+      }
       abrirPendiente();
     }));
     pedirIg();
@@ -1331,7 +1633,7 @@ export default {
     unsubs = [];
     desmontarSub();
     if (observador) { observador.disconnect(); observador = null; }
-    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false; mesLista = null; mesFeed = null;
+    rootEl = null; cuerpoEl = null; ctx = null; porAbrir = null; pestana = 'feed'; verAnteriores = false; mesLista = null; resumenCalEl = null;
     delete document.body.dataset.cntTab;
     try { window.dispatchEvent(new CustomEvent('cnt:tab', { detail: null })); } catch { /* noop */ }
     abiertos.clear();

@@ -12,12 +12,12 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202611222220';
-import * as store from './store.js?v=202611222220';
-import * as prefs from './prefs.js?v=202611222220';
-import { icon } from './icons.js?v=202611222220';
-import { T } from './i18n.js?v=202611222220';
-import { openSheet } from './sheet.js?v=202611222220';
+import { el, clear } from '../api.js?v=202611222250';
+import * as store from './store.js?v=202611222250';
+import * as prefs from './prefs.js?v=202611222250';
+import { icon } from './icons.js?v=202611222250';
+import { T } from './i18n.js?v=202611222250';
+import { openSheet } from './sheet.js?v=202611222250';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -89,7 +89,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
 
   const esAdminBn = ((store.getState().me || {}).role === 'admin');
   const tabFeedAg = makeTab({ id: 'agencia', label: 'Feed', ic: 'home', onTap: () => goOrTop('agencia') });
-  const tabCalendario = makeTab({ id: 'meses', label: T('Calendario', 'Calendar'), ic: 'calendar', onTap: () => goOrTop('meses') });
+  const tabCalendario = makeTab({ id: 'plan', label: T('Calendario', 'Calendar'), ic: 'calendar', onTap: () => goOrTop('plan') });
   const tabResultados = makeTab({ id: 'metricas', label: T('Resultados', 'Results'), ic: 'activity', onTap: () => goOrTop('metricas') });
   // Las que empiezan con "_" no son vistas: Buscar y Tu cuenta (en el celular
   // del equipo ya no están arriba, como en el diseño aprobado).
@@ -99,6 +99,7 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     ['contenido', T('Vista cliente', 'Client view'), 'eye'],
     ['inicio', T('Inicio', 'Home'), 'home'],
     ['mi-trabajo', T('Mi trabajo', 'My work'), 'briefcase'],
+    ['meses', T('Hoja del mes', 'Month sheet'), 'table'],
     ['calendario', T('Cuadrícula', 'Grid'), 'board'],
     ['entregables', T('Entregables', 'Deliverables'), 'archive'],
     ['marca', T('Marca', 'Brand'), 'book'],
@@ -155,9 +156,9 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
       view === 'agencia' ? 'agencia' :
       view === 'bandeja' ? 'bandeja' :
       view === 'metricas' ? 'metricas' :
-      view === 'meses' ? 'meses' :
+      view === 'plan' ? 'plan' :
       MAS_VIEWS.includes(view) ? 'mas' :
-      CONTENT_VIEWS.includes(view) ? 'meses' : null
+      CONTENT_VIEWS.includes(view) ? 'plan' : null
     ) :
       (cli && view === 'contenido') ? (document.body.dataset.cntTab === 'lista' ? 'lista-cli' : (document.body.dataset.cntTab === 'feed' ? 'feed-cli' : null)) :
       view === 'inicio' ? 'inicio' :
