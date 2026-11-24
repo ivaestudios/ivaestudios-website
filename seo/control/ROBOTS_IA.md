@@ -1,6 +1,6 @@
 # Robots que leyeron el sitio
 
-Actualizado: 2026-11-23 17:32 (hora de Cancun). Ventana: ultimos 14 dias. El registro empezo el 11 de noviembre de 2026 en la noche.
+Actualizado: 2026-11-24 16:07 (hora de Cancun). Ventana: ultimos 14 dias. El registro empezo el 11 de noviembre de 2026 en la noche.
 
 Solo cuentan las visitas **genuinas**: las que vienen de la red del propio robot. Las demas son alguien usando el nombre del robot.
 
@@ -9,38 +9,38 @@ Solo cuentan las visitas **genuinas**: las que vienen de la red del propio robot
 - **Todavia no.** El robot del buscador de Claude (Claude-SearchBot) no ha pasado por ivaestudios.com en esta ventana.
 - No ha pedido la copia vieja en esta ventana.
 - El otro robot de Anthropic (ClaudeBot, el que junta material para entrenar a Claude) si leyo el sitio real: 377 paginas. Ultima: 23-11 06:39. No es el del buscador, pero confirma que Anthropic llega sin problema a ivaestudios.com.
-- Ademas, Claude abrio paginas del sitio real porque alguien se lo pidio en una conversacion: 443 visitas. Ultima: 23-11 16:38.
+- Ademas, Claude abrio paginas del sitio real porque alguien se lo pidio en una conversacion: 446 visitas. Ultima: 24-11 09:14.
 
 ## Todos los robots
 
 | Robot | Para que sirve | Visitas genuinas a ivaestudios.com | Paginas | Ultima visita | Copia vieja | bodasmx.com.mx |
 |---|---|---:|---:|---|---:|---:|
 | Claude-SearchBot | Claude: arma su buscador (el que decide si nos nombra) | 0 | 71 | 19-11 11:28 | 0 | 0 |
-| Claude-User | Claude: abre una pagina porque una persona se lo pidio | 443 | 130 | 23-11 16:38 | 79 | 10 |
+| Claude-User | Claude: abre una pagina porque una persona se lo pidio | 446 | 130 | 24-11 09:14 | 83 | 10 |
 | ClaudeBot | Claude: entrenamiento | 464 | 377 | 23-11 06:39 | 0 | 0 |
-| OAI-SearchBot | ChatGPT: arma su buscador | 1647 | 1073 | 23-11 17:31 | 0 | 5415 |
-| ChatGPT-User | ChatGPT: abre una pagina porque una persona se lo pidio | 535 | 251 | 23-11 17:30 | 0 | 528 |
-| GPTBot | ChatGPT: entrenamiento | 358 | 385 | 22-11 22:42 | 0 | 304 |
+| OAI-SearchBot | ChatGPT: arma su buscador | 1706 | 1073 | 24-11 09:24 | 0 | 5734 |
+| ChatGPT-User | ChatGPT: abre una pagina porque una persona se lo pidio | 588 | 266 | 24-11 15:50 | 0 | 577 |
+| GPTBot | ChatGPT: entrenamiento | 361 | 385 | 23-11 22:46 | 0 | 305 |
 | Meta-WebIndexer (en vivo) | Meta: Muse o Meta AI abren una pagina para contestarle a una persona | 232 | 54 | 20-11 12:56 | 0 | 92 |
-| Meta-WebIndexer | Meta: arma el buscador de Meta AI y Muse | 7359 | 414 | 23-11 17:31 | 0 | 2069 |
+| Meta-WebIndexer | Meta: arma el buscador de Meta AI y Muse | 8698 | 425 | 24-11 16:05 | 0 | 2479 |
 | Meta-ExternalFetcher | Meta: abre una pagina a pedido (Meta AI, Muse) | 0 | 60 | 19-11 11:28 | 0 | 0 |
-| Meta-ExternalAgent | Meta: entrenamiento | 10660 | 1590 | 23-11 17:29 | 0 | 27 |
-| PerplexityBot | Perplexity: arma su buscador | 0 | 1301 | 23-11 17:26 | 0 | 0 |
+| Meta-ExternalAgent | Meta: entrenamiento | 11434 | 1591 | 24-11 16:05 | 0 | 27 |
+| PerplexityBot | Perplexity: arma su buscador | 0 | 1310 | 24-11 15:40 | 0 | 0 |
 | Perplexity-User | Perplexity: abre una pagina a pedido | 0 | 66 | 19-11 11:28 | 0 | 0 |
-| Googlebot | Google: buscador | 1311 | 826 | 23-11 15:15 | 0 | 526 |
-| Bingbot | Bing: buscador (lo usa ChatGPT) | 1702 | 993 | 23-11 17:27 | 0 | 625 |
-| Amazonbot | Amazon: Alexa | 1897 | 1169 | 23-11 17:18 | 0 | 1064 |
-| Applebot | Apple: Siri y Spotlight | 286 | 129 | 23-11 17:30 | 0 | 74 |
+| Googlebot | Google: buscador | 1351 | 831 | 24-11 16:03 | 0 | 540 |
+| Bingbot | Bing: buscador (lo usa ChatGPT) | 1792 | 1024 | 24-11 15:54 | 0 | 679 |
+| Amazonbot | Amazon: Alexa | 2029 | 1175 | 24-11 16:01 | 0 | 1184 |
+| Applebot | Apple: Siri y Spotlight | 318 | 135 | 24-11 15:07 | 0 | 74 |
 | Bravebot | Brave: buscador | 22 | 81 | 23-11 04:03 | 0 | 2 |
-| Bytespider |  | 37 | 1319 | 23-11 17:30 | 0 | 0 |
+| Bytespider |  | 37 | 1338 | 24-11 16:04 | 0 | 0 |
 | CCBot |  | 0 | 354 | 19-11 11:28 | 0 | 0 |
-| DuckAssistBot | DuckDuckGo: respuestas con IA | 26 | 74 | 23-11 03:01 | 0 | 5 |
-| DuckDuckBot |  | 49 | 12 | 23-11 16:21 | 0 | 0 |
-| FacebookExternalHit | Facebook: vista previa de enlaces compartidos | 9945 | 99 | 23-11 17:32 | 0 | 81 |
-| GoogleOther | Google: otros productos | 387 | 336 | 23-11 17:27 | 0 | 8 |
+| DuckAssistBot | DuckDuckGo: respuestas con IA | 29 | 75 | 24-11 10:22 | 0 | 6 |
+| DuckDuckBot |  | 54 | 13 | 24-11 15:57 | 0 | 0 |
+| FacebookExternalHit | Facebook: vista previa de enlaces compartidos | 10500 | 100 | 24-11 16:03 | 0 | 85 |
+| GoogleOther | Google: otros productos | 388 | 337 | 23-11 17:59 | 0 | 8 |
 | Kagibot |  | 0 | 2 | 11-11 22:37 | 0 | 0 |
-| Meta-ExternalAds | Meta: anuncios | 560 | 24 | 23-11 11:25 | 0 | 0 |
-| YandexBot |  | 1561 | 902 | 23-11 17:17 | 0 | 1085 |
+| Meta-ExternalAds | Meta: anuncios | 610 | 24 | 24-11 03:10 | 0 | 0 |
+| YandexBot |  | 1666 | 965 | 24-11 15:44 | 0 | 1211 |
 | YouBot |  | 0 | 81 | 22-11 12:06 | 0 | 0 |
 | cohere-ai |  | 0 | 63 | 19-11 11:28 | 0 | 0 |
 
@@ -48,15 +48,18 @@ Solo cuentan las visitas **genuinas**: las que vienen de la red del propio robot
 
 | Cuando | Robot | Sitio | Pagina | Respuesta | Red |
 |---|---|---|---|---:|---|
-| 23-11 16:38 | Claude-User | ivaestudios.com | `/blog/restaurant-social-media-mexico-2026` | 200 | UNINET |
-| 23-11 16:38 | Claude-User | copia vieja | `/blog/restaurant-social-media-mexico-2026` | 301 | UNINET |
-| 23-11 16:38 | Claude-User | copia vieja | `/robots.txt` | 301 | Anthropic, PBC |
+| 24-11 09:14 | Claude-User | ivaestudios.com | `/social-media-dental-clinic-mexico` | 200 | Nisatel Operator Publik i Tele |
+| 24-11 09:14 | Claude-User | ivaestudios.com | `/robots.txt` | 304 | Anthropic, PBC |
+| 24-11 09:14 | Claude-User | copia vieja | `/social-media-dental-clinic-mexico` | 301 | Nisatel Operator Publik i Tele |
+| 24-11 09:14 | Claude-User | copia vieja | `/robots.txt` | 301 | Anthropic, PBC |
+| 24-11 05:20 | Claude-User | ivaestudios.com | `/blog/hotel-instagram-strategy-mexico-2026` | 200 | PT Globalxtreme Teknologi Indo |
+| 24-11 05:20 | Claude-User | copia vieja | `/blog/hotel-instagram-strategy-mexico-2026` | 301 | RCS & RDS Residential CGN |
+| 23-11 21:16 | Claude-User | ivaestudios.com | `/blog/restaurant-social-media-mexico-2026` | 200 | UNINET |
+| 23-11 21:16 | Claude-User | copia vieja | `/blog/restaurant-social-media-mexico-2026` | 301 | UNINET |
 | 23-11 15:25 | Claude-User | ivaestudios.com | `/api/mcp` | 200 | Anthropic, PBC |
 | 23-11 15:25 | Claude-User | ivaestudios.com | `/api/mcp` | 202 | Anthropic, PBC |
 | 23-11 13:48 | Claude-User | ivaestudios.com | `/blog/dental-clinic-social-media-mexico` | 200 | UNINET |
 | 23-11 13:48 | Claude-User | copia vieja | `/blog/dental-clinic-social-media-mexico` | 301 | UNINET |
-| 23-11 13:44 | Claude-User | ivaestudios.com | `/blog/hotel-instagram-strategy-mexico-2026` | 200 | PT Globalxtreme Teknologi Indo |
-| 23-11 13:44 | Claude-User | ivaestudios.com | `/robots.txt` | 304 | Anthropic, PBC |
 | 23-11 12:12 | Claude-User | ivaestudios.com | `/blog/the-grand-at-moon-palace-photoshoot` | 200 | Anthropic, PBC |
 | 23-11 12:00 | Claude-User | ivaestudios.com | `/cancun-wedding-videographer` | 200 | Anthropic, PBC |
 | 23-11 11:41 | Claude-User | ivaestudios.com | `/` | 200 | UNINET |
@@ -85,9 +88,6 @@ Solo cuentan las visitas **genuinas**: las que vienen de la red del propio robot
 | 22-11 16:49 | ClaudeBot | ivaestudios.com | `/blog/jewish-wedding-photographer-mexico` | 200 | Anthropic, PBC |
 | 22-11 16:49 | ClaudeBot | ivaestudios.com | `/es/blog/fotografo-bodas-judias-mexico` | 200 | Anthropic, PBC |
 | 22-11 16:49 | ClaudeBot | ivaestudios.com | `/rosewood-mayakoba-wedding-photographer` | 200 | Anthropic, PBC |
-| 22-11 16:49 | ClaudeBot | ivaestudios.com | `/blog/newborn-photography-cancun-resorts` | 200 | Anthropic, PBC |
-| 22-11 16:49 | ClaudeBot | ivaestudios.com | `/blog/hotel-instagram-strategy-mexico-2026` | 200 | Anthropic, PBC |
-| 22-11 16:49 | ClaudeBot | ivaestudios.com | `/es/blog/fotografo-micro-bodas-cancun-tulum` | 200 | Anthropic, PBC |
 
 ## Muse y Meta AI: paginas que abrieron para contestarle a alguien
 
@@ -144,66 +144,66 @@ Lo que Meta-WebIndexer leyo por la red de Meta. De ahi salen los resultados cuan
 
 | Ultima vez | Sitio | Pagina | Veces |
 |---|---|---|---:|
-| 23-11 17:31 | ivaestudios.com | `/blog/large-family-photoshoot-color-ideas-cancun` | 30 |
-| 23-11 17:31 | ivaestudios.com | `/blog/secrets-moxche-playa-del-carmen-photoshoot` | 19 |
-| 23-11 17:31 | ivaestudios.com | `/blog/el-acuario-hotel-playa-del-carmen-photoshoot` | 10 |
-| 23-11 17:31 | ivaestudios.com | `/blog/riu-palace-riviera-maya-playacar-photoshoot` | 19 |
-| 23-11 17:31 | ivaestudios.com | `/blog/hacienda-mariposa-playa-del-carmen-photoshoot` | 13 |
-| 23-11 17:29 | ivaestudios.com | `/blog/cancun-cenote-photoshoot-guide` | 66 |
-| 23-11 17:29 | ivaestudios.com | `/blog/tipping-in-mexico-resorts-guide-for-tourists` | 22 |
-| 23-11 17:29 | ivaestudios.com | `/blog/toddler-board-book-from-vacation-photos-cancun` | 24 |
-| 23-11 17:29 | ivaestudios.com | `/manifest.json` | 86 |
-| 23-11 17:29 | bodasmx.com.mx | `/tramites/boda-civil-monterrey-costo-y-cita` | 35 |
-| 23-11 17:29 | ivaestudios.com | `/sw.js` | 86 |
-| 23-11 17:29 | ivaestudios.com | `/blog/grand-fiesta-americana-coral-beach-family-photo-session-guide` | 23 |
-| 23-11 17:29 | ivaestudios.com | `/blog/best-kid-friendly-hotel-zone-beach-photos` | 2 |
-| 23-11 17:29 | ivaestudios.com | `/blog/beachscape-kin-ha-cancun-photoshoot` | 14 |
-| 23-11 17:29 | ivaestudios.com | `/blog/royalton-splash-riviera-cancun-family-photoshoot` | 12 |
-| 23-11 17:28 | ivaestudios.com | `/blog/does-it-rain-every-day-in-cancun` | 18 |
-| 23-11 17:28 | bodasmx.com.mx | `/tramites/juez-a-domicilio-monterrey-boda-civil` | 25 |
-| 23-11 17:26 | ivaestudios.com | `/es/manejo-redes-sociales` | 44 |
-| 23-11 17:25 | ivaestudios.com | `/blog/wedding-photography-cancun-cost-2026` | 38 |
-| 23-11 17:25 | ivaestudios.com | `/cancun-wedding-cost-2026` | 20 |
-| 23-11 17:22 | ivaestudios.com | `/blog/canadian-dollars-in-cancun` | 23 |
-| 23-11 17:22 | ivaestudios.com | `/blog/visitax-tourist-fees-family-cancun` | 88 |
-| 23-11 17:21 | ivaestudios.com | `/blog/things-to-do-with-kids-cancun` | 28 |
-| 23-11 17:21 | ivaestudios.com | `/blog/hilton-tulum-wedding-photographer` | 11 |
-| 23-11 17:20 | ivaestudios.com | `/blog/toddler-friendly-all-inclusives-cancun` | 59 |
-| 23-11 17:19 | ivaestudios.com | `/blog/jw-marriott-costa-mujeres-photographer` | 14 |
-| 23-11 17:19 | ivaestudios.com | `/` | 43 |
-| 23-11 17:19 | ivaestudios.com | `/comparison/luxury-photographers-cancun` | 12 |
-| 23-11 17:19 | ivaestudios.com | `/blog/check-family-photographer-instagram-cancun` | 19 |
-| 23-11 17:19 | ivaestudios.com | `/comparison/best-couples-photographer-cancun` | 17 |
-| 23-11 17:17 | ivaestudios.com | `/blog/hotel-xcaret-mexico-proposal` | 13 |
-| 23-11 17:17 | bodasmx.com.mx | `/presupuesto/cuanto-cobra-un-dj-de-boda-o-un-grupo-en-vivo` | 49 |
-| 23-11 17:17 | ivaestudios.com | `/blog/family-spring-break-florida-vs-cancun` | 14 |
-| 23-11 17:16 | ivaestudios.com | `/blog/family-photos-with-a-baby-cancun` | 21 |
-| 23-11 17:14 | ivaestudios.com | `/blog/family-photos-puerto-cancun` | 23 |
-| 23-11 17:14 | bodasmx.com.mx | `/tramites/cita-registro-civil-jalisco-en-linea` | 36 |
-| 23-11 17:13 | bodasmx.com.mx | `/tramites/boda-civil-oaxaca-de-juarez-requisitos-y-costo` | 20 |
-| 23-11 17:12 | ivaestudios.com | `/blog/how-many-photos-family-session-cancun` | 24 |
-| 23-11 17:11 | ivaestudios.com | `/comparison/best-family-photographer-playa-del-carmen` | 25 |
-| 23-11 17:10 | ivaestudios.com | `/blog/kids-clubs-all-inclusive-resorts-cancun` | 66 |
-| 23-11 17:09 | bodasmx.com.mx | `/tramites/boda-civil-merida-costo-y-cita` | 20 |
-| 23-11 17:08 | ivaestudios.com | `/es/blog/fotografia-drone-cancun-resorts` | 25 |
-| 23-11 17:08 | ivaestudios.com | `/blog/photo-pass-vs-family-session-xcaret` | 23 |
-| 23-11 17:08 | bodasmx.com.mx | `/favicon.svg` | 62 |
-| 23-11 17:08 | bodasmx.com.mx | `/fuentes/librecaslonit.woff2` | 24 |
-| 23-11 17:08 | bodasmx.com.mx | `/fuentes/marcellussc.woff2` | 57 |
-| 23-11 17:08 | bodasmx.com.mx | `/estilos/bodasmx.css` | 58 |
-| 23-11 17:07 | bodasmx.com.mx | `/tramites/acta-de-presentacion-matrimonial-puebla-8-dias` | 15 |
-| 23-11 17:07 | ivaestudios.com | `/blog/cancun-in-november-thanksgiving-photos` | 34 |
-| 23-11 17:06 | bodasmx.com.mx | `/fuentes/librecaslon700.woff2` | 56 |
-| 23-11 17:06 | bodasmx.com.mx | `/fuentes/librecaslon400.woff2` | 59 |
-| 23-11 17:05 | ivaestudios.com | `/blog/editorial-photoshoot-ideas-couples-cancun` | 27 |
-| 23-11 17:01 | ivaestudios.com | `/blog/family-vacation-packages-cancun` | 27 |
-| 23-11 16:59 | bodasmx.com.mx | `/tramites/matrimonio-extranjeros-puerto-vallarta-requisitos` | 3 |
-| 23-11 16:56 | ivaestudios.com | `/blog/family-trip-guides-cancun-2026-2027` | 22 |
-| 23-11 16:56 | ivaestudios.com | `/blog/holbox-photographer` | 19 |
-| 23-11 16:54 | ivaestudios.com | `/blog/new-family-resorts-2026-2027-cancun-riviera-maya` | 77 |
-| 23-11 16:53 | ivaestudios.com | `/blog/riu-dunamar-costa-mujeres-photographer` | 18 |
-| 23-11 16:52 | ivaestudios.com | `/blog/beach-conditions-today-cancun` | 24 |
-| 23-11 16:51 | ivaestudios.com | `/blog/hilton-cancun-all-inclusive-family-photoshoot` | 24 |
+| 24-11 16:06 | bodasmx.com.mx | `/tramites/boda-civil-cdmx-extranjeros-requisitos` | 12 |
+| 24-11 16:05 | ivaestudios.com | `/blog/family-photos-with-kids-6-to-12-cancun` | 29 |
+| 24-11 16:05 | ivaestudios.com | `/blog/cancun-sargassum-seaweed-season-guide` | 115 |
+| 24-11 16:04 | ivaestudios.com | `/blog/time-zone-kids-body-clock-cancun` | 15 |
+| 24-11 16:04 | ivaestudios.com | `/blog/things-to-do-with-kids-cancun` | 34 |
+| 24-11 16:03 | ivaestudios.com | `/blog/luxury-proposal-ideas-cancun` | 33 |
+| 24-11 16:03 | ivaestudios.com | `/blog/water-park-lazy-river-resorts-cancun` | 43 |
+| 24-11 16:03 | ivaestudios.com | `/blog/what-is-riviera-cancun` | 33 |
+| 24-11 16:03 | bodasmx.com.mx | `/presupuesto/cuanto-cuesta-casarse-en-cancun-y-la-riviera-maya` | 28 |
+| 24-11 16:02 | ivaestudios.com | `/blog/family-trip-guides-cancun-2026-2027` | 24 |
+| 24-11 16:00 | ivaestudios.com | `/blog/motion-blur-wedding-photos-explained` | 24 |
+| 24-11 16:00 | ivaestudios.com | `/blog/toddler-friendly-all-inclusives-cancun` | 72 |
+| 24-11 15:59 | ivaestudios.com | `/blog/kids-clubs-all-inclusive-resorts-cancun` | 76 |
+| 24-11 15:57 | ivaestudios.com | `/blog/events-calendar-2027-cancun` | 44 |
+| 24-11 15:56 | ivaestudios.com | `/blog/toddler-board-book-from-vacation-photos-cancun` | 32 |
+| 24-11 15:56 | ivaestudios.com | `/es/lugares-sesion-fotos-cancun` | 17 |
+| 24-11 15:55 | ivaestudios.com | `/cancun-wedding-cost-2026` | 22 |
+| 24-11 15:55 | ivaestudios.com | `/blog/mexico-destination-wedding-cost-breakdown-2026` | 29 |
+| 24-11 15:53 | ivaestudios.com | `/blog/guayabera-embroidered-dress-family-photos-cancun` | 36 |
+| 24-11 15:52 | ivaestudios.com | `/blog/new-family-resorts-2026-2027-cancun-riviera-maya` | 88 |
+| 24-11 15:52 | ivaestudios.com | `/blog/travel-insurance-family-trip-cancun` | 53 |
+| 24-11 15:51 | ivaestudios.com | `/es/blog/sesion-quinceanera-cancun` | 13 |
+| 24-11 15:49 | ivaestudios.com | `/blog/cuanto-cuesta-manejo-redes-sociales-cancun` | 14 |
+| 24-11 15:49 | ivaestudios.com | `/blog/wabi-hotel-playa-del-carmen-photoshoot` | 10 |
+| 24-11 15:49 | ivaestudios.com | `/blog/parque-fundadores-portal-maya-photoshoot` | 27 |
+| 24-11 15:49 | ivaestudios.com | `/blog/where-to-propose-in-playa-del-carmen` | 25 |
+| 24-11 15:48 | ivaestudios.com | `/blog/mayan-ruins-with-kids-near-cancun` | 29 |
+| 24-11 15:47 | ivaestudios.com | `/blog/first-time-with-kids-cancun` | 36 |
+| 24-11 15:45 | ivaestudios.com | `/blog/cancun-in-november-thanksgiving-photos` | 42 |
+| 24-11 15:45 | ivaestudios.com | `/blog/luxury-photoshoot-ideas-cancun` | 36 |
+| 24-11 15:43 | bodasmx.com.mx | `/tradiciones/pagina-3` | 10 |
+| 24-11 15:42 | bodasmx.com.mx | `/tramites/boda-civil-cancun-benito-juarez-requisitos` | 58 |
+| 24-11 15:40 | bodasmx.com.mx | `/tramites/requisitos-boda-civil-quintana-roo-2026` | 44 |
+| 24-11 15:40 | ivaestudios.com | `/blog/cancun-cenote-photoshoot-guide` | 71 |
+| 24-11 15:39 | ivaestudios.com | `/blog/wedding-photography-cancun-cost-2026` | 40 |
+| 24-11 15:38 | bodasmx.com.mx | `/ciudades/casarse-en-guadalajara-cuotas-del-municipio` | 12 |
+| 24-11 15:38 | ivaestudios.com | `/blog/family-photo-guide-puerto-aventuras` | 25 |
+| 24-11 15:36 | ivaestudios.com | `/comparison/best-family-photographer-tulum` | 20 |
+| 24-11 15:34 | ivaestudios.com | `/blog/beach-conditions-today-cancun` | 29 |
+| 24-11 15:33 | bodasmx.com.mx | `/tramites/cita-registro-civil-cdmx-como-se-saca` | 34 |
+| 24-11 15:27 | bodasmx.com.mx | `/tramites/costo-boda-civil-guadalajara-oficina` | 34 |
+| 24-11 15:27 | ivaestudios.com | `/blog/editorial-photoshoot-ideas-couples-cancun` | 33 |
+| 24-11 15:25 | ivaestudios.com | `/blog/family-photoshoot-at-mayakoba-resort` | 15 |
+| 24-11 15:24 | ivaestudios.com | `/blog/grand-velas-riviera-maya-photoshoot` | 28 |
+| 24-11 15:24 | ivaestudios.com | `/blog/visitax-tourist-fees-family-cancun` | 107 |
+| 24-11 15:23 | ivaestudios.com | `/blog/family-spring-break-florida-vs-cancun` | 18 |
+| 24-11 15:21 | ivaestudios.com | `/blog/margaritaville-riviera-cancun-family-photoshoot` | 35 |
+| 24-11 15:21 | ivaestudios.com | `/es/fotografo-playa-del-carmen` | 13 |
+| 24-11 15:21 | ivaestudios.com | `/es/blog/xv-anos-editorial-vs-flying-dress-cancun` | 7 |
+| 24-11 15:18 | ivaestudios.com | `/es/fotografo-bodas-ciudad-de-mexico` | 6 |
+| 24-11 15:18 | bodasmx.com.mx | `/tramites/requisitos-boda-civil-nayarit-2026` | 47 |
+| 24-11 15:17 | ivaestudios.com | `/es/blog/pedida-de-mano-con-la-familia-cancun` | 31 |
+| 24-11 15:17 | bodasmx.com.mx | `/tramites/requisitos-boda-civil-estado-de-mexico-2026` | 11 |
+| 24-11 15:17 | ivaestudios.com | `/blog/cancun-in-december-weather-photos` | 39 |
+| 24-11 15:17 | ivaestudios.com | `/blog/wedding-photography-trends-2027` | 57 |
+| 24-11 15:15 | ivaestudios.com | `/blog/mia-reef-isla-mujeres-family-photoshoot` | 30 |
+| 24-11 15:14 | ivaestudios.com | `/blog/finest-playa-mujeres-family-photoshoot` | 8 |
+| 24-11 15:10 | ivaestudios.com | `/es/manejo-redes-sociales` | 46 |
+| 24-11 15:09 | bodasmx.com.mx | `/fotografia/tendencias-de-fotografia-de-boda-en-cancun-y-riviera-maya` | 234 |
+| 24-11 15:08 | ivaestudios.com | `/blog/caso-exito-restaurante-cancun-redes-sociales` | 40 |
 
 ## Direcciones que no existen y que los robots pidieron
 
@@ -211,50 +211,51 @@ Son enlaces viejos que siguen vivos en algun lado. Las que tengan pagina equival
 
 | Sitio | Direccion | Veces | Quien la pidio | Ultima vez |
 |---|---|---:|---|---|
-| ivaestudios.com | `/blog/null` | 185 | Meta-WebIndexer,Meta-ExternalAgent | 23-11 12:42 |
-| bodasmx.com.mx | `/tramites/null` | 115 | Meta-WebIndexer | 23-11 17:08 |
-| ivaestudios.com | `/null` | 91 | Meta-WebIndexer | 23-11 17:29 |
-| ivaestudios.com | `/es/null` | 86 | Meta-WebIndexer | 23-11 13:00 |
-| ivaestudios.com | `/es/blog/null` | 67 | Meta-ExternalAgent,Meta-WebIndexer | 23-11 07:31 |
-| bodasmx.com.mx | `/presupuesto/null` | 27 | Meta-WebIndexer | 23-11 05:45 |
+| ivaestudios.com | `/blog/null` | 233 | Meta-WebIndexer,Meta-ExternalAgent | 24-11 12:32 |
+| bodasmx.com.mx | `/tramites/null` | 140 | Meta-WebIndexer | 24-11 10:54 |
+| ivaestudios.com | `/null` | 115 | Meta-WebIndexer,Meta-ExternalAgent | 24-11 10:22 |
+| ivaestudios.com | `/es/null` | 102 | Meta-WebIndexer | 24-11 10:00 |
+| ivaestudios.com | `/es/blog/null` | 87 | Meta-ExternalAgent,Meta-WebIndexer | 24-11 11:50 |
+| bodasmx.com.mx | `/presupuesto/null` | 34 | Meta-WebIndexer | 24-11 07:55 |
+| ivaestudios.com | `/comparison/null` | 32 | Meta-WebIndexer | 24-11 11:40 |
+| ivaestudios.com | `/blog/lgbtq-couples-photographer-cancun-riviera-maya` | 26 | Googlebot,Meta-ExternalAgent | 24-11 11:15 |
 | ivaestudios.com | `/es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq` | 25 | Googlebot,Meta-ExternalAgent | 23-11 17:03 |
-| ivaestudios.com | `/blog/lgbtq-couples-photographer-cancun-riviera-maya` | 24 | Googlebot,Meta-ExternalAgent | 23-11 07:49 |
-| ivaestudios.com | `/comparison/null` | 23 | Meta-WebIndexer | 23-11 06:08 |
+| ivaestudios.com | `/terms-and-conditions` | 21 | Meta-ExternalAgent | 24-11 11:55 |
 | ivaestudios.com | `/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive` | 20 | Meta-ExternalAgent,ChatGPT-User | 23-11 13:46 |
+| ivaestudios.com | `/category/body-products` | 19 | Meta-ExternalAgent | 24-11 11:03 |
+| ivaestudios.com | `/category/face-products` | 19 | Meta-ExternalAgent | 24-11 08:44 |
 | ivaestudios.com | `/post/what-to-wear-for-your-cancun-beach-photoshoot-the-complete-outfit-guide-2026` | 19 | Meta-ExternalAgent | 23-11 15:40 |
 | ivaestudios.com | `/post/the-complete-guide-to-planning-a-photoshoot-in-cancun-2026` | 19 | Meta-ExternalAgent | 23-11 12:23 |
-| ivaestudios.com | `/terms-and-conditions` | 18 | Meta-ExternalAgent | 23-11 12:10 |
-| ivaestudios.com | `/category/face-products` | 17 | Meta-ExternalAgent | 23-11 12:12 |
-| ivaestudios.com | `/category/body-products` | 17 | Meta-ExternalAgent | 23-11 10:24 |
-| ivaestudios.com | `/meta.json` | 16 | ChatGPT-User,FacebookExternalHit | 23-11 13:38 |
+| ivaestudios.com | `/meta.json` | 18 | ChatGPT-User,FacebookExternalHit | 24-11 13:50 |
+| ivaestudios.com | `/category/all-products` | 17 | Meta-ExternalAgent | 24-11 16:05 |
+| ivaestudios.com | `/category/hair-products` | 17 | Meta-ExternalAgent | 24-11 06:36 |
 | ivaestudios.com | `/post/couples-photographer-cancun-romantic-getaway` | 16 | Meta-ExternalAgent | 23-11 10:35 |
 | ivaestudios.com | `/category/best-sellers` | 16 | Meta-ExternalAgent | 22-11 06:59 |
-| ivaestudios.com | `/category/all-products` | 15 | Meta-ExternalAgent | 23-11 11:49 |
-| ivaestudios.com | `/category/hair-products` | 14 | Meta-ExternalAgent | 22-11 20:06 |
-| bodasmx.com.mx | `/ciudades/null` | 13 | Meta-WebIndexer | 23-11 06:38 |
-| ivaestudios.com | `/post/golden-hour-photography-in-cancun-the-best-time-of-day-for-your-photoshoot-2026` | 13 | Meta-ExternalAgent | 23-11 05:43 |
+| bodasmx.com.mx | `/ciudades/null` | 15 | Meta-WebIndexer | 24-11 10:17 |
+| ivaestudios.com | `/post/golden-hour-photography-in-cancun-the-best-time-of-day-for-your-photoshoot-2026` | 15 | Meta-ExternalAgent | 24-11 08:15 |
+| ivaestudios.com | `/es/comparativa/null` | 12 | Meta-WebIndexer | 24-11 07:59 |
+| ivaestudios.com | `/sitemap-ai.xml` | 12 | GPTBot | 23-11 19:56 |
+| bodasmx.com.mx | `/tradiciones/null` | 11 | Meta-WebIndexer | 24-11 10:03 |
+| bodasmx.com.mx | `/permisos/null` | 11 | Meta-WebIndexer | 24-11 06:25 |
 | ivaestudios.com | `/post/sesion-familiar-playa-cancun` | 11 | Meta-ExternalAgent | 23-11 13:38 |
-| ivaestudios.com | `/sitemap-ai.xml` | 11 | GPTBot | 22-11 19:55 |
 | ivaestudios.com | `/post/trash-the-dress-photoshoot-in-cancun-riviera-maya-2026` | 10 | Meta-ExternalAgent | 23-11 15:09 |
 | ivaestudios.com | `/post/c%C3%B3mo-prepararte-para-tu-sesi%C3%B3n-familiar-en-la-playa` | 10 | Meta-ExternalAgent | 23-11 15:06 |
+| ivaestudios.com | `/post/cenote-photoshoot-in-cancun-riviera-maya-the-complete-guide-2026` | 9 | Meta-ExternalAgent | 24-11 08:30 |
 | ivaestudios.com | `/category/new-arrivals` | 9 | Meta-ExternalAgent | 23-11 15:16 |
-| ivaestudios.com | `/es/comparativa/null` | 9 | Meta-WebIndexer | 23-11 05:00 |
-| bodasmx.com.mx | `/permisos/null` | 9 | Meta-WebIndexer | 23-11 04:11 |
-| ivaestudios.com | `/post/cenote-photoshoot-in-cancun-riviera-maya-the-complete-guide-2026` | 8 | Meta-ExternalAgent | 22-11 19:30 |
-| bodasmx.com.mx | `/tradiciones/null` | 8 | Meta-WebIndexer | 21-11 06:38 |
+| ivaestudios.com | `/post/engagement-session-cancun` | 8 | Meta-ExternalAgent | 24-11 09:59 |
+| ivaestudios.com | `/post/proposal-photography-in-cancun-how-to-plan-the-perfect-surprise-2026` | 8 | Meta-ExternalAgent | 23-11 18:57 |
 | bodasmx.com.mx | `/imagenes/permisos/musica-en-playa-hasta-que-hora-quintana-roo.webp` | 7 | Googlebot,Bingbot | 23-11 01:48 |
-| ivaestudios.com | `/post/engagement-session-cancun` | 7 | Meta-ExternalAgent | 22-11 21:29 |
-| ivaestudios.com | `/post/proposal-photography-in-cancun-how-to-plan-the-perfect-surprise-2026` | 7 | Meta-ExternalAgent | 21-11 19:54 |
+| bodasmx.com.mx | `/imagenes/permisos/zofemat-multa-boda-sin-permiso.webp` | 6 | Googlebot | 24-11 06:31 |
+| bodasmx.com.mx | `/imagenes/permisos/boda-catolica-en-playa-se-puede.webp` | 6 | Googlebot | 24-11 05:16 |
 | bodasmx.com.mx | `/imagenes/permisos/permiso-club-de-playa-playa-del-carmen.webp` | 6 | Googlebot | 23-11 02:25 |
-| bodasmx.com.mx | `/imagenes/permisos/zofemat-multa-boda-sin-permiso.webp` | 5 | Googlebot | 22-11 04:43 |
-| bodasmx.com.mx | `/imagenes/permisos/boda-catolica-en-playa-se-puede.webp` | 5 | Googlebot | 22-11 04:06 |
-| bodasmx.com.mx | `/fotografia/null` | 4 | Meta-WebIndexer | 23-11 04:32 |
-| ivaestudios.com | `/blog-feed.xml` | 2 | Meta-WebIndexer | 23-11 10:00 |
-| ivaestudios.com | `/es/fotografia-familiar-cancun` | 2 | Bingbot,YandexBot | 22-11 21:21 |
+| bodasmx.com.mx | `/fotografia/null` | 5 | Meta-WebIndexer | 24-11 06:42 |
+| bodasmx.com.mx | `/imagenes/autores/vianey-diaz.webp` | 3 | Meta-WebIndexer | 24-11 06:24 |
+| ivaestudios.com | `/blog-feed.xml` | 3 | Meta-WebIndexer | 24-11 05:20 |
 
 ## Por dia (UTC)
 
-- 2026-11-23: Meta-WebIndexer 1597, Meta-ExternalAgent 816, FacebookExternalHit 666, OAI-SearchBot 528, YandexBot 272, Amazonbot 240, Bingbot 144, Bytespider 3, Applebot 112, ChatGPT-User 105, Googlebot 60, Claude-User 37
+- 2026-11-24: Meta-WebIndexer 1625, Meta-ExternalAgent 702, FacebookExternalHit 520, OAI-SearchBot 360, Amazonbot 229, YandexBot 213, Bingbot 137, ChatGPT-User 89, Googlebot 53, Meta-ExternalAds 50, Applebot 27, Claude-User 7
+- 2026-11-23: Meta-WebIndexer 1721, Meta-ExternalAgent 888, FacebookExternalHit 705, OAI-SearchBot 546, YandexBot 290, Amazonbot 263, Bingbot 151, Bytespider 3, ChatGPT-User 118, Applebot 117, Googlebot 61, Claude-User 37
 - 2026-11-22: FacebookExternalHit 1856, Meta-WebIndexer 1600, Meta-ExternalAgent 849, OAI-SearchBot 520, YandexBot 252, Amazonbot 218, Bingbot 178, ChatGPT-User 105, Claude-User 50, Meta-ExternalAds 48, ClaudeBot 45, Googlebot 38
 - 2026-11-21: Meta-WebIndexer 1779, FacebookExternalHit 919, Meta-ExternalAgent 812, OAI-SearchBot 493, YandexBot 273, Amazonbot 241, Bingbot 210, Bytespider 2, ChatGPT-User 96, Meta-ExternalAds 48, Googlebot 41, Claude-User 35
 - 2026-11-20: FacebookExternalHit 3458, Meta-WebIndexer 1675, Meta-ExternalAgent 893, OAI-SearchBot 481, YandexBot 267, Amazonbot 248, Bingbot 151, Bytespider 1, ChatGPT-User 76, Googlebot 74, Claude-User 58, Meta-ExternalAds 48
@@ -267,4 +268,4 @@ Son enlaces viejos que siguen vivos en algun lado. Las que tengan pagina equival
 - 2026-11-13: Meta-ExternalAgent 807, OAI-SearchBot 535, FacebookExternalHit 307, YandexBot 267, Bingbot 197, Bytespider 2, Amazonbot 197, ChatGPT-User 99, Meta-WebIndexer 112, Googlebot 74, ClaudeBot 88, Claude-User 39
 - 2026-11-12: Meta-ExternalAgent 719, OAI-SearchBot 369, FacebookExternalHit 306, YandexBot 286, Amazonbot 174, Bingbot 172, Meta-WebIndexer 108, Googlebot 89, ChatGPT-User 79, ClaudeBot 64, Claude-User 56, Bytespider 2
 
-Visitas con nombre de robot que NO venian de su red: 9218 (no se cuentan arriba).
+Visitas con nombre de robot que NO venian de su red: 9565 (no se cuentan arriba).
