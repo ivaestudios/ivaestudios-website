@@ -378,11 +378,19 @@ export function mount(host, ed) {
 
   // ── Tambien en Pinterest (staff, 25-nov-2026) ─────────────────────────────
   // El pin va al tablero de la marca (Conexiones → Pinterest → Tablero).
+  // Mientras Pinterest tenga la app en modo prueba no deja publicar pines
+  // (25-nov-2026): el interruptor avisa y no se prende (sí se puede apagar).
+  const pinEnPrueba = () => !!(ed.getClient() || {}).pin_en_prueba;
   const rPinterest = rowSwitch({
     label: T('Publicar también en Pinterest', 'Also publish on Pinterest'),
-    sub: T('Al publicarse, también sale como pin en el tablero de la marca', "When it publishes, it also goes out as a pin on the brand's board"),
+    sub: pinEnPrueba()
+      ? T('En espera: Pinterest todavía no aprueba la app y no deja publicar pines', 'Awaiting approval: Pinterest has not approved the app yet and does not allow publishing Pins')
+      : T('Al publicarse, también sale como pin en el tablero de la marca', "When it publishes, it also goes out as a pin on the brand's board"),
     get: () => !!post().also_pinterest,
-    onToggle: (next) => { ed.setField('also_pinterest', next ? 1 : 0, { immediate: true }); sincronizarCanales(); return true; },
+    onToggle: (next) => {
+      if (next && pinEnPrueba()) return false;
+      ed.setField('also_pinterest', next ? 1 : 0, { immediate: true }); sincronizarCanales(); return true;
+    },
   });
 
   // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
@@ -391,7 +399,7 @@ export function mount(host, ed) {
   // Esperas que se resuelven solas (tope de 10 por canal de YouTube, límite
   // del día): van en azul, no en rojo, porque no hay nada que arreglar.
   const avisoEspera = el('div', { class: 'alert alert--info', hidden: true });
-  const ES_ESPERA = /sube sola|vuelve a intentar sola|Se libera/;
+  const ES_ESPERA = /sube sola|vuelve a intentar sola|Se libera|^Pinterest: En espera/;
 
   // Las filas de opciones solo existen cuando su canal está encendido.
   function sincronizarCanales() {

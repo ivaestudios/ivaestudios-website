@@ -284,7 +284,8 @@ function tarjeta(c) {
     // Pinterest (25-nov-2026): la cuenta y el tablero donde se publican los pines.
     filaRed({
       nombre: 'Pinterest', icono: 'board',
-      conectado: !!pin, falla: !!fx.pin, detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) : '',
+      conectado: !!pin, falla: !!fx.pin,
+      detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) + (c.pin_en_prueba && !cliente ? T(' · en espera de aprobación de Pinterest', ' · awaiting Pinterest approval') : '') : '',
       cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('pin', c, b),
       onConnect: () => conectar('pin', c.id),

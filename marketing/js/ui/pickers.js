@@ -248,7 +248,9 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           { key: 'also_youtube', red: 'youtube', label: 'YouTube', conectada: !!c.yt_channel_title, detalle: c.yt_channel_title || '', on: Number(post.also_youtube) === 1 },
           { key: 'also_linkedin', red: 'linkedin', label: 'LinkedIn', conectada: !!(c.li_person_name || c.li_org_name), detalle: c.li_org_name || c.li_person_name || '', on: Number(post.also_linkedin) === 1 },
           // Pinterest (25-nov-2026): el pin va al tablero elegido en Conexiones.
-          { key: 'also_pinterest', red: 'pinterest', label: 'Pinterest', conectada: !!c.pin_username, detalle: c.pin_board_name || (c.pin_username ? '@' + c.pin_username : ''), on: Number(post.also_pinterest) === 1 },
+          // Mientras Pinterest tenga la app en modo prueba no deja publicar
+          // pines (25-nov-2026): la opción se ve, pero en espera y apagada.
+          { key: 'also_pinterest', red: 'pinterest', label: 'Pinterest', conectada: !!c.pin_username && !c.pin_en_prueba, espera: c.pin_username && c.pin_en_prueba ? T('En espera', 'Pending') : '', detalle: c.pin_board_name || (c.pin_username ? '@' + c.pin_username : ''), on: Number(post.also_pinterest) === 1 },
         ];
         const prendida = {};
         redes.forEach((r) => { prendida[r.key] = r.conectada && r.on; });
@@ -273,7 +275,7 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           const b = el('button', {
             class: 'pk-red2' + (r.conectada ? '' : ' is-off'), type: 'button',
             'aria-pressed': 'false', disabled: r.conectada ? null : 'disabled',
-            title: r.conectada ? r.detalle : T('No conectada', 'Not connected'),
+            title: r.conectada ? r.detalle : r.espera ? T('Pinterest todavía no aprueba la app: aún no deja publicar pines.', 'Pinterest has not approved the app yet: it does not allow publishing Pins.') : T('No conectada', 'Not connected'),
             onclick: () => {
               if (!r.conectada) return;
               prendida[r.key] = !prendida[r.key];
@@ -285,12 +287,12 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           }, [
             iconMarca(r.red, 22),
             el('span', { class: 'pk-red2__nombre', text: r.label }),
-            el('span', { class: 'pk-red2__cuenta', text: r.conectada ? (r.detalle || T('conectada', 'connected')) : T('Sin conectar', 'Not connected') }),
+            el('span', { class: 'pk-red2__cuenta', text: r.conectada ? (r.detalle || T('conectada', 'connected')) : (r.espera || T('Sin conectar', 'Not connected')) }),
           ]);
           r.btn = b;
           return b;
         });
-        const sinConectar = redes.filter((r) => !r.conectada);
+        const sinConectar = redes.filter((r) => !r.conectada && !r.espera);
         const linkConectar = sinConectar.length
           ? el('button', { class: 'pk-red__link pk-redes__conectar', type: 'button', text: T('Conectar otra red', 'Connect another network'), onclick: irAConexiones })
           : null;

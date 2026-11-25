@@ -59,7 +59,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta, revisarMarcasConAuto, handleAdsMarcas, handleAdsDesconectar } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
-import { handlePinLogin, handlePinCallback, handlePinBoards, handlePinSetBoard, handlePinDisconnect, publicarEnPinterest } from './_pinterest.js';
+import { handlePinLogin, handlePinCallback, handlePinBoards, handlePinSetBoard, handlePinDisconnect, publicarEnPinterest, tokenPinterestVigente } from './_pinterest.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos, avisarStaff } from './_bandeja.js';
 import { handlePagos } from './_pagos.js';
 import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
@@ -1660,6 +1660,19 @@ async function clientCounts(env, clientId) {
   return { posts: row ? row.posts : 0, pending: row ? row.pending : 0 };
 }
 
+// PINTEREST EN MODO PRUEBA (25-nov-2026, probado con la API): "Apps with
+// Trial access may not create Pins in production". Hasta que Pinterest apruebe
+// el acceso completo (Standard), la app NO deja prender "también en
+// Pinterest" y no intenta publicar. Al aprobar: mkt_kv pin_app_standard = '1'.
+let PIN_APP_STANDARD = false;
+async function cargarEstadoPinterest(env) {
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'pin_app_standard'").first();
+    PIN_APP_STANDARD = !!(r && String(r.value) === '1');
+  } catch { PIN_APP_STANDARD = false; }
+  return PIN_APP_STANDARD;
+}
+
 function shapeClient(c, counts) {
   return {
     id: c.id,
@@ -1694,6 +1707,7 @@ function shapeClient(c, counts) {
     li_vence: (c.li_access_token && !c.li_refresh_token && c.li_access_expires_at) || null,
     pin_username: c.pin_username || null,
     pin_board_name: c.pin_board_name || null,
+    pin_en_prueba: !!c.pin_username && !PIN_APP_STANDARD,
     // ¿La conexión se cayó? (16-nov-2026, Vianey: "si ya está conectado debería
     // decir conectado, no reconectar"). Solo booleanos: el token nunca viaja.
     conexion_falla: fallasDeConexion(c),
@@ -1761,6 +1775,7 @@ async function handleListClients(env, session) {
     if (!session.client_id) return json([]);
     const c = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
     if (!c) return json([]);
+    await cargarEstadoPinterest(env);
     return json([shapeClient(c, await clientCounts(env, c.id))]);
   }
   // Conteos de TODAS las marcas en UNA query agrupada (antes: 1 + 2×N queries en
@@ -1777,6 +1792,7 @@ async function handleListClients(env, session) {
   ).all();
   const cmap = new Map();
   for (const r of (countsRes.results || [])) cmap.set(r.client_id, { posts: r.posts || 0, pending: r.pending || 0 });
+  await cargarEstadoPinterest(env);
   const out = rows.map((c) => shapeClient(c, cmap.get(c.id) || { posts: 0, pending: 0 }));
   return json(out);
 }
@@ -1846,6 +1862,7 @@ async function handlePatchClient(request, env, session, clientId) {
 
   const c = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(clientId).first();
   await logActivity(env, { client_id: clientId, session, action: 'client.update', detail: Object.keys(bodyObj || {}).join(',') });
+  await cargarEstadoPinterest(env);
   return json(shapeClient(c, await clientCounts(env, clientId)));
 }
 
@@ -4396,6 +4413,12 @@ async function handleCron(request, env) {
     let seguimientos = 0;
     try { seguimientos = await avisarSeguimientos(env); } catch (e) { if (!isMissingTableError(e)) console.error('[mkt cron seguimientos]', e && e.message); }
 
+    // Pinterest: el permiso dura 30 días y la llave para renovarlo 60, y SOLO se
+    // renueva si alguien la usa (cada renovación da una llave nueva de 60 días).
+    // Antes solo se renovaba al publicar o al ver tableros: una marca sin pines
+    // en 2 meses perdía la conexión. El reloj la renueva cuando le falta <1 día.
+    try { await renovarPinterest(env); } catch (e) { console.error('[mkt cron pinterest]', e && e.message); }
+
     // LinkedIn vence a los 60 días: aviso 7 días antes, 1 día antes y al vencer.
     try { await avisarVencimientoLinkedIn(env); } catch (e) { console.error('[mkt cron linkedin vence]', e && e.message); }
 
@@ -6809,10 +6832,15 @@ async function extraLinkedIn(env, post, session, permitido = true) {
 // PINTEREST (25-nov-2026): pin en el tablero de la marca. Foto, carrusel (2 a
 // 5 fotos) o video. Si el video sigue procesando en Pinterest, devuelve
 // pendiente y reanudarPinesPinterest lo termina en otra vuelta del reloj.
-// ⚠️ Mientras la app esté en nivel Trial, el pin solo lo ve la cuenta.
+// ⚠️ Mientras la app esté en nivel Trial, Pinterest no deja crear pines (ver pin_app_standard).
 async function extraPinterest(env, post, session, permitido = true) {
   if (!permitido) return null;
   if (Number(post.also_pinterest) !== 1 || post.pin_post_id) return null;
+  if (!(await cargarEstadoPinterest(env))) {
+    const msgEspera = 'En espera: Pinterest todavía tiene la app en modo de prueba y no deja publicar pines. Sale cuando Pinterest apruebe el acceso completo.';
+    await env.DB.prepare("UPDATE mkt_posts SET pin_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgEspera, post.id).run();
+    return { ok: false, esperar: true, error: msgEspera };
+  }
   try {
     const tiposVideo = ['reel', 'tiktok', 'historia', 'informativo', 'pauta', 'tratamientos', 'experiencia', 'video'];
     const videoUrlPin = tiposVideo.includes(post.content_type || 'reel') ? await videoFirmadoDePieza(env, post) : null;
@@ -7058,6 +7086,22 @@ async function esperarTurnoYouTube(env, postId, turno) {
     .bind(key, JSON.stringify({ hasta: turno.hasta, n: (previa && Number(previa.n)) || 0, turno: turno.tipo })).run();
 }
 // Un solo aviso por canal mientras dura el tope (no uno por pieza).
+// Pinterest se renueva solo en el reloj diario (ver handleCron).
+async function renovarPinterest(env) {
+  const r = await env.DB.prepare(
+    `SELECT id FROM mkt_clients
+      WHERE pin_access_token IS NOT NULL AND pin_refresh_token IS NOT NULL AND COALESCE(archived, 0) = 0
+        AND pin_access_expires_at IS NOT NULL AND pin_access_expires_at <= datetime('now', '+1 day')
+        AND (pin_refresh_expires_at IS NULL OR pin_refresh_expires_at > datetime('now'))`
+  ).all();
+  let renovadas = 0;
+  for (const c of (r.results || [])) {
+    try { await tokenPinterestVigente(env, c.id); renovadas++; }
+    catch (e) { console.error('[mkt cron pinterest]', c.id, e && e.message); }
+  }
+  return renovadas;
+}
+
 // LINKEDIN VENCE (25-nov-2026). LinkedIn da el permiso por 60 días y SIN
 // renovación automática (eso solo lo da a sus socios aprobados). La pantalla
 // de "conectado" prometía "la app te avisa antes de que venza" y el aviso no
@@ -7210,12 +7254,12 @@ async function publicarPendientes(env) {
         const rlSolo = await extraLinkedIn(env, post, sesionSistema);
         if (rlSolo && rlSolo.ok) algoSalio = true; else if (rlSolo) { ultimoError = rlSolo.error; otroFallo = true; }
         const rpSolo = await extraPinterest(env, post, sesionSistema);
-        if (rpSolo && rpSolo.ok) algoSalio = true; else if (rpSolo && !rpSolo.pendiente) { ultimoError = rpSolo.error; otroFallo = true; }
+        if (rpSolo && rpSolo.ok) algoSalio = true; else if (rpSolo && !rpSolo.pendiente && !rpSolo.esperar) { ultimoError = rpSolo.error; otroFallo = true; }
         if (!algoSalio) {
           // Lo que frenó se quita solo (el límite del día de YouTube o un video
           // que YouTube/Pinterest siguen procesando): se espera, sin gastar intentos.
-          const espera = !otroFallo && ((rySolo && (rySolo.esperar || rySolo.pendiente)) || (rpSolo && rpSolo.pendiente));
-          const eNada = new Error((espera && rySolo && rySolo.esperar ? rySolo.error : ultimoError)
+          const espera = !otroFallo && ((rySolo && (rySolo.esperar || rySolo.pendiente)) || (rpSolo && (rpSolo.pendiente || rpSolo.esperar)));
+          const eNada = new Error((espera && rySolo && rySolo.esperar ? rySolo.error : espera && rpSolo && rpSolo.esperar ? rpSolo.error : ultimoError)
             || (espera ? 'Se está terminando de subir el video. La app lo continúa sola.' : 'No se pudo publicar en ningún canal.'));
           if (espera) eNada.esperar = true;
           throw eNada;
@@ -7492,7 +7536,7 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     const liSolo = await extraLinkedIn(env, post, session, quiere('linkedin'));
     if (liSolo && liSolo.ok) algoSalio = true; else if (liSolo) ultimoError = liSolo.error;
     const pinSolo = await extraPinterest(env, post, session, quiere('pinterest'));
-    if (pinSolo && pinSolo.ok) algoSalio = true; else if (pinSolo && !pinSolo.pendiente) ultimoError = pinSolo.error;
+    if (pinSolo && pinSolo.ok) algoSalio = true; else if (pinSolo && (!pinSolo.pendiente || pinSolo.esperar)) ultimoError = pinSolo.error;
     if (!algoSalio) {
       await soltarCandado();
       if (pinSolo && pinSolo.pendiente && !ultimoError) return json({ ok: true, parcial: true, pin: pinSolo, aviso: 'Pinterest está procesando el video. La app lo termina sola.' });

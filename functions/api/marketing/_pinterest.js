@@ -4,7 +4,8 @@
 // App "IVAE Marketing App" (id 1640131) en developers.pinterest.com. Nivel
 // TRIAL aprobado el 25-nov-2026:
 //   · Leer y crear tableros y pines, analíticas básicas, leer anuncios.
-//   · ⚠️ En Trial los pines que se crean SOLO los ve la cuenta que los crea.
+//   · ⚠️ En Trial Pinterest NO deja crear pines en producción (código 29,
+//     probado el 25-nov-2026): solo en api-sandbox. Ver pin_app_standard.
 //     Para que salgan al público hay que pedir STANDARD (botón Upgrade) con un
 //     video del flujo completo (conectar, elegir tablero, publicar un pin).
 //   · Límite: 1000 llamadas al día.
@@ -78,6 +79,9 @@ async function marcaDeLaSesion(env, session, clientId) {
 function mensajePinterest(data, status) {
   const base = (data && (data.message || data.error_description || data.error)) || `HTTP ${status}`;
   if (status === 401) return 'El permiso de Pinterest de la marca caducó o se quitó: vuelve a conectarla en Conexiones.';
+  // Código 29 = la app sigue en modo prueba (Trial): Pinterest no deja crear
+  // pines hasta aprobar el acceso completo (probado el 25-nov-2026).
+  if (data && Number(data.code) === 29) return 'En espera: Pinterest todavía tiene la app en modo de prueba y no deja publicar pines. Sale cuando Pinterest apruebe el acceso completo.';
   if (status === 403) return `Pinterest no dejó hacer esto con este permiso (${base}).`;
   if (status === 429) return 'Pinterest: se llegó al límite de llamadas por ahora (en Trial son 1000 al día). Se reintenta más tarde.';
   return `Pinterest: ${base}`;
