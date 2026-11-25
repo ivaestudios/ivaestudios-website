@@ -143,7 +143,7 @@ function botonDesconectar(onDisconnect) {
   }, [el('span', { text: T('Desconectar', 'Disconnect') })]);
 }
 
-function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDisconnect, cuentaAbajo = false }) {
+function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDisconnect, cuentaAbajo = false, onRenovar = null }) {
   // 25-nov-2026 (Vianey: "que aparezca debajo del nombre de la red social qué
   // cuenta está conectada"). En la tarjeta angosta la cuenta iba a la derecha y
   // se cortaba ("TikTok ("). Para el equipo va DEBAJO del nombre de la red; la
@@ -166,6 +166,12 @@ function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDiscon
       detalle ? el('span', { class: 'cx-red__estado cx-red__cuenta', text: detalle }) : null,
       el('span', { class: 'cx-red__pill cx-red__pill--ok', text: T('Conectado', 'Connected') }),
       onDisconnect ? botonDesconectar(onDisconnect) : null,
+      // LinkedIn a punto de vencer (25-nov-2026): renovar ANTES de que venza
+      // es un clic y LinkedIn no vuelve a pedir el permiso.
+      onRenovar ? el('button', {
+        class: 'btn cx-red__btn cx-red__renovar', type: 'button', onclick: onRenovar,
+        title: T('LinkedIn da el permiso por 60 días: renuévalo antes de que venza.', 'LinkedIn grants access for 60 days: renew it before it expires.'),
+      }, [el('span', { text: T('Renovar', 'Renew') })]) : null,
     ].filter(Boolean));
   } else if (conectado && falla) {
     derecha = el('span', { class: 'cx-red__derecha' }, [
@@ -202,16 +208,18 @@ function tarjeta(c) {
   const li = c.li_org_name ? c.li_org_name : (c.li_person_name || null);
   // LinkedIn vence a los 60 días (25-nov-2026): debajo de la cuenta va la fecha,
   // y si faltan 7 días o menos, cuántos. Solo equipo (la cuenta va abajo solo ahí).
+  let liDias = null;
   const liVence = (() => {
     if (!li || cliente || !c.li_vence) return '';
     const t = Date.parse(String(c.li_vence).replace(' ', 'T') + 'Z');
     if (!Number.isFinite(t)) return '';
     const dias = Math.ceil((t - Date.now()) / 86400000);
+    liDias = dias;
     if (dias <= 0) return '';
     const fecha = new Date(t).toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short', timeZone: 'America/Cancun' });
     return dias <= 7
-      ? T(` · ⚠️ vence en ${dias} ${dias === 1 ? 'día' : 'días'}`, ` · ⚠️ expires in ${dias} ${dias === 1 ? 'day' : 'days'}`)
-      : T(` · vence el ${fecha}`, ` · expires ${fecha}`);
+      ? T(` · vence\u00a0en\u00a0${dias}\u00a0${dias === 1 ? 'día' : 'días'}`, ` · expires\u00a0in\u00a0${dias}\u00a0${dias === 1 ? 'day' : 'days'}`)
+      : T(` · vence\u00a0el\u00a0${fecha.replace(/ /g, '\u00a0')}`, ` · expires\u00a0${fecha.replace(/ /g, '\u00a0')}`);
   })();
   const pin = c.pin_username ? '@' + c.pin_username : null;
   const fx = c.conexion_falla || {};
@@ -268,6 +276,7 @@ function tarjeta(c) {
     filaRed({
       nombre: 'LinkedIn', icono: 'linkedin',
       conectado: !!li, falla: !!fx.li, detalle: li ? li + liVence : '',
+      onRenovar: !cliente && liDias != null && liDias > 0 && liDias <= 7 ? () => conectar('li', c.id) : null,
       cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('li', c, b),
       onConnect: () => conectar('li', c.id),

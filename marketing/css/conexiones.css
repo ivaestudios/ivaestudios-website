@@ -257,3 +257,7 @@
 .cx-tablero.is-on { font-weight: 600; }
 .cx-tablero svg { flex: none; color: var(--text-dim); }
 .cx-tablero:disabled { opacity: .6; cursor: default; }
+
+/* LinkedIn: "Renovar" cuando faltan 7 días o menos (25-nov-2026). Va en su
+   propio renglón, debajo de la cuenta, como los botones de Falla de conexión. */
+.cx-red--con-cuenta .cx-red__renovar { order: 6; margin: 6px 0 0 21px; min-height: 28px; padding: 2px 14px; font-size: 13px; }
