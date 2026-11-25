@@ -9,9 +9,11 @@
 //     a los 7 DÍAS — por eso el estado de la app tiene que estar "En
 //     producción" aunque siga sin verificar.
 //   · Subir: videos.insert con uploadType=resumable (2 pasos: la metadata
-//     devuelve un Location y ahí se hace PUT del MP4). Cuesta 1600 unidades
-//     de cuota; la cuota gratis del proyecto son 10,000/día = ~6 videos al
-//     día. Leer el canal cuesta 1.
+//     devuelve un Location y ahí se hace PUT del MP4). Desde el 19-nov-2026
+//     cuesta 1 unidad (antes 1,600); el proyecto tiene 10,000 unidades y un
+//     tope de 100 subidas al día entre todas las marcas. El freno real es el
+//     límite de CADA canal (uploadLimitExceeded), que pone YouTube. Leer el
+//     canal cuesta 1.
 //   · SHORTS: no hay bandera en la API. YouTube lo decide solo por la forma
 //     del video (vertical y ≤3 min). Nuestros reels ya nacen 9:16, así que
 //     salen como Short sin pedir nada.
