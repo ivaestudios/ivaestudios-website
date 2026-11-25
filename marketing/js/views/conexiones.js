@@ -10,10 +10,10 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611251130';
-import { icon } from '../shell/icons.js?v=202611251130';
-import { T, isEN } from '../shell/i18n.js?v=202611251130';
-import { openSheet } from '../shell/sheet.js?v=202611251130';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611251430';
+import { icon } from '../shell/icons.js?v=202611251430';
+import { T, isEN } from '../shell/i18n.js?v=202611251430';
+import { openSheet } from '../shell/sheet.js?v=202611251430';
 
 const VIEW_ID = 'conexiones';
 
@@ -143,7 +143,15 @@ function botonDesconectar(onDisconnect) {
   }, [el('span', { text: T('Desconectar', 'Disconnect') })]);
 }
 
-function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDisconnect }) {
+function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDisconnect, cuentaAbajo = false }) {
+  // 25-nov-2026 (Vianey: "que aparezca debajo del nombre de la red social qué
+  // cuenta está conectada"). En la tarjeta angosta la cuenta iba a la derecha y
+  // se cortaba ("TikTok ("). Para el equipo va DEBAJO del nombre de la red; la
+  // vista del cliente se queda como estaba.
+  const cuenta = cuentaAbajo && conectado && detalle
+    ? el('span', { class: 'cx-red__cuenta cx-red__cuenta--abajo', text: detalle, title: detalle })
+    : null;
+  if (cuentaAbajo) detalle = '';
   // Tres estados y nada más (Vianey 16-nov-2026: "si ya está conectado debería
   // decir conectado, no reconectar"):
   //   Conectado          → verde, sin botón.
@@ -155,7 +163,7 @@ function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDiscon
   const ok = conectado && !falla;
   if (ok) {
     derecha = el('span', { class: 'cx-red__derecha' }, [
-      el('span', { class: 'cx-red__estado cx-red__cuenta', text: detalle }),
+      detalle ? el('span', { class: 'cx-red__estado cx-red__cuenta', text: detalle }) : null,
       el('span', { class: 'cx-red__pill cx-red__pill--ok', text: T('Conectado', 'Connected') }),
       onDisconnect ? botonDesconectar(onDisconnect) : null,
     ].filter(Boolean));
@@ -175,11 +183,13 @@ function filaRed({ nombre, icono, conectado, falla, detalle, onConnect, onDiscon
   } else {
     derecha = el('span', { class: 'cx-red__estado', text: T('En proceso…', 'In progress…') });
   }
-  return el('div', { class: 'cx-red' + (ok ? ' cx-red--ok' : '') + (conectado && falla ? ' cx-red--falla' : '') }, [
+  return el('div', { class: 'cx-red' + (ok ? ' cx-red--ok' : '') + (conectado && falla ? ' cx-red--falla' : '') + (cuenta ? ' cx-red--con-cuenta' : '') }, [
     el('span', { class: 'cx-red__ico' }, [icon(icono, 16)]),
     el('span', { class: 'cx-red__nombre', text: nombre }),
     derecha,
-  ]);
+    // Renglón propio debajo del nombre, a todo lo ancho (así no se corta).
+    cuenta,
+  ].filter(Boolean));
 }
 
 function tarjeta(c) {
@@ -190,6 +200,19 @@ function tarjeta(c) {
   const tt = c.tt_username ? '@' + c.tt_username : null;
   // LinkedIn: la página de empresa manda si existe; si no, el perfil de la persona.
   const li = c.li_org_name ? c.li_org_name : (c.li_person_name || null);
+  // LinkedIn vence a los 60 días (25-nov-2026): debajo de la cuenta va la fecha,
+  // y si faltan 7 días o menos, cuántos. Solo equipo (la cuenta va abajo solo ahí).
+  const liVence = (() => {
+    if (!li || cliente || !c.li_vence) return '';
+    const t = Date.parse(String(c.li_vence).replace(' ', 'T') + 'Z');
+    if (!Number.isFinite(t)) return '';
+    const dias = Math.ceil((t - Date.now()) / 86400000);
+    if (dias <= 0) return '';
+    const fecha = new Date(t).toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short', timeZone: 'America/Cancun' });
+    return dias <= 7
+      ? T(` · ⚠️ vence en ${dias} ${dias === 1 ? 'día' : 'días'}`, ` · ⚠️ expires in ${dias} ${dias === 1 ? 'day' : 'days'}`)
+      : T(` · vence el ${fecha}`, ` · expires ${fecha}`);
+  })();
   const pin = c.pin_username ? '@' + c.pin_username : null;
   const fx = c.conexion_falla || {};
   const completa = !!(ig && fb && !fx.ig && !fx.fb);
@@ -207,12 +230,14 @@ function tarjeta(c) {
     filaRed({
       nombre: 'Instagram', icono: 'camera',
       conectado: !!ig, falla: !!fx.ig, detalle: ig || '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('ig', c, b),
       onConnect: () => conectar('ig', c.id),
     }),
     filaRed({
       nombre: 'Facebook', icono: 'link',
       conectado: !!fb, falla: !!fx.fb, detalle: fb || '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('fb', c, b),
       onConnect: () => conectar('fb', c.id),
     }),
@@ -223,6 +248,7 @@ function tarjeta(c) {
     filaRed({
       nombre: 'YouTube', icono: 'play',
       conectado: !!yt, falla: !!fx.yt, detalle: yt || '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('yt', c, b),
       onConnect: () => conectar('yt', c.id),
     }),
@@ -232,6 +258,7 @@ function tarjeta(c) {
     filaRed({
       nombre: 'TikTok', icono: 'spark',
       conectado: !!tt, falla: !!fx.tt, detalle: tt || '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('tt', c, b),
       onConnect: () => conectar('tt', c.id),
     }),
@@ -240,7 +267,8 @@ function tarjeta(c) {
     // permiso dura 60 días: si se vence, la fila dice Falla de conexión.
     filaRed({
       nombre: 'LinkedIn', icono: 'linkedin',
-      conectado: !!li, falla: !!fx.li, detalle: li || '',
+      conectado: !!li, falla: !!fx.li, detalle: li ? li + liVence : '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('li', c, b),
       onConnect: () => conectar('li', c.id),
     }),
@@ -248,6 +276,7 @@ function tarjeta(c) {
     filaRed({
       nombre: 'Pinterest', icono: 'board',
       conectado: !!pin, falla: !!fx.pin, detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) : '',
+      cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('pin', c, b),
       onConnect: () => conectar('pin', c.id),
     }),
@@ -468,7 +497,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611251130';
+  link.href = '/marketing/css/conexiones.css?v=202611251430';
   document.head.appendChild(link);
 }
 

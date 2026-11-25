@@ -1689,6 +1689,9 @@ function shapeClient(c, counts) {
     yt_channel_title: c.yt_channel_title || null,
     li_person_name: c.li_person_name || null,
     li_org_name: c.li_org_name || null,
+    // LinkedIn vence a los 60 días sin renovación: Conexiones enseña la fecha
+    // (25-nov-2026). Solo la fecha; el token jamás viaja.
+    li_vence: (c.li_access_token && !c.li_refresh_token && c.li_access_expires_at) || null,
     pin_username: c.pin_username || null,
     pin_board_name: c.pin_board_name || null,
     // ¿La conexión se cayó? (16-nov-2026, Vianey: "si ya está conectado debería
@@ -4393,6 +4396,9 @@ async function handleCron(request, env) {
     let seguimientos = 0;
     try { seguimientos = await avisarSeguimientos(env); } catch (e) { if (!isMissingTableError(e)) console.error('[mkt cron seguimientos]', e && e.message); }
 
+    // LinkedIn vence a los 60 días: aviso 7 días antes, 1 día antes y al vencer.
+    try { await avisarVencimientoLinkedIn(env); } catch (e) { console.error('[mkt cron linkedin vence]', e && e.message); }
+
     // Medicion del almacenamiento en R2 para la barra del panel de Agencia.
     // Se hace AQUI (una vez al dia, sin nadie esperando) para que abrir Inicio
     // lea siempre cache tibia y nunca pague el recorrido del bucket.
@@ -7052,6 +7058,45 @@ async function esperarTurnoYouTube(env, postId, turno) {
     .bind(key, JSON.stringify({ hasta: turno.hasta, n: (previa && Number(previa.n)) || 0, turno: turno.tipo })).run();
 }
 // Un solo aviso por canal mientras dura el tope (no uno por pieza).
+// LINKEDIN VENCE (25-nov-2026). LinkedIn da el permiso por 60 días y SIN
+// renovación automática (eso solo lo da a sus socios aprobados). La pantalla
+// de "conectado" prometía "la app te avisa antes de que venza" y el aviso no
+// existía. El reloj diario avisa a los encargados de la marca 7 días antes, 1
+// día antes y cuando ya venció; una sola vez por tramo. Reconectar ANTES de que
+// venza es un clic: si la persona tiene abierta su sesión de LinkedIn, LinkedIn
+// no le vuelve a pedir el permiso.
+async function avisarVencimientoLinkedIn(env) {
+  const r = await env.DB.prepare(
+    `SELECT id, name, li_person_name, li_org_name, li_access_expires_at,
+            CAST(julianday(li_access_expires_at) - julianday('now') AS REAL) AS dias
+       FROM mkt_clients
+      WHERE li_access_token IS NOT NULL AND li_refresh_token IS NULL
+        AND li_access_expires_at IS NOT NULL AND COALESCE(archived, 0) = 0
+        AND li_access_expires_at <= datetime('now', '+7 days')
+        AND li_access_expires_at >= datetime('now', '-3 days')`
+  ).all();
+  let avisos = 0;
+  for (const c of (r.results || [])) {
+    const dias = Number(c.dias);
+    const tramo = dias <= 0 ? 'vencio' : dias <= 1 ? '1d' : '7d';
+    const key = `li_vence_aviso_${c.id}_${String(c.li_access_expires_at).slice(0, 10)}_${tramo}`;
+    const ya = await env.DB.prepare('SELECT 1 AS x FROM mkt_kv WHERE key = ?').bind(key).first();
+    if (ya) continue;
+    await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind(key, new Date().toISOString()).run();
+    const quien = c.li_org_name || c.li_person_name || 'la cuenta';
+    const cuando = dias <= 0 ? null : dias <= 1 ? 'mañana' : `en ${Math.ceil(dias)} días`;
+    const body = cuando
+      ? `🔗 LINKEDIN de ${c.name} vence ${cuando} (${quien}). LinkedIn da el permiso por 60 días: reconéctalo en Conexiones antes de que venza (si la persona tiene abierta su sesión de LinkedIn, es un clic).`
+      : `🔗 LINKEDIN de ${c.name} venció (${quien}). Las piezas con "también en LinkedIn" no van a salir hasta reconectarlo en Conexiones.`;
+    const n = await notify(env, {
+      user_ids: await adminsDeLaMarca(env, c.id), type: 'conexion_li',
+      client_id: c.id, actor_name: 'Programador IVAE', body, link: '#/conexiones',
+    });
+    if (n) avisos++;
+  }
+  return avisos;
+}
+
 async function primerAvisoDelTope(env, clientId, hasta) {
   const key = 'yt_tope_aviso_' + clientId;
   const row = await env.DB.prepare(`SELECT value > datetime('now') AS vigente FROM mkt_kv WHERE key = ?`).bind(key).first();

@@ -135,6 +135,18 @@ export async function handleFbCallback(request, env, url) {
         }
       } catch { /* se queda el aviso de Sin páginas */ }
     }
+    // 3b) PÁGINAS DE PORTAFOLIO (25-nov-2026). /me/accounts NO trae las
+    // páginas que la persona maneja desde un portafolio de negocio (Business
+    // Suite): a MELISA solo le llegó una página vieja y no "Melisagcfitness",
+    // aunque marcó "todas". Con business_management se leen sus portafolios y
+    // las páginas de cada uno (propias y de clientes). Sin ese permiso Facebook
+    // responde error y se sigue con lo que ya había.
+    try {
+      const ya = new Set(pages.map((p) => String(p.id)));
+      for (const pg of await paginasDePortafolios(userTok)) {
+        if (!ya.has(String(pg.id))) { ya.add(String(pg.id)); pages.push(pg); }
+      }
+    } catch { /* sin portafolios o sin permiso: no cambia nada */ }
     if (!pages.length) {
       return html(EN
         ? `<h1>No Pages</h1><p>This Facebook account does not manage any Page. Create the brand's Page (or ask for an admin role) and try again.</p><a href="${back}">Back to the app</a>`
@@ -151,6 +163,7 @@ export async function handleFbCallback(request, env, url) {
       id: p.id, name: p.name, access_token: p.access_token,
       ig: (p.instagram_business_account && p.instagram_business_account.username) || null,
       igId: (p.instagram_business_account && p.instagram_business_account.id) || null,
+      biz: p.biz || null,
     }));
     const ligadas = lista.filter((p) => esDeLaMarca(p, marca));
     const pickId = rnd();
@@ -200,6 +213,26 @@ export async function handleFbPick(request, env, url) {
 const CAMPOS_PAGINA = 'id,name,access_token,instagram_business_account{id,username}';
 const CAMPOS_BASICOS = 'id,name,access_token';
 
+// Páginas de los portafolios de negocio de la persona (necesita
+// business_management). Solo cuentan las que traen su llave de página: si la
+// persona no tiene tareas en una página, no se puede publicar ahí.
+async function paginasDePortafolios(userTok) {
+  const t = encodeURIComponent(userTok);
+  const biz = await (await fetch(`${FB_GRAPH}/me/businesses?fields=id,name&limit=25&access_token=${t}`)).json();
+  if (!biz || biz.error || !Array.isArray(biz.data)) return [];
+  const out = [];
+  for (const b of biz.data.slice(0, 10)) {
+    for (const edge of ['owned_pages', 'client_pages']) {
+      let r = await (await fetch(`${FB_GRAPH}/${b.id}/${edge}?fields=${CAMPOS_PAGINA}&limit=50&access_token=${t}`)).json();
+      if (!r || r.error) r = await (await fetch(`${FB_GRAPH}/${b.id}/${edge}?fields=${CAMPOS_BASICOS}&limit=50&access_token=${t}`)).json();
+      for (const p of (r && Array.isArray(r.data) ? r.data : [])) {
+        if (p && p.id && p.access_token) out.push({ ...p, biz: b.name || null });
+      }
+    }
+  }
+  return out;
+}
+
 // ¿La página está ligada al Instagram de la marca? Por usuario (sin @, sin
 // mayúsculas) o por id de Instagram.
 function esDeLaMarca(p, marca) {
@@ -232,12 +265,13 @@ function pickerHtml({ pickId, lista, marcaIg, EN, back, marca }) {
       : p.ig
         ? `Instagram: @${esc(p.ig)}` + (suya ? (EN ? ' · this brand' : ' · es de esta marca') : '')
         : (EN ? 'No Instagram linked' : 'Sin Instagram ligado');
-    return `<a class="${suya ? 'pg-ok' : ''}" href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 <span class="pg-txt">${esc(p.name)}${ig ? `<span class="pg-ig">${ig}</span>` : ''}</span></a>`;
+    const biz = p.biz ? (EN ? `Business portfolio: ${esc(p.biz)}` : `Portafolio de negocio: ${esc(p.biz)}`) : '';
+    return `<a class="${suya ? 'pg-ok' : ''}" href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 <span class="pg-txt">${esc(p.name)}${ig ? `<span class="pg-ig">${ig}</span>` : ''}${biz ? `<span class="pg-ig">${biz}</span>` : ''}</span></a>`;
   }).join('');
   const deLaMarca = marcaIg ? (EN ? ` (the one for Instagram <b>@${esc(marcaIg)}</b>)` : ` (la del Instagram <b>@${esc(marcaIg)}</b>)`) : '';
   const pasos = EN
-    ? `<ol><li>Go back and tap "Connect Facebook" again. In the Facebook window, choose to edit the access and tick that Page.</li><li>If it still does not appear, that Page is managed by another Facebook account: sign in with that one.</li></ol>`
-    : `<ol><li>Vuelve a darle a "Conectar Facebook". En la ventana de Facebook, elige editar el acceso y marca esa página.</li><li>Si aun así no sale, esa página la administra otra cuenta de Facebook: entra con esa.</li></ol>`;
+    ? `<ol><li>Go back and tap "Connect Facebook" again. In the Facebook window, choose to edit the access and tick that Page (and its business portfolio, if it has one).</li><li>If it still does not appear, that Page is managed by another Facebook account: sign in with that one.</li></ol>`
+    : `<ol><li>Vuelve a darle a "Conectar Facebook". En la ventana de Facebook, elige editar el acceso y marca esa página (y su portafolio de negocio, si tiene).</li><li>Si aun así no sale, esa página la administra otra cuenta de Facebook: entra con esa.</li></ol>`;
   // Si Facebook SÍ dijo el Instagram de cada página y ninguna es la de la
   // marca, se avisa arriba. Si no lo dijo, la ayuda va abajo, tranquila.
   const avisoArriba = igConocido && marcaIg && !algunaLigada

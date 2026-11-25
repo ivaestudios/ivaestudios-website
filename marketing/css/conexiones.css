@@ -223,6 +223,31 @@
   .cx-red--ok .cx-red__cuenta { flex: 1 1 auto; text-align: left; }
 }
 
+/* Cuenta conectada DEBAJO del nombre de la red (25-nov-2026, Vianey). Solo
+   equipo: la vista del cliente sigue con la cuenta a la derecha. */
+/* Misma forma en todas las redes conectadas:
+     renglón 1: ícono · Red ............ [Conectado] [Desconectar]
+     renglón 2:        cuenta conectada (a todo lo ancho, con … si no cabe)
+   La caja de la derecha se "abre" (display: contents) para que el estado y los
+   botones se acomoden solos en los renglones. */
+.cx-red--con-cuenta { flex-wrap: wrap; column-gap: 5px; row-gap: 1px; padding: 8px 10px; }
+.cx-red--con-cuenta .cx-red__nombre { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-red--con-cuenta .cx-red__derecha { display: contents; }
+.cx-red--con-cuenta .cx-red__pill { margin-left: auto; padding: 0 7px; font-size: 11.5px; }
+.cx-red--con-cuenta .cx-red__off { padding: 0 6px; font-size: 11.5px; }
+.cx-red--con-cuenta .cx-red__cuenta--abajo {
+  order: 5; flex: 1 0 100%; min-width: 0; text-align: left;
+  padding-left: 21px;                 /* alineada con el nombre (ícono 16 + hueco 5) */
+  font-size: 12.5px; line-height: 1.35; color: var(--text-dim); font-weight: 500;
+  white-space: normal; overflow-wrap: anywhere;   /* si no cabe, baja de renglón: nunca se corta */
+}
+/* "Falla de conexión": el estado arriba a la derecha (igual que Conectado) y
+   los botones en su propio renglón debajo de la cuenta. Antes, en la tarjeta
+   angosta del escritorio, se salían de la fila. */
+.cx-red--falla.cx-red--con-cuenta .cx-red__btn,
+.cx-red--falla.cx-red--con-cuenta .cx-red__off { order: 6; margin-top: 6px; }
+.cx-red--falla.cx-red--con-cuenta .cx-red__btn { margin-left: 21px; min-height: 28px; padding: 2px 14px; font-size: 13px; }
+
 /* Pinterest (25-nov-2026): el tablero donde se publican los pines */
 .cx-tablero-btn.is-falta { color: var(--warn, #B7740F); border-color: color-mix(in srgb, var(--warn, #B7740F) 45%, transparent); }
 .cx-tablero__nota { margin: 0 0 10px; font-size: 14px; color: var(--text-dim); }

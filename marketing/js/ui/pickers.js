@@ -18,11 +18,11 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202611251130';
-import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611251130';
-import { T } from '../shell/i18n.js?v=202611251130';
-import { iconMarca } from '../shell/icons.js?v=202611251130';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok } from '../editor/canales.js?v=202611251130';
+} from '../api.js?v=202611251430';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611251430';
+import { T } from '../shell/i18n.js?v=202611251430';
+import { iconMarca } from '../shell/icons.js?v=202611251430';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok } from '../editor/canales.js?v=202611251430';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
