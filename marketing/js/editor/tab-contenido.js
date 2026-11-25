@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202611222250';
-import { pickFrom } from '../shell/sheet.js?v=202611222250';
-import * as store from '../shell/store.js?v=202611222250';
-import * as checklistService from '../services/checklist.js?v=202611222250';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611222250';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611222250';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611222250';
-import { T } from '../shell/i18n.js?v=202611222250';
+} from '../api.js?v=202611251053';
+import { pickFrom } from '../shell/sheet.js?v=202611251053';
+import * as store from '../shell/store.js?v=202611251053';
+import * as checklistService from '../services/checklist.js?v=202611251053';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611251053';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611251053';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611251053';
+import { T } from '../shell/i18n.js?v=202611251053';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -239,6 +239,7 @@ export function mount(host, ed) {
       Number(p.also_tiktok) === 1 ? 'TikTok' : null,
       Number(p.also_youtube) === 1 ? 'YouTube' : null,
       Number(p.also_linkedin) === 1 ? 'LinkedIn' : null,
+      Number(p.also_pinterest) === 1 ? 'Pinterest' : null,
     ].filter(Boolean);
   };
   const rProgramar = rowButton({
@@ -375,6 +376,15 @@ export function mount(host, ed) {
     },
   });
 
+  // ── Tambien en Pinterest (staff, 25-nov-2026) ─────────────────────────────
+  // El pin va al tablero de la marca (Conexiones → Pinterest → Tablero).
+  const rPinterest = rowSwitch({
+    label: T('Publicar también en Pinterest', 'Also publish on Pinterest'),
+    sub: T('Al publicarse, también sale como pin en el tablero de la marca', "When it publishes, it also goes out as a pin on the brand's board"),
+    get: () => !!post().also_pinterest,
+    onToggle: (next) => { ed.setField('also_pinterest', next ? 1 : 0, { immediate: true }); sincronizarCanales(); return true; },
+  });
+
   // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
   // error solo vivía en la columna y en un aviso que se pierde en la lista.
   const avisoCanales = el('div', { class: 'alert alert--error', hidden: true });
@@ -392,6 +402,7 @@ export function mount(host, ed) {
       p.tt_error ? `TikTok: ${p.tt_error}` : null,
       p.yt_error ? `YouTube: ${p.yt_error}` : null,
       p.li_error ? `LinkedIn: ${p.li_error}` : null,
+      p.pin_error ? `Pinterest: ${p.pin_error}` : null,
     ].filter(Boolean);
     while (avisoCanales.firstChild) avisoCanales.removeChild(avisoCanales.firstChild);
     avisoCanales.hidden = !fallos.length;
@@ -448,14 +459,14 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rHora, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rProgramar, rInstagram, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rLinkedIn, rLinkedInDest, rNotas, ...personRows]),
+    ...(esCliente ? [] : [...(aprobacionActiva ? [rAprobacion] : []), rGrabacion, rPersona, ...(aprobacionActiva ? [rVisible] : []), rProgramar, rInstagram, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rYouTubeVideo, rLinkedIn, rLinkedInDest, rPinterest, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente || !aprobacionActiva ? [] : [rAprobacion.el]), rFecha.el, rHora.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente && aprobacionActiva) addSection(T('Cliente', 'Client'), [rVisible.el]);
   const igConectado = !!((ed.getClient() || {}).ig_username);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rProgramar.el, ...(igConectado ? [rInstagram.el] : []), rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, avisoCanales]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rProgramar.el, ...(igConectado ? [rInstagram.el] : []), rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, rPinterest.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 

@@ -18,11 +18,11 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202611222250';
-import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611222250';
-import { T } from '../shell/i18n.js?v=202611222250';
-import { iconMarca } from '../shell/icons.js?v=202611222250';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok } from '../editor/canales.js?v=202611222250';
+} from '../api.js?v=202611251053';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202611251053';
+import { T } from '../shell/i18n.js?v=202611251053';
+import { iconMarca } from '../shell/icons.js?v=202611251053';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok } from '../editor/canales.js?v=202611251053';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
@@ -247,6 +247,8 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
           { key: 'also_tiktok', red: 'tiktok', label: 'TikTok', conectada: !!c.tt_username, detalle: c.tt_username ? '@' + c.tt_username : '', on: Number(post.also_tiktok) === 1 },
           { key: 'also_youtube', red: 'youtube', label: 'YouTube', conectada: !!c.yt_channel_title, detalle: c.yt_channel_title || '', on: Number(post.also_youtube) === 1 },
           { key: 'also_linkedin', red: 'linkedin', label: 'LinkedIn', conectada: !!(c.li_person_name || c.li_org_name), detalle: c.li_org_name || c.li_person_name || '', on: Number(post.also_linkedin) === 1 },
+          // Pinterest (25-nov-2026): el pin va al tablero elegido en Conexiones.
+          { key: 'also_pinterest', red: 'pinterest', label: 'Pinterest', conectada: !!c.pin_username, detalle: c.pin_board_name || (c.pin_username ? '@' + c.pin_username : ''), on: Number(post.also_pinterest) === 1 },
         ];
         const prendida = {};
         redes.forEach((r) => { prendida[r.key] = r.conectada && r.on; });
@@ -317,6 +319,15 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
               el('b', { text: faltaTikTok() ? T('Elegir', 'Choose') : T('Cambiar', 'Change') }),
             ]));
           }
+          if (prendida.also_pinterest && !c.pin_board_name) {
+            extras.append(el('button', {
+              class: 'pk-redes__opcion is-falta', type: 'button', onclick: irAConexiones,
+            }, [
+              iconMarca('pinterest', 14),
+              el('span', { text: T('Pinterest: falta elegir el tablero', 'Pinterest: choose the board') }),
+              el('b', { text: T('Elegir', 'Choose') }),
+            ]));
+          }
           if (prendida.also_youtube) {
             extras.append(el('button', {
               class: 'pk-redes__opcion' + (faltaYouTube() ? ' is-falta' : ''), type: 'button',
@@ -344,6 +355,7 @@ export function pickSchedule({ post, client = null, anchor = null, canProgram = 
             f.also_tiktok = prendida.also_tiktok ? 1 : 0;
             f.also_youtube = prendida.also_youtube ? 1 : 0;
             f.also_linkedin = prendida.also_linkedin ? 1 : 0;
+            f.also_pinterest = prendida.also_pinterest ? 1 : 0;
             // La columna "Plataforma" del calendario dice lo mismo que los botones.
             const elegidas = redes.filter((r) => prendida[r.key]).map((r) => r.label);
             if (elegidas.length) f.platform = elegidas.join(', ');

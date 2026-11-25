@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202611222250';
-import { T } from '../shell/i18n.js?v=202611222250';
-import { icon } from '../shell/icons.js?v=202611222250';
-import { openSheet } from '../shell/sheet.js?v=202611222250';
-import * as store from '../shell/store.js?v=202611222250';
-import * as cl from '../services/checklist.js?v=202611222250';
+import { el, api, copyText, isClientRole } from '../api.js?v=202611251053';
+import { T } from '../shell/i18n.js?v=202611251053';
+import { icon } from '../shell/icons.js?v=202611251053';
+import { openSheet } from '../shell/sheet.js?v=202611251053';
+import * as store from '../shell/store.js?v=202611251053';
+import * as cl from '../services/checklist.js?v=202611251053';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -283,6 +283,9 @@ export function openPublishNowSheet(ed) {
         if (Number(post.also_youtube) === 1 && !post.yt_video_id) {
           destinos.push({ key: 'youtube', label: 'YouTube', cuenta: cli.yt_channel_title || T('canal conectado', 'connected channel'), on: true });
         }
+        if (Number(post.also_pinterest) === 1 && !post.pin_post_id) {
+          destinos.push({ key: 'pinterest', label: 'Pinterest', cuenta: cli.pin_board_name || (cli.pin_username ? '@' + String(cli.pin_username).replace(/^@/, '') : T('cuenta conectada', 'connected account')), on: true });
+        }
         if (Number(post.also_linkedin) === 1 && !post.li_post_id) {
           let destLi = 'perfil';
           try { destLi = (JSON.parse(post.li_options || '{}').destino) || 'perfil'; } catch { /* noop */ }
@@ -324,6 +327,9 @@ export function openPublishNowSheet(ed) {
                 : r.yt.ok && r.yt.modo !== 'publico' ? T('YouTube (en privado)', 'YouTube (private)')
                   : 'YouTube');
             if (r && r.li) (r.li.ok ? salio : fallo).push(r.li.ok && r.li.destino === 'pagina' ? T('LinkedIn (página)', 'LinkedIn (Page)') : 'LinkedIn');
+            // Pinterest (25-nov-2026): un video puede quedarse procesando; la app lo termina sola.
+            if (r && r.pin && r.pin.pendiente) subiendo.push('Pinterest');
+            else if (r && r.pin) (r.pin.ok ? salio : fallo).push('Pinterest');
             ed.ctx.toast(
               (salio.length ? `${T('Publicado en', 'Published to')} ${salio.join(', ')}.` : (subiendo.length ? '' : T('No salió en ningún canal.', 'It did not go out anywhere.')))
                 + (subiendo.length ? ` ${T('Subiendo a', 'Uploading to')} ${subiendo.join(', ')}, la app lo termina sola.` : '')
@@ -376,7 +382,7 @@ export function openPublishNowSheet(ed) {
         pintarResumen();
       } else {
         body.append(el('p', { class: 'help', text: T(
-          'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube, LinkedIn).',
+          'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube, LinkedIn, Pinterest).',
           "The piece publishes NOW to the brand's connected Instagram, plus any extra channels switched on (Facebook, TikTok, YouTube, LinkedIn).",
         ) }));
       }

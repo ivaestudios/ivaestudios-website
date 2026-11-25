@@ -222,3 +222,13 @@
   .cx-red--ok .cx-red__derecha, .cx-red--falla .cx-red__derecha { flex: 1 0 100%; margin-left: 0; }
   .cx-red--ok .cx-red__cuenta { flex: 1 1 auto; text-align: left; }
 }
+
+/* Pinterest (25-nov-2026): el tablero donde se publican los pines */
+.cx-tablero-btn.is-falta { color: var(--warn, #B7740F); border-color: color-mix(in srgb, var(--warn, #B7740F) 45%, transparent); }
+.cx-tablero__nota { margin: 0 0 10px; font-size: 14px; color: var(--text-dim); }
+.cx-tableros { display: grid; gap: 4px; padding-bottom: 8px; }
+.cx-tablero { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-radius: 12px; background: none; color: var(--text); font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+.cx-tablero:hover, .cx-tablero.is-on { background: var(--surface-2); }
+.cx-tablero.is-on { font-weight: 600; }
+.cx-tablero svg { flex: none; color: var(--text-dim); }
+.cx-tablero:disabled { opacity: .6; cursor: default; }

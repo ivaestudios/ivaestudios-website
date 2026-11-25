@@ -307,14 +307,28 @@ function mensajeYouTube(data, status) {
   const razon = (e.errors && e.errors[0] && e.errors[0].reason) || '';
   const base = e.message || `HTTP ${status}`;
   if (razon === 'quotaExceeded' || /quota/i.test(base)) {
-    return 'YouTube ya no acepta más subidas hoy: la cuota gratis del proyecto alcanza para ~6 videos al día y se reinicia a medianoche (hora del Pacífico).';
+    return 'YouTube ya no acepta más subidas hoy: se acabó la cuota del día del proyecto (se reinicia a medianoche, hora del Pacífico). La app lo vuelve a intentar sola.';
   }
   if (razon === 'youtubeSignupRequired') return 'Esa cuenta de Google no tiene canal de YouTube: créalo y reconecta la marca.';
-  if (razon === 'uploadLimitExceeded') return 'El canal llegó a su límite de subidas del día (lo pone YouTube, no nosotros). Se reintenta mañana.';
+  if (razon === 'uploadLimitExceeded') return 'El canal llegó a su límite de subidas del día (lo pone YouTube, no nosotros). La app lo vuelve a intentar sola en unas horas.';
   if (razon === 'forbidden' || status === 403) return 'YouTube rechazó la subida con este permiso, reconecta la marca desde su ficha (' + base + ').';
   if (status === 401) return 'El permiso de YouTube de la marca caducó, reconéctala desde su ficha.';
   if (/invalidVideoMetadata|invalidTitle|invalidDescription/i.test(razon)) return 'YouTube rechazó el título o la descripción (sin < ni >, título ≤100 caracteres).';
   return base;
+}
+
+// El error de YouTube como Error, marcado `esperar` cuando el freno se quita
+// solo: el límite de subidas del día del CANAL (uploadLimitExceeded, lo pone
+// YouTube a cada canal) o la cuota del día del proyecto (quotaExceeded). El
+// reloj espera y lo vuelve a intentar sin gastar los 5 intentos (25-nov-2026:
+// a MELISA se le detuvieron 2 piezas porque el reloj gastó los 5 intentos en
+// 40 minutos el mismo día del límite).
+function errorYouTube(data, status) {
+  const e = (data && data.error) || {};
+  const razon = (e.errors && e.errors[0] && e.errors[0].reason) || '';
+  const err = new Error(mensajeYouTube(data, status));
+  err.esperar = razon === 'uploadLimitExceeded' || razon === 'quotaExceeded' || /quota/i.test(e.message || '');
+  return err;
 }
 
 // Título de YouTube: ≤100 caracteres y sin < ni > (regla dura de la API).
@@ -466,7 +480,7 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
     });
     if (!init.ok) {
       const d = await init.json().catch(() => ({}));
-      throw new Error(mensajeYouTube(d, init.status));
+      throw errorYouTube(d, init.status);
     }
     destino = init.headers.get('location') || init.headers.get('Location');
     if (!destino) throw new Error('YouTube no devolvió el destino de subida.');
@@ -507,7 +521,7 @@ export async function publicarEnYouTube(env, { clientId, post, videoUrl }) {
       throw new Error('La subida a YouTube caducó a medio camino, se vuelve a intentar desde cero.');
     } else {
       const d = await put.json().catch(() => ({}));
-      throw new Error(mensajeYouTube(d, put.status));
+      throw errorYouTube(d, put.status);
     }
     // Presupuesto: dejar la petición viva. Lo que falte lo sigue el reloj.
     if (Date.now() - t0 > YT_PRESUPUESTO_MS && subido < total) {

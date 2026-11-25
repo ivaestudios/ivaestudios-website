@@ -10,9 +10,10 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611222250';
-import { icon } from '../shell/icons.js?v=202611222250';
-import { T, isEN } from '../shell/i18n.js?v=202611222250';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611251053';
+import { icon } from '../shell/icons.js?v=202611251053';
+import { T, isEN } from '../shell/i18n.js?v=202611251053';
+import { openSheet } from '../shell/sheet.js?v=202611251053';
 
 const VIEW_ID = 'conexiones';
 
@@ -48,6 +49,8 @@ async function conectar(kind, clientId) {
         ? T('Falta configurar la app de TikTok (pídeme la guía).', 'TikTok still needs setup (ask me for the guide).')
         : kind === 'li'
           ? T('Falta configurar la app de LinkedIn (pídeme la guía).', 'LinkedIn still needs setup (ask me for the guide).')
+          : kind === 'pin'
+            ? T('Falta configurar la app de Pinterest: falta su llave secreta en Cloudflare.', 'Pinterest still needs setup: its secret key is missing in Cloudflare.')
           : T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
     return;
   }
@@ -56,7 +59,7 @@ async function conectar(kind, clientId) {
 
 // Desconectar desde Conexiones (16-nov-2026, Vianey: "no hay el botón de
 // desconectar en conexiones"). Mismo endpoint que la ficha de la marca.
-const NOMBRE_RED = { ig: 'Instagram', fb: 'Facebook', yt: 'YouTube', tt: 'TikTok', li: 'LinkedIn' };
+const NOMBRE_RED = { ig: 'Instagram', fb: 'Facebook', yt: 'YouTube', tt: 'TikTok', li: 'LinkedIn', pin: 'Pinterest' };
 async function desconectar(kind, c, btn) {
   const red = NOMBRE_RED[kind] || kind;
   const seguro = window.confirm(T(
@@ -81,6 +84,46 @@ async function desconectar(kind, c, btn) {
     if (btn) btn.disabled = false;
     toast(T(`No se pudo desconectar ${red}.`, `Could not disconnect ${red}.`), { type: 'error' });
   }
+}
+
+// Pinterest (25-nov-2026): los pines van al TABLERO que se elige aquí.
+async function elegirTablero(c) {
+  let datos = null;
+  try { datos = await api.get(`/pin/boards?client_id=${encodeURIComponent(c.id)}`); } catch (e) {
+    toast((e && e.message) || T('No se pudieron leer los tableros.', 'Could not read the boards.'), { type: 'error' });
+    return;
+  }
+  if (!datos || !datos.conectado) { toast(T('Pinterest no está conectado en esta marca.', 'Pinterest is not connected for this brand.'), { type: 'error' }); return; }
+  if (!Array.isArray(datos.boards) || !datos.boards.length) {
+    toast(datos.error || T('La cuenta de Pinterest no tiene tableros: crea uno en Pinterest y vuelve aquí.', 'The Pinterest account has no boards: create one in Pinterest and come back.'), { type: 'error' });
+    return;
+  }
+  openSheet({
+    title: T('Tablero de Pinterest', 'Pinterest board'),
+    mode: 'menu',
+    build(body, close) {
+      body.appendChild(el('p', { class: 'cx-tablero__nota', text: T(`Los pines de ${c.name} se publican en este tablero.`, `${c.name}'s pins are published to this board.`) }));
+      const lista = el('div', { class: 'cx-tableros' });
+      for (const b of datos.boards) {
+        lista.appendChild(el('button', {
+          class: 'cx-tablero' + (b.id === datos.board_id ? ' is-on' : ''), type: 'button',
+          onclick: async (ev) => {
+            const btn = ev.currentTarget; btn.disabled = true;
+            try {
+              await api.post('/pin/board', { client_id: c.id, board_id: b.id });
+              try { const clients = await api.get('/clients'); if (Array.isArray(clients) && ctx) ctx.store.set({ clients }); } catch { /* se refresca luego */ }
+              toast(T(`Listo: los pines irán a ${b.name}.`, `Done: pins will go to ${b.name}.`), { type: 'success' });
+              close({ source: 'pick' });
+            } catch (e) {
+              btn.disabled = false;
+              toast((e && e.message) || T('No se pudo guardar el tablero.', 'Could not save the board.'), { type: 'error' });
+            }
+          },
+        }, [icon('board', 16), el('span', { text: b.name })]));
+      }
+      body.appendChild(lista);
+    },
+  });
 }
 
 async function copiarInvitacion() {
@@ -147,6 +190,7 @@ function tarjeta(c) {
   const tt = c.tt_username ? '@' + c.tt_username : null;
   // LinkedIn: la página de empresa manda si existe; si no, el perfil de la persona.
   const li = c.li_org_name ? c.li_org_name : (c.li_person_name || null);
+  const pin = c.pin_username ? '@' + c.pin_username : null;
   const fx = c.conexion_falla || {};
   const completa = !!(ig && fb && !fx.ig && !fx.fb);
   return el('article', { class: 'cx-card' + (completa ? ' cx-card--full' : '') }, [
@@ -200,6 +244,18 @@ function tarjeta(c) {
       onDisconnect: cliente ? null : (b) => desconectar('li', c, b),
       onConnect: () => conectar('li', c.id),
     }),
+    // Pinterest (25-nov-2026): la cuenta y el tablero donde se publican los pines.
+    filaRed({
+      nombre: 'Pinterest', icono: 'board',
+      conectado: !!pin, falla: !!fx.pin, detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) : '',
+      onDisconnect: cliente ? null : (b) => desconectar('pin', c, b),
+      onConnect: () => conectar('pin', c.id),
+    }),
+    pin && !fx.pin ? el('button', {
+      class: 'cx-invitar cx-tablero-btn' + (c.pin_board_name ? '' : ' is-falta'), type: 'button', onclick: () => elegirTablero(c),
+    }, [icon('board', 14), ' ' + (c.pin_board_name
+      ? T(`Tablero de Pinterest: ${c.pin_board_name} · Cambiar`, `Pinterest board: ${c.pin_board_name} · Change`)
+      : T('Falta elegir el tablero de Pinterest', 'Choose the Pinterest board'))]) : null,
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
     // El creador conecta SU página él mismo: no hay dueño a quien invitar.
@@ -412,7 +468,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611222250';
+  link.href = '/marketing/css/conexiones.css?v=202611251053';
   document.head.appendChild(link);
 }
 

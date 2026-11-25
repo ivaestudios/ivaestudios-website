@@ -59,6 +59,7 @@ import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorE
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, handleFbDisconnect, publicarEnFacebook } from './_facebook.js';
 import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, handleAdsPost, guardarDiaAds, revisarPauta, revisarMarcasConAuto, handleAdsMarcas, handleAdsDesconectar } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, handleTtDisconnect, publicarEnTikTok } from './_tiktok.js';
+import { handlePinLogin, handlePinCallback, handlePinBoards, handlePinSetBoard, handlePinDisconnect, publicarEnPinterest } from './_pinterest.js';
 import { handleWebhookMeta, handleBandeja, sondearBandeja, avisarSeguimientos, reasignarVencidas, avisarTareas, sincronizarEmbudos, avisarStaff } from './_bandeja.js';
 import { handlePagos } from './_pagos.js';
 import { handleTwilio, handleLlamadas, procesarLlamadasPendientes } from './_llamadas.js';
@@ -427,6 +428,8 @@ const POST_EDITABLE_FIELDS = [
   'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options',
   'also_youtube', 'yt_options',
   'also_linkedin', 'li_options',
+  // Pinterest (25-nov-2026): opt-in por pieza; el tablero es el de la marca.
+  'also_pinterest',
   // Instagram por pieza (13-nov-2026, Vianey: "no me deja programar solo
   // TikTok"). NULL = piezas de antes: sale en Instagram si la marca lo tiene.
   'also_instagram'
@@ -492,6 +495,8 @@ const POST_V2_FIELDS = [
   'also_youtube', 'yt_video_id', 'yt_error', 'yt_options',
   // LinkedIn (2026-10-09): opt-in por pieza + destino (perfil o página) + rastro.
   'also_linkedin', 'li_post_id', 'li_error', 'li_options',
+  // Pinterest (25-nov-2026): opt-in por pieza + rastro.
+  'also_pinterest', 'pin_post_id', 'pin_error',
   // Instagram por pieza (13-nov-2026): 0 = no sale en Instagram; NULL = como siempre.
   'also_instagram',
 ];
@@ -1684,6 +1689,8 @@ function shapeClient(c, counts) {
     yt_channel_title: c.yt_channel_title || null,
     li_person_name: c.li_person_name || null,
     li_org_name: c.li_org_name || null,
+    pin_username: c.pin_username || null,
+    pin_board_name: c.pin_board_name || null,
     // ¿La conexión se cayó? (16-nov-2026, Vianey: "si ya está conectado debería
     // decir conectado, no reconectar"). Solo booleanos: el token nunca viaja.
     conexion_falla: fallasDeConexion(c),
@@ -1716,6 +1723,8 @@ function fallasDeConexion(c) {
     yt: !!c.yt_channel_title && !c.yt_refresh_token,
     li: !!(c.li_org_name || c.li_person_name) && (!c.li_access_token
       || (vencida(c.li_access_expires_at) && (!c.li_refresh_token || vencida(c.li_refresh_expires_at)))),
+    pin: !!c.pin_username && (!c.pin_access_token
+      || (vencida(c.pin_access_expires_at) && (!c.pin_refresh_token || vencida(c.pin_refresh_expires_at)))),
   };
 }
 
@@ -5611,6 +5620,7 @@ async function route(request, env, authCtx) {
     return url.searchParams.get('pick') ? handleAdsPick(request, env, url) : handleAdsCallback(request, env, url);
   }
   if (path === '/tt/callback' && method === 'GET') return handleTtCallback(request, env, url);
+  if (path === '/pin/callback' && method === 'GET') return handlePinCallback(request, env, url);
   if (path === '/yt/callback' && method === 'GET') return handleYtCallback(request, env, url);
   if (path === '/li/callback' && method === 'GET') return handleLiCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
@@ -6129,6 +6139,13 @@ async function route(request, env, authCtx) {
     if (path === '/fb/disconnect' && method === 'POST') return handleFbDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
   }
+  if (parts[0] === 'pin') {
+    if (path === '/pin/login' && method === 'GET') return handlePinLogin(request, env, session, url);
+    if (path === '/pin/boards' && method === 'GET') return handlePinBoards(env, session, url);
+    if (path === '/pin/board' && method === 'POST') return handlePinSetBoard(request, env, session);
+    if (path === '/pin/disconnect' && method === 'POST') return handlePinDisconnect(request, env, session);
+    return json({ error: 'Not found' }, 404);
+  }
   if (parts[0] === 'tt') {
     if (path === '/tt/login' && method === 'GET') return handleTtLogin(request, env, session, url);
     if (path === '/tt/creator' && method === 'GET') return handleTtCreator(env, session, url);
@@ -6351,7 +6368,8 @@ async function route(request, env, authCtx) {
       if (bodyPub && Array.isArray(bodyPub.canales)) {
         canales = bodyPub.canales
           .map((c) => String(c || '').toLowerCase().trim())
-          .filter((c) => ['instagram', 'facebook', 'tiktok', 'youtube'].includes(c));
+          // LinkedIn faltaba aquí: elegido en la hoja se descartaba en silencio (arreglado 25-nov-2026).
+          .filter((c) => ['instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'pinterest'].includes(c));
       }
     } catch { /* sin cuerpo: todos los canales encendidos, como antes */ }
     return handlePublicarPieza(env, parts[1], session, canales);
@@ -6782,6 +6800,55 @@ async function extraLinkedIn(env, post, session, permitido = true) {
   }
 }
 
+// PINTEREST (25-nov-2026): pin en el tablero de la marca. Foto, carrusel (2 a
+// 5 fotos) o video. Si el video sigue procesando en Pinterest, devuelve
+// pendiente y reanudarPinesPinterest lo termina en otra vuelta del reloj.
+// ⚠️ Mientras la app esté en nivel Trial, el pin solo lo ve la cuenta.
+async function extraPinterest(env, post, session, permitido = true) {
+  if (!permitido) return null;
+  if (Number(post.also_pinterest) !== 1 || post.pin_post_id) return null;
+  try {
+    const tiposVideo = ['reel', 'tiktok', 'historia', 'informativo', 'pauta', 'tratamientos', 'experiencia', 'video'];
+    const videoUrlPin = tiposVideo.includes(post.content_type || 'reel') ? await videoFirmadoDePieza(env, post) : null;
+    const slidesPin = await slidesFirmadosDePieza(env, post);
+    const coverPin = await portadaFirmadaDePieza(env, post);
+    const rp = await publicarEnPinterest(env, { clientId: post.client_id, post, videoUrl: videoUrlPin, slides: slidesPin, cover: coverPin });
+    if (rp && rp.pendiente) {
+      await env.DB.prepare("UPDATE mkt_posts SET pin_error = NULL, updated_at = datetime('now') WHERE id = ?").bind(post.id).run();
+      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicando_pin', detail: 'Pinterest está procesando el video. La app lo termina sola.' });
+      return { ok: false, pendiente: true };
+    }
+    await env.DB.prepare("UPDATE mkt_posts SET pin_post_id = ?, pin_error = NULL, updated_at = datetime('now') WHERE id = ?")
+      .bind(rp.pinId, post.id).run();
+    const urlPin = `https://www.pinterest.com/pin/${rp.pinId}/`;
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_pin', detail: urlPin });
+    return { ok: true, pin_id: rp.pinId, url: urlPin };
+  } catch (ePin) {
+    const msgPin = ((ePin && ePin.message) || 'Error desconocido').slice(0, 300);
+    await env.DB.prepare("UPDATE mkt_posts SET pin_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgPin, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_pin_error', detail: msgPin });
+    await avisarAdmins(env, { type: 'publicador_pin_error', post, body: `⚠️ PINTEREST falló — ${post.title}: ${msgPin.slice(0, 120)}` });
+    return { ok: false, error: msgPin };
+  }
+}
+
+// Videos de Pinterest que se quedaron procesando: se terminan aquí, uno por vuelta.
+async function reanudarPinesPinterest(env) {
+  let fila = null;
+  try { fila = await env.DB.prepare("SELECT key FROM mkt_kv WHERE key LIKE 'pin_media:%' LIMIT 1").first(); } catch { return null; }
+  if (!fila) return null;
+  const postId = String(fila.key).slice('pin_media:'.length);
+  const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  if (!post || post.pin_post_id || Number(post.also_pinterest) !== 1) {
+    try { await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind(fila.key).run(); } catch { /* noop */ }
+    return null;
+  }
+  // Una pieza que todavía no sale (solo Pinterest) la termina el reloj normal.
+  if (post.status !== 'publicado') return null;
+  const r = await extraPinterest(env, post, { user_id: null, name: 'Programador IVAE' });
+  return { post_id: postId, ...(r || {}) };
+}
+
 async function extraTikTok(env, post, session, permitido = true) {
   if (!permitido) return null;
   if (Number(post.also_tiktok) !== 1 || post.tt_post_id) return null;
@@ -6840,6 +6907,7 @@ async function extraYouTube(env, post, session, permitido = true) {
     }
     await env.DB.prepare("UPDATE mkt_posts SET yt_video_id = ?, yt_error = NULL, updated_at = datetime('now') WHERE id = ?")
       .bind(ry.ytVideoId, post.id).run();
+    await olvidarPausaYouTube(env, post.id);
     await logActivity(env, {
       client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_yt',
       detail: ry.modo === 'publico'
@@ -6851,9 +6919,60 @@ async function extraYouTube(env, post, session, permitido = true) {
     const msgYt = ((eYt && eYt.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare("UPDATE mkt_posts SET yt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgYt, post.id).run();
     await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_yt_error', detail: msgYt });
-    await avisarAdmins(env, { type: 'publicador_yt_error', post, body: `⚠️ YOUTUBE falló — ${post.title}: ${msgYt.slice(0, 120)}` });
-    return { ok: false, error: msgYt };
+    // Límite del día (del canal o de la cuota): la pieza hace una pausa y se
+    // vuelve a intentar sola. Un solo aviso por pieza, no uno por intento.
+    const pausa = eYt && eYt.esperar ? await pausarYouTube(env, post.id) : null;
+    if (!pausa || pausa.primera) {
+      await avisarAdmins(env, {
+        type: 'publicador_yt_error', post,
+        body: pausa && pausa.esperar
+          ? `⏳ YOUTUBE en pausa — ${post.title}: el canal llegó a su límite del día. La app lo vuelve a intentar sola cada ${YT_PAUSA_HORAS} horas.`
+          : `⚠️ YOUTUBE falló — ${post.title}: ${msgYt.slice(0, 120)}`,
+      });
+    }
+    return { ok: false, error: msgYt, esperar: !!(pausa && pausa.esperar) };
   }
+}
+
+// PAUSA DE YOUTUBE (25-nov-2026). YouTube pone un límite de subidas al día a
+// cada CANAL (a MELISA le cortó en el video 11 del día en que se conectó) y la
+// cuota del proyecto también es por día. Antes el reloj lo contaba como fallo,
+// gastaba los 5 intentos en menos de una hora y la pieza se quedaba detenida
+// para siempre. Ahora la pieza espera YT_PAUSA_HORAS y vuelve a la fila SIN
+// gastar intentos. Tope de YT_PAUSA_TOPE pausas (~1.5 días); después cuenta
+// como un fallo normal para no quedarse girando.
+const YT_PAUSA_HORAS = 3;
+const YT_PAUSA_TOPE = 12;
+async function pausarYouTube(env, postId) {
+  const key = 'yt_pausa_' + postId;
+  let previa = null;
+  try {
+    const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(key).first();
+    previa = row && row.value ? JSON.parse(row.value) : null;
+  } catch { previa = null; }
+  const n = ((previa && Number(previa.n)) || 0) + 1;
+  if (n > YT_PAUSA_TOPE) return { esperar: false, primera: false };
+  const fila = await env.DB.prepare(`SELECT datetime('now', '+${YT_PAUSA_HORAS} hours') AS hasta`).first();
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)')
+    .bind(key, JSON.stringify({ hasta: fila.hasta, n })).run();
+  return { esperar: true, primera: !previa, hasta: fila.hasta };
+}
+async function olvidarPausaYouTube(env, postId) {
+  try { await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind('yt_pausa_' + postId).run(); } catch { /* noop */ }
+}
+
+// Piezas que YA salieron en otra red pero a YouTube le tocó pausa: cuando la
+// pausa vence se intenta SOLO YouTube. Una por vuelta del reloj.
+async function reintentarYouTubeEnPausa(env) {
+  const post = await env.DB.prepare(
+    `SELECT p.* FROM mkt_posts p JOIN mkt_kv k ON k.key = 'yt_pausa_' || p.id
+     WHERE p.status = 'publicado' AND p.yt_video_id IS NULL AND COALESCE(p.also_youtube, 0) = 1
+       AND k.value LIKE '{%' AND json_extract(k.value, '$.hasta') <= datetime('now')
+     ORDER BY json_extract(k.value, '$.hasta') LIMIT 1`
+  ).first();
+  if (!post) return null;
+  const r = await extraYouTube(env, post, { user_id: null, name: 'Programador IVAE' });
+  return { post_id: post.id, ...(r || {}) };
 }
 
 async function publicarPendientes(env) {
@@ -6875,6 +6994,9 @@ async function publicarPendientes(env) {
        -- pieza rechazada por el cliente se publicaba igual a su hora.
        AND COALESCE(p.approval_state, '') != 'changes'
        AND COALESCE(p.publish_attempts, 0) < 5
+       -- En pausa por el límite del día de YouTube: espera su hora (pausarYouTube).
+       AND NOT EXISTS (SELECT 1 FROM mkt_kv k WHERE k.key = 'yt_pausa_' || p.id
+                       AND k.value LIKE '{%' AND json_extract(k.value, '$.hasta') > datetime('now'))
        AND p.publish_time IS NOT NULL AND p.publish_time != ''
        AND p.publish_date IS NOT NULL AND p.publish_date != ''
        AND (p.publish_date < ? OR (p.publish_date = ? AND p.publish_time <= ?))
@@ -6901,7 +7023,7 @@ async function publicarPendientes(env) {
       // (todas las piezas de antes) = como siempre.
       const igApagado = post.also_instagram != null && Number(post.also_instagram) === 0;
       const sinInstagram = !post.ig_user_id || !post.ig_access_token || igApagado;
-      const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1 || Number(post.also_linkedin) === 1;
+      const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1 || Number(post.also_linkedin) === 1 || Number(post.also_pinterest) === 1;
       if (igApagado && !pideOtroCanal) {
         // Sin ninguna red elegida no hay nada que publicar, y JAMÁS se cae al
         // camino de Instagram que la persona apagó. Se detiene de una.
@@ -6910,7 +7032,7 @@ async function publicarPendientes(env) {
         throw eSinRed;
       }
       if (sinInstagram && pideOtroCanal) {
-        let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
+        let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id || !!post.pin_post_id;
         let ultimoError = null;
         if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
           try {
@@ -6928,13 +7050,24 @@ async function publicarPendientes(env) {
             await logActivity(env, { client_id: post.client_id, post_id: post.id, session: sesionSistema, action: 'post.publicar_fb_error', detail: ultimoError });
           }
         }
+        let otroFallo = !!ultimoError;   // Facebook falló arriba
         const rtSolo = await extraTikTok(env, post, sesionSistema);
-        if (rtSolo && rtSolo.ok) algoSalio = true; else if (rtSolo) ultimoError = rtSolo.error;
+        if (rtSolo && rtSolo.ok) algoSalio = true; else if (rtSolo) { ultimoError = rtSolo.error; otroFallo = true; }
         const rySolo = await extraYouTube(env, post, sesionSistema);
         if (rySolo && rySolo.ok) algoSalio = true; else if (rySolo) ultimoError = rySolo.error;
         const rlSolo = await extraLinkedIn(env, post, sesionSistema);
-        if (rlSolo && rlSolo.ok) algoSalio = true; else if (rlSolo) ultimoError = rlSolo.error;
-        if (!algoSalio) throw new Error(ultimoError || 'No se pudo publicar en ningún canal.');
+        if (rlSolo && rlSolo.ok) algoSalio = true; else if (rlSolo) { ultimoError = rlSolo.error; otroFallo = true; }
+        const rpSolo = await extraPinterest(env, post, sesionSistema);
+        if (rpSolo && rpSolo.ok) algoSalio = true; else if (rpSolo && !rpSolo.pendiente) { ultimoError = rpSolo.error; otroFallo = true; }
+        if (!algoSalio) {
+          // Lo que frenó se quita solo (el límite del día de YouTube o un video
+          // que YouTube/Pinterest siguen procesando): se espera, sin gastar intentos.
+          const espera = !otroFallo && ((rySolo && (rySolo.esperar || rySolo.pendiente)) || (rpSolo && rpSolo.pendiente));
+          const eNada = new Error((espera && rySolo && rySolo.esperar ? rySolo.error : ultimoError)
+            || (espera ? 'Se está terminando de subir el video. La app lo continúa sola.' : 'No se pudo publicar en ningún canal.'));
+          if (espera) eNada.esperar = true;
+          throw eNada;
+        }
         await env.DB.prepare(
           `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
            publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
@@ -7022,6 +7155,7 @@ async function publicarPendientes(env) {
       await extraTikTok(env, post, sesionSistema);
       await extraYouTube(env, post, sesionSistema);
       await extraLinkedIn(env, post, sesionSistema);
+      await extraPinterest(env, post, sesionSistema);
       if (reconciliada) {
         await notify(env, {
           user_ids: await adminsDeLaMarca(env, post.client_id),
@@ -7033,6 +7167,15 @@ async function publicarPendientes(env) {
       }
       resultados.push({ id: post.id, ok: true, permalink: r.permalink });
     } catch (e) {
+      if (e && e.esperar) {
+        // Pausa de YouTube: la pieza vuelve a la fila sin gastar intentos (el
+        // aviso ya salió UNA vez desde extraYouTube).
+        await env.DB.prepare(
+          `UPDATE mkt_posts SET status = 'programado', publish_error = ?, updated_at = datetime('now') WHERE id = ?`
+        ).bind(((e && e.message) || '').slice(0, 300), post.id).run();
+        resultados.push({ id: post.id, ok: false, esperando: true, error: e.message });
+        continue;
+      }
       // Subcódigos DETERMINISTAS de Meta (formato/derechos/duración): el
       // reintento jamás los arregla — se detiene de una y se avisa el motivo.
       const DETERMINISTAS = [2207026, 2207057, 2207042, 2207050, 2207051, 2207008, 9007];
@@ -7091,6 +7234,10 @@ async function handleCronPublicar(request, env) {
     const resultados = await publicarPendientes(env);
     let youtube = null;
     try { youtube = await reanudarSubidasYouTube(env); } catch (e) { youtube = { error: (e && e.message) || 'fallo' }; }
+    let youtubePausa = null;
+    try { youtubePausa = await reintentarYouTubeEnPausa(env); } catch (e) { youtubePausa = { error: (e && e.message) || 'fallo' }; }
+    let pinterest = null;
+    try { pinterest = await reanudarPinesPinterest(env); } catch (e) { pinterest = { error: (e && e.message) || 'fallo' }; }
     // Bandeja: sondeo de comentarios y mensajes (respaldo de los webhooks).
     // Best-effort y acotado: unas marcas por corrida, las más olvidadas primero.
     let bandeja = null;
@@ -7108,7 +7255,7 @@ async function handleCronPublicar(request, env) {
     // Embudo del estudio de fotos: etapas al día con las reservas de Juan.
     let embudos = null;
     try { embudos = await sincronizarEmbudos(env); } catch (e) { embudos = { error: (e && e.message) || 'fallo' }; }
-    return json({ ok: true, procesadas: resultados.length, resultados, youtube, bandeja, reasignadas, llamadas, tareas, embudos });
+    return json({ ok: true, procesadas: resultados.length, resultados, youtube, youtubePausa, pinterest, bandeja, reasignadas, llamadas, tareas, embudos });
   } catch (e) {
     return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
   }
@@ -7157,14 +7304,15 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
   const pideOtroCanal = (Number(post.also_facebook) === 1 && quiere('facebook'))
     || (Number(post.also_tiktok) === 1 && quiere('tiktok'))
     || (Number(post.also_youtube) === 1 && quiere('youtube'))
-    || (Number(post.also_linkedin) === 1 && quiere('linkedin'));
+    || (Number(post.also_linkedin) === 1 && quiere('linkedin'))
+    || (Number(post.also_pinterest) === 1 && quiere('pinterest'));
   // Nada elegido y sin Instagram: jamás se cae al camino de Instagram.
   if ((igApagado || (canales && !quiere('instagram'))) && !pideOtroCanal) {
     await soltarCandado();
     return json({ error: 'Esta pieza no tiene ninguna red elegida para publicar.' }, 422);
   }
   if (sinInstagram && pideOtroCanal) {
-    let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id;
+    let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id || !!post.li_post_id || !!post.pin_post_id;
     let ultimoError = null;
     let fbSolo = null;
     if (Number(post.also_facebook) === 1 && quiere('facebook') && !post.fb_post_id) {
@@ -7191,8 +7339,11 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     if (ytSolo && ytSolo.ok) algoSalio = true; else if (ytSolo) ultimoError = ytSolo.error;
     const liSolo = await extraLinkedIn(env, post, session, quiere('linkedin'));
     if (liSolo && liSolo.ok) algoSalio = true; else if (liSolo) ultimoError = liSolo.error;
+    const pinSolo = await extraPinterest(env, post, session, quiere('pinterest'));
+    if (pinSolo && pinSolo.ok) algoSalio = true; else if (pinSolo && !pinSolo.pendiente) ultimoError = pinSolo.error;
     if (!algoSalio) {
       await soltarCandado();
+      if (pinSolo && pinSolo.pendiente && !ultimoError) return json({ ok: true, parcial: true, pin: pinSolo, aviso: 'Pinterest está procesando el video. La app lo termina sola.' });
       return json({ error: ultimoError || 'No se pudo publicar en ningún canal.' }, 422);
     }
     if (igOmitidoPorEleccion) {
@@ -7200,13 +7351,13 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
       // pendiente de su Instagram (y de su hora, si la tiene). Marcarla como
       // publicada aqui la borraria de la fila del reloj en silencio.
       await soltarCandado();
-      return json({ ok: true, parcial: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo });
+      return json({ ok: true, parcial: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo, pin: pinSolo });
     }
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
     ).bind(post.id).run();
-    return json({ ok: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo });
+    return json({ ok: true, fb: fbSolo, tt: ttSolo, yt: ytSolo, li: liSolo, pin: pinSolo });
   }
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
@@ -7246,7 +7397,8 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     const tt = await extraTikTok(env, post, session, quiere('tiktok'));
     const yt = await extraYouTube(env, post, session, quiere('youtube'));
     const li = await extraLinkedIn(env, post, session, quiere('linkedin'));
-    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt, li });
+    const pin = await extraPinterest(env, post, session, quiere('pinterest'));
+    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt, li, pin });
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();
