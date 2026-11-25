@@ -6889,9 +6889,26 @@ async function extraTikTok(env, post, session, permitido = true) {
   }
 }
 
-async function extraYouTube(env, post, session, permitido = true) {
+async function extraYouTube(env, post, session, permitido = true, { manual = false } = {}) {
   if (!permitido) return null;
   if (Number(post.also_youtube) !== 1 || post.yt_video_id) return null;
+  // TOPE POR CANAL: si al canal no le toca, la pieza espera su turno sin
+  // hablar con YouTube y sin gastar intentos.
+  const turno = await turnoYouTube(env, post, { manual });
+  if (turno) {
+    await esperarTurnoYouTube(env, post.id, turno);
+    if (turno.tipo === 'tope') {
+      await env.DB.prepare("UPDATE mkt_posts SET yt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(turno.msg, post.id).run();
+      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.yt_en_espera', detail: turno.msg });
+      if (await primerAvisoDelTope(env, post.client_id, turno.hasta)) {
+        await avisarAdmins(env, {
+          type: 'publicador_yt_error', post,
+          body: `⏳ YOUTUBE en espera — ${post.title}: el canal ya subió ${YT_TOPE_CANAL} videos en 24 horas (el tope de la app). Las piezas que siguen salen solas ${turno.cuando}.`,
+        });
+      }
+    }
+    return { ok: false, esperar: true, turno: turno.tipo, error: turno.msg };
+  }
   try {
     const videoUrlYt = await videoFirmadoDePieza(env, post);
     const ry = await publicarEnYouTube(env, { clientId: post.client_id, post, videoUrl: videoUrlYt });
@@ -6955,10 +6972,100 @@ async function pausarYouTube(env, postId) {
   const fila = await env.DB.prepare(`SELECT datetime('now', '+${YT_PAUSA_HORAS} hours') AS hasta`).first();
   await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)')
     .bind(key, JSON.stringify({ hasta: fila.hasta, n })).run();
-  return { esperar: true, primera: !previa, hasta: fila.hasta };
+  return { esperar: true, primera: !previa || !Number(previa.n), hasta: fila.hasta };
 }
 async function olvidarPausaYouTube(env, postId) {
   try { await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind('yt_pausa_' + postId).run(); } catch { /* noop */ }
+}
+
+// TOPE POR CANAL (25-nov-2026). YouTube frena a un canal que sube muchos
+// videos seguidos: a MELISA le aceptó 10 en ~14 horas (6 de ellos en UN
+// minuto, al conectarlo) y el 11 ya no entró. Vianey: "pon el límite de 10
+// por día". Así que la app:
+//   · nunca sube más de YT_TOPE_CANAL videos a un canal en 24 horas;
+//   · en automático deja YT_ESPACIO_MIN minutos entre videos del mismo canal
+//     (nada de varios de golpe). "Publicar ahora" no espera ese hueco, pero
+//     sí respeta el tope.
+// La pieza espera en la misma fila de pausas (yt_pausa_<pieza>) con
+// turno = 'tope' | 'espacio', SIN sumar al tope de pausas: esperar su turno
+// no es un fallo. Las subidas se cuentan con mkt_activity 'post.publicado_yt'
+// (índice client_id + created_at) más las subidas grandes que van a medias.
+const YT_TOPE_CANAL = 10;
+const YT_ESPACIO_MIN = 10;
+async function turnoYouTube(env, post, { manual = false } = {}) {
+  // Una subida grande a medias se continúa siempre: ya ocupa su lugar.
+  const enCurso = await env.DB.prepare('SELECT 1 AS x FROM mkt_kv WHERE key = ?').bind('yt_up:' + post.id).first();
+  if (enCurso) return null;
+  const hechas = await env.DB.prepare(
+    `SELECT created_at FROM mkt_activity
+     WHERE client_id = ? AND action = 'post.publicado_yt' AND created_at > datetime('now', '-24 hours')
+     ORDER BY created_at`
+  ).bind(post.client_id).all();
+  const lista = (hechas.results || []).map((r) => r.created_at).filter(Boolean);
+  const medias = await env.DB.prepare(
+    `SELECT COUNT(*) AS n FROM mkt_kv k JOIN mkt_posts p ON k.key = 'yt_up:' || p.id
+     WHERE p.client_id = ? AND p.id != ?`
+  ).bind(post.client_id, post.id).first();
+  const usadas = lista.length + ((medias && Number(medias.n)) || 0);
+  if (usadas >= YT_TOPE_CANAL) {
+    // Se libera un lugar cuando la subida número (usadas - TOPE + 1), de la
+    // más vieja a la más nueva, cumple 24 horas.
+    const base = lista.length ? lista[Math.min(lista.length - 1, usadas - YT_TOPE_CANAL)] : null;
+    const f = await env.DB.prepare(
+      base ? "SELECT datetime(?, '+24 hours', '+1 minute') AS hasta" : "SELECT datetime('now', '+3 hours') AS hasta"
+    ).bind(...(base ? [base] : [])).first();
+    const cuando = await cuandoCancun(env, f.hasta);
+    return {
+      tipo: 'tope', hasta: f.hasta, cuando,
+      msg: manual
+        ? `Este canal ya subió ${YT_TOPE_CANAL} videos a YouTube en 24 horas (el tope de la app para que YouTube no lo bloquee). Se libera ${cuando}.`
+        : `Este canal ya subió ${YT_TOPE_CANAL} videos a YouTube en 24 horas (el tope de la app para que YouTube no lo bloquee). La app lo sube sola ${cuando}.`,
+    };
+  }
+  if (manual || !lista.length) return null;
+  const ultima = lista[lista.length - 1];
+  const cerca = await env.DB.prepare(`SELECT ? > datetime('now', '-${YT_ESPACIO_MIN} minutes') AS si`).bind(ultima).first();
+  if (!cerca || !Number(cerca.si)) return null;
+  // Hueco: la pieza se forma al FINAL de la fila del canal (10 min después
+  // de la última que ya espera) para que no regresen todas juntas al reloj.
+  const fila = await env.DB.prepare(
+    `SELECT MAX(json_extract(k.value, '$.hasta')) AS ultimo FROM mkt_kv k JOIN mkt_posts p ON k.key = 'yt_pausa_' || p.id
+     WHERE p.client_id = ? AND p.id != ? AND k.value LIKE '{%'
+       AND json_extract(k.value, '$.turno') = 'espacio' AND json_extract(k.value, '$.hasta') > datetime('now')`
+  ).bind(post.client_id, post.id).first();
+  const desde = fila && fila.ultimo && fila.ultimo > ultima ? fila.ultimo : ultima;
+  const f = await env.DB.prepare(`SELECT datetime(?, '+${YT_ESPACIO_MIN} minutes') AS hasta`).bind(desde).first();
+  const cuando = await cuandoCancun(env, f.hasta);
+  return {
+    tipo: 'espacio', hasta: f.hasta, cuando,
+    msg: `Esperando turno: la app deja ${YT_ESPACIO_MIN} minutos entre videos del mismo canal de YouTube. Sale ${cuando}.`,
+  };
+}
+async function esperarTurnoYouTube(env, postId, turno) {
+  const key = 'yt_pausa_' + postId;
+  let previa = null;
+  try {
+    const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(key).first();
+    previa = row && row.value ? JSON.parse(row.value) : null;
+  } catch { previa = null; }
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)')
+    .bind(key, JSON.stringify({ hasta: turno.hasta, n: (previa && Number(previa.n)) || 0, turno: turno.tipo })).run();
+}
+// Un solo aviso por canal mientras dura el tope (no uno por pieza).
+async function primerAvisoDelTope(env, clientId, hasta) {
+  const key = 'yt_tope_aviso_' + clientId;
+  const row = await env.DB.prepare(`SELECT value > datetime('now') AS vigente FROM mkt_kv WHERE key = ?`).bind(key).first();
+  if (row && Number(row.vigente)) return false;
+  await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)').bind(key, hasta).run();
+  return true;
+}
+// "hoy a las 15:31" / "mañana a las 09:05", en hora de Cancún (UTC-5 todo el año).
+async function cuandoCancun(env, utc) {
+  const r = await env.DB.prepare(
+    "SELECT date(?, '-5 hours') AS f, strftime('%H:%M', ?, '-5 hours') AS h, date('now', '-5 hours') AS hoy"
+  ).bind(utc, utc).first();
+  if (!r) return 'en unas horas';
+  return `${r.f === r.hoy ? 'hoy' : 'mañana'} a las ${r.h}`;
 }
 
 // Piezas que YA salieron en otra red pero a YouTube le tocó pausa: cuando la
@@ -7335,7 +7442,7 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     }
     const ttSolo = await extraTikTok(env, post, session, quiere('tiktok'));
     if (ttSolo && ttSolo.ok) algoSalio = true; else if (ttSolo) ultimoError = ttSolo.error;
-    const ytSolo = await extraYouTube(env, post, session, quiere('youtube'));
+    const ytSolo = await extraYouTube(env, post, session, quiere('youtube'), { manual: true });
     if (ytSolo && ytSolo.ok) algoSalio = true; else if (ytSolo) ultimoError = ytSolo.error;
     const liSolo = await extraLinkedIn(env, post, session, quiere('linkedin'));
     if (liSolo && liSolo.ok) algoSalio = true; else if (liSolo) ultimoError = liSolo.error;
@@ -7395,7 +7502,7 @@ async function handlePublicarPieza(env, postId, session, canales = null) {
     // TIKTOK y YOUTUBE: el botón manual hace LO MISMO que el reloj (antes
     // ignoraba TikTok por completo).
     const tt = await extraTikTok(env, post, session, quiere('tiktok'));
-    const yt = await extraYouTube(env, post, session, quiere('youtube'));
+    const yt = await extraYouTube(env, post, session, quiere('youtube'), { manual: true });
     const li = await extraLinkedIn(env, post, session, quiere('linkedin'));
     const pin = await extraPinterest(env, post, session, quiere('pinterest'));
     return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt, li, pin });

@@ -112,7 +112,10 @@ export async function handleFbCallback(request, env, url) {
     }))).json();
     const userTok = t2.access_token || t1.access_token;
     // 3) páginas administradas (cada una trae su PAGE token de larga duración)
-    const acc = await (await fetch(`${FB_GRAPH}/me/accounts?fields=id,name,access_token&limit=50&access_token=${encodeURIComponent(userTok)}`)).json();
+    let acc = await (await fetch(`${FB_GRAPH}/me/accounts?fields=${CAMPOS_PAGINA}&limit=50&access_token=${encodeURIComponent(userTok)}`)).json();
+    // Si Facebook no deja leer el Instagram de las páginas, se pide la lista
+    // sencilla de siempre: conectar NUNCA depende de ese dato.
+    if (!acc || acc.error) acc = await (await fetch(`${FB_GRAPH}/me/accounts?fields=${CAMPOS_BASICOS}&limit=50&access_token=${encodeURIComponent(userTok)}`)).json();
     const pages = (acc.data || []).filter((p) => p.id && p.access_token);
     if (!pages.length) {
       // BUG de Meta visto 2026-08-27: tras revocar y re-autorizar la app,
@@ -126,7 +129,8 @@ export async function handleFbCallback(request, env, url) {
         const ids = [...new Set(((dbg.data && dbg.data.granular_scopes) || [])
           .flatMap((g) => g.target_ids || []))];
         for (const id of ids.slice(0, 25)) {
-          const pg = await (await fetch(`${FB_GRAPH}/${id}?fields=id,name,access_token&access_token=${encodeURIComponent(userTok)}`)).json();
+          let pg = await (await fetch(`${FB_GRAPH}/${id}?fields=${CAMPOS_PAGINA}&access_token=${encodeURIComponent(userTok)}`)).json();
+          if (!pg || pg.error) pg = await (await fetch(`${FB_GRAPH}/${id}?fields=${CAMPOS_BASICOS}&access_token=${encodeURIComponent(userTok)}`)).json();
           if (pg.id && pg.access_token) pages.push(pg);
         }
       } catch { /* se queda el aviso de Sin páginas */ }
@@ -136,21 +140,30 @@ export async function handleFbCallback(request, env, url) {
         ? `<h1>No Pages</h1><p>This Facebook account does not manage any Page. Create the brand's Page (or ask for an admin role) and try again.</p><a href="${back}">Back to the app</a>`
         : `<h1>Sin páginas</h1><p>Esta cuenta de Facebook no administra ninguna página. Crea la página de la marca (o pide rol de administrador) y vuelve a intentar.</p><a href="${back}">Volver a la app</a>`);
     }
-    if (pages.length === 1) {
-      await guardarPagina(env, st.c, pages[0]);
-      return html(EN
-        ? `<h1>✅ Facebook connected</h1><p>The brand is now linked to the Page <b>${esc(pages[0].name)}</b>. Pieces marked "also on Facebook" will be published there.</p><a href="${back}">Back to the app</a>`
-        : `<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(pages[0].name)}</b>. Las piezas con "también en Facebook" se publicarán ahí.</p><a href="${back}">Volver a la app</a>`);
-    }
-    // Varias páginas: guardar la lista 10 min y dejar elegir con un click.
+    // ELEGIR PÁGINA (25-nov-2026). Antes, si Facebook entregaba UNA sola
+    // página, la app la conectaba sin preguntar: así MELISA quedó ligada a
+    // "Artesanías: Justo para ti" en vez de su página de fitness. Ahora solo
+    // se conecta sola la página ligada al Instagram de la marca; en cualquier
+    // otro caso (aunque sea una sola) se enseña la lista con el Instagram de
+    // cada página y se elige con un clic.
+    const marca = await env.DB.prepare('SELECT ig_user_id, ig_username FROM mkt_clients WHERE id = ?').bind(st.c).first();
+    const lista = pages.map((p) => ({
+      id: p.id, name: p.name, access_token: p.access_token,
+      ig: (p.instagram_business_account && p.instagram_business_account.username) || null,
+      igId: (p.instagram_business_account && p.instagram_business_account.id) || null,
+    }));
+    const ligadas = lista.filter((p) => esDeLaMarca(p, marca));
     const pickId = rnd();
-    await kvSet(env, `fb_pick_${pickId}`, JSON.stringify({ c: st.c, t: Date.now(), l: st.l, pages: pages.map((p) => ({ id: p.id, name: p.name, access_token: p.access_token })) }));
-    const botones = pages.map((p) =>
-      `<a href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 ${esc(p.name)}</a>`
-    ).join('');
-    return html(EN
-      ? `<h1>Which Page belongs to this brand?</h1><p>Your account manages several Pages. Pick the right one:</p>${botones}<small>This link expires in 10 minutes.</small>`
-      : `<h1>¿Cuál página es de esta marca?</h1><p>Tu cuenta administra varias páginas. Elige la correcta:</p>${botones}<small>Este enlace caduca en 10 minutos.</small>`);
+    // La lista se guarda 10 min para elegir (o cambiar de página); si solo
+    // hay una y es la de la marca, no hace falta guardarla.
+    if (!(ligadas.length === 1 && lista.length === 1)) {
+      await kvSet(env, `fb_pick_${pickId}`, JSON.stringify({ c: st.c, t: Date.now(), l: st.l, marcaIg: (marca && marca.ig_username) || null, pages: lista }));
+    }
+    if (ligadas.length === 1) {
+      await guardarPagina(env, st.c, ligadas[0]);
+      return html(conectadaHtml(ligadas[0], EN, back, lista.length > 1 ? pickId : null));
+    }
+    return html(pickerHtml({ pickId, lista, marcaIg: (marca && marca.ig_username) || null, EN, back, marca }));
   } catch (e) {
     return html(`<h1>No se pudo conectar</h1><p>${esc((e && e.message) || 'Error desconocido')}</p><a href="${back}">Volver a la app</a>`, 500);
   }
@@ -159,18 +172,98 @@ export async function handleFbCallback(request, env, url) {
 // GET /fb/callback?pick=…&page=… — segundo paso del picker de páginas.
 export async function handleFbPick(request, env, url) {
   const back = '/marketing/app#/conexiones';
-  const raw = await kvTake(env, `fb_pick_${url.searchParams.get('pick') || ''}`);
+  const pickId = url.searchParams.get('pick') || '';
+  const pageId = url.searchParams.get('page') || '';
+  // Sin página elegida: solo se vuelve a enseñar la lista (no se borra).
+  const raw = pageId
+    ? await kvTake(env, `fb_pick_${pickId}`)
+    : ((await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(`fb_pick_${pickId}`).first()) || {}).value;
   if (!raw) return html(`<h1>Link caducado</h1><p>Vuelve a "Conectar Facebook" en la app.</p><a href="${back}">Volver</a>`, 400);
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
   const EN = st.l === 'en';
   if (Date.now() - st.t > 10 * 60 * 1000) return html(EN ? `<h1>The attempt expired</h1><a href="${back}">Back</a>` : `<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
-  const page = (st.pages || []).find((p) => p.id === (url.searchParams.get('page') || ''));
+  if (!pageId) {
+    const marca = await env.DB.prepare('SELECT ig_user_id, ig_username FROM mkt_clients WHERE id = ?').bind(st.c).first();
+    return html(pickerHtml({ pickId, lista: st.pages || [], marcaIg: st.marcaIg || (marca && marca.ig_username) || null, EN, back, marca }));
+  }
+  const page = (st.pages || []).find((p) => p.id === pageId);
   if (!page) return html(EN ? '<h1>Page not found</h1>' : '<h1>Página no encontrada</h1>', 400);
   await guardarPagina(env, st.c, page);
-  return html(EN
-    ? `<h1>✅ Facebook connected</h1><p>The brand is now linked to the Page <b>${esc(page.name)}</b>.</p><a href="${back}">Back to the app</a>`
-    : `<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(page.name)}</b>.</p><a href="${back}">Volver a la app</a>`);
+  return html(conectadaHtml(page, EN, back, null));
+}
+
+// El Instagram ligado a cada página. OJO (verificado el 25-nov-2026 con las
+// llaves reales de 4 marcas): con los permisos actuales de la app Facebook NO
+// manda este dato (ni en IVAE Studios, que sí tiene su Instagram ligado).
+// Por eso la lista SIEMPRE pregunta, y el Instagram solo se usa si llega.
+const CAMPOS_PAGINA = 'id,name,access_token,instagram_business_account{id,username}';
+const CAMPOS_BASICOS = 'id,name,access_token';
+
+// ¿La página está ligada al Instagram de la marca? Por usuario (sin @, sin
+// mayúsculas) o por id de Instagram.
+function esDeLaMarca(p, marca) {
+  if (!marca || !p) return false;
+  const u = (x) => String(x || '').replace(/^@/, '').trim().toLowerCase();
+  if (p.ig && marca.ig_username && u(p.ig) === u(marca.ig_username)) return true;
+  return !!(p.igId && marca.ig_user_id && String(p.igId) === String(marca.ig_user_id));
+}
+
+const ESTILO_PICKER = `<style>
+.pg-ig{display:block;font-weight:500;font-size:13px;color:var(--mute);margin-top:2px}
+.pg-ok .pg-ig{color:var(--ok);font-weight:600}
+.pg-txt{display:block;min-width:0}
+.aviso{border:1px solid color-mix(in srgb,var(--brand) 35%,var(--border));background:color-mix(in srgb,var(--brand) 7%,var(--surface));border-radius:14px;padding:12px 14px;margin:0 0 6px;color:var(--text);font-size:14.5px}
+.aviso ol,.ayuda ol{margin:8px 0 0;padding-left:20px;color:var(--dim)}
+.ayuda{margin:16px 0 0;padding:12px 14px;border-radius:14px;background:var(--surface-2);color:var(--dim);font-size:14.5px}
+.ayuda b{color:var(--text)}
+a.salir{justify-content:center;background:none;border:1px solid var(--border);color:var(--dim)}
+</style>`;
+
+function pickerHtml({ pickId, lista, marcaIg, EN, back, marca }) {
+  // ¿Facebook mandó el Instagram de las páginas? Si no, no se adivina nada:
+  // ni "sin Instagram" ni "ninguna es de la marca".
+  const igConocido = lista.some((p) => p.ig || p.igId);
+  const orden = [...lista].sort((a, b) => Number(esDeLaMarca(b, marca)) - Number(esDeLaMarca(a, marca)));
+  const algunaLigada = orden.some((p) => esDeLaMarca(p, marca));
+  const botones = orden.map((p) => {
+    const suya = esDeLaMarca(p, marca);
+    const ig = !igConocido ? ''
+      : p.ig
+        ? `Instagram: @${esc(p.ig)}` + (suya ? (EN ? ' · this brand' : ' · es de esta marca') : '')
+        : (EN ? 'No Instagram linked' : 'Sin Instagram ligado');
+    return `<a class="${suya ? 'pg-ok' : ''}" href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 <span class="pg-txt">${esc(p.name)}${ig ? `<span class="pg-ig">${ig}</span>` : ''}</span></a>`;
+  }).join('');
+  const deLaMarca = marcaIg ? (EN ? ` (the one for Instagram <b>@${esc(marcaIg)}</b>)` : ` (la del Instagram <b>@${esc(marcaIg)}</b>)`) : '';
+  const pasos = EN
+    ? `<ol><li>Go back and tap "Connect Facebook" again. In the Facebook window, choose to edit the access and tick that Page.</li><li>If it still does not appear, that Page is managed by another Facebook account: sign in with that one.</li></ol>`
+    : `<ol><li>Vuelve a darle a "Conectar Facebook". En la ventana de Facebook, elige editar el acceso y marca esa página.</li><li>Si aun así no sale, esa página la administra otra cuenta de Facebook: entra con esa.</li></ol>`;
+  // Si Facebook SÍ dijo el Instagram de cada página y ninguna es la de la
+  // marca, se avisa arriba. Si no lo dijo, la ayuda va abajo, tranquila.
+  const avisoArriba = igConocido && marcaIg && !algunaLigada
+    ? (EN
+      ? `<div class="aviso">None of these Pages is linked to this brand's Instagram (<b>@${esc(marcaIg)}</b>). If the brand's Page is not on the list:${pasos}</div>`
+      : `<div class="aviso">Ninguna de estas páginas está ligada al Instagram de la marca (<b>@${esc(marcaIg)}</b>). Si la página de la marca no sale en la lista:${pasos}</div>`)
+    : '';
+  const ayudaAbajo = avisoArriba ? '' : (EN
+    ? `<div class="ayuda">Is the brand's Page${deLaMarca} missing?${pasos}</div>`
+    : `<div class="ayuda">¿No está la página de la marca${deLaMarca}?${pasos}</div>`);
+  const titulo = EN ? 'Which Page belongs to this brand?' : '¿Cuál página es de esta marca?';
+  const intro = lista.length > 1
+    ? (EN ? 'Your account gave access to several Pages. Pick the right one:' : 'Tu cuenta dio acceso a varias páginas. Elige la correcta:')
+    : (EN ? 'Facebook gave access to this Page. Connect it only if it belongs to this brand:' : 'Facebook dio acceso a esta página. Conéctala solo si es de esta marca:');
+  const ninguna = EN ? `<a class="salir" href="${back}">None of these: back to the app</a>` : `<a class="salir" href="${back}">Ninguna es: volver a la app</a>`;
+  return `${ESTILO_PICKER}<h1>${titulo}</h1>${avisoArriba}<p>${intro}</p>${botones}${ayudaAbajo}${ninguna}<small>${EN ? 'This link expires in 10 minutes.' : 'Este enlace caduca en 10 minutos.'}</small>`;
+}
+
+function conectadaHtml(page, EN, back, pickId) {
+  const ig = page.ig ? (EN ? ` (Instagram @${esc(page.ig)})` : ` (Instagram @${esc(page.ig)})`) : '';
+  const otra = pickId
+    ? `<a href="/api/marketing/fb/callback?pick=${pickId}">${EN ? 'Not this one? Pick another Page' : '¿No es esta? Elegir otra página'}</a>`
+    : '';
+  return EN
+    ? `<h1>✅ Facebook connected</h1><p>The brand is now linked to the Page <b>${esc(page.name)}</b>${ig}. Pieces marked "also on Facebook" will be published there.</p><a href="${back}">Back to the app</a>${otra}`
+    : `<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(page.name)}</b>${ig}. Las piezas con "también en Facebook" se publicarán ahí.</p><a href="${back}">Volver a la app</a>${otra}`;
 }
 
 async function guardarPagina(env, clientId, page) {

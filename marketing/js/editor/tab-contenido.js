@@ -19,14 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202611251053';
-import { pickFrom } from '../shell/sheet.js?v=202611251053';
-import * as store from '../shell/store.js?v=202611251053';
-import * as checklistService from '../services/checklist.js?v=202611251053';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611251053';
-import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611251053';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611251053';
-import { T } from '../shell/i18n.js?v=202611251053';
+} from '../api.js?v=202611251130';
+import { pickFrom } from '../shell/sheet.js?v=202611251130';
+import * as store from '../shell/store.js?v=202611251130';
+import * as checklistService from '../services/checklist.js?v=202611251130';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202611251130';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube, openYouTubeVideoSheet } from './canales.js?v=202611251130';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202611251130';
+import { T } from '../shell/i18n.js?v=202611251130';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -388,6 +388,10 @@ export function mount(host, ed) {
   // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
   // error solo vivía en la columna y en un aviso que se pierde en la lista.
   const avisoCanales = el('div', { class: 'alert alert--error', hidden: true });
+  // Esperas que se resuelven solas (tope de 10 por canal de YouTube, límite
+  // del día): van en azul, no en rojo, porque no hay nada que arreglar.
+  const avisoEspera = el('div', { class: 'alert alert--info', hidden: true });
+  const ES_ESPERA = /sube sola|vuelve a intentar sola|Se libera/;
 
   // Las filas de opciones solo existen cuando su canal está encendido.
   function sincronizarCanales() {
@@ -404,9 +408,14 @@ export function mount(host, ed) {
       p.li_error ? `LinkedIn: ${p.li_error}` : null,
       p.pin_error ? `Pinterest: ${p.pin_error}` : null,
     ].filter(Boolean);
+    const esperas = fallos.filter((f) => ES_ESPERA.test(f));
+    const errores = fallos.filter((f) => !ES_ESPERA.test(f));
     while (avisoCanales.firstChild) avisoCanales.removeChild(avisoCanales.firstChild);
-    avisoCanales.hidden = !fallos.length;
-    for (const f of fallos) avisoCanales.appendChild(el('div', { text: f }));
+    avisoCanales.hidden = !errores.length;
+    for (const f of errores) avisoCanales.appendChild(el('div', { text: f }));
+    while (avisoEspera.firstChild) avisoEspera.removeChild(avisoEspera.firstChild);
+    avisoEspera.hidden = !esperas.length;
+    for (const f of esperas) avisoEspera.appendChild(el('div', { text: f }));
   }
 
   // ── URLs ───────────────────────────────────────────────────────────────────
@@ -466,7 +475,7 @@ export function mount(host, ed) {
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente && aprobacionActiva) addSection(T('Cliente', 'Client'), [rVisible.el]);
   const igConectado = !!((ed.getClient() || {}).ig_username);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rProgramar.el, ...(igConectado ? [rInstagram.el] : []), rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, rPinterest.el, avisoCanales]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rProgramar.el, ...(igConectado ? [rInstagram.el] : []), rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, rYouTubeVideo.el, rLinkedIn.el, rLinkedInDest.el, rPinterest.el, avisoEspera, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
