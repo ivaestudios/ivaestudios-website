@@ -28,6 +28,19 @@ import { paginaConexion } from './_pagina-conexion.js';
 
 const PIN_AUTH = 'https://www.pinterest.com/oauth/';
 const PIN_API = 'https://api.pinterest.com/v5';
+// SANDBOX (25-nov-2026). En Trial, Pinterest no deja crear pines en producción
+// (código 29), solo en su sandbox. Para grabar el video que pide Pinterest para
+// dar el acceso completo, UNA marca (mkt_kv pin_sandbox_client = su id) se
+// conecta y publica contra el sandbox: mismo login, la llave se cambia en
+// api-sandbox y los pines solo los ve la propia cuenta en su perfil. Ninguna
+// otra marca cambia. Sin video en sandbox (Pinterest no lo permite).
+const PIN_API_SANDBOX = 'https://api-sandbox.pinterest.com/v5';
+async function apiDe(env, clientId) {
+  try {
+    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'pin_sandbox_client'").first();
+    return r && clientId && String(r.value) === String(clientId) ? PIN_API_SANDBOX : PIN_API;
+  } catch { return PIN_API; }
+}
 const PIN_SCOPE = 'user_accounts:read,boards:read,boards:write,pins:read,pins:write';
 // Tipos de pieza que salen como VIDEO (mismo criterio que el PDF de contenido,
 // más los testimonios, que también son video).
@@ -95,8 +108,8 @@ async function pinJson(url, token, init = {}) {
   if (!res.ok) throw new Error(mensajePinterest(data, res.status));
   return data;
 }
-async function pinToken(env, params) {
-  const res = await fetch(`${PIN_API}/oauth/token`, {
+async function pinToken(env, params, api = PIN_API) {
+  const res = await fetch(`${api}/oauth/token`, {
     method: 'POST',
     headers: {
       Authorization: 'Basic ' + btoa(`${env.PIN_APP_ID}:${env.PIN_APP_SECRET}`),
@@ -108,12 +121,12 @@ async function pinToken(env, params) {
   if (!res.ok || !t.access_token) throw new Error(mensajePinterest(t, res.status));
   return t;
 }
-async function listarTableros(token) {
+async function listarTableros(token, api = PIN_API) {
   const tableros = [];
   let bookmark = null;
   for (let i = 0; i < 3; i++) {
     const qs = new URLSearchParams({ page_size: '100', ...(bookmark ? { bookmark } : {}) });
-    const r = await pinJson(`${PIN_API}/boards?${qs}`, token);
+    const r = await pinJson(`${api}/boards?${qs}`, token);
     for (const b of (r.items || [])) if (b && b.id) tableros.push({ id: String(b.id), name: b.name || '' });
     bookmark = r.bookmark;
     if (!bookmark) break;
@@ -166,8 +179,9 @@ export async function handlePinCallback(request, env, url) {
   if (!code || !st) return html(`<h1>Link inválido o caducado</h1><p>Vuelve a la app e intenta "Conectar Pinterest" de nuevo.</p><a href="${back}">Volver a la app</a>`, 400);
   if (Date.now() - st.t > 10 * 60 * 1000) return html(EN ? `<h1>The attempt expired</h1><a href="${back}">Back</a>` : `<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
   try {
-    const t = await pinToken(env, { grant_type: 'authorization_code', code, redirect_uri: pinRedirectUri(request) });
-    const yo = await pinJson(`${PIN_API}/user_account`, t.access_token);
+    const api = await apiDe(env, st.c);
+    const t = await pinToken(env, { grant_type: 'authorization_code', code, redirect_uri: pinRedirectUri(request) }, api);
+    const yo = await pinJson(`${api}/user_account`, t.access_token);
     const usuario = yo.username || '';
     await env.DB.prepare(
       `UPDATE mkt_clients SET pin_user_id = ?, pin_username = ?, pin_access_token = ?, pin_refresh_token = ?,
@@ -178,7 +192,14 @@ export async function handlePinCallback(request, env, url) {
     ).bind(String(yo.id || usuario || ''), usuario, t.access_token, t.refresh_token || null,
       Number(t.expires_in) || 2592000, Number(t.refresh_token_expires_in) || 31536000, st.c).run();
     const quien = esc(usuario ? '@' + usuario : 'la cuenta');
-    const tableros = await listarTableros(t.access_token);
+    let tableros = await listarTableros(t.access_token, api);
+    // En el sandbox la cuenta empieza sin tableros: se crea uno con el nombre
+    // de la marca para poder publicar el pin del video.
+    if (api === PIN_API_SANDBOX && !tableros.length) {
+      const m = await env.DB.prepare('SELECT name FROM mkt_clients WHERE id = ?').bind(st.c).first();
+      const nb = await pinJson(`${api}/boards`, t.access_token, { method: 'POST', body: JSON.stringify({ name: (m && m.name) || 'IVAE Studios', privacy: 'PUBLIC' }) });
+      if (nb && nb.id) tableros = [{ id: String(nb.id), name: nb.name || '' }];
+    }
     if (tableros.length === 1) {
       await guardarTablero(env, st.c, tableros[0]);
       return html(EN
@@ -227,7 +248,7 @@ export async function tokenPinterestVigente(env, clientId) {
   const vence = c.pin_access_expires_at ? Date.parse(String(c.pin_access_expires_at).replace(' ', 'T') + 'Z') : 0;
   if (vence && vence - Date.now() > 24 * 3600 * 1000) return c.pin_access_token;
   if (!c.pin_refresh_token) throw new Error('El permiso de Pinterest caducó: vuelve a conectar la marca en Conexiones.');
-  const t = await pinToken(env, { grant_type: 'refresh_token', refresh_token: c.pin_refresh_token });
+  const t = await pinToken(env, { grant_type: 'refresh_token', refresh_token: c.pin_refresh_token }, await apiDe(env, clientId));
   await env.DB.prepare(
     `UPDATE mkt_clients SET pin_access_token = ?, pin_refresh_token = ?,
      pin_access_expires_at = datetime('now', '+' || ? || ' seconds'),
@@ -247,7 +268,7 @@ export async function handlePinBoards(env, session, url) {
   if (!c || !c.pin_username) return json({ conectado: false });
   try {
     const tok = await tokenPinterestVigente(env, marca.id);
-    const tableros = await listarTableros(tok);
+    const tableros = await listarTableros(tok, await apiDe(env, marca.id));
     return json({ conectado: true, username: c.pin_username, board_id: c.pin_board_id, board_name: c.pin_board_name, boards: tableros });
   } catch (e) {
     return json({ conectado: true, username: c.pin_username, board_id: c.pin_board_id, board_name: c.pin_board_name, boards: [], error: (e && e.message) || 'Error' });
@@ -262,7 +283,7 @@ export async function handlePinSetBoard(request, env, session) {
   if (!marca) return json({ error: 'Cliente no encontrado' }, 404);
   try {
     const tok = await tokenPinterestVigente(env, marca.id);
-    const tablero = (await listarTableros(tok)).find((x) => x.id === String((b && b.board_id) || ''));
+    const tablero = (await listarTableros(tok, await apiDe(env, marca.id))).find((x) => x.id === String((b && b.board_id) || ''));
     if (!tablero) return json({ error: 'Ese tablero no es de la cuenta conectada.' }, 400);
     await guardarTablero(env, marca.id, tablero);
     return json({ ok: true, board_id: tablero.id, board_name: tablero.name });
@@ -302,6 +323,7 @@ function descripcionPin(post) {
  */
 export async function publicarEnPinterest(env, { clientId, post, videoUrl, slides, cover }) {
   const tok = await tokenPinterestVigente(env, clientId);
+  const api = await apiDe(env, clientId);
   const c = await env.DB.prepare('SELECT pin_board_id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!c || !c.pin_board_id) throw new Error('Falta elegir el tablero de Pinterest de la marca (Conexiones → Pinterest → Tablero).');
   const base = { board_id: c.pin_board_id, title: tituloPin(post), description: descripcionPin(post) };
@@ -310,7 +332,8 @@ export async function publicarEnPinterest(env, { clientId, post, videoUrl, slide
   const fotos = (slides || []).filter(Boolean);
   const esVideo = TIPOS_VIDEO.includes(post.content_type || 'reel') && !!videoUrl;
 
-  if (esVideo) return publicarVideo(env, tok, post, videoUrl, cover, base);
+  // El sandbox no acepta video: ahí un reel sale como pin con su portada.
+  if (esVideo && api === PIN_API) return publicarVideo(env, tok, post, videoUrl, cover, base, api);
 
   let media_source;
   if ((post.content_type || '') === 'carrusel' && fotos.length >= 2) {
@@ -320,18 +343,18 @@ export async function publicarEnPinterest(env, { clientId, post, videoUrl, slide
     if (!una) throw new Error('La pieza no tiene foto ni video para Pinterest.');
     media_source = { source_type: 'image_url', url: una };
   }
-  const pin = await pinJson(`${PIN_API}/pins`, tok, { method: 'POST', body: JSON.stringify({ ...base, media_source }) });
+  const pin = await pinJson(`${api}/pins`, tok, { method: 'POST', body: JSON.stringify({ ...base, media_source }) });
   if (!pin || !pin.id) throw new Error('Pinterest no confirmó el pin.');
-  return { pinId: String(pin.id) };
+  return { pinId: String(pin.id), sandbox: api === PIN_API_SANDBOX };
 }
 
-async function publicarVideo(env, tok, post, videoUrl, cover, base) {
+async function publicarVideo(env, tok, post, videoUrl, cover, base, api = PIN_API) {
   const clave = 'pin_media:' + post.id;
   let estado = null;
   try { const v = await kvGet(env, clave); estado = v ? JSON.parse(v) : null; } catch { estado = null; }
   if (!estado || !estado.media_id) {
     // 1) Pinterest da un lugar para subir el video.
-    const reg = await pinJson(`${PIN_API}/media`, tok, { method: 'POST', body: JSON.stringify({ media_type: 'video' }) });
+    const reg = await pinJson(`${api}/media`, tok, { method: 'POST', body: JSON.stringify({ media_type: 'video' }) });
     if (!reg.media_id || !reg.upload_url) throw new Error('Pinterest no dio dónde subir el video.');
     // 2) El video se baja del almacén y se sube ahí (formulario multipart).
     const vid = await fetch(videoUrl);
@@ -351,7 +374,7 @@ async function publicarVideo(env, tok, post, videoUrl, cover, base) {
   // 3) Esperar a que Pinterest lo procese (un rato aquí; si no, la siguiente vuelta del reloj).
   let m = null;
   for (let i = 0; i < 6; i++) {
-    m = await pinJson(`${PIN_API}/media/${encodeURIComponent(estado.media_id)}`, tok);
+    m = await pinJson(`${api}/media/${encodeURIComponent(estado.media_id)}`, tok);
     if (m.status === 'succeeded' || m.status === 'failed') break;
     await new Promise((r) => setTimeout(r, 2500));
   }
@@ -362,7 +385,7 @@ async function publicarVideo(env, tok, post, videoUrl, cover, base) {
   if (!m || m.status !== 'succeeded') return { pendiente: true };
   // 4) El pin con el video (y la portada, si la pieza tiene).
   const media_source = { source_type: 'video_id', media_id: estado.media_id, ...(cover ? { cover_image_url: cover } : { cover_image_key_frame_time: 1 }) };
-  const pin = await pinJson(`${PIN_API}/pins`, tok, { method: 'POST', body: JSON.stringify({ ...base, media_source }) });
+  const pin = await pinJson(`${api}/pins`, tok, { method: 'POST', body: JSON.stringify({ ...base, media_source }) });
   await kvDel(env, clave);
   if (!pin || !pin.id) throw new Error('Pinterest no confirmó el pin.');
   return { pinId: String(pin.id) };

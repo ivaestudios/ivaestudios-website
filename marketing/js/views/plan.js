@@ -6,7 +6,7 @@
 // con la pestaña de lista; la vista del cliente NO cambia. Lo de siempre
 // (Generar mes con IA, PDF, agregar piezas) sigue en la Hoja del mes (#/meses).
 // ============================================================================
-import contenido, { ponerModo } from './contenido.js?v=202611251430';
+import contenido, { ponerModo } from './contenido.js?v=202611251515';
 
 export default {
   id: 'plan',

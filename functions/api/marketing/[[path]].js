@@ -1665,11 +1665,16 @@ async function clientCounts(env, clientId) {
 // el acceso completo (Standard), la app NO deja prender "también en
 // Pinterest" y no intenta publicar. Al aprobar: mkt_kv pin_app_standard = '1'.
 let PIN_APP_STANDARD = false;
+// La marca que publica en el sandbox de Pinterest (para grabar el video de la
+// solicitud de acceso completo). Ver _pinterest.js → apiDe.
+let PIN_SANDBOX_CLIENT = null;
 async function cargarEstadoPinterest(env) {
   try {
-    const r = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'pin_app_standard'").first();
-    PIN_APP_STANDARD = !!(r && String(r.value) === '1');
-  } catch { PIN_APP_STANDARD = false; }
+    const r = await env.DB.prepare("SELECT key, value FROM mkt_kv WHERE key IN ('pin_app_standard', 'pin_sandbox_client')").all();
+    const kv = Object.fromEntries((r.results || []).map((x) => [x.key, String(x.value)]));
+    PIN_APP_STANDARD = kv.pin_app_standard === '1';
+    PIN_SANDBOX_CLIENT = kv.pin_sandbox_client || null;
+  } catch { PIN_APP_STANDARD = false; PIN_SANDBOX_CLIENT = null; }
   return PIN_APP_STANDARD;
 }
 
@@ -1707,7 +1712,8 @@ function shapeClient(c, counts) {
     li_vence: (c.li_access_token && !c.li_refresh_token && c.li_access_expires_at) || null,
     pin_username: c.pin_username || null,
     pin_board_name: c.pin_board_name || null,
-    pin_en_prueba: !!c.pin_username && !PIN_APP_STANDARD,
+    pin_en_prueba: !!c.pin_username && !PIN_APP_STANDARD && c.id !== PIN_SANDBOX_CLIENT,
+    pin_sandbox: !!c.pin_username && c.id === PIN_SANDBOX_CLIENT,
     // ¿La conexión se cayó? (16-nov-2026, Vianey: "si ya está conectado debería
     // decir conectado, no reconectar"). Solo booleanos: el token nunca viaja.
     conexion_falla: fallasDeConexion(c),
@@ -6836,7 +6842,7 @@ async function extraLinkedIn(env, post, session, permitido = true) {
 async function extraPinterest(env, post, session, permitido = true) {
   if (!permitido) return null;
   if (Number(post.also_pinterest) !== 1 || post.pin_post_id) return null;
-  if (!(await cargarEstadoPinterest(env))) {
+  if (!(await cargarEstadoPinterest(env)) && post.client_id !== PIN_SANDBOX_CLIENT) {
     const msgEspera = 'En espera: Pinterest todavía tiene la app en modo de prueba y no deja publicar pines. Sale cuando Pinterest apruebe el acceso completo.';
     await env.DB.prepare("UPDATE mkt_posts SET pin_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgEspera, post.id).run();
     return { ok: false, esperar: true, error: msgEspera };

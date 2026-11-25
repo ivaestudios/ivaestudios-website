@@ -10,10 +10,10 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611251430';
-import { icon } from '../shell/icons.js?v=202611251430';
-import { T, isEN } from '../shell/i18n.js?v=202611251430';
-import { openSheet } from '../shell/sheet.js?v=202611251430';
+import { el, clear, toast, api, copyText, esCreador } from '../api.js?v=202611251515';
+import { icon } from '../shell/icons.js?v=202611251515';
+import { T, isEN } from '../shell/i18n.js?v=202611251515';
+import { openSheet } from '../shell/sheet.js?v=202611251515';
 
 const VIEW_ID = 'conexiones';
 
@@ -285,7 +285,7 @@ function tarjeta(c) {
     filaRed({
       nombre: 'Pinterest', icono: 'board',
       conectado: !!pin, falla: !!fx.pin,
-      detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) + (c.pin_en_prueba && !cliente ? T(' · en espera de aprobación de Pinterest', ' · awaiting Pinterest approval') : '') : '',
+      detalle: pin ? (c.pin_board_name ? `${pin} · ${c.pin_board_name}` : pin) + (c.pin_en_prueba && !cliente ? T(' · en espera de aprobación de Pinterest', ' · awaiting Pinterest approval') : '') + (c.pin_sandbox && !cliente ? T(' · modo sandbox (pruebas de Pinterest)', ' · sandbox mode (Pinterest testing)') : '') : '',
       cuentaAbajo: !cliente,
       onDisconnect: cliente ? null : (b) => desconectar('pin', c, b),
       onConnect: () => conectar('pin', c.id),
@@ -507,7 +507,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202611251430';
+  link.href = '/marketing/css/conexiones.css?v=202611251515';
   document.head.appendChild(link);
 }
 
