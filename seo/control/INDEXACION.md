@@ -1,34 +1,33 @@
 # Control de indexacion en Google
 
-Actualizado: 2026-11-25. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
+Actualizado: 2026-11-26. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
 
 ## ivaestudios.com
 
-**1319 de 1485 paginas estan en Google (88.8%).**
+**1322 de 1485 paginas estan en Google (89.0%).**
 
 | Estado | Paginas | Cambio desde ayer |
 |---|---:|---:|
-| En Google | 1319 | +6 |
-| Leidas por Google, todavia sin entrar | 121 | -4 |
-| Descubiertas, todavia sin leer | 31 | -1 |
-| Google aun no las conoce | 13 | -1 |
+| En Google | 1322 | +3 |
+| Leidas por Google, todavia sin entrar | 119 | -2 |
+| Descubiertas, todavia sin leer | 37 | +6 |
+| Google aun no las conoce | 6 | -7 |
 | Con problema (hay que arreglar) | 1 |  |
 
-En cola para mandar a Google: 321 (salen 140 al dia).
+En cola para mandar a Google: 181 (salen 140 al dia).
 
-### Paginas nuevas de los ultimos 30 dias: 167 (158 ya en Google)
+### Paginas nuevas de los ultimos 30 dias: 167 (159 ya en Google)
 
 | Pagina | Alta | Estado | Ultimo envio |
 |---|---|---|---|
 | /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
-| /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Google aun no las conoce | 2026-11-17 |
+| /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
 | /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-family-photographer-playa-del-carmen | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
-| /comparison/best-family-photographer-tulum | 2026-11-17 | Google aun no las conoce | 2026-11-19 |
+| /comparison/best-family-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-honeymoon-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-maternity-photographer-cancun | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
-| /isla-mujeres-family-photographer | 2026-11-17 | Google aun no las conoce | 2026-11-19 |
-| /puerto-morelos-family-photographer | 2026-11-23 | Descubiertas, todavia sin leer | 2026-11-24 |
+| /isla-mujeres-family-photographer | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 
 ### Con problema
 
@@ -42,81 +41,78 @@ En cola para mandar a Google: 321 (salen 140 al dia).
 |---|---:|---:|
 | En Google | 203 |  |
 | Leidas por Google, todavia sin entrar | 434 |  |
-| Descubiertas, todavia sin leer | 17 | -1 |
-| Google aun no las conoce | 255 | +1 |
+| Descubiertas, todavia sin leer | 20 | +3 |
+| Google aun no las conoce | 252 | -3 |
 
-En cola para mandar a Google: 155 (salen 60 al dia).
+En cola para mandar a Google: 95 (salen 60 al dia).
 
-## Entraron a Google hoy: 6
+## Entraron a Google hoy: 3
 
-- https://ivaestudios.com/blog/babymoon-photography-cancun
-- https://ivaestudios.com/blog/playa-delfines-cancun-photoshoot
-- https://ivaestudios.com/es/blog/fotografia-aniversario-mexico
-- https://ivaestudios.com/es/fotos-embarazo-cancun
-- https://ivaestudios.com/es/locaciones/hyatt-ziva-cancun/
-- https://ivaestudios.com/playa-del-carmen-proposal-photographer
+- https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary
+- https://ivaestudios.com/es/fotografo-vacaciones-familia-riviera-maya
+- https://ivaestudios.com/puerto-morelos-family-photographer
 
-## Mandadas a Google desde ayer: 61
+## Mandadas a Google desde ayer: 200
 
-- https://bodasmx.com.mx/fotografia/foto-y-video-de-boda-mismo-proveedor-o-por-separado
-- https://bodasmx.com.mx/fotografia/tornaboda-vale-la-pena-contratar-fotografo-y-cuanto
-- https://bodasmx.com.mx/fotografia/video-vertical-de-boda-para-redes-se-cobra-aparte
-- https://bodasmx.com.mx/invitados/boda-en-pueblo-sin-uber-como-mover-invitados
-- https://bodasmx.com.mx/invitados/boda-unplugged-como-pedirlo-sin-ofender
-- https://bodasmx.com.mx/invitados/como-confirmar-invitados-por-whatsapp
-- https://bodasmx.com.mx/invitados/como-se-abre-una-mesa-de-regalos
-- https://bodasmx.com.mx/invitados/contrato-de-autobus-para-boda-letra-chica
-- https://bodasmx.com.mx/invitados/cuando-avisar-tu-boda-en-cancun-para-vuelos-baratos
-- https://bodasmx.com.mx/invitados/cuanto-cuesta-enviar-invitaciones-por-correo
-- https://bodasmx.com.mx/invitados/cuanto-cuesta-imprimir-invitaciones-de-boda
-- https://bodasmx.com.mx/invitados/cuanto-cuesta-un-invitado-extra-de-ultima-hora
-- https://bodasmx.com.mx/invitados/cuanto-cuesta-vestirse-para-una-boda-de-etiqueta
-- https://bodasmx.com.mx/invitados/cuanto-dar-de-regalo-si-vienes-de-estados-unidos
-- https://bodasmx.com.mx/invitados/cuanto-se-junta-de-regalos-en-una-boda-mexicana
-- https://bodasmx.com.mx/invitados/cuartos-de-cortesia-que-regala-el-hotel
-- https://bodasmx.com.mx/invitados/cuna-carriola-y-siesta-que-pedir-al-hotel
-- https://bodasmx.com.mx/invitados/devolver-o-cambiar-regalos-de-boda
-- https://bodasmx.com.mx/invitados/estacionamiento-y-valet-en-una-boda
-- https://bodasmx.com.mx/invitados/etiqueta-rigurosa-formal-y-coctel
-- https://bodasmx.com.mx/invitados/fondo-de-luna-de-miel-como-se-pide
-- https://bodasmx.com.mx/invitados/horas-extra-del-autobus-de-boda
-- https://bodasmx.com.mx/invitados/impuesto-de-hospedaje-cuanto-sube-la-tarifa
-- https://bodasmx.com.mx/invitados/interprete-de-lengua-de-senas-en-tu-boda
-- https://bodasmx.com.mx/invitados/invitacion-digital-vs-impresa-cuanto-ahorras
-- https://bodasmx.com.mx/invitados/invitado-que-confirma-y-no-llega
-- https://bodasmx.com.mx/invitados/invitado-que-llega-con-un-nino-no-invitado
-- https://bodasmx.com.mx/invitados/invitados-de-eeuu-cambiar-dolares-o-tarjeta
-- https://bodasmx.com.mx/invitados/invitados-de-otro-pais-que-necesitan-para-entrar
-- https://bodasmx.com.mx/invitados/late-check-out-el-dia-de-la-boda
-- https://bodasmx.com.mx/invitados/lista-de-invitados-de-boda-en-otra-ciudad
-- https://bodasmx.com.mx/invitados/mesa-de-regalos-para-invitados-en-el-extranjero
-- https://bodasmx.com.mx/invitados/noches-minimas-y-cuartos-que-pide-un-resort
-- https://bodasmx.com.mx/invitados/pagina-web-de-boda-con-rsvp-cuanto-cuesta
-- https://bodasmx.com.mx/invitados/penalizacion-por-cuartos-no-vendidos-del-bloqueo
-- https://bodasmx.com.mx/invitados/propinas-en-la-boda-chofer-valet-y-hotel
-- https://bodasmx.com.mx/invitados/quien-paga-el-vestido-de-las-damas-de-honor
-- https://bodasmx.com.mx/invitados/salon-accesible-en-silla-de-ruedas-que-preguntar
-- https://bodasmx.com.mx/invitados/transporte-adaptado-para-invitados-en-silla-de-ruedas
-- https://bodasmx.com.mx/invitados/traslado-aeropuerto-cancun-al-hotel-por-invitado
-- https://bodasmx.com.mx/permisos/boda-en-hacienda-henequenera-merida-que-preguntar
-- https://bodasmx.com.mx/permisos/boda-en-playa-publica-vs-club-de-playa
-- https://bodasmx.com.mx/permisos/boda-en-playa-tortugas-luces-y-temporada
-- https://bodasmx.com.mx/permisos/boda-en-yate-permisos-capitania
-- https://bodasmx.com.mx/permisos/boda-religiosa-en-otra-diocesis-permiso
-- https://bodasmx.com.mx/permisos/carpa-y-anclajes-en-playa-federal-que-se-permite
-- https://bodasmx.com.mx/permisos/cenote-boda-costos-renta-2026
-- https://bodasmx.com.mx/permisos/cenote-boda-electricidad-y-sonido
-- https://bodasmx.com.mx/permisos/cenote-boda-lluvia-plan-b
-- https://bodasmx.com.mx/permisos/cenote-ejidal-vs-cenote-privado-boda
-- https://bodasmx.com.mx/permisos/comercio-en-playa-durante-tu-boda-se-puede-cerrar
-- https://bodasmx.com.mx/permisos/constancia-de-solteria-parroquia
-- https://bodasmx.com.mx/permisos/cuantas-personas-caben-en-un-cenote-boda
-- https://bodasmx.com.mx/permisos/hacienda-boda-capacidad-proteccion-civil
-- https://bodasmx.com.mx/permisos/hacienda-boda-generador-de-luz-quien-lo-paga
-- https://bodasmx.com.mx/permisos/hacienda-boda-hospedaje-incluido-letra-chica
-- https://bodasmx.com.mx/permisos/permiso-boda-en-holbox-zofemat-y-yum-balam
-- https://bodasmx.com.mx/permisos/permiso-zofemat-isla-mujeres-boda
-- https://bodasmx.com.mx/permisos/permiso-zofemat-los-cabos-boda-playa
-- https://bodasmx.com.mx/permisos/permiso-zofemat-playa-del-carmen-boda
-- y 1 mas
+- https://bodasmx.com.mx/ciudades/casarse-en-cuernavaca-cuotas-jardines-y-costo-por-dia
+- https://bodasmx.com.mx/ciudades/casarse-en-oaxaca-de-juarez-tarifas-del-registro-civil
+- https://bodasmx.com.mx/invitados/pagina-4
+- https://bodasmx.com.mx/permisos/permiso-zofemat-puerto-vallarta-bahia-banderas
+- https://bodasmx.com.mx/permisos/pirotecnia-en-playa-federal-boda-permisos
+- https://bodasmx.com.mx/permisos/platicas-prematrimoniales-cuanto-duran
+- https://bodasmx.com.mx/permisos/proteccion-civil-boda-que-pide-el-municipio
+- https://bodasmx.com.mx/permisos/quien-pide-el-permiso-zofemat-pareja-o-planner
+- https://bodasmx.com.mx/permisos/zofemat-sargazo-quien-limpia-la-playa
+- https://bodasmx.com.mx/presupuesto/boda-cotizada-en-dolares-como-se-paga-en-pesos
+- https://bodasmx.com.mx/presupuesto/credito-o-prestamo-personal-para-la-boda
+- https://bodasmx.com.mx/presupuesto/cuanto-baja-tu-boda-si-quitas-20-invitados
+- https://bodasmx.com.mx/presupuesto/cuanto-cobra-un-dj-de-boda-o-un-grupo-en-vivo
+- https://bodasmx.com.mx/presupuesto/cuanto-cobran-de-descorche-en-una-boda
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-el-banquete-de-boda-por-persona
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-rentar-un-salon-o-jardin-para-boda
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-casa-propia-de-verdad
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-guadalajara
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-monterrey
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-oaxaca
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-puerto-vallarta
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-san-miguel-de-allende
+- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-tijuana-y-la-frontera
+- https://bodasmx.com.mx/presupuesto/cuanto-cuestan-las-pruebas-de-boda-menu-vestido-y-mas
+- https://bodasmx.com.mx/presupuesto/cuanto-del-presupuesto-de-boda-se-va-en-impuestos
+- https://bodasmx.com.mx/presupuesto/cuanto-mas-cuesta-casarse-si-uno-de-los-dos-es-extranjero
+- https://bodasmx.com.mx/presupuesto/cuanto-puedes-gastar-en-tu-boda-segun-tu-ingreso
+- https://bodasmx.com.mx/presupuesto/cuanto-sube-tu-boda-con-la-inflacion
+- https://bodasmx.com.mx/presupuesto/garantia-minima-de-consumo-en-salones-de-boda
+- https://bodasmx.com.mx/presupuesto/iluminacion-de-boda-cuanto-cuesta-y-cuando-conviene
+- https://bodasmx.com.mx/presupuesto/impuestos-de-la-barra-de-bebidas-de-tu-boda
+- https://bodasmx.com.mx/presupuesto/jardin-salon-o-hacienda-cual-boda-sale-mas-cara
+- https://bodasmx.com.mx/presupuesto/mesa-de-dulces-snacks-y-tornaboda-cuanto-agregan
+- https://bodasmx.com.mx/presupuesto/pagar-la-boda-a-meses-sin-intereses
+- https://bodasmx.com.mx/presupuesto/planes-de-pago-del-salon-apartar-hoy-y-pagar-despues
+- https://bodasmx.com.mx/presupuesto/porcentaje-del-presupuesto-de-boda-por-proveedor
+- https://bodasmx.com.mx/presupuesto/prestamo-familiar-o-tanda-para-la-boda-como-se-paga
+- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-100-invitados
+- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-200-invitados
+- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-50-invitados
+- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-80-invitados
+- https://bodasmx.com.mx/presupuesto/quien-paga-la-boda-en-mexico-y-por-que-cambio
+- https://bodasmx.com.mx/presupuesto/regalos-de-boda-en-efectivo-y-el-sat
+- https://bodasmx.com.mx/presupuesto/se-puede-deducir-la-boda-de-impuestos
+- https://bodasmx.com.mx/proveedores/anticipo-a-proveedores-de-boda-cuanto-piden-y-cuando
+- https://bodasmx.com.mx/proveedores/barra-libre-del-salon-o-descorche-cual-conviene
+- https://bodasmx.com.mx/proveedores/buffet-o-emplatado-en-boda-precio-real-por-plato
+- https://bodasmx.com.mx/proveedores/cabina-de-fotos-para-boda-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/como-verificar-a-un-proveedor-de-boda-en-el-sat
+- https://bodasmx.com.mx/proveedores/coordinacion-el-dia-de-la-boda-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/cuanto-cobra-un-bartender-de-boda-y-cuantos-van
+- https://bodasmx.com.mx/proveedores/cuanto-cobra-un-wedding-planner-en-mexico
+- https://bodasmx.com.mx/proveedores/cuanto-cuesta-la-barra-libre-de-boda-por-persona
+- https://bodasmx.com.mx/proveedores/cuantos-meseros-necesita-tu-boda-y-cuanto-cobran
+- https://bodasmx.com.mx/proveedores/hora-loca-y-batucada-en-boda-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/mesa-de-postres-para-boda-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/poliza-de-responsabilidad-civil-del-proveedor
+- https://bodasmx.com.mx/proveedores/rentar-autobus-para-invitados-de-boda-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/senales-de-alarma-al-contratar-un-proveedor-de-boda
+- https://bodasmx.com.mx/proveedores/taquiza-de-madrugada-en-boda-cuanto-cuesta
+- y 140 mas
 
