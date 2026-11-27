@@ -1,28 +1,28 @@
 # Control de indexacion en Google
 
-Actualizado: 2026-11-26. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
+Actualizado: 2026-11-27. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
 
 ## ivaestudios.com
 
-**1322 de 1485 paginas estan en Google (89.0%).**
+**1323 de 1485 paginas estan en Google (89.1%).**
 
 | Estado | Paginas | Cambio desde ayer |
 |---|---:|---:|
-| En Google | 1322 | +3 |
-| Leidas por Google, todavia sin entrar | 119 | -2 |
-| Descubiertas, todavia sin leer | 37 | +6 |
-| Google aun no las conoce | 6 | -7 |
+| En Google | 1323 | +1 |
+| Leidas por Google, todavia sin entrar | 118 | -1 |
+| Descubiertas, todavia sin leer | 32 | -5 |
+| Google aun no las conoce | 11 | +5 |
 | Con problema (hay que arreglar) | 1 |  |
 
-En cola para mandar a Google: 181 (salen 140 al dia).
+En cola para mandar a Google: 46 (salen 140 al dia).
 
 ### Paginas nuevas de los ultimos 30 dias: 167 (159 ya en Google)
 
 | Pagina | Alta | Estado | Ultimo envio |
 |---|---|---|---|
-| /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
+| /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Google aun no las conoce | 2026-11-27 |
 | /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
-| /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
+| /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-27 |
 | /comparison/best-family-photographer-playa-del-carmen | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-family-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-honeymoon-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
@@ -41,78 +41,76 @@ En cola para mandar a Google: 181 (salen 140 al dia).
 |---|---:|---:|
 | En Google | 203 |  |
 | Leidas por Google, todavia sin entrar | 434 |  |
-| Descubiertas, todavia sin leer | 20 | +3 |
-| Google aun no las conoce | 252 | -3 |
+| Descubiertas, todavia sin leer | 21 | +1 |
+| Google aun no las conoce | 251 | -1 |
 
-En cola para mandar a Google: 95 (salen 60 al dia).
+En cola para mandar a Google: 39 (salen 60 al dia).
 
-## Entraron a Google hoy: 3
+## Entraron a Google hoy: 1
 
-- https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary
-- https://ivaestudios.com/es/fotografo-vacaciones-familia-riviera-maya
-- https://ivaestudios.com/puerto-morelos-family-photographer
+- https://ivaestudios.com/blog/best-time-of-day-family-beach-photos-cancun
 
 ## Mandadas a Google desde ayer: 200
 
-- https://bodasmx.com.mx/ciudades/casarse-en-cuernavaca-cuotas-jardines-y-costo-por-dia
-- https://bodasmx.com.mx/ciudades/casarse-en-oaxaca-de-juarez-tarifas-del-registro-civil
-- https://bodasmx.com.mx/invitados/pagina-4
-- https://bodasmx.com.mx/permisos/permiso-zofemat-puerto-vallarta-bahia-banderas
-- https://bodasmx.com.mx/permisos/pirotecnia-en-playa-federal-boda-permisos
-- https://bodasmx.com.mx/permisos/platicas-prematrimoniales-cuanto-duran
-- https://bodasmx.com.mx/permisos/proteccion-civil-boda-que-pide-el-municipio
-- https://bodasmx.com.mx/permisos/quien-pide-el-permiso-zofemat-pareja-o-planner
-- https://bodasmx.com.mx/permisos/zofemat-sargazo-quien-limpia-la-playa
-- https://bodasmx.com.mx/presupuesto/boda-cotizada-en-dolares-como-se-paga-en-pesos
-- https://bodasmx.com.mx/presupuesto/credito-o-prestamo-personal-para-la-boda
-- https://bodasmx.com.mx/presupuesto/cuanto-baja-tu-boda-si-quitas-20-invitados
-- https://bodasmx.com.mx/presupuesto/cuanto-cobra-un-dj-de-boda-o-un-grupo-en-vivo
-- https://bodasmx.com.mx/presupuesto/cuanto-cobran-de-descorche-en-una-boda
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-el-banquete-de-boda-por-persona
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-rentar-un-salon-o-jardin-para-boda
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-casa-propia-de-verdad
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-guadalajara
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-monterrey
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-oaxaca
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-puerto-vallarta
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-san-miguel-de-allende
-- https://bodasmx.com.mx/presupuesto/cuanto-cuesta-una-boda-en-tijuana-y-la-frontera
-- https://bodasmx.com.mx/presupuesto/cuanto-cuestan-las-pruebas-de-boda-menu-vestido-y-mas
-- https://bodasmx.com.mx/presupuesto/cuanto-del-presupuesto-de-boda-se-va-en-impuestos
-- https://bodasmx.com.mx/presupuesto/cuanto-mas-cuesta-casarse-si-uno-de-los-dos-es-extranjero
-- https://bodasmx.com.mx/presupuesto/cuanto-puedes-gastar-en-tu-boda-segun-tu-ingreso
-- https://bodasmx.com.mx/presupuesto/cuanto-sube-tu-boda-con-la-inflacion
-- https://bodasmx.com.mx/presupuesto/garantia-minima-de-consumo-en-salones-de-boda
-- https://bodasmx.com.mx/presupuesto/iluminacion-de-boda-cuanto-cuesta-y-cuando-conviene
-- https://bodasmx.com.mx/presupuesto/impuestos-de-la-barra-de-bebidas-de-tu-boda
-- https://bodasmx.com.mx/presupuesto/jardin-salon-o-hacienda-cual-boda-sale-mas-cara
-- https://bodasmx.com.mx/presupuesto/mesa-de-dulces-snacks-y-tornaboda-cuanto-agregan
-- https://bodasmx.com.mx/presupuesto/pagar-la-boda-a-meses-sin-intereses
-- https://bodasmx.com.mx/presupuesto/planes-de-pago-del-salon-apartar-hoy-y-pagar-despues
-- https://bodasmx.com.mx/presupuesto/porcentaje-del-presupuesto-de-boda-por-proveedor
-- https://bodasmx.com.mx/presupuesto/prestamo-familiar-o-tanda-para-la-boda-como-se-paga
-- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-100-invitados
-- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-200-invitados
-- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-50-invitados
-- https://bodasmx.com.mx/presupuesto/presupuesto-de-boda-para-80-invitados
-- https://bodasmx.com.mx/presupuesto/quien-paga-la-boda-en-mexico-y-por-que-cambio
-- https://bodasmx.com.mx/presupuesto/regalos-de-boda-en-efectivo-y-el-sat
-- https://bodasmx.com.mx/presupuesto/se-puede-deducir-la-boda-de-impuestos
-- https://bodasmx.com.mx/proveedores/anticipo-a-proveedores-de-boda-cuanto-piden-y-cuando
-- https://bodasmx.com.mx/proveedores/barra-libre-del-salon-o-descorche-cual-conviene
-- https://bodasmx.com.mx/proveedores/buffet-o-emplatado-en-boda-precio-real-por-plato
-- https://bodasmx.com.mx/proveedores/cabina-de-fotos-para-boda-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/como-verificar-a-un-proveedor-de-boda-en-el-sat
-- https://bodasmx.com.mx/proveedores/coordinacion-el-dia-de-la-boda-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/cuanto-cobra-un-bartender-de-boda-y-cuantos-van
-- https://bodasmx.com.mx/proveedores/cuanto-cobra-un-wedding-planner-en-mexico
-- https://bodasmx.com.mx/proveedores/cuanto-cuesta-la-barra-libre-de-boda-por-persona
-- https://bodasmx.com.mx/proveedores/cuantos-meseros-necesita-tu-boda-y-cuanto-cobran
-- https://bodasmx.com.mx/proveedores/hora-loca-y-batucada-en-boda-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/mesa-de-postres-para-boda-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/poliza-de-responsabilidad-civil-del-proveedor
-- https://bodasmx.com.mx/proveedores/rentar-autobus-para-invitados-de-boda-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/senales-de-alarma-al-contratar-un-proveedor-de-boda
-- https://bodasmx.com.mx/proveedores/taquiza-de-madrugada-en-boda-cuanto-cuesta
+- https://bodasmx.com.mx/ciudades/casarse-en-atlixco-puebla-cuotas-sedes-y-temporada
+- https://bodasmx.com.mx/ciudades/casarse-en-guadalajara-cuotas-del-municipio
+- https://bodasmx.com.mx/permisos/pagina-2
+- https://bodasmx.com.mx/proveedores/traje-de-novio-rentar-o-comprar-cuanto-cuesta
+- https://bodasmx.com.mx/proveedores/wedding-planner-o-coordinador-de-dia-cual-necesitas
+- https://bodasmx.com.mx/tradiciones/baile-del-billete-en-la-boda-cuanto-se-junta
+- https://bodasmx.com.mx/tradiciones/boda-charra-en-jalisco-traje-de-charro
+- https://bodasmx.com.mx/tradiciones/boda-en-segundas-nupcias-con-hijos-protocolo
+- https://bodasmx.com.mx/tradiciones/boda-hindu-en-riviera-maya-como-se-organiza
+- https://bodasmx.com.mx/tradiciones/boda-judia-en-mexico-ketuba-y-validez-legal
+- https://bodasmx.com.mx/tradiciones/boda-por-poder-casarse-sin-estar-presente
+- https://bodasmx.com.mx/tradiciones/boda-purepecha-en-michoacan-que-se-paga
+- https://bodasmx.com.mx/tradiciones/boda-yucateca-terno-jarana-y-mestizo
+- https://bodasmx.com.mx/tradiciones/mesa-de-honor-y-presidium-quien-se-sienta
+- https://bodasmx.com.mx/tradiciones/nikah-boda-musulmana-en-mexico-validez
+- https://bodasmx.com.mx/tradiciones/pagina-4
+- https://bodasmx.com.mx/tradiciones/papas-divorciados-en-la-boda-entrada-y-fotos
+- https://bodasmx.com.mx/tradiciones/pedida-de-mano-en-mexico-que-se-lleva-y-quien-habla
+- https://bodasmx.com.mx/tradiciones/ramo-de-novia-lanzarlo-conservarlo-o-los-dos
+- https://bodasmx.com.mx/tradiciones/velo-de-novia-significado-y-tipos-de-largo
+- https://bodasmx.com.mx/tramites/acta-de-matrimonio-bcs-como-sacarla
+- https://bodasmx.com.mx/tramites/acta-de-matrimonio-en-linea-por-estado
+- https://bodasmx.com.mx/tramites/acta-de-matrimonio-yucatan-en-linea
+- https://bodasmx.com.mx/tramites/boda-civil-cozumel-requisitos
+- https://bodasmx.com.mx/tramites/boda-civil-en-hacienda-yucatan-tramite
+- https://bodasmx.com.mx/tramites/boda-civil-los-cabos-requisitos
+- https://bodasmx.com.mx/tramites/boda-civil-puebla-extranjeros
+- https://bodasmx.com.mx/tramites/boda-civil-simbolica-vs-legal-que-cambia
+- https://bodasmx.com.mx/tramites/carta-protesta-no-matrimonio-quintana-roo
+- https://bodasmx.com.mx/tramites/casarse-con-extranjero-en-mexico-permiso-inm
+- https://bodasmx.com.mx/tramites/casarse-siendo-menor-de-edad-en-mexico-2026
+- https://bodasmx.com.mx/tramites/constancia-de-no-deudor-alimentario-donde-se-pide
+- https://bodasmx.com.mx/tramites/costo-boda-civil-puebla-oficina-vs-domicilio
+- https://bodasmx.com.mx/tramites/cuanto-tarda-el-acta-de-matrimonio-despues-de-la-boda
+- https://bodasmx.com.mx/tramites/curso-prenupcial-cdmx-en-linea-constancia
+- https://bodasmx.com.mx/tramites/curso-prenupcial-obligatorio-por-estado
+- https://bodasmx.com.mx/tramites/inscripcion-de-matrimonio-extranjero-en-qroo
+- https://bodasmx.com.mx/tramites/juez-a-domicilio-los-cabos-boda-civil
+- https://bodasmx.com.mx/tramites/matrimonio-entre-extranjeros-quintana-roo
+- https://bodasmx.com.mx/tramites/matrimonio-extranjeros-los-cabos-requisitos
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-aguascalientes-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-baja-california-sur-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-chihuahua-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-coahuila-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-colima-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-nayarit-2026
+- https://bodasmx.com.mx/tramites/requisitos-boda-civil-yucatan-2026
+- https://bodasmx.com.mx/tramites/testigos-boda-civil-quintana-roo-cuantos
+- https://bodasmx.com.mx/tramites/testigos-de-boda-civil-requisitos-por-estado
+- https://bodasmx.com.mx/tramites/traductor-perito-quintana-roo-acta-extranjera
+- https://bodasmx.com.mx/ultimo-minuto/a-7-dias-de-la-boda-que-revisar
+- https://bodasmx.com.mx/ultimo-minuto/acta-de-divorcio-falta-para-casarse-que-hacer
+- https://bodasmx.com.mx/ultimo-minuto/analisis-prenupciales-vencidos-que-hacer
+- https://bodasmx.com.mx/ultimo-minuto/apostilla-y-traduccion-pendientes-de-documentos
+- https://bodasmx.com.mx/ultimo-minuto/avisar-a-los-invitados-de-un-cambio-de-fecha
+- https://bodasmx.com.mx/ultimo-minuto/boda-express-en-mexico-en-cuanto-tiempo-se-puede
+- https://bodasmx.com.mx/ultimo-minuto/cambio-de-sede-a-ultima-hora-que-se-renegocia
+- https://bodasmx.com.mx/ultimo-minuto/casarse-en-una-semana-en-mexico-es-posible
+- https://bodasmx.com.mx/ultimo-minuto/como-cancelar-una-boda-a-un-mes
+- https://bodasmx.com.mx/ultimo-minuto/duelo-en-la-familia-posponer-o-seguir
 - y 140 mas
 
