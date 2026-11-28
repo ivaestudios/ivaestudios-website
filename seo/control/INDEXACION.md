@@ -1,29 +1,29 @@
 # Control de indexacion en Google
 
-Actualizado: 2026-11-27. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
+Actualizado: 2026-11-28. Se actualiza solo cada mañana (flujo `control-indexacion.yml`).
 
 ## ivaestudios.com
 
-**1323 de 1485 paginas estan en Google (89.1%).**
+**1324 de 1485 paginas estan en Google (89.2%).**
 
 | Estado | Paginas | Cambio desde ayer |
 |---|---:|---:|
-| En Google | 1323 | +1 |
-| Leidas por Google, todavia sin entrar | 118 | -1 |
-| Descubiertas, todavia sin leer | 32 | -5 |
-| Google aun no las conoce | 11 | +5 |
+| En Google | 1324 | +1 |
+| Leidas por Google, todavia sin entrar | 117 | -1 |
+| Descubiertas, todavia sin leer | 35 | +3 |
+| Google aun no las conoce | 8 | -3 |
 | Con problema (hay que arreglar) | 1 |  |
 
-En cola para mandar a Google: 46 (salen 140 al dia).
+En cola para mandar a Google: 3 (salen 140 al dia).
 
 ### Paginas nuevas de los ultimos 30 dias: 167 (159 ya en Google)
 
 | Pagina | Alta | Estado | Ultimo envio |
 |---|---|---|---|
-| /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Google aun no las conoce | 2026-11-27 |
-| /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-17 |
+| /blog/editorial-photoshoot-ideas-couples-cancun | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-27 |
+| /blog/tulum-honeymoon-photoshoot-guide | 2026-11-15 | Descubiertas, todavia sin leer | 2026-11-28 |
 | /blog/family-trip-guides-cancun-2026-2027 | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-27 |
-| /comparison/best-family-photographer-playa-del-carmen | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
+| /comparison/best-family-photographer-playa-del-carmen | 2026-11-17 | Google aun no las conoce | 2026-11-19 |
 | /comparison/best-family-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-honeymoon-photographer-tulum | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
 | /comparison/best-maternity-photographer-cancun | 2026-11-17 | Descubiertas, todavia sin leer | 2026-11-19 |
@@ -41,76 +41,76 @@ En cola para mandar a Google: 46 (salen 140 al dia).
 |---|---:|---:|
 | En Google | 203 |  |
 | Leidas por Google, todavia sin entrar | 434 |  |
-| Descubiertas, todavia sin leer | 21 | +1 |
-| Google aun no las conoce | 251 | -1 |
+| Descubiertas, todavia sin leer | 17 | -4 |
+| Google aun no las conoce | 255 | +4 |
 
-En cola para mandar a Google: 39 (salen 60 al dia).
+En cola para mandar a Google: 0 (salen 60 al dia).
 
 ## Entraron a Google hoy: 1
 
-- https://ivaestudios.com/blog/best-time-of-day-family-beach-photos-cancun
+- https://ivaestudios.com/es/fotografo-bodas-oaxaca
 
-## Mandadas a Google desde ayer: 200
+## Mandadas a Google desde ayer: 85
 
-- https://bodasmx.com.mx/ciudades/casarse-en-atlixco-puebla-cuotas-sedes-y-temporada
-- https://bodasmx.com.mx/ciudades/casarse-en-guadalajara-cuotas-del-municipio
-- https://bodasmx.com.mx/permisos/pagina-2
-- https://bodasmx.com.mx/proveedores/traje-de-novio-rentar-o-comprar-cuanto-cuesta
-- https://bodasmx.com.mx/proveedores/wedding-planner-o-coordinador-de-dia-cual-necesitas
-- https://bodasmx.com.mx/tradiciones/baile-del-billete-en-la-boda-cuanto-se-junta
-- https://bodasmx.com.mx/tradiciones/boda-charra-en-jalisco-traje-de-charro
-- https://bodasmx.com.mx/tradiciones/boda-en-segundas-nupcias-con-hijos-protocolo
-- https://bodasmx.com.mx/tradiciones/boda-hindu-en-riviera-maya-como-se-organiza
-- https://bodasmx.com.mx/tradiciones/boda-judia-en-mexico-ketuba-y-validez-legal
-- https://bodasmx.com.mx/tradiciones/boda-por-poder-casarse-sin-estar-presente
-- https://bodasmx.com.mx/tradiciones/boda-purepecha-en-michoacan-que-se-paga
-- https://bodasmx.com.mx/tradiciones/boda-yucateca-terno-jarana-y-mestizo
-- https://bodasmx.com.mx/tradiciones/mesa-de-honor-y-presidium-quien-se-sienta
-- https://bodasmx.com.mx/tradiciones/nikah-boda-musulmana-en-mexico-validez
-- https://bodasmx.com.mx/tradiciones/pagina-4
-- https://bodasmx.com.mx/tradiciones/papas-divorciados-en-la-boda-entrada-y-fotos
-- https://bodasmx.com.mx/tradiciones/pedida-de-mano-en-mexico-que-se-lleva-y-quien-habla
-- https://bodasmx.com.mx/tradiciones/ramo-de-novia-lanzarlo-conservarlo-o-los-dos
-- https://bodasmx.com.mx/tradiciones/velo-de-novia-significado-y-tipos-de-largo
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-bcs-como-sacarla
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-en-linea-por-estado
-- https://bodasmx.com.mx/tramites/acta-de-matrimonio-yucatan-en-linea
-- https://bodasmx.com.mx/tramites/boda-civil-cozumel-requisitos
-- https://bodasmx.com.mx/tramites/boda-civil-en-hacienda-yucatan-tramite
-- https://bodasmx.com.mx/tramites/boda-civil-los-cabos-requisitos
-- https://bodasmx.com.mx/tramites/boda-civil-puebla-extranjeros
-- https://bodasmx.com.mx/tramites/boda-civil-simbolica-vs-legal-que-cambia
-- https://bodasmx.com.mx/tramites/carta-protesta-no-matrimonio-quintana-roo
-- https://bodasmx.com.mx/tramites/casarse-con-extranjero-en-mexico-permiso-inm
-- https://bodasmx.com.mx/tramites/casarse-siendo-menor-de-edad-en-mexico-2026
-- https://bodasmx.com.mx/tramites/constancia-de-no-deudor-alimentario-donde-se-pide
-- https://bodasmx.com.mx/tramites/costo-boda-civil-puebla-oficina-vs-domicilio
-- https://bodasmx.com.mx/tramites/cuanto-tarda-el-acta-de-matrimonio-despues-de-la-boda
-- https://bodasmx.com.mx/tramites/curso-prenupcial-cdmx-en-linea-constancia
-- https://bodasmx.com.mx/tramites/curso-prenupcial-obligatorio-por-estado
-- https://bodasmx.com.mx/tramites/inscripcion-de-matrimonio-extranjero-en-qroo
-- https://bodasmx.com.mx/tramites/juez-a-domicilio-los-cabos-boda-civil
-- https://bodasmx.com.mx/tramites/matrimonio-entre-extranjeros-quintana-roo
-- https://bodasmx.com.mx/tramites/matrimonio-extranjeros-los-cabos-requisitos
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-aguascalientes-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-baja-california-sur-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-chihuahua-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-coahuila-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-colima-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-nayarit-2026
-- https://bodasmx.com.mx/tramites/requisitos-boda-civil-yucatan-2026
-- https://bodasmx.com.mx/tramites/testigos-boda-civil-quintana-roo-cuantos
-- https://bodasmx.com.mx/tramites/testigos-de-boda-civil-requisitos-por-estado
-- https://bodasmx.com.mx/tramites/traductor-perito-quintana-roo-acta-extranjera
-- https://bodasmx.com.mx/ultimo-minuto/a-7-dias-de-la-boda-que-revisar
-- https://bodasmx.com.mx/ultimo-minuto/acta-de-divorcio-falta-para-casarse-que-hacer
-- https://bodasmx.com.mx/ultimo-minuto/analisis-prenupciales-vencidos-que-hacer
-- https://bodasmx.com.mx/ultimo-minuto/apostilla-y-traduccion-pendientes-de-documentos
-- https://bodasmx.com.mx/ultimo-minuto/avisar-a-los-invitados-de-un-cambio-de-fecha
-- https://bodasmx.com.mx/ultimo-minuto/boda-express-en-mexico-en-cuanto-tiempo-se-puede
-- https://bodasmx.com.mx/ultimo-minuto/cambio-de-sede-a-ultima-hora-que-se-renegocia
-- https://bodasmx.com.mx/ultimo-minuto/casarse-en-una-semana-en-mexico-es-posible
-- https://bodasmx.com.mx/ultimo-minuto/como-cancelar-una-boda-a-un-mes
-- https://bodasmx.com.mx/ultimo-minuto/duelo-en-la-familia-posponer-o-seguir
-- y 140 mas
+- https://bodasmx.com.mx/calendario/cuanto-sube-organizar-tu-boda-en-seis-meses
+- https://bodasmx.com.mx/ciudades/boda-en-puerto-penasco-costos-permisos-y-traslado
+- https://bodasmx.com.mx/ciudades/boda-en-zacatecas-requisitos-y-costo
+- https://bodasmx.com.mx/ciudades/casarse-en-playa-del-carmen-cuotas-y-permiso-de-playa
+- https://bodasmx.com.mx/ciudades/pagina-2
+- https://bodasmx.com.mx/derechos/pagina-3
+- https://bodasmx.com.mx/derechos/pagina-4
+- https://bodasmx.com.mx/invitados/pagina-2
+- https://bodasmx.com.mx/invitados/pagina-3
+- https://bodasmx.com.mx/permisos/pagina-3
+- https://bodasmx.com.mx/proveedores/pagina-3
+- https://bodasmx.com.mx/tramites/pagina-2
+- https://bodasmx.com.mx/tramites/pagina-3
+- https://bodasmx.com.mx/ultimo-minuto/el-hotel-cambio-el-precio-a-ultima-hora
+- https://bodasmx.com.mx/ultimo-minuto/el-mariachi-no-llego-cuanto-cuesta-uno-de-emergencia
+- https://bodasmx.com.mx/ultimo-minuto/el-oficiante-no-llego-alternativas-legales
+- https://bodasmx.com.mx/ultimo-minuto/el-salon-cambio-la-sala-asignada-el-mismo-dia
+- https://bodasmx.com.mx/ultimo-minuto/el-vestido-no-llego-que-opciones-quedan
+- https://bodasmx.com.mx/ultimo-minuto/el-vestido-se-mancho-el-mismo-dia
+- https://bodasmx.com.mx/ultimo-minuto/el-wedding-planner-desaparecio-a-dias-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/error-en-el-acta-de-nacimiento-antes-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/falta-un-documento-y-la-boda-civil-es-manana
+- https://bodasmx.com.mx/ultimo-minuto/familiar-hospitalizado-y-la-boda-es-manana
+- https://bodasmx.com.mx/ultimo-minuto/huracan-anunciado-y-la-boda-es-esta-semana
+- https://bodasmx.com.mx/ultimo-minuto/kit-de-emergencia-de-la-novia-que-lleva
+- https://bodasmx.com.mx/ultimo-minuto/la-comida-llego-fria-o-falto-que-exigir
+- https://bodasmx.com.mx/ultimo-minuto/maquillaje-y-peinado-cancelado-el-mismo-dia
+- https://bodasmx.com.mx/ultimo-minuto/mosquitos-y-boda-al-aire-libre-que-funciona
+- https://bodasmx.com.mx/ultimo-minuto/perdi-mi-acta-de-nacimiento-antes-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/permiso-de-playa-no-salio-y-la-boda-es-en-dias
+- https://bodasmx.com.mx/ultimo-minuto/robo-en-la-boda-que-hacer-y-a-quien-reclamar
+- https://bodasmx.com.mx/ultimo-minuto/se-acabo-el-alcohol-a-media-boda-que-hacer
+- https://bodasmx.com.mx/ultimo-minuto/se-borro-la-tarjeta-con-las-fotos-de-la-boda
+- https://bodasmx.com.mx/ultimo-minuto/se-cayo-el-fotografo-a-dos-dias-que-hacer
+- https://bodasmx.com.mx/ultimo-minuto/se-descompuso-el-aire-del-salon-que-exigir
+- https://bodasmx.com.mx/ultimo-minuto/se-perdio-la-maleta-con-el-vestido-en-el-vuelo
+- https://bodasmx.com.mx/ultimo-minuto/timeline-de-emergencia-boda-en-4-horas
+- https://bodasmx.com.mx/ultimo-minuto/transporte-de-invitados-fallo-que-hacer
+- https://bodasmx.com.mx/ultimo-minuto/viento-fuerte-en-boda-de-playa-que-se-cae-primero
+- https://ivaestudios.com/blog/best-beaches-cancun-hotel-zone-photos
+- https://ivaestudios.com/blog/cancun-in-december-weather-photos
+- https://ivaestudios.com/blog/cancun-riviera-maya-resort-photography-guides
+- https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026
+- https://ivaestudios.com/blog/devossion-live-aqua-honeymoon-photos
+- https://ivaestudios.com/blog/grand-velas-los-cabos-wedding-photographer
+- https://ivaestudios.com/blog/grand-velas-riviera-maya-photoshoot
+- https://ivaestudios.com/blog/grand-velas-riviera-maya-proposal
+- https://ivaestudios.com/blog/grandparents-80th-birthday-family-photos-cancun
+- https://ivaestudios.com/blog/green-16-cancun-photoshoot
+- https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire
+- https://ivaestudios.com/blog/guayabera-embroidered-dress-family-photos-cancun
+- https://ivaestudios.com/blog/habitas-tulum-photoshoot
+- https://ivaestudios.com/blog/habitas-tulum-wedding-photographer
+- https://ivaestudios.com/blog/hacienda-del-caribe-playa-del-carmen-photoshoot
+- https://ivaestudios.com/blog/hacienda-mariposa-playa-del-carmen-photoshoot
+- https://ivaestudios.com/blog/hacienda-paradise-playa-del-carmen-photoshoot
+- https://ivaestudios.com/blog/haddai-playa-del-carmen-photoshoot
+- https://ivaestudios.com/blog/hard-rock-hotel-cancun-photoshoot
+- https://ivaestudios.com/blog/hard-rock-hotel-cancun-wedding-photographer
+- https://ivaestudios.com/blog/hard-rock-riviera-maya-photoshoot
+- y 25 mas
 

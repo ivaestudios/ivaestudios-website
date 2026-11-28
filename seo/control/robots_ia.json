@@ -1,134 +1,134 @@
 {
  "ok": true,
  "dias": 14,
- "desde": "2026-11-13",
+ "desde": "2026-11-14",
  "registro_desde": "2026-11-12",
  "porRobot": [
   {
+   "robot": "Meta-WebIndexer",
+   "sitio": "ivaestudios.com",
+   "visitas": 13944,
+   "genuinas": 13891,
+   "paginas": 490,
+   "ultima": "2026-11-28T18:43:32.819Z",
+   "redes": "Meta Platforms Ireland Limited,Google LLC"
+  },
+  {
    "robot": "Meta-ExternalAgent",
    "sitio": "ivaestudios.com",
-   "visitas": 13392,
-   "genuinas": 13328,
-   "paginas": 1592,
-   "ultima": "2026-11-27T19:53:05.913Z",
-   "redes": "Meta Platforms Ireland Limited,UNINET,Google LLC"
+   "visitas": 13234,
+   "genuinas": 13172,
+   "paginas": 1589,
+   "ultima": "2026-11-28T18:42:18.724Z",
+   "redes": "Meta Platforms Ireland Limited,Google LLC"
   },
   {
    "robot": "FacebookExternalHit",
    "sitio": "ivaestudios.com",
-   "visitas": 12692,
-   "genuinas": 12617,
-   "paginas": 116,
-   "ultima": "2026-11-27T19:56:58.395Z",
-   "redes": "Meta Platforms Ireland Limited,Comcast Cable Communications, LLC,Verizon Business,Cloudflare London, LLC,Starlink Satellite Systems Mexico S. de,ABIX TELECOMUNICACIONES S.A. DE C.V.,AT&T Enterprises, LLC,Charter Communications Inc,Shaw Communications,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,Linq App Inc.,The Toledo Hospital,Marquette University,Akamai International B.V.,UNINET,FASTLY,TELUS-FIBRE-SRRYBC03,Fastly, Inc.,GigNet, S.A. de C.V.,Inversiones Zahena S. A.,TELEM GROUP"
-  },
-  {
-   "robot": "Meta-WebIndexer",
-   "sitio": "ivaestudios.com",
-   "visitas": 12620,
-   "genuinas": 12567,
-   "paginas": 457,
-   "ultima": "2026-11-27T19:56:37.698Z",
-   "redes": "Meta Platforms Ireland Limited,Google LLC"
+   "visitas": 12758,
+   "genuinas": 12683,
+   "paginas": 117,
+   "ultima": "2026-11-28T18:42:17.620Z",
+   "redes": "Meta Platforms Ireland Limited,Verizon Business,Cloudflare London, LLC,Comcast Cable Communications, LLC,Starlink Satellite Systems Mexico S. de,ABIX TELECOMUNICACIONES S.A. DE C.V.,AT&T Enterprises, LLC,Charter Communications Inc,Shaw Communications,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,Linq App Inc.,The Toledo Hospital,Marquette University,Akamai International B.V.,UNINET,FASTLY,TELUS-FIBRE-SRRYBC03,Fastly, Inc.,GigNet, S.A. de C.V.,Inversiones Zahena S. A.,TELEM GROUP"
   },
   {
    "robot": "OAI-SearchBot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 6861,
-   "genuinas": 6821,
-   "paginas": 293,
-   "ultima": "2026-11-27T19:56:02.417Z",
+   "visitas": 6799,
+   "genuinas": 6759,
+   "paginas": 294,
+   "ultima": "2026-11-28T18:38:17.220Z",
    "redes": "Microsoft Limited,Microsoft Corporation,Microsoft Deutschland MCIO GmbH,Google LLC"
+  },
+  {
+   "robot": "Meta-WebIndexer",
+   "sitio": "bodasmx.com.mx",
+   "visitas": 4056,
+   "genuinas": 4026,
+   "paginas": 147,
+   "ultima": "2026-11-28T18:37:26.361Z",
+   "redes": "Meta Platforms Ireland Limited,Google LLC"
   },
   {
    "robot": "PerplexityBot",
    "sitio": "ivaestudios.com",
-   "visitas": 4053,
+   "visitas": 4002,
    "genuinas": 0,
-   "paginas": 1335,
-   "ultima": "2026-11-27T19:47:19.606Z",
+   "paginas": 1337,
+   "ultima": "2026-11-28T18:18:43.938Z",
    "redes": "Amazon Technologies Inc.,Google LLC,Infraly, LLC"
-  },
-  {
-   "robot": "Meta-WebIndexer",
-   "sitio": "bodasmx.com.mx",
-   "visitas": 3686,
-   "genuinas": 3656,
-   "paginas": 142,
-   "ultima": "2026-11-27T19:56:36.315Z",
-   "redes": "Meta Platforms Ireland Limited,Google LLC"
   },
   {
    "robot": "Bytespider",
    "sitio": "ivaestudios.com",
-   "visitas": 3054,
+   "visitas": 2956,
    "genuinas": 38,
-   "paginas": 1371,
-   "ultima": "2026-11-27T19:18:25.160Z",
-   "redes": "Amazon Data Services Singapore,CHINANET hebei province network,Moldova (MD), Kishinev,ZEN-HK,M247 Europe SRL,Beijing Zhonglianlixin Technology Co., Ltd.,Zenlayer Inc,China Unicom Hebei province network,Google LLC,Beijing Sinnet Technology Co., Ltd.,Beijing Guanghuan Xinwang Digital Technology co.Ltd"
+   "paginas": 1343,
+   "ultima": "2026-11-28T18:38:45.653Z",
+   "redes": "Amazon Data Services Singapore,ZEN-HK,M247 Europe SRL,Beijing Zhonglianlixin Technology Co., Ltd.,Zenlayer Inc,CHINANET hebei province network,China Unicom Hebei province network,Google LLC,Beijing Sinnet Technology Co., Ltd.,Beijing Guanghuan Xinwang Digital Technology co.Ltd"
   },
   {
    "robot": "Amazonbot",
    "sitio": "ivaestudios.com",
-   "visitas": 2368,
-   "genuinas": 2299,
-   "paginas": 1193,
-   "ultima": "2026-11-27T19:47:41.787Z",
-   "redes": "Amazon Technologies Inc.,Amazon Data Services Northern Virginia,Amazon.com, Inc.,Google LLC"
-  },
-  {
-   "robot": "Bingbot",
-   "sitio": "ivaestudios.com",
-   "visitas": 2131,
-   "genuinas": 2034,
-   "paginas": 1076,
-   "ultima": "2026-11-27T19:55:58.120Z",
-   "redes": "Microsoft Corporation,UNINET,Google LLC,Infraly, LLC"
+   "visitas": 2385,
+   "genuinas": 2316,
+   "paginas": 1207,
+   "ultima": "2026-11-28T18:42:05.535Z",
+   "redes": "Amazon Data Services Northern Virginia,Amazon Technologies Inc.,Amazon.com, Inc.,Google LLC"
   },
   {
    "robot": "OAI-SearchBot",
    "sitio": "ivaestudios.com",
-   "visitas": 2098,
-   "genuinas": 2021,
-   "paginas": 1080,
-   "ultima": "2026-11-27T19:51:43.373Z",
-   "redes": "UNINET,Microsoft Limited,Google LLC,Microsoft Deutschland MCIO GmbH,Infraly, LLC"
+   "visitas": 2133,
+   "genuinas": 2059,
+   "paginas": 1070,
+   "ultima": "2026-11-28T18:16:39.982Z",
+   "redes": "Microsoft Limited,Google LLC,UNINET,Microsoft Deutschland MCIO GmbH,Infraly, LLC"
+  },
+  {
+   "robot": "Bingbot",
+   "sitio": "ivaestudios.com",
+   "visitas": 2056,
+   "genuinas": 1977,
+   "paginas": 1044,
+   "ultima": "2026-11-28T18:43:22.805Z",
+   "redes": "Microsoft Corporation,UNINET,Google LLC,Infraly, LLC"
   },
   {
    "robot": "YandexBot",
    "sitio": "ivaestudios.com",
-   "visitas": 1892,
-   "genuinas": 1884,
-   "paginas": 1131,
+   "visitas": 1721,
+   "genuinas": 1713,
+   "paginas": 1067,
    "ultima": "2026-11-27T19:01:05.972Z",
    "redes": "Yandex enterprise network,Infraly, LLC"
   },
   {
    "robot": "Googlebot",
    "sitio": "ivaestudios.com",
-   "visitas": 1662,
-   "genuinas": 1497,
-   "paginas": 861,
-   "ultima": "2026-11-27T19:10:39.355Z",
-   "redes": "UNINET,Google LLC,1337 Services GmbH,ALEXHOST S.R.L.,T-Mobile USA, Inc.,Cloudflare, Inc.,RCN,Verizon Business,YouTube, LLC,Infraly, LLC"
+   "visitas": 1665,
+   "genuinas": 1498,
+   "paginas": 852,
+   "ultima": "2026-11-28T18:31:16.897Z",
+   "redes": "Google LLC,1337 Services GmbH,ALEXHOST S.R.L.,T-Mobile USA, Inc.,Cloudflare, Inc.,RCN,Verizon Business,YouTube, LLC,Infraly, LLC"
   },
   {
    "robot": "YandexBot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 1522,
-   "genuinas": 1520,
-   "paginas": 740,
-   "ultima": "2026-11-27T19:04:51.039Z",
+   "visitas": 1551,
+   "genuinas": 1549,
+   "paginas": 725,
+   "ultima": "2026-11-28T18:10:37.551Z",
    "redes": "Yandex enterprise network"
   },
   {
    "robot": "Amazonbot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 1421,
-   "genuinas": 1366,
-   "paginas": 699,
-   "ultima": "2026-11-27T19:45:02.399Z",
-   "redes": "Amazon Data Services Northern Virginia,Amazon Technologies Inc.,Amazon.com, Inc.,Google LLC"
+   "visitas": 1426,
+   "genuinas": 1371,
+   "paginas": 695,
+   "ultima": "2026-11-28T18:31:50.465Z",
+   "redes": "Amazon Technologies Inc.,Amazon Data Services Northern Virginia,Amazon.com, Inc.,Google LLC"
   },
   {
    "robot": "ClaudeBot",
@@ -142,101 +142,92 @@
   {
    "robot": "Bingbot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 883,
-   "genuinas": 833,
-   "paginas": 425,
-   "ultima": "2026-11-27T19:45:17.066Z",
+   "visitas": 879,
+   "genuinas": 829,
+   "paginas": 422,
+   "ultima": "2026-11-28T18:12:00.930Z",
    "redes": "Microsoft Corporation,Google LLC,Microsoft Corp"
   },
   {
    "robot": "Applebot",
    "sitio": "ivaestudios.com",
-   "visitas": 827,
-   "genuinas": 762,
-   "paginas": 329,
-   "ultima": "2026-11-27T14:40:51.451Z",
+   "visitas": 873,
+   "genuinas": 808,
+   "paginas": 342,
+   "ultima": "2026-11-28T18:27:06.720Z",
    "redes": "Apple Inc.,Google LLC"
   },
   {
    "robot": "ChatGPT-User",
    "sitio": "ivaestudios.com",
-   "visitas": 814,
-   "genuinas": 702,
-   "paginas": 304,
-   "ultima": "2026-11-27T19:10:32.773Z",
-   "redes": "Microsoft Limited,UNINET,Cloudflare, Inc.,Microsoft Corporation,Google LLC,Microsoft Deutschland MCIO GmbH,Microsoft do Brasil Imp. e Com. Software e Video G,New York,Microsoft Singapore Pte. Ltd.,SIA Singularity Telecom,Infraly, LLC"
+   "visitas": 793,
+   "genuinas": 690,
+   "paginas": 305,
+   "ultima": "2026-11-28T18:33:23.343Z",
+   "redes": "Microsoft Limited,Microsoft Corporation,Google LLC,Microsoft Deutschland MCIO GmbH,Cloudflare, Inc.,Microsoft do Brasil Imp. e Com. Software e Video G,New York,Microsoft Singapore Pte. Ltd.,SIA Singularity Telecom,Infraly, LLC"
   },
   {
    "robot": "Meta-ExternalAds",
    "sitio": "ivaestudios.com",
-   "visitas": 764,
-   "genuinas": 764,
-   "paginas": 24,
-   "ultima": "2026-11-27T18:02:47.082Z",
+   "visitas": 765,
+   "genuinas": 765,
+   "paginas": 23,
+   "ultima": "2026-11-28T13:15:05.384Z",
    "redes": "Meta Platforms Ireland Limited"
   },
   {
    "robot": "Googlebot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 711,
-   "genuinas": 619,
-   "paginas": 249,
-   "ultima": "2026-11-27T17:54:06.991Z",
+   "visitas": 701,
+   "genuinas": 609,
+   "paginas": 248,
+   "ultima": "2026-11-28T18:20:46.518Z",
    "redes": "Google LLC,Cloudflare, Inc."
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
-   "visitas": 706,
-   "genuinas": 562,
-   "paginas": 130,
-   "ultima": "2026-11-27T18:55:38.889Z",
-   "redes": "CYBER NET TELECOMUNICACOES EIRELI ME,UNINET,Anthropic, PBC,Broad Band Internet Service Provider, India,AT&T Enterprises, LLC,Hostinger International Limited,Gestión de direccionamiento UniNet,Mega Cable, S.A. de C.V.,Private Customer,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,ABIX TELECOMUNICACIONES S.A. DE C.V.,Compañía Dominicana de Teléfonos S. A.,Google LLC,Hetzner Online GmbH,Etihad Etisalat,GLOBAL MOBILE OPERATOR,Optimum,Telefonica de Espana SAU Red de servicios IP Spain,Starlink Chile SpA,Ote SA (Hellenic Telecommunications Organisation),Nisatel Operator Publik i Telekomunikacioneve,Palo Alto Networks, Inc,RCN,ETB - Colombia,Cablemas Telecomunicaciones SA de CV,Chunghwa Telecom Data Communication Business Group,Comcast Cable Communications, LLC,VUELATECHNOLOGY S.A.S.,WI-NET Telecom SAC,Hostinger Operations UAB"
+   "visitas": 699,
+   "genuinas": 566,
+   "paginas": 128,
+   "ultima": "2026-11-28T17:16:03.121Z",
+   "redes": "Anthropic, PBC,UNINET,Mega Cable, S.A. de C.V.,Private Customer,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,Gestión de direccionamiento UniNet,ABIX TELECOMUNICACIONES S.A. DE C.V.,Compañía Dominicana de Teléfonos S. A.,Google LLC,Hetzner Online GmbH,Etihad Etisalat,GLOBAL MOBILE OPERATOR,Optimum,Telefonica de Espana SAU Red de servicios IP Spain,Starlink Chile SpA,Ote SA (Hellenic Telecommunications Organisation),Nisatel Operator Publik i Telekomunikacioneve,Palo Alto Networks, Inc,RCN,ETB - Colombia,Cablemas Telecomunicaciones SA de CV,Chunghwa Telecom Data Communication Business Group,Comcast Cable Communications, LLC,VUELATECHNOLOGY S.A.S.,WI-NET Telecom SAC,Hostinger Operations UAB"
   },
   {
    "robot": "ChatGPT-User",
    "sitio": "bodasmx.com.mx",
-   "visitas": 698,
-   "genuinas": 643,
-   "paginas": 161,
-   "ultima": "2026-11-27T19:54:18.660Z",
-   "redes": "Microsoft Corporation,Microsoft Limited,Cloudflare, Inc.,Google LLC,Microsoft Deutschland MCIO GmbH"
+   "visitas": 690,
+   "genuinas": 635,
+   "paginas": 159,
+   "ultima": "2026-11-28T18:10:05.823Z",
+   "redes": "Microsoft Limited,Cloudflare, Inc.,Google LLC,Microsoft Corporation,Microsoft Deutschland MCIO GmbH"
   },
   {
    "robot": "GoogleOther",
    "sitio": "ivaestudios.com",
-   "visitas": 539,
-   "genuinas": 497,
-   "paginas": 415,
-   "ultima": "2026-11-27T18:42:28.246Z",
+   "visitas": 563,
+   "genuinas": 521,
+   "paginas": 435,
+   "ultima": "2026-11-28T17:56:52.129Z",
    "redes": "Google LLC,Yadkin Valley Telephone,Summit Broadband,YouTube, LLC,Comcast Cable Communications, LLC,T-Mobile USA, Inc.,Midcontinent Communications,Clarity Telecom LLC,Cablevision Infrastructure,MINERVA ENGINEERING,PenTeleData House Account,CTS Telecom, Inc,RCN,FyberCom, LLC"
   },
   {
    "robot": "ClaudeBot",
    "sitio": "ivaestudios.com",
-   "visitas": 529,
-   "genuinas": 449,
-   "paginas": 360,
-   "ultima": "2026-11-27T19:37:23.105Z",
-   "redes": "Anthropic, PBC,UNINET,Google LLC,Infraly, LLC"
+   "visitas": 455,
+   "genuinas": 377,
+   "paginas": 314,
+   "ultima": "2026-11-28T18:41:59.852Z",
+   "redes": "Anthropic, PBC,Google LLC,Infraly, LLC"
   },
   {
    "robot": "GPTBot",
    "sitio": "ivaestudios.com",
-   "visitas": 440,
+   "visitas": 438,
    "genuinas": 372,
-   "paginas": 389,
-   "ultima": "2026-11-27T19:01:06.014Z",
-   "redes": "Microsoft Limited,UNINET,Google LLC,Infraly, LLC"
-  },
-  {
-   "robot": "CCBot",
-   "sitio": "ivaestudios.com",
-   "visitas": 370,
-   "genuinas": 0,
-   "paginas": 365,
-   "ultima": "2026-11-27T19:01:06.220Z",
-   "redes": "Amazon Data Services Northern Virginia,Google LLC,Infraly, LLC"
+   "paginas": 387,
+   "ultima": "2026-11-28T03:51:49.198Z",
+   "redes": "Microsoft Limited,Google LLC,Infraly, LLC"
   },
   {
    "robot": "GPTBot",
@@ -244,26 +235,35 @@
    "visitas": 368,
    "genuinas": 307,
    "paginas": 329,
-   "ultima": "2026-11-27T15:01:11.685Z",
+   "ultima": "2026-11-28T15:05:32.664Z",
    "redes": "Microsoft Limited,Google LLC"
   },
   {
    "robot": "PerplexityBot",
    "sitio": "bodasmx.com.mx",
-   "visitas": 220,
+   "visitas": 258,
    "genuinas": 0,
-   "paginas": 113,
-   "ultima": "2026-11-27T19:22:15.247Z",
+   "paginas": 132,
+   "ultima": "2026-11-28T18:18:41.923Z",
    "redes": "Amazon Technologies Inc.,Google LLC"
   },
   {
    "robot": "Meta-WebIndexer (en vivo)",
    "sitio": "ivaestudios.com",
-   "visitas": 206,
-   "genuinas": 206,
+   "visitas": 192,
+   "genuinas": 192,
    "paginas": 52,
    "ultima": "2026-11-20T17:56:28.250Z",
    "redes": "Cloudflare, Inc."
+  },
+  {
+   "robot": "CCBot",
+   "sitio": "ivaestudios.com",
+   "visitas": 181,
+   "genuinas": 0,
+   "paginas": 176,
+   "ultima": "2026-11-27T19:01:06.220Z",
+   "redes": "Google LLC,Amazon Data Services Northern Virginia,Infraly, LLC"
   },
   {
    "robot": "Applebot",
@@ -275,55 +275,55 @@
    "redes": "Apple Inc.,Google LLC"
   },
   {
-   "robot": "Claude-User",
-   "sitio": "ivaestudios-website.pages.dev",
-   "visitas": 140,
-   "genuinas": 98,
-   "paginas": 22,
-   "ultima": "2026-11-27T18:37:43.696Z",
-   "redes": "CYBER NET TELECOMUNICACOES EIRELI ME,Anthropic, PBC,Broad Band Internet Service Provider, India,AT&T Enterprises, LLC,Hostinger International Limited,UNINET,Gestión de direccionamiento UniNet,Mega Cable, S.A. de C.V.,Private Customer,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,ABIX TELECOMUNICACIONES S.A. DE C.V.,Magenta Austria,Compañía Dominicana de Teléfonos S. A.,Etihad Etisalat,Optimum,Telefonica de Espana SAU Red de servicios IP Spain,Starlink Chile SpA,Ote SA (Hellenic Telecommunications Organisation),Nisatel Operator Publik i Telekomunikacioneve,Hetzner Online GmbH,ETB - Colombia,Cablemas Telecomunicaciones SA de CV,Chunghwa Telecom Data Communication Business Group,Comcast Cable Communications, LLC,WI-NET Telecom SAC,Hostinger Operations UAB"
-  },
-  {
    "robot": "FacebookExternalHit",
    "sitio": "bodasmx.com.mx",
-   "visitas": 121,
-   "genuinas": 117,
+   "visitas": 129,
+   "genuinas": 125,
    "paginas": 9,
-   "ultima": "2026-11-27T18:48:13.707Z",
+   "ultima": "2026-11-28T11:00:26.184Z",
    "redes": "Meta Platforms Ireland Limited,Charter Communications Inc,Uninet S.A. de C.V.,Television Internacional, S.A. de C.V.,UNINET"
+  },
+  {
+   "robot": "Claude-User",
+   "sitio": "ivaestudios-website.pages.dev",
+   "visitas": 123,
+   "genuinas": 88,
+   "paginas": 20,
+   "ultima": "2026-11-27T18:37:43.696Z",
+   "redes": "Anthropic, PBC,Mega Cable, S.A. de C.V.,Private Customer,TOTAL PLAY TELECOMUNICACIONES, S.A.P.I. DE C.V.,ABIX TELECOMUNICACIONES S.A. DE C.V.,Magenta Austria,Compañía Dominicana de Teléfonos S. A.,UNINET,Etihad Etisalat,Optimum,Telefonica de Espana SAU Red de servicios IP Spain,Starlink Chile SpA,Ote SA (Hellenic Telecommunications Organisation),Nisatel Operator Publik i Telekomunikacioneve,Hetzner Online GmbH,ETB - Colombia,Cablemas Telecomunicaciones SA de CV,Chunghwa Telecom Data Communication Business Group,Comcast Cable Communications, LLC,WI-NET Telecom SAC,Gestión de direccionamiento UniNet,Hostinger Operations UAB"
   },
   {
    "robot": "YouBot",
    "sitio": "ivaestudios.com",
-   "visitas": 112,
+   "visitas": 111,
    "genuinas": 0,
-   "paginas": 85,
-   "ultima": "2026-11-27T19:26:28.619Z",
+   "paginas": 84,
+   "ultima": "2026-11-27T23:21:49.527Z",
    "redes": "You.com,Google LLC"
   },
   {
    "robot": "DuckAssistBot",
    "sitio": "ivaestudios.com",
-   "visitas": 105,
-   "genuinas": 41,
-   "paginas": 79,
-   "ultima": "2026-11-27T17:08:45.392Z",
-   "redes": "Microsoft Corporation,Microsoft Limited,Google LLC,Microsoft Deutschland MCIO GmbH"
+   "visitas": 104,
+   "genuinas": 40,
+   "paginas": 78,
+   "ultima": "2026-11-27T23:09:10.895Z",
+   "redes": "Microsoft Limited,Microsoft Corporation,Google LLC,Microsoft Deutschland MCIO GmbH"
   },
   {
    "robot": "Bravebot",
    "sitio": "ivaestudios.com",
-   "visitas": 97,
+   "visitas": 96,
    "genuinas": 29,
    "paginas": 86,
-   "ultima": "2026-11-27T09:13:25.763Z",
+   "ultima": "2026-11-28T17:04:39.593Z",
    "redes": "Hetzner Online GmbH,Google LLC,Brave Software, Inc."
   },
   {
    "robot": "Meta-WebIndexer (en vivo)",
    "sitio": "bodasmx.com.mx",
-   "visitas": 92,
-   "genuinas": 92,
+   "visitas": 91,
+   "genuinas": 91,
    "paginas": 28,
    "ultima": "2026-11-20T17:55:45.725Z",
    "redes": "Cloudflare, Inc."
@@ -338,21 +338,21 @@
    "redes": "Google LLC,Meta Platforms Ireland Limited"
   },
   {
-   "robot": "Claude-SearchBot",
-   "sitio": "ivaestudios.com",
-   "visitas": 74,
-   "genuinas": 0,
-   "paginas": 71,
-   "ultima": "2026-11-19T16:28:43.568Z",
-   "redes": "UNINET,Google LLC"
-  },
-  {
    "robot": "Perplexity-User",
    "sitio": "ivaestudios.com",
    "visitas": 73,
    "genuinas": 0,
    "paginas": 66,
    "ultima": "2026-11-19T16:28:43.483Z",
+   "redes": "Google LLC"
+  },
+  {
+   "robot": "Claude-SearchBot",
+   "sitio": "ivaestudios.com",
+   "visitas": 72,
+   "genuinas": 0,
+   "paginas": 69,
+   "ultima": "2026-11-19T16:28:43.568Z",
    "redes": "Google LLC"
   },
   {
@@ -379,7 +379,7 @@
    "visitas": 57,
    "genuinas": 57,
    "paginas": 13,
-   "ultima": "2026-11-27T06:23:03.209Z",
+   "ultima": "2026-11-28T15:32:51.039Z",
    "redes": "Microsoft Corporation,Microsoft Limited,Microsoft Deutschland MCIO GmbH,Microsoft Limited UK"
   },
   {
@@ -419,21 +419,21 @@
    "redes": "Google LLC"
   },
   {
-   "robot": "Bravebot",
-   "sitio": "bodasmx.com.mx",
-   "visitas": 46,
-   "genuinas": 2,
-   "paginas": 35,
-   "ultima": "2026-11-15T23:27:05.344Z",
-   "redes": "Hetzner Online GmbH,Google LLC"
-  },
-  {
    "robot": "Claude-SearchBot",
    "sitio": "bodasmx.com.mx",
    "visitas": 46,
    "genuinas": 0,
    "paginas": 30,
    "ultima": "2026-11-15T23:27:04.486Z",
+   "redes": "Google LLC"
+  },
+  {
+   "robot": "Bravebot",
+   "sitio": "bodasmx.com.mx",
+   "visitas": 43,
+   "genuinas": 0,
+   "paginas": 32,
+   "ultima": "2026-11-15T23:27:05.344Z",
    "redes": "Google LLC"
   },
   {
@@ -446,6 +446,24 @@
    "redes": "Google LLC"
   },
   {
+   "robot": "Googlebot",
+   "sitio": "ivaestudios-website.pages.dev",
+   "visitas": 6,
+   "genuinas": 0,
+   "paginas": 6,
+   "ultima": "2026-11-28T02:49:03.321Z",
+   "redes": "Cloudflare, Inc."
+  },
+  {
+   "robot": "ChatGPT-User",
+   "sitio": "ivaestudios-website.pages.dev",
+   "visitas": 4,
+   "genuinas": 0,
+   "paginas": 4,
+   "ultima": "2026-11-28T02:49:02.708Z",
+   "redes": "Cloudflare, Inc."
+  },
+  {
    "robot": "ClaudeBot",
    "sitio": "ivaestudios-website.pages.dev",
    "visitas": 2,
@@ -453,15 +471,6 @@
    "paginas": 2,
    "ultima": "2026-11-25T08:05:17.446Z",
    "redes": "Anthropic, PBC"
-  },
-  {
-   "robot": "Googlebot",
-   "sitio": "ivaestudios-website.pages.dev",
-   "visitas": 2,
-   "genuinas": 0,
-   "paginas": 2,
-   "ultima": "2026-11-26T11:59:30.264Z",
-   "redes": "Cloudflare, Inc."
   },
   {
    "robot": "OAI-SearchBot",
@@ -482,15 +491,6 @@
    "redes": "Yandex enterprise network"
   },
   {
-   "robot": "ChatGPT-User",
-   "sitio": "ivaestudios-website.pages.dev",
-   "visitas": 1,
-   "genuinas": 0,
-   "paginas": 1,
-   "ultima": "2026-11-14T23:22:24.502Z",
-   "redes": "Cloudflare, Inc."
-  },
-  {
    "robot": "GPTBot",
    "sitio": "ivaestudios-website.pages.dev",
    "visitas": 1,
@@ -502,88 +502,202 @@
  ],
  "porDia": [
   {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
    "robot": "Meta-WebIndexer",
-   "visitas": 1654,
-   "genuinas": 1654
+   "visitas": 1496,
+   "genuinas": 1496
   },
   {
-   "dia": "2026-11-27",
-   "robot": "FacebookExternalHit",
-   "visitas": 1034,
-   "genuinas": 1018
-  },
-  {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
    "robot": "Meta-ExternalAgent",
-   "visitas": 808,
-   "genuinas": 808
+   "visitas": 557,
+   "genuinas": 557
   },
   {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
    "robot": "OAI-SearchBot",
-   "visitas": 449,
-   "genuinas": 448
+   "visitas": 418,
+   "genuinas": 418
   },
   {
-   "dia": "2026-11-27",
-   "robot": "YandexBot",
-   "visitas": 215,
-   "genuinas": 207
+   "dia": "2026-11-28",
+   "robot": "FacebookExternalHit",
+   "visitas": 314,
+   "genuinas": 313
   },
   {
-   "dia": "2026-11-27",
-   "robot": "Bingbot",
-   "visitas": 209,
-   "genuinas": 201
-  },
-  {
-   "dia": "2026-11-27",
-   "robot": "Applebot",
-   "visitas": 193,
-   "genuinas": 193
-  },
-  {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
    "robot": "Amazonbot",
-   "visitas": 169,
-   "genuinas": 169
+   "visitas": 183,
+   "genuinas": 183
   },
   {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
    "robot": "PerplexityBot",
-   "visitas": 101,
+   "visitas": 160,
    "genuinas": 0
   },
   {
-   "dia": "2026-11-27",
+   "dia": "2026-11-28",
+   "robot": "YandexBot",
+   "visitas": 121,
+   "genuinas": 121
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Bingbot",
+   "visitas": 108,
+   "genuinas": 108
+  },
+  {
+   "dia": "2026-11-28",
    "robot": "Bytespider",
-   "visitas": 98,
+   "visitas": 95,
+   "genuinas": 2
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "ChatGPT-User",
+   "visitas": 68,
+   "genuinas": 57
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Googlebot",
+   "visitas": 63,
+   "genuinas": 46
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Applebot",
+   "visitas": 53,
+   "genuinas": 53
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Meta-ExternalAds",
+   "visitas": 50,
+   "genuinas": 50
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "GoogleOther",
+   "visitas": 27,
+   "genuinas": 27
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Claude-User",
+   "visitas": 25,
+   "genuinas": 25
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "ClaudeBot",
+   "visitas": 16,
+   "genuinas": 16
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "GPTBot",
+   "visitas": 4,
+   "genuinas": 4
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "DuckDuckBot",
+   "visitas": 2,
+   "genuinas": 2
+  },
+  {
+   "dia": "2026-11-28",
+   "robot": "Bravebot",
+   "visitas": 1,
    "genuinas": 1
   },
   {
    "dia": "2026-11-27",
+   "robot": "Meta-WebIndexer",
+   "visitas": 1964,
+   "genuinas": 1964
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "FacebookExternalHit",
+   "visitas": 1102,
+   "genuinas": 1086
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "Meta-ExternalAgent",
+   "visitas": 902,
+   "genuinas": 902
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "OAI-SearchBot",
+   "visitas": 542,
+   "genuinas": 541
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "Bingbot",
+   "visitas": 237,
+   "genuinas": 229
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "YandexBot",
+   "visitas": 219,
+   "genuinas": 211
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "Amazonbot",
+   "visitas": 205,
+   "genuinas": 205
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "Applebot",
+   "visitas": 199,
+   "genuinas": 199
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "PerplexityBot",
+   "visitas": 116,
+   "genuinas": 0
+  },
+  {
+   "dia": "2026-11-27",
    "robot": "ChatGPT-User",
-   "visitas": 84,
-   "genuinas": 74
+   "visitas": 115,
+   "genuinas": 96
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "Bytespider",
+   "visitas": 111,
+   "genuinas": 1
   },
   {
    "dia": "2026-11-27",
    "robot": "Googlebot",
-   "visitas": 81,
-   "genuinas": 75
+   "visitas": 106,
+   "genuinas": 94
   },
   {
    "dia": "2026-11-27",
    "robot": "Claude-User",
-   "visitas": 73,
-   "genuinas": 70
+   "visitas": 81,
+   "genuinas": 78
   },
   {
    "dia": "2026-11-27",
    "robot": "GoogleOther",
-   "visitas": 65,
-   "genuinas": 65
+   "visitas": 70,
+   "genuinas": 70
   },
   {
    "dia": "2026-11-27",
@@ -612,20 +726,20 @@
   {
    "dia": "2026-11-27",
    "robot": "DuckAssistBot",
-   "visitas": 5,
-   "genuinas": 5
+   "visitas": 6,
+   "genuinas": 6
+  },
+  {
+   "dia": "2026-11-27",
+   "robot": "YouBot",
+   "visitas": 6,
+   "genuinas": 0
   },
   {
    "dia": "2026-11-27",
    "robot": "Bravebot",
    "visitas": 4,
    "genuinas": 4
-  },
-  {
-   "dia": "2026-11-27",
-   "robot": "YouBot",
-   "visitas": 4,
-   "genuinas": 0
   },
   {
    "dia": "2026-11-27",
@@ -2378,165 +2492,70 @@
    "robot": "DuckDuckBot",
    "visitas": 1,
    "genuinas": 1
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Meta-ExternalAgent",
-   "visitas": 809,
-   "genuinas": 807
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "OAI-SearchBot",
-   "visitas": 538,
-   "genuinas": 535
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "FacebookExternalHit",
-   "visitas": 308,
-   "genuinas": 307
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "YandexBot",
-   "visitas": 267,
-   "genuinas": 267
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Bingbot",
-   "visitas": 215,
-   "genuinas": 197
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Bytespider",
-   "visitas": 206,
-   "genuinas": 2
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Amazonbot",
-   "visitas": 197,
-   "genuinas": 197
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "CCBot",
-   "visitas": 189,
-   "genuinas": 0
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "PerplexityBot",
-   "visitas": 188,
-   "genuinas": 0
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "ChatGPT-User",
-   "visitas": 125,
-   "genuinas": 99
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Meta-WebIndexer",
-   "visitas": 112,
-   "genuinas": 112
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Googlebot",
-   "visitas": 91,
-   "genuinas": 74
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "ClaudeBot",
-   "visitas": 90,
-   "genuinas": 88
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Claude-User",
-   "visitas": 57,
-   "genuinas": 39
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Meta-ExternalAds",
-   "visitas": 49,
-   "genuinas": 49
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Meta-WebIndexer (en vivo)",
-   "visitas": 15,
-   "genuinas": 15
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Applebot",
-   "visitas": 13,
-   "genuinas": 13
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "GoogleOther",
-   "visitas": 8,
-   "genuinas": 8
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "GPTBot",
-   "visitas": 6,
-   "genuinas": 4
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Bravebot",
-   "visitas": 5,
-   "genuinas": 3
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "YouBot",
-   "visitas": 3,
-   "genuinas": 0
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "Claude-SearchBot",
-   "visitas": 2,
-   "genuinas": 0
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "DuckAssistBot",
-   "visitas": 2,
-   "genuinas": 2
-  },
-  {
-   "dia": "2026-11-13",
-   "robot": "DuckDuckBot",
-   "visitas": 2,
-   "genuinas": 2
   }
  ],
  "copia": [
   {
+   "robot": "Googlebot",
+   "ruta": "/_redirects",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:49:03.321Z"
+  },
+  {
+   "robot": "Googlebot",
+   "ruta": "/_worker.js.map",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:49:02.826Z"
+  },
+  {
+   "robot": "ChatGPT-User",
+   "ruta": "/config.yaml",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:49:02.708Z"
+  },
+  {
+   "robot": "Googlebot",
+   "ruta": "/.env.production.local",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:49:01.129Z"
+  },
+  {
+   "robot": "Googlebot",
+   "ruta": "/.env.gz",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:48:57.541Z"
+  },
+  {
+   "robot": "ChatGPT-User",
+   "ruta": "/secrets.json",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:48:55.885Z"
+  },
+  {
+   "robot": "ChatGPT-User",
+   "ruta": "/.env.backup",
+   "visitas": 1,
+   "genuinas": 0,
+   "ultima": "2026-11-28T02:48:53.187Z"
+  },
+  {
    "robot": "Claude-User",
    "ruta": "/luxury-weddings",
-   "visitas": 2,
+   "visitas": 1,
    "genuinas": 1,
    "ultima": "2026-11-27T18:37:43.696Z"
   },
   {
    "robot": "Claude-User",
    "ruta": "/robots.txt",
-   "visitas": 46,
-   "genuinas": 46,
+   "visitas": 41,
+   "genuinas": 41,
    "ultima": "2026-11-27T18:37:43.362Z"
   },
   {
@@ -2556,29 +2575,29 @@
   {
    "robot": "Claude-User",
    "ruta": "/blog/mexico-destination-wedding-cost-breakdown-2026",
-   "visitas": 9,
+   "visitas": 8,
    "genuinas": 7,
    "ultima": "2026-11-27T05:09:20.416Z"
   },
   {
    "robot": "Claude-User",
    "ruta": "/ivae-marketing",
-   "visitas": 4,
+   "visitas": 3,
    "genuinas": 2,
    "ultima": "2026-11-27T03:25:23.916Z"
   },
   {
    "robot": "Claude-User",
    "ruta": "/blog/restaurant-social-media-mexico-2026",
-   "visitas": 21,
-   "genuinas": 10,
+   "visitas": 19,
+   "genuinas": 9,
    "ultima": "2026-11-26T23:28:10.238Z"
   },
   {
    "robot": "Claude-User",
    "ruta": "/blog/tiktok-for-luxury-hotels-mexico",
-   "visitas": 5,
-   "genuinas": 4,
+   "visitas": 4,
+   "genuinas": 3,
    "ultima": "2026-11-26T17:51:52.239Z"
   },
   {
@@ -2626,8 +2645,8 @@
   {
    "robot": "Claude-User",
    "ruta": "/social-media-dental-clinic-mexico",
-   "visitas": 9,
-   "genuinas": 4,
+   "visitas": 7,
+   "genuinas": 3,
    "ultima": "2026-11-25T20:03:42.592Z"
   },
   {
@@ -2668,8 +2687,8 @@
   {
    "robot": "Claude-User",
    "ruta": "/blog/hotel-instagram-strategy-mexico-2026",
-   "visitas": 7,
-   "genuinas": 5,
+   "visitas": 5,
+   "genuinas": 4,
    "ultima": "2026-11-24T10:20:48.330Z"
   },
   {
@@ -2734,20 +2753,6 @@
    "visitas": 1,
    "genuinas": 1,
    "ultima": "2026-11-14T19:03:16.182Z"
-  },
-  {
-   "robot": "Claude-User",
-   "ruta": "/",
-   "visitas": 1,
-   "genuinas": 1,
-   "ultima": "2026-11-13T20:05:01.447Z"
-  },
-  {
-   "robot": "Claude-User",
-   "ruta": "/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive",
-   "visitas": 1,
-   "genuinas": 0,
-   "ultima": "2026-11-13T14:16:29.635Z"
   }
  ],
  "rutasClaude": [
@@ -2756,9 +2761,9 @@
    "sitio": "ivaestudios.com",
    "ruta": "/sitemap-images.xml",
    "estado": 200,
-   "visitas": 54,
-   "genuinas": 54,
-   "ultima": "2026-11-27T19:37:23.105Z",
+   "visitas": 46,
+   "genuinas": 46,
+   "ultima": "2026-11-28T18:41:59.852Z",
    "red": "Anthropic, PBC"
   },
   {
@@ -2766,9 +2771,59 @@
    "sitio": "ivaestudios.com",
    "ruta": "/sitemap.xml",
    "estado": 200,
-   "visitas": 55,
-   "genuinas": 55,
-   "ultima": "2026-11-27T19:37:23.104Z",
+   "visitas": 44,
+   "genuinas": 44,
+   "ultima": "2026-11-28T18:41:59.353Z",
+   "red": "Anthropic, PBC"
+  },
+  {
+   "robot": "ClaudeBot",
+   "sitio": "ivaestudios.com",
+   "ruta": "/robots.txt",
+   "estado": 304,
+   "visitas": 46,
+   "genuinas": 46,
+   "ultima": "2026-11-28T18:41:59.324Z",
+   "red": "Anthropic, PBC"
+  },
+  {
+   "robot": "Claude-User",
+   "sitio": "ivaestudios.com",
+   "ruta": "/api/mcp",
+   "estado": 200,
+   "visitas": 360,
+   "genuinas": 360,
+   "ultima": "2026-11-28T17:16:03.121Z",
+   "red": "Anthropic, PBC"
+  },
+  {
+   "robot": "Claude-User",
+   "sitio": "ivaestudios.com",
+   "ruta": "/api/mcp",
+   "estado": 202,
+   "visitas": 109,
+   "genuinas": 109,
+   "ultima": "2026-11-28T17:16:02.376Z",
+   "red": "Anthropic, PBC"
+  },
+  {
+   "robot": "ClaudeBot",
+   "sitio": "ivaestudios.com",
+   "ruta": "/marketing-blog",
+   "estado": 200,
+   "visitas": 1,
+   "genuinas": 1,
+   "ultima": "2026-11-28T14:45:00.211Z",
+   "red": "Anthropic, PBC"
+  },
+  {
+   "robot": "Claude-User",
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/spa-wellness-social-media-mexico",
+   "estado": 200,
+   "visitas": 1,
+   "genuinas": 1,
+   "ultima": "2026-11-28T08:31:59.192Z",
    "red": "Anthropic, PBC"
   },
   {
@@ -2786,8 +2841,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/comparison/best-family-photographer-cancun",
    "estado": 200,
-   "visitas": 2,
-   "genuinas": 1,
+   "visitas": 1,
+   "genuinas": 0,
    "ultima": "2026-11-27T19:01:05.950Z",
    "red": "Infraly, LLC"
   },
@@ -2884,70 +2939,40 @@
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
-   "ruta": "/api/mcp",
-   "estado": 200,
-   "visitas": 350,
-   "genuinas": 350,
-   "ultima": "2026-11-27T18:43:58.042Z",
-   "red": "Anthropic, PBC"
-  },
-  {
-   "robot": "Claude-User",
-   "sitio": "ivaestudios.com",
-   "ruta": "/api/mcp",
-   "estado": 202,
-   "visitas": 105,
-   "genuinas": 105,
-   "ultima": "2026-11-27T18:43:57.710Z",
-   "red": "Anthropic, PBC"
-  },
-  {
-   "robot": "ClaudeBot",
-   "sitio": "ivaestudios.com",
-   "ruta": "/robots.txt",
-   "estado": 304,
-   "visitas": 54,
-   "genuinas": 54,
-   "ultima": "2026-11-27T18:41:02.188Z",
-   "red": "Anthropic, PBC"
-  },
-  {
-   "robot": "Claude-User",
-   "sitio": "ivaestudios.com",
    "ruta": "/destination-wedding-photographer-mexico",
    "estado": 200,
-   "visitas": 3,
+   "visitas": 2,
    "genuinas": 2,
    "ultima": "2026-11-27T18:37:44.399Z",
-   "red": "Hostinger International Limited"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
    "ruta": "/luxury-weddings",
    "estado": 301,
-   "visitas": 2,
+   "visitas": 1,
    "genuinas": 1,
    "ultima": "2026-11-27T18:37:44.142Z",
-   "red": "Hostinger International Limited"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/luxury-weddings",
    "estado": 301,
-   "visitas": 2,
+   "visitas": 1,
    "genuinas": 1,
    "ultima": "2026-11-27T18:37:43.696Z",
-   "red": "Hostinger International Limited"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
    "ruta": "/robots.txt",
    "estado": 304,
-   "visitas": 27,
-   "genuinas": 27,
+   "visitas": 25,
+   "genuinas": 25,
    "ultima": "2026-11-27T18:37:43.599Z",
    "red": "Anthropic, PBC"
   },
@@ -2956,8 +2981,8 @@
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/robots.txt",
    "estado": 301,
-   "visitas": 46,
-   "genuinas": 46,
+   "visitas": 41,
+   "genuinas": 41,
    "ultima": "2026-11-27T18:37:43.362Z",
    "red": "Anthropic, PBC"
   },
@@ -2966,8 +2991,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/social-media-luxury-hotels-mexico",
    "estado": 200,
-   "visitas": 10,
-   "genuinas": 4,
+   "visitas": 9,
+   "genuinas": 3,
    "ultima": "2026-11-27T17:35:34.131Z",
    "red": "UNINET"
   },
@@ -2976,8 +3001,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/blog/hotel-instagram-strategy-mexico-2026",
    "estado": 200,
-   "visitas": 9,
-   "genuinas": 7,
+   "visitas": 7,
+   "genuinas": 6,
    "ultima": "2026-11-27T17:35:34.011Z",
    "red": "UNINET"
   },
@@ -3036,58 +3061,58 @@
    "sitio": "ivaestudios.com",
    "ruta": "/blog/mexico-destination-wedding-cost-breakdown-2026",
    "estado": 200,
-   "visitas": 9,
+   "visitas": 8,
    "genuinas": 7,
    "ultima": "2026-11-27T05:09:20.709Z",
-   "red": "UNINET"
+   "red": "Comcast Cable Communications, LLC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/blog/mexico-destination-wedding-cost-breakdown-2026",
    "estado": 301,
-   "visitas": 9,
+   "visitas": 8,
    "genuinas": 7,
    "ultima": "2026-11-27T05:09:20.416Z",
-   "red": "UNINET"
+   "red": "Comcast Cable Communications, LLC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
    "ruta": "/marketing-about",
    "estado": 200,
-   "visitas": 4,
+   "visitas": 3,
    "genuinas": 2,
    "ultima": "2026-11-27T03:25:24.719Z",
-   "red": "Gestión de direccionamiento UniNet"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
    "ruta": "/ivae-marketing",
    "estado": 301,
-   "visitas": 4,
+   "visitas": 3,
    "genuinas": 2,
    "ultima": "2026-11-27T03:25:24.322Z",
-   "red": "Gestión de direccionamiento UniNet"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/ivae-marketing",
    "estado": 301,
-   "visitas": 4,
+   "visitas": 3,
    "genuinas": 2,
    "ultima": "2026-11-27T03:25:23.916Z",
-   "red": "Gestión de direccionamiento UniNet"
+   "red": "Anthropic, PBC"
   },
   {
    "robot": "Claude-User",
    "sitio": "ivaestudios.com",
    "ruta": "/blog/restaurant-social-media-mexico-2026",
    "estado": 200,
-   "visitas": 21,
-   "genuinas": 10,
+   "visitas": 19,
+   "genuinas": 9,
    "ultima": "2026-11-26T23:28:20.089Z",
    "red": "UNINET"
   },
@@ -3096,8 +3121,8 @@
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/blog/restaurant-social-media-mexico-2026",
    "estado": 301,
-   "visitas": 21,
-   "genuinas": 10,
+   "visitas": 19,
+   "genuinas": 9,
    "ultima": "2026-11-26T23:28:10.238Z",
    "red": "UNINET"
   },
@@ -3116,8 +3141,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/blog/tiktok-for-luxury-hotels-mexico",
    "estado": 200,
-   "visitas": 5,
-   "genuinas": 4,
+   "visitas": 4,
+   "genuinas": 3,
    "ultima": "2026-11-26T17:51:52.661Z",
    "red": "Etihad Etisalat"
   },
@@ -3126,8 +3151,8 @@
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/blog/tiktok-for-luxury-hotels-mexico",
    "estado": 301,
-   "visitas": 5,
-   "genuinas": 4,
+   "visitas": 4,
+   "genuinas": 3,
    "ultima": "2026-11-26T17:51:52.239Z",
    "red": "Etihad Etisalat"
   },
@@ -3196,8 +3221,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/",
    "estado": 200,
-   "visitas": 12,
-   "genuinas": 4,
+   "visitas": 9,
+   "genuinas": 2,
    "ultima": "2026-11-26T00:50:13.163Z",
    "red": "VUELATECHNOLOGY S.A.S."
   },
@@ -3226,8 +3251,8 @@
    "sitio": "ivaestudios.com",
    "ruta": "/social-media-dental-clinic-mexico",
    "estado": 200,
-   "visitas": 8,
-   "genuinas": 4,
+   "visitas": 6,
+   "genuinas": 3,
    "ultima": "2026-11-25T20:03:43.162Z",
    "red": "WI-NET Telecom SAC"
   },
@@ -3236,8 +3261,8 @@
    "sitio": "ivaestudios-website.pages.dev",
    "ruta": "/social-media-dental-clinic-mexico",
    "estado": 301,
-   "visitas": 9,
-   "genuinas": 4,
+   "visitas": 7,
+   "genuinas": 3,
    "ultima": "2026-11-25T20:03:42.592Z",
    "red": "WI-NET Telecom SAC"
   },
@@ -4230,91 +4255,85 @@
    "genuinas": 1,
    "ultima": "2026-11-25T09:32:23.522Z",
    "red": "Anthropic, PBC"
-  },
-  {
-   "robot": "ClaudeBot",
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/ultimo-minuto/el-mariachi-no-llego-cuanto-cuesta-uno-de-emergencia",
-   "estado": 200,
-   "visitas": 1,
-   "genuinas": 1,
-   "ultima": "2026-11-25T09:32:23.446Z",
-   "red": "Anthropic, PBC"
-  },
-  {
-   "robot": "ClaudeBot",
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/ciudades/casarse-en-isla-mujeres-cuotas-del-registro-civil",
-   "estado": 200,
-   "visitas": 1,
-   "genuinas": 1,
-   "ultima": "2026-11-25T09:32:23.358Z",
-   "red": "Anthropic, PBC"
   }
  ],
  "noExisten": [
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/null",
-   "visitas": 286,
+   "visitas": 309,
    "robots": "Meta-WebIndexer,Meta-ExternalAgent",
-   "ultima": "2026-11-27T15:51:41.677Z"
+   "ultima": "2026-11-28T15:21:08.881Z"
   },
   {
    "sitio": "bodasmx.com.mx",
    "ruta": "/tramites/null",
-   "visitas": 172,
+   "visitas": 184,
    "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T14:24:03.946Z"
+   "ultima": "2026-11-28T12:14:18.098Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/null",
-   "visitas": 139,
+   "visitas": 148,
    "robots": "Meta-WebIndexer,Meta-ExternalAgent",
-   "ultima": "2026-11-27T14:16:51.219Z"
+   "ultima": "2026-11-28T12:14:59.399Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/es/null",
-   "visitas": 131,
+   "visitas": 144,
    "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T14:26:07.075Z"
+   "ultima": "2026-11-28T12:22:59.960Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/es/blog/null",
-   "visitas": 114,
+   "visitas": 123,
    "robots": "Meta-ExternalAgent,Meta-WebIndexer",
-   "ultima": "2026-11-27T15:11:21.064Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/presupuesto/null",
-   "visitas": 46,
-   "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T11:47:54.873Z"
+   "ultima": "2026-11-28T13:23:47.142Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/comparison/null",
-   "visitas": 44,
+   "visitas": 49,
    "robots": "Meta-WebIndexer,Meta-ExternalAgent",
-   "ultima": "2026-11-27T14:39:13.355Z"
+   "ultima": "2026-11-28T12:55:07.879Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/presupuesto/null",
+   "visitas": 49,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T09:32:18.369Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/lgbtq-couples-photographer-cancun-riviera-maya",
-   "visitas": 31,
+   "visitas": 28,
    "robots": "Googlebot,Meta-ExternalAgent",
    "ultima": "2026-11-27T18:34:18.191Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq",
-   "visitas": 26,
+   "visitas": 25,
    "robots": "Googlebot,Meta-ExternalAgent",
-   "ultima": "2026-11-26T20:31:31.652Z"
+   "ultima": "2026-11-28T04:38:35.113Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/ciudades/null",
+   "visitas": 24,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T12:36:50.998Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/post/the-complete-guide-to-planning-a-photoshoot-in-cancun-2026",
+   "visitas": 23,
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-28T11:06:05.288Z"
   },
   {
    "sitio": "ivaestudios.com",
@@ -4325,24 +4344,24 @@
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/post/the-complete-guide-to-planning-a-photoshoot-in-cancun-2026",
-   "visitas": 23,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T08:42:17.561Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/terms-and-conditions",
-   "visitas": 23,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T06:13:54.553Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
    "ruta": "/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive",
    "visitas": 22,
    "robots": "Meta-ExternalAgent,ChatGPT-User",
-   "ultima": "2026-11-26T05:37:33.609Z"
+   "ultima": "2026-11-27T20:23:34.485Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/post/golden-hour-photography-in-cancun-the-best-time-of-day-for-your-photoshoot-2026",
+   "visitas": 21,
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-28T07:38:05.550Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/post/what-to-wear-for-your-cancun-beach-photoshoot-the-complete-outfit-guide-2026",
+   "visitas": 21,
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-27T21:51:15.201Z"
   },
   {
    "sitio": "ivaestudios.com",
@@ -4353,38 +4372,31 @@
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/category/all-products",
+   "ruta": "/terms-and-conditions",
    "visitas": 21,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T04:44:37.116Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/post/what-to-wear-for-your-cancun-beach-photoshoot-the-complete-outfit-guide-2026",
-   "visitas": 21,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-26T18:06:57.282Z"
+   "ultima": "2026-11-27T06:13:54.553Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/category/best-sellers",
    "visitas": 20,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T18:04:30.202Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/ciudades/null",
-   "visitas": 20,
-   "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T14:36:57.735Z"
+   "ultima": "2026-11-28T17:29:37.516Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/post/couples-photographer-cancun-romantic-getaway",
    "visitas": 20,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T10:17:47.845Z"
+   "ultima": "2026-11-28T09:36:39.738Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/category/face-products",
+   "visitas": 19,
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-28T03:38:31.784Z"
   },
   {
    "sitio": "ivaestudios.com",
@@ -4395,71 +4407,71 @@
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/post/golden-hour-photography-in-cancun-the-best-time-of-day-for-your-photoshoot-2026",
+   "ruta": "/category/all-products",
    "visitas": 19,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T09:02:55.728Z"
+   "ultima": "2026-11-27T04:44:37.116Z"
   },
   {
-   "sitio": "ivaestudios.com",
-   "ruta": "/category/face-products",
-   "visitas": 19,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-26T13:14:34.632Z"
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tradiciones/null",
+   "visitas": 17,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T10:33:01.175Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/es/comparativa/null",
+   "visitas": 17,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T09:13:12.608Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/permisos/null",
    "visitas": 16,
    "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T11:03:22.122Z"
+   "ultima": "2026-11-28T09:19:18.722Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/sitemap-ai.xml",
    "visitas": 15,
    "robots": "GPTBot",
-   "ultima": "2026-11-27T01:03:09.002Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tradiciones/null",
-   "visitas": 14,
-   "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T15:39:03.706Z"
+   "ultima": "2026-11-28T01:07:33.095Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/post/sesion-familiar-playa-cancun",
    "visitas": 14,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T14:13:50.025Z"
+   "ultima": "2026-11-28T18:42:11.224Z"
   },
   {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/permisos/null",
+   "sitio": "ivaestudios.com",
+   "ruta": "/post/trash-the-dress-photoshoot-in-cancun-riviera-maya-2026",
    "visitas": 14,
-   "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T09:11:48.927Z"
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-28T01:26:18.979Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/category/new-arrivals",
    "visitas": 12,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T16:51:54.865Z"
+   "ultima": "2026-11-28T17:31:09.331Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/post/trash-the-dress-photoshoot-in-cancun-riviera-maya-2026",
-   "visitas": 12,
+   "ruta": "/post/proposal-photography-in-cancun-how-to-plan-the-perfect-surprise-2026",
+   "visitas": 10,
    "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-26T10:01:46.016Z"
+   "ultima": "2026-11-27T22:08:32.929Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/post/cenote-photoshoot-in-cancun-riviera-maya-the-complete-guide-2026",
-   "visitas": 11,
+   "visitas": 10,
    "robots": "Meta-ExternalAgent",
    "ultima": "2026-11-27T16:26:48.747Z"
   },
@@ -4471,18 +4483,18 @@
    "ultima": "2026-11-27T11:23:37.125Z"
   },
   {
-   "sitio": "ivaestudios.com",
-   "ruta": "/post/engagement-session-cancun",
-   "visitas": 9,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-27T08:29:59.695Z"
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/imagenes/permisos/zofemat-multa-boda-sin-permiso.webp",
+   "visitas": 8,
+   "robots": "Googlebot",
+   "ultima": "2026-11-28T17:04:19.077Z"
   },
   {
-   "sitio": "ivaestudios.com",
-   "ruta": "/post/proposal-photography-in-cancun-how-to-plan-the-perfect-surprise-2026",
-   "visitas": 9,
-   "robots": "Meta-ExternalAgent",
-   "ultima": "2026-11-26T23:36:02.839Z"
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/fotografia/null",
+   "visitas": 8,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T09:23:42.839Z"
   },
   {
    "sitio": "bodasmx.com.mx",
@@ -4490,6 +4502,13 @@
    "visitas": 8,
    "robots": "Bingbot,Googlebot",
    "ultima": "2026-11-27T11:11:38.919Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/post/engagement-session-cancun",
+   "visitas": 8,
+   "robots": "Meta-ExternalAgent",
+   "ultima": "2026-11-27T08:29:59.695Z"
   },
   {
    "sitio": "bodasmx.com.mx",
@@ -4500,31 +4519,17 @@
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/fotografia/null",
-   "visitas": 7,
+   "ruta": "/imagenes/autores/vianey-diaz.webp",
+   "visitas": 6,
    "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T09:57:21.832Z"
+   "ultima": "2026-11-28T09:19:14.079Z"
   },
   {
    "sitio": "bodasmx.com.mx",
    "ruta": "/imagenes/permisos/boda-catolica-en-playa-se-puede.webp",
-   "visitas": 7,
+   "visitas": 6,
    "robots": "Googlebot",
    "ultima": "2026-11-26T15:03:11.406Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/imagenes/permisos/zofemat-multa-boda-sin-permiso.webp",
-   "visitas": 7,
-   "robots": "Googlebot",
-   "ultima": "2026-11-26T14:25:50.151Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/imagenes/autores/vianey-diaz.webp",
-   "visitas": 5,
-   "robots": "Meta-WebIndexer",
-   "ultima": "2026-11-27T09:02:14.206Z"
   },
   {
    "sitio": "ivaestudios.com",
@@ -4560,6 +4565,13 @@
    "visitas": 2,
    "robots": "Bingbot,YandexBot",
    "ultima": "2026-11-15T00:57:50.891Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/calendario/null",
+   "visitas": 1,
+   "robots": "Meta-WebIndexer",
+   "ultima": "2026-11-28T11:39:55.122Z"
   },
   {
    "sitio": "ivaestudios.com",
@@ -4651,27 +4663,6 @@
    "visitas": 1,
    "robots": "Bravebot",
    "ultima": "2026-11-14T05:40:05.039Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/cart-page",
-   "visitas": 1,
-   "robots": "Applebot",
-   "ultima": "2026-11-13T22:50:41.078Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/luxury-weddings-A-editorial-vogue",
-   "visitas": 1,
-   "robots": "YandexBot",
-   "ultima": "2026-11-13T00:53:51.848Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/luxury-weddings-B-cinematic-film",
-   "visitas": 1,
-   "robots": "YandexBot",
-   "ultima": "2026-11-13T00:39:06.147Z"
   }
  ],
  "metaVivo": [
@@ -4822,7 +4813,7 @@
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/cancun-sargassum-seaweed-season-guide",
-   "visitas": 52,
+   "visitas": 40,
    "ultima": "2026-11-19T23:00:00.005Z"
   },
   {
@@ -5050,7 +5041,7 @@
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/cancun-cenote-photoshoot-guide",
-   "visitas": 3,
+   "visitas": 2,
    "ultima": "2026-11-18T21:08:52.993Z"
   },
   {
@@ -5068,7 +5059,7 @@
   {
    "sitio": "bodasmx.com.mx",
    "ruta": "/tramites/curso-prematrimonial-dif-jalisco-obligatorio",
-   "visitas": 5,
+   "visitas": 4,
    "ultima": "2026-11-18T15:02:44.908Z"
   },
   {
@@ -5092,7 +5083,7 @@
   {
    "sitio": "ivaestudios.com",
    "ruta": "/cancun-photographer",
-   "visitas": 6,
+   "visitas": 5,
    "ultima": "2026-11-17T21:53:39.239Z"
   },
   {
@@ -5159,1203 +5150,1203 @@
  "metaIndice": [
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/what-is-riviera-cancun",
-   "visitas": 50,
-   "ultima": "2026-11-27T19:56:37.698Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/fotografia/tendencias-de-fotografia-de-boda-en-cancun-y-riviera-maya",
-   "visitas": 367,
-   "ultima": "2026-11-27T19:56:36.315Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/costo-boda-destino-mexico-desglose-2026",
-   "visitas": 24,
-   "ultima": "2026-11-27T19:56:09.614Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/tulum-photographer",
-   "visitas": 22,
-   "ultima": "2026-11-27T19:52:34.368Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/playa-del-carmen-proposal-photographer",
-   "visitas": 11,
-   "ultima": "2026-11-27T19:52:32.653Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/chable-maroma-photoshoot",
-   "visitas": 25,
-   "ultima": "2026-11-27T19:52:28.577Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/playa-del-carmen-couples-photographer",
-   "visitas": 1,
-   "ultima": "2026-11-27T19:52:26.519Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-cdmx-extranjeros-requisitos",
-   "visitas": 32,
-   "ultima": "2026-11-27T19:51:38.852Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-cdmx-2026",
-   "visitas": 144,
-   "ultima": "2026-11-27T19:51:38.424Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/presupuesto/cuanto-cuesta-el-juez-fuera-de-oficina-por-ciudad",
-   "visitas": 26,
-   "ultima": "2026-11-27T19:51:33.590Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/mejores-lugares-proponer-cancun-riviera-maya",
-   "visitas": 35,
-   "ultima": "2026-11-27T19:49:40.448Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/fotografo-resorts-cancun",
-   "visitas": 19,
-   "ultima": "2026-11-27T19:49:35.194Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-fiesta-americana-coral-beach-photoshoot",
-   "visitas": 25,
-   "ultima": "2026-11-27T19:49:31.403Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-fiesta-americana-coral-beach-family-photo-session-guide",
-   "visitas": 39,
-   "ultima": "2026-11-27T19:49:29.274Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/if-your-child-gets-sick-in-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T19:48:23.914Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-photo-guide-puerto-aventuras",
-   "visitas": 35,
-   "ultima": "2026-11-27T19:46:58.285Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-photos-puerto-cancun",
-   "visitas": 43,
-   "ultima": "2026-11-27T19:45:12.623Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/luxury-proposal-ideas-cancun",
-   "visitas": 51,
-   "ultima": "2026-11-27T19:45:06.037Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cancun-sargassum-seaweed-season-guide",
-   "visitas": 158,
-   "ultima": "2026-11-27T19:44:21.172Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/photo-pass-vs-family-session-xcaret",
-   "visitas": 47,
-   "ultima": "2026-11-27T19:42:36.868Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/occidental-xcaret-destination-photoshoot",
-   "visitas": 27,
-   "ultima": "2026-11-27T19:42:35.014Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/acta-de-matrimonio-guanajuato-en-linea",
-   "visitas": 59,
-   "ultima": "2026-11-27T19:41:18.434Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/getting-around-with-kids-cancun",
-   "visitas": 53,
-   "ultima": "2026-11-27T19:40:39.007Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/solo-parent-trip-family-photos-cancun",
-   "visitas": 49,
-   "ultima": "2026-11-27T19:38:31.361Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/cancun-wedding-photographer",
-   "visitas": 16,
-   "ultima": "2026-11-27T19:38:12.549Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-caribe-cancun-family-photoshoot",
-   "visitas": 21,
-   "ultima": "2026-11-27T19:37:26.176Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/xv-anos-editorial-vs-flying-dress-cancun",
-   "visitas": 24,
-   "ultima": "2026-11-27T19:37:04.329Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-nayarit-2026",
-   "visitas": 60,
-   "ultima": "2026-11-27T19:36:34.585Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/new-family-resorts-2026-2027-cancun-riviera-maya",
-   "visitas": 141,
-   "ultima": "2026-11-27T19:35:46.106Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/october-2027-thanksgiving-fall-break-cancun",
+   "ruta": "/es/blog/permisos-dron-bodas-mexico-afac",
    "visitas": 23,
-   "ultima": "2026-11-27T19:34:18.699Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/tren-maya-day-trips-with-kids-cancun",
-   "visitas": 56,
-   "ultima": "2026-11-27T19:32:43.537Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-trip-puerto-vallarta-vs-cancun",
-   "visitas": 48,
-   "ultima": "2026-11-27T19:30:13.869Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/barcelo-maya-grand-resort-photoshoot",
-   "visitas": 11,
-   "ultima": "2026-11-27T19:28:38.013Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/westin-resort-spa-cancun-photoshoot",
-   "visitas": 31,
-   "ultima": "2026-11-27T19:28:36.051Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/akumal-bay-photoshoot",
-   "visitas": 28,
-   "ultima": "2026-11-27T19:28:34.213Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-palace-riviera-maya-playacar-photoshoot",
-   "visitas": 30,
-   "ultima": "2026-11-27T19:28:32.154Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/etereo-riviera-maya-photoshoot",
-   "visitas": 19,
-   "ultima": "2026-11-27T19:28:30.180Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/fotos-familiares-playa-todos-de-blanco",
-   "visitas": 51,
-   "ultima": "2026-11-27T19:28:28.869Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/wedding-photography-trends-2027",
-   "visitas": 107,
-   "ultima": "2026-11-27T19:25:14.296Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-san-miguel-de-allende-requisitos",
-   "visitas": 3,
-   "ultima": "2026-11-27T19:24:16.411Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/xcaret-parks-with-kids-riviera-maya",
-   "visitas": 68,
-   "ultima": "2026-11-27T19:23:48.099Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/mia-reef-isla-mujeres-family-photoshoot",
-   "visitas": 45,
-   "ultima": "2026-11-27T19:22:11.666Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cancun-resorts-for-three-generations",
-   "visitas": 35,
-   "ultima": "2026-11-27T19:18:02.712Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/pedida-de-mano-con-la-familia-cancun",
-   "visitas": 46,
-   "ultima": "2026-11-27T19:17:22.938Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/fotografia-propuesta-sorpresa-cancun",
-   "visitas": 21,
-   "ultima": "2026-11-27T19:17:20.967Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/maternity-photos-with-toddler-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T19:17:04.636Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cancun-in-december-weather-photos",
-   "visitas": 66,
-   "ultima": "2026-11-27T19:16:53.796Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-nuevo-leon-2026",
-   "visitas": 119,
-   "ultima": "2026-11-27T19:16:50.578Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cruise-day-family-photos-cozumel",
-   "visitas": 42,
-   "ultima": "2026-11-27T19:16:30.549Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/caso-exito-restaurante-cancun-redes-sociales",
-   "visitas": 56,
-   "ultima": "2026-11-27T19:16:18.230Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/hilton-cancun-all-inclusive-family-photoshoot",
-   "visitas": 38,
-   "ultima": "2026-11-27T19:15:57.021Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/events-calendar-2027-cancun",
-   "visitas": 71,
-   "ultima": "2026-11-27T19:15:47.656Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/comparativa/mejor-fotografo-de-parejas-cancun",
-   "visitas": 39,
-   "ultima": "2026-11-27T19:14:56.524Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/cuanto-tardan-las-fotos-de-una-sesion-en-cancun",
-   "visitas": 42,
-   "ultima": "2026-11-27T19:14:54.417Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-dunamar-costa-mujeres-photographer",
-   "visitas": 33,
-   "ultima": "2026-11-27T19:12:30.437Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-palladium-costa-mujeres-family-photoshoot",
-   "visitas": 35,
-   "ultima": "2026-11-27T19:11:49.604Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/live-aqua-cancun-photoshoot",
-   "visitas": 20,
-   "ultima": "2026-11-27T19:11:34.428Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-mazatlan-requisitos-costo-y-cita",
-   "visitas": 43,
-   "ultima": "2026-11-27T19:11:17.342Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-palace-costa-mujeres-family-photoshoot",
-   "visitas": 14,
-   "ultima": "2026-11-27T19:11:16.283Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-sinaloa-2026",
-   "visitas": 39,
-   "ultima": "2026-11-27T19:11:01.709Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/aeropuerto-cancun-vs-tulum-invitados",
-   "visitas": 22,
-   "ultima": "2026-11-27T19:10:47.603Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/presupuesto/cuanto-cobra-un-dj-de-boda-o-un-grupo-en-vivo",
-   "visitas": 78,
-   "ultima": "2026-11-27T19:09:28.667Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-photos-on-a-chartered-yacht-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T19:07:15.804Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/travel-insurance-family-trip-cancun",
-   "visitas": 94,
-   "ultima": "2026-11-27T19:06:04.445Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-cancun-benito-juarez-requisitos",
-   "visitas": 93,
-   "ultima": "2026-11-27T19:05:39.621Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-suites-for-five-all-inclusive-cancun",
-   "visitas": 69,
-   "ultima": "2026-11-27T19:04:14.544Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cancun-cenote-photoshoot-guide",
-   "visitas": 81,
-   "ultima": "2026-11-27T19:02:39.376Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/comparativa/precio-sesion-fotos-familiar-cancun",
-   "visitas": 46,
-   "ultima": "2026-11-27T19:01:42.812Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/pagina-5",
-   "visitas": 24,
-   "ultima": "2026-11-27T19:01:00.077Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/pregnancy-announcement-photos-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T19:00:35.892Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/phone-photo-tips-parents-beach-cancun",
-   "visitas": 49,
-   "ultima": "2026-11-27T18:59:07.528Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-palladium-costa-mujeres-wedding-photographer",
-   "visitas": 9,
-   "ultima": "2026-11-27T18:57:54.899Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/cancun-wedding-cost-2026",
-   "visitas": 27,
-   "ultima": "2026-11-27T18:56:12.467Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-chetumal-vs-cancun-diferencias-qroo",
-   "visitas": 44,
-   "ultima": "2026-11-27T18:56:01.559Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/multigenerational-family-photo-ideas-cancun",
-   "visitas": 57,
-   "ultima": "2026-11-27T18:55:33.215Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-sabado-o-domingo-quintana-roo-costo",
-   "visitas": 14,
-   "ultima": "2026-11-27T18:54:26.320Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-cruise-vs-all-inclusive-cancun",
-   "visitas": 39,
-   "ultima": "2026-11-27T18:54:10.427Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/matrimonio-extranjeros-merida-yucatan-requisitos",
-   "visitas": 50,
-   "ultima": "2026-11-27T18:52:50.649Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/presupuesto/cuanto-cuesta-casarse-en-cancun-y-la-riviera-maya",
-   "visitas": 36,
-   "ultima": "2026-11-27T18:52:40.194Z"
+   "ultima": "2026-11-28T18:43:32.819Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/tipping-in-mexico-resorts-guide-for-tourists",
-   "visitas": 39,
-   "ultima": "2026-11-27T18:50:43.507Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/couples-photographer-cancun",
-   "visitas": 11,
-   "ultima": "2026-11-27T18:50:12.275Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/mejores-locaciones-foto-riviera-maya",
-   "visitas": 20,
-   "ultima": "2026-11-27T18:47:21.192Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/derechos/pagina-3",
-   "visitas": 13,
-   "ultima": "2026-11-27T18:46:14.621Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/plus-size-beach-family-photos-cancun",
-   "visitas": 52,
-   "ultima": "2026-11-27T18:44:30.139Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/tulum-photography-guide",
-   "visitas": 57,
-   "ultima": "2026-11-27T18:43:41.001Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/wedding-photography-cancun-cost-2026",
-   "visitas": 43,
-   "ultima": "2026-11-27T18:43:03.255Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/where-to-stay-with-kids-cancun",
-   "visitas": 33,
-   "ultima": "2026-11-27T18:42:59.554Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/ciudades/casarse-en-queretaro-juez-a-domicilio-por-horario",
-   "visitas": 26,
-   "ultima": "2026-11-27T18:40:22.616Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-all-inclusive-jamaica-vs-cancun",
-   "visitas": 31,
-   "ultima": "2026-11-27T18:38:10.611Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/guia-fotografo-los-cabos",
-   "visitas": 11,
-   "ultima": "2026-11-27T18:35:01.082Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/resort-day-pass-family-photos-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T18:33:47.035Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/wheelchair-accessible-beaches-cancun",
-   "visitas": 31,
-   "ultima": "2026-11-27T18:31:39.747Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/acerca-de",
-   "visitas": 70,
-   "ultima": "2026-11-27T18:30:18.764Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/luxury-honeymoon-packages-cancun-photos",
-   "visitas": 54,
-   "ultima": "2026-11-27T18:29:59.098Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/analisis-prenupciales-nuevo-leon",
-   "visitas": 37,
-   "ultima": "2026-11-27T18:28:31.077Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/kids-clubs-all-inclusive-resorts-cancun",
-   "visitas": 115,
-   "ultima": "2026-11-27T18:27:41.701Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/winter-family-trip-aruba-vs-cancun",
-   "visitas": 48,
-   "ultima": "2026-11-27T18:27:18.015Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-guanajuato-2026",
-   "visitas": 89,
-   "ultima": "2026-11-27T18:26:14.964Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-queretaro-2026",
-   "visitas": 74,
-   "ultima": "2026-11-27T18:25:54.746Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/cancun-photographer",
-   "visitas": 60,
-   "ultima": "2026-11-27T18:23:43.472Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/best-beaches-cancun-hotel-zone-photos",
-   "visitas": 41,
-   "ultima": "2026-11-27T18:23:41.713Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/comparison/luxury-photographers-cancun",
-   "visitas": 23,
-   "ultima": "2026-11-27T18:23:41.233Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/luxury-family-photos-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T18:23:39.987Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/editorial-photoshoot-ideas-couples-cancun",
-   "visitas": 49,
-   "ultima": "2026-11-27T18:23:24.717Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/sea-turtle-season-beach-photos-cancun",
-   "visitas": 37,
-   "ultima": "2026-11-27T18:23:12.381Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-merida-costo-y-cita",
-   "visitas": 30,
-   "ultima": "2026-11-27T18:22:59.050Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/school-breaks-2027-family-photos-cancun",
-   "visitas": 51,
-   "ultima": "2026-11-27T18:22:39.928Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-quintana-roo-2026",
-   "visitas": 66,
-   "ultima": "2026-11-27T18:22:00.202Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/costa-mujeres-family-photo-session-guide",
-   "visitas": 55,
-   "ultima": "2026-11-27T18:21:20.806Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-fiesta-americana-coral-beach-wedding-photographer",
-   "visitas": 16,
-   "ultima": "2026-11-27T18:19:09.307Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/majestic-mirage-costa-mujeres-family-photoshoot",
-   "visitas": 32,
-   "ultima": "2026-11-27T18:19:07.286Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/majestic-elegance-costa-mujeres-photoshoot",
-   "visitas": 29,
-   "ultima": "2026-11-27T18:19:05.596Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/cancun-photo-spots",
-   "visitas": 4,
-   "ultima": "2026-11-27T18:19:03.361Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/beach-conditions-today-cancun",
-   "visitas": 43,
-   "ultima": "2026-11-27T18:16:45.218Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/cita-registro-civil-cdmx-como-se-saca",
-   "visitas": 54,
-   "ultima": "2026-11-27T18:16:20.648Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/new-flights-canada-cancun-tulum-winter-2026-27",
-   "visitas": 58,
-   "ultima": "2026-11-27T18:15:22.702Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/does-it-rain-every-day-in-cancun",
-   "visitas": 31,
-   "ultima": "2026-11-27T18:14:56.078Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/fotografia-parejas-mexico",
-   "visitas": 33,
-   "ultima": "2026-11-27T18:13:20.831Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/royalton-splash-riviera-cancun-family-photoshoot",
-   "visitas": 21,
-   "ultima": "2026-11-27T18:12:46.004Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-vacation-hawaii-vs-cancun",
-   "visitas": 36,
-   "ultima": "2026-11-27T18:09:17.373Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/cancun-in-november-thanksgiving-photos",
-   "visitas": 60,
-   "ultima": "2026-11-27T18:05:53.964Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-trip-los-cabos-vs-cancun",
-   "visitas": 46,
-   "ultima": "2026-11-27T18:05:45.103Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/destination-wedding-photographer-mexico",
-   "visitas": 55,
-   "ultima": "2026-11-27T18:04:03.682Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-monterrey-costo-y-cita",
-   "visitas": 59,
-   "ultima": "2026-11-27T18:03:48.599Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/where-to-propose-in-playa-del-carmen",
-   "visitas": 33,
-   "ultima": "2026-11-27T18:02:40.267Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/costo-sesion-familiar-lujo-cancun-2026",
-   "visitas": 39,
-   "ultima": "2026-11-27T18:02:26.870Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/fiesta-americana-villas-cancun-photoshoot",
-   "visitas": 22,
-   "ultima": "2026-11-27T18:02:17.985Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/amare-cancun-photoshoot",
-   "visitas": 11,
-   "ultima": "2026-11-27T18:02:15.869Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/grand-park-royal-cancun-photoshoot",
-   "visitas": 22,
-   "ultima": "2026-11-27T18:02:13.756Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/imperial-laguna-cancun-photoshoot",
-   "visitas": 24,
-   "ultima": "2026-11-27T18:02:09.835Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/royal-resorts-cancun-photoshoot",
-   "visitas": 23,
-   "ultima": "2026-11-27T18:02:08.024Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/fotografia-drone-cancun-resorts",
-   "visitas": 39,
-   "ultima": "2026-11-27T17:59:31.198Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/fine-art-vs-editorial-family-portraits",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:59:26.891Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/things-to-do-with-kids-cancun",
-   "visitas": 50,
-   "ultima": "2026-11-27T17:59:22.886Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/toddler-friendly-all-inclusives-cancun",
-   "visitas": 102,
-   "ultima": "2026-11-27T17:58:16.734Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/luxury-photoshoot-ideas-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T17:57:38.365Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/wedding-guest-family-photos-cancun",
-   "visitas": 46,
-   "ultima": "2026-11-27T17:56:46.414Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/water-temperature-by-month-cancun",
-   "visitas": 50,
-   "ultima": "2026-11-27T17:56:44.201Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-trip-from-canada-to-cancun",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:56:22.258Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/dreams-playa-mujeres-wedding-photographer",
-   "visitas": 20,
-   "ultima": "2026-11-27T17:56:11.016Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/publicidad-meta-ads-restaurantes-cancun-costos",
-   "visitas": 7,
-   "ultima": "2026-11-27T17:55:54.651Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/maternity-photoshoot-cancun-riviera-maya",
-   "visitas": 15,
-   "ultima": "2026-11-27T17:55:00.927Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/packing-list-with-kids-cancun",
-   "visitas": 54,
-   "ultima": "2026-11-27T17:53:51.697Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/anniversary-photos-with-kids-cancun",
-   "visitas": 55,
-   "ultima": "2026-11-27T17:53:49.767Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/hotel-xcaret-mexico-wedding-photographer",
-   "visitas": 20,
-   "ultima": "2026-11-27T17:50:45.523Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/first-birthday-photos-cancun",
-   "visitas": 52,
-   "ultima": "2026-11-27T17:49:19.223Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-palace-kukulkan-photoshoot",
-   "visitas": 30,
-   "ultima": "2026-11-27T17:48:10.051Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/riu-palace-mexico-playacar-photoshoot",
-   "visitas": 26,
-   "ultima": "2026-11-27T17:48:04.110Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/fotografo-cancun",
-   "visitas": 5,
-   "ultima": "2026-11-27T17:47:40.239Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/kimpton-tres-rios-family-photoshoot",
    "visitas": 44,
-   "ultima": "2026-11-27T17:46:31.779Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/is-downtown-cancun-worth-visiting",
-   "visitas": 28,
-   "ultima": "2026-11-27T17:44:06.889Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/ciudades/casarse-en-puerto-vallarta-boda-en-yate-y-cuotas",
-   "visitas": 15,
-   "ultima": "2026-11-27T17:43:20.086Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/is-may-a-good-time-to-visit-cancun",
-   "visitas": 28,
-   "ultima": "2026-11-27T17:42:50.987Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/boda-civil-zapopan-requisitos",
-   "visitas": 62,
-   "ultima": "2026-11-27T17:42:32.372Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/calendario/pagina-4",
-   "visitas": 19,
-   "ultima": "2026-11-27T17:40:38.315Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/first-time-with-kids-cancun",
-   "visitas": 48,
-   "ultima": "2026-11-27T17:38:57.365Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/royal-solaris-cancun-photoshoot",
-   "visitas": 12,
-   "ultima": "2026-11-27T17:37:14.958Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/requisitos-boda-civil-jalisco-2026",
-   "visitas": 7,
-   "ultima": "2026-11-27T17:36:52.669Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/costo-boda-civil-cdmx-oficina-vs-domicilio",
-   "visitas": 54,
-   "ultima": "2026-11-27T17:36:34.168Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/water-park-lazy-river-resorts-cancun",
-   "visitas": 64,
-   "ultima": "2026-11-27T17:33:38.775Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/st-regis-costa-mujeres-photographer",
-   "visitas": 29,
-   "ultima": "2026-11-27T17:33:04.241Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/jw-marriott-costa-mujeres-photographer",
-   "visitas": 22,
-   "ultima": "2026-11-27T17:33:02.357Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/teen-friendly-all-inclusives-cancun",
-   "visitas": 44,
-   "ultima": "2026-11-27T17:32:56.285Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/visitax-tourist-fees-family-cancun",
-   "visitas": 174,
-   "ultima": "2026-11-27T17:32:23.325Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tradiciones/pagina-3",
-   "visitas": 26,
-   "ultima": "2026-11-27T17:31:47.488Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/toddler-board-book-from-vacation-photos-cancun",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:29:33.644Z"
+   "ultima": "2026-11-28T18:42:32.220Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/large-family-photoshoot-color-ideas-cancun",
-   "visitas": 51,
-   "ultima": "2026-11-27T17:29:01.328Z"
+   "visitas": 57,
+   "ultima": "2026-11-28T18:41:23.332Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/wedding-photography-trends-2027",
+   "visitas": 122,
+   "ultima": "2026-11-28T18:40:50.261Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/new-us-flights-cancun-tulum-winter-2026-27",
+   "visitas": 91,
+   "ultima": "2026-11-28T18:39:10.038Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/photographing-cancun-hotel-zone-guide",
+   "visitas": 27,
+   "ultima": "2026-11-28T18:38:27.722Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-chiapas-2026",
+   "visitas": 19,
+   "ultima": "2026-11-28T18:37:26.361Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/sargazo-2026-boda-playa-mes-a-mes",
+   "visitas": 46,
+   "ultima": "2026-11-28T18:35:31.937Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/playa-del-carmen-photographer",
+   "visitas": 2,
+   "ultima": "2026-11-28T18:34:04.013Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/destination-wedding-photographer-mexico",
+   "visitas": 58,
+   "ultima": "2026-11-28T18:34:00.995Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/toddler-friendly-all-inclusives-cancun",
+   "visitas": 108,
+   "ultima": "2026-11-28T18:33:58.181Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/fotografia/tendencias-de-fotografia-de-boda-en-cancun-y-riviera-maya",
+   "visitas": 405,
+   "ultima": "2026-11-28T18:32:00.612Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cruise-day-family-photos-cozumel",
+   "visitas": 47,
+   "ultima": "2026-11-28T18:31:40.439Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tradiciones/pagina-3",
+   "visitas": 33,
+   "ultima": "2026-11-28T18:30:50.139Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/guayabera-embroidered-dress-family-photos-cancun",
+   "visitas": 58,
+   "ultima": "2026-11-28T18:28:48.758Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-suites-for-five-all-inclusive-cancun",
+   "visitas": 74,
+   "ultima": "2026-11-28T18:28:11.096Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cancun-resorts-for-three-generations",
+   "visitas": 39,
+   "ultima": "2026-11-28T18:28:05.100Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/boda-civil-oaxaca-de-juarez-requisitos-y-costo",
+   "visitas": 52,
+   "ultima": "2026-11-28T18:28:03.269Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/water-park-lazy-river-resorts-cancun",
+   "visitas": 70,
+   "ultima": "2026-11-28T18:27:30.673Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cancun-sargassum-seaweed-season-guide",
+   "visitas": 166,
+   "ultima": "2026-11-28T18:27:27.344Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/travel-insurance-family-trip-cancun",
+   "visitas": 105,
+   "ultima": "2026-11-28T18:27:26.538Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/fotos-familiares-playa-todos-de-blanco",
+   "visitas": 61,
+   "ultima": "2026-11-28T18:26:19.539Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-cdmx-2026",
+   "visitas": 163,
+   "ultima": "2026-11-28T18:25:46.215Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/phone-photo-tips-parents-beach-cancun",
+   "visitas": 54,
+   "ultima": "2026-11-28T18:23:45.643Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/ciudades/casarse-en-puerto-vallarta-boda-en-yate-y-cuotas",
+   "visitas": 19,
+   "ultima": "2026-11-28T18:21:42.778Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/hotel-quiam-playa-del-carmen-photoshoot",
+   "visitas": 20,
+   "ultima": "2026-11-28T18:20:58.970Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/luxury-family-photoshoot-cost-cancun-2026",
+   "visitas": 37,
+   "ultima": "2026-11-28T18:20:08.933Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/grand-park-royal-cancun-photoshoot",
+   "visitas": 25,
+   "ultima": "2026-11-28T18:18:04.393Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/",
+   "visitas": 27,
+   "ultima": "2026-11-28T18:17:13.174Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/luxury-maternity-photoshoot-cancun-cost",
+   "visitas": 49,
+   "ultima": "2026-11-28T18:15:39.183Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-nuevo-leon-2026",
+   "visitas": 140,
+   "ultima": "2026-11-28T18:14:22.133Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/all-inclusive-or-vacation-rental-cancun",
+   "visitas": 24,
+   "ultima": "2026-11-28T18:14:03.209Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/presupuesto/pagina-3",
+   "visitas": 23,
+   "ultima": "2026-11-28T18:13:45.865Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/playa-del-carmen-proposal-photographer",
+   "visitas": 15,
+   "ultima": "2026-11-28T18:13:27.131Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/isla-mujeres-proposal-photographer",
+   "visitas": 12,
+   "ultima": "2026-11-28T18:12:03.165Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/finest-playa-mujeres-family-photoshoot",
+   "visitas": 18,
+   "ultima": "2026-11-28T18:12:01.075Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/best-family-photographer-playa-mujeres",
+   "visitas": 5,
+   "ultima": "2026-11-28T18:11:59.280Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/playa-mujeres-wedding-photographer",
+   "visitas": 4,
+   "ultima": "2026-11-28T18:11:57.151Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/dreams-playa-mujeres-family-photoshoot",
+   "visitas": 31,
+   "ultima": "2026-11-28T18:11:55.172Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/generations-riviera-maya-family-photoshoot",
+   "visitas": 12,
+   "ultima": "2026-11-28T18:11:25.760Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-sinaloa-2026",
+   "visitas": 46,
+   "ultima": "2026-11-28T18:11:04.030Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/fotografo-bodas-ciudad-de-mexico",
+   "visitas": 15,
+   "ultima": "2026-11-28T18:09:39.970Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/new-years-eve-with-kids-cancun",
+   "visitas": 32,
+   "ultima": "2026-11-28T18:08:34.054Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/live-aqua-cancun-photoshoot",
+   "visitas": 24,
+   "ultima": "2026-11-28T18:08:32.208Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/dreams-vista-cancun-photoshoot",
+   "visitas": 17,
+   "ultima": "2026-11-28T18:08:30.198Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/seadust-cancun-family-photoshoot",
+   "visitas": 14,
+   "ultima": "2026-11-28T18:08:28.013Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/westin-resort-spa-cancun-photoshoot",
+   "visitas": 33,
+   "ultima": "2026-11-28T18:08:26.094Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/cancun-sunset-times-golden-hour-by-month",
-   "visitas": 29,
-   "ultima": "2026-11-27T17:28:30.631Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/nichupte-lagoon-sunset-photoshoot",
-   "visitas": 43,
-   "ultima": "2026-11-27T17:28:28.547Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/day-before-family-photo-session-cancun",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:26:25.115Z"
-  },
-  {
-   "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/juez-a-domicilio-jalisco-boda-civil",
-   "visitas": 54,
-   "ultima": "2026-11-27T17:24:03.513Z"
+   "visitas": 32,
+   "ultima": "2026-11-28T18:08:24.092Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/blog/club-med-cancun-family-photoshoot",
-   "visitas": 15,
-   "ultima": "2026-11-27T17:23:51.108Z"
+   "visitas": 18,
+   "ultima": "2026-11-28T18:08:22.106Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/sesion-quinceanera-cancun",
-   "visitas": 25,
-   "ultima": "2026-11-27T17:23:28.284Z"
+   "ruta": "/blog/fiesta-americana-villas-cancun-photoshoot",
+   "visitas": 26,
+   "ultima": "2026-11-28T18:08:20.045Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/kids-only-portraits-family-session-cancun",
-   "visitas": 53,
-   "ultima": "2026-11-27T17:23:06.537Z"
+   "ruta": "/blog/family-photos-on-a-chartered-yacht-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T18:06:52.758Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/is-isla-mujeres-safe-for-tourists",
-   "visitas": 12,
-   "ultima": "2026-11-27T17:22:49.604Z"
+   "ruta": "/blog/family-trip-from-canada-to-cancun",
+   "visitas": 54,
+   "ultima": "2026-11-28T18:06:32.033Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/senior-pictures-graduation-trip-cancun",
-   "visitas": 44,
-   "ultima": "2026-11-27T17:22:37.986Z"
+   "ruta": "/blog/events-calendar-2027-cancun",
+   "visitas": 77,
+   "ultima": "2026-11-28T18:06:22.805Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/margaritaville-riviera-cancun-family-photoshoot",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:17:47.396Z"
+   "ruta": "/blog/what-is-riviera-cancun",
+   "visitas": 56,
+   "ultima": "2026-11-28T18:06:17.345Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/toddler-board-book-from-vacation-photos-cancun",
+   "visitas": 55,
+   "ultima": "2026-11-28T18:05:28.452Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/dreams-playa-mujeres-wedding-photographer",
+   "visitas": 22,
+   "ultima": "2026-11-28T18:05:19.867Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/things-to-do-with-kids-cancun",
+   "visitas": 56,
+   "ultima": "2026-11-28T18:04:25.980Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/fotografo-en-holbox",
+   "visitas": 1,
+   "ultima": "2026-11-28T18:03:39.126Z"
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/pagina-6",
-   "visitas": 17,
-   "ultima": "2026-11-27T17:17:05.719Z"
+   "ruta": "/tramites/boda-civil-monterrey-costo-y-cita",
+   "visitas": 70,
+   "ultima": "2026-11-28T18:03:15.452Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/comparison/best-family-photographer-tulum",
-   "visitas": 31,
-   "ultima": "2026-11-27T17:17:04.471Z"
+   "ruta": "/blog/pregnancy-announcement-photos-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T18:02:56.947Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/comparison/best-family-photographer-cancun",
-   "visitas": 28,
-   "ultima": "2026-11-27T17:16:58.562Z"
+   "ruta": "/es/blog/fotografia-drone-cancun-resorts",
+   "visitas": 42,
+   "ultima": "2026-11-28T18:02:12.513Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/api/availability",
-   "visitas": 7,
-   "ultima": "2026-11-27T17:16:22.499Z"
+   "ruta": "/blog/plus-size-beach-family-photos-cancun",
+   "visitas": 58,
+   "ultima": "2026-11-28T18:01:44.443Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/is-cancun-safe-for-families",
-   "visitas": 85,
-   "ultima": "2026-11-27T17:14:49.578Z"
+   "ruta": "/es/acerca-de",
+   "visitas": 74,
+   "ultima": "2026-11-28T18:00:48.662Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-vacation-packages-cancun",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:13:58.504Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/sun-safety-for-kids-cancun",
-   "visitas": 39,
-   "ultima": "2026-11-27T17:12:22.039Z"
+   "ruta": "/es/fotografo-familiar-merida",
+   "visitas": 24,
+   "ultima": "2026-11-28T18:00:13.095Z"
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/matrimonio-mixto-mexicano-extranjero-quintana-roo",
-   "visitas": 40,
-   "ultima": "2026-11-27T17:11:25.021Z"
+   "ruta": "/tramites/requisitos-boda-civil-jalisco-2026",
+   "visitas": 9,
+   "ultima": "2026-11-28T17:58:50.410Z"
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/inscripcion-de-matrimonio-extranjero-en-qroo",
-   "visitas": 28,
-   "ultima": "2026-11-27T17:11:23.090Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/whatsapp-esim-phone-plans-cancun",
-   "visitas": 47,
-   "ultima": "2026-11-27T17:10:59.797Z"
+   "ruta": "/tramites/boda-civil-zapopan-requisitos",
+   "visitas": 71,
+   "ultima": "2026-11-28T17:58:48.455Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/maternity-photographer-cancun",
-   "visitas": 52,
-   "ultima": "2026-11-27T17:10:51.702Z"
+   "visitas": 58,
+   "ultima": "2026-11-28T17:57:47.013Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/motion-blur-wedding-photos-explained",
-   "visitas": 37,
-   "ultima": "2026-11-27T17:10:33.643Z"
+   "ruta": "/blog/maternity-photos-with-toddler-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T17:57:19.904Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/sesion-de-fotos-familiar-elegante-editorial",
-   "visitas": 49,
-   "ultima": "2026-11-27T17:10:24.440Z"
+   "ruta": "/blog/riu-palace-kukulkan-photoshoot",
+   "visitas": 34,
+   "ultima": "2026-11-28T17:56:48.168Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/villa-del-palmar-cancun-photoshoot",
-   "visitas": 23,
-   "ultima": "2026-11-27T17:08:48.105Z"
+   "ruta": "/blog/riu-palace-las-americas-photoshoot",
+   "visitas": 33,
+   "ultima": "2026-11-28T17:56:46.151Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/es/fotos-embarazo-cancun",
-   "visitas": 5,
-   "ultima": "2026-11-27T17:07:02.737Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/blog/family-photos-cancun-guide",
-   "visitas": 46,
-   "ultima": "2026-11-27T17:06:51.196Z"
+   "ruta": "/es/fotografo-familiar-puerto-vallarta",
+   "visitas": 3,
+   "ultima": "2026-11-28T17:56:37.614Z"
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/acta-de-presentacion-matrimonial-puebla-8-dias",
-   "visitas": 33,
-   "ultima": "2026-11-27T17:06:08.180Z"
+   "ruta": "/tramites/juez-a-domicilio-monterrey-boda-civil",
+   "visitas": 49,
+   "ultima": "2026-11-28T17:55:42.644Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cancun-letters-sign-photo-guide",
+   "visitas": 41,
+   "ultima": "2026-11-28T17:55:07.117Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/riu-dunamar-costa-mujeres-photographer",
+   "visitas": 36,
+   "ultima": "2026-11-28T17:55:03.317Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/riu-palace-costa-mujeres-family-photoshoot",
+   "visitas": 16,
+   "ultima": "2026-11-28T17:55:01.250Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/pauta-facebook-instagram-clinicas-dentales-cancun",
+   "visitas": 38,
+   "ultima": "2026-11-28T17:54:36.429Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/beach-conditions-today-cancun",
+   "visitas": 48,
+   "ultima": "2026-11-28T17:54:14.267Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-guanajuato-2026",
+   "visitas": 97,
+   "ultima": "2026-11-28T17:52:48.629Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/fotografo-familiar-ciudad-de-mexico",
+   "visitas": 32,
+   "ultima": "2026-11-28T17:52:31.312Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-vacation-packages-cancun",
+   "visitas": 53,
+   "ultima": "2026-11-28T17:52:28.772Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/new-flights-canada-cancun-tulum-winter-2026-27",
+   "visitas": 64,
+   "ultima": "2026-11-28T17:52:14.783Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/new-family-resorts-2026-2027-cancun-riviera-maya",
+   "visitas": 159,
+   "ultima": "2026-11-28T17:51:16.692Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cun-vs-tqo-airport-guests-2026",
+   "visitas": 20,
+   "ultima": "2026-11-28T17:51:14.654Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/costo-boda-destino-mexico-desglose-2026",
+   "visitas": 29,
+   "ultima": "2026-11-28T17:51:06.439Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-of-three-photos-cancun",
+   "visitas": 4,
+   "ultima": "2026-11-28T17:49:32.470Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/luxury-proposal-ideas-cancun",
+   "visitas": 57,
+   "ultima": "2026-11-28T17:49:13.967Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/whatsapp-esim-phone-plans-cancun",
+   "visitas": 53,
+   "ultima": "2026-11-28T17:48:40.567Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/kids-clubs-all-inclusive-resorts-cancun",
+   "visitas": 129,
+   "ultima": "2026-11-28T17:47:47.602Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/bacalar-couples-photo-session-guide",
+   "visitas": 16,
+   "ultima": "2026-11-28T17:47:17.390Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/ideas-fotos-de-grupo-en-la-playa",
+   "visitas": 60,
+   "ultima": "2026-11-28T17:46:08.047Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/boda-civil-mazatlan-requisitos-costo-y-cita",
+   "visitas": 50,
+   "ultima": "2026-11-28T17:45:39.066Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/winter-family-trip-aruba-vs-cancun",
+   "visitas": 52,
+   "ultima": "2026-11-28T17:44:40.304Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/senior-pictures-graduation-trip-cancun",
+   "visitas": 47,
+   "ultima": "2026-11-28T17:44:21.833Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-cruise-vs-all-inclusive-cancun",
+   "visitas": 43,
+   "ultima": "2026-11-28T17:44:06.318Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-reunion-photo-ideas-cancun-beach",
+   "visitas": 4,
+   "ultima": "2026-11-28T17:42:58.572Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/etereo-riviera-maya-photoshoot",
+   "visitas": 21,
+   "ultima": "2026-11-28T17:42:56.662Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/school-breaks-2027-family-photos-cancun",
+   "visitas": 57,
+   "ultima": "2026-11-28T17:42:36.975Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/analisis-prenupciales-nuevo-leon",
+   "visitas": 43,
+   "ultima": "2026-11-28T17:42:26.829Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/luxury-photoshoot-ideas-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T17:42:20.472Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-resorts-costa-mujeres-vs-riviera-cancun",
+   "visitas": 54,
+   "ultima": "2026-11-28T17:41:52.585Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/multigenerational-family-photo-ideas-cancun",
+   "visitas": 62,
+   "ultima": "2026-11-28T17:41:38.734Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/visitax-tourist-fees-family-cancun",
+   "visitas": 218,
+   "ultima": "2026-11-28T17:40:29.254Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/editorial-photoshoot-ideas-couples-cancun",
+   "visitas": 55,
+   "ultima": "2026-11-28T17:38:29.396Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/bilingual-family-photo-session-cancun",
+   "visitas": 40,
+   "ultima": "2026-11-28T17:34:38.659Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/isla-mujeres-family-photographer",
+   "visitas": 51,
+   "ultima": "2026-11-28T17:34:36.639Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/cancun-family-photoshoot-packages",
+   "visitas": 2,
+   "ultima": "2026-11-28T17:34:34.718Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cancun-photo-session-with-pickup-for-groups",
+   "visitas": 29,
+   "ultima": "2026-11-28T17:34:32.701Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/presupuesto/cuanto-cobra-un-dj-de-boda-o-un-grupo-en-vivo",
+   "visitas": 86,
+   "ultima": "2026-11-28T17:34:09.098Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/anniversary-photos-with-kids-cancun",
+   "visitas": 61,
+   "ultima": "2026-11-28T17:34:00.184Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/precios-fotografo-cancun",
+   "visitas": 56,
+   "ultima": "2026-11-28T17:32:51.598Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/fotografo-cancun",
+   "visitas": 12,
+   "ultima": "2026-11-28T17:32:50.998Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/grand-fiesta-americana-los-cabos-wedding-photographer",
+   "visitas": 9,
+   "ultima": "2026-11-28T17:32:39.580Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cabo-surf-hotel-wedding-photographer",
+   "visitas": 1,
+   "ultima": "2026-11-28T17:32:37.585Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/viceroy-los-cabos-wedding-photographer",
+   "visitas": 19,
+   "ultima": "2026-11-28T17:32:35.715Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/presupuesto/cuanto-cuesta-una-boda-en-queretaro",
+   "visitas": 5,
+   "ultima": "2026-11-28T17:32:08.285Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/grand-palladium-costa-mujeres-family-photoshoot",
+   "visitas": 39,
+   "ultima": "2026-11-28T17:31:42.731Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-queretaro-2026",
+   "visitas": 79,
+   "ultima": "2026-11-28T17:30:45.211Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/calendario/pagina-4",
+   "visitas": 22,
+   "ultima": "2026-11-28T17:29:41.031Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/sesion-quinceanera-cancun",
+   "visitas": 31,
+   "ultima": "2026-11-28T17:27:55.548Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/kids-only-portraits-family-session-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T17:26:35.845Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/comparison/best-couples-photographer-cancun",
+   "visitas": 38,
+   "ultima": "2026-11-28T17:24:50.315Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/comparison/best-family-photographer-cancun",
+   "visitas": 32,
+   "ultima": "2026-11-28T17:24:48.338Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/luxury-family-photos-cancun",
+   "visitas": 56,
+   "ultima": "2026-11-28T17:24:46.389Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/familymoon-honeymoon-with-kids-cancun",
+   "visitas": 44,
+   "ultima": "2026-11-28T17:24:44.145Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/is-cancun-safe-for-families",
+   "visitas": 92,
+   "ultima": "2026-11-28T17:22:48.122Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/candid-vs-posed-family-photos-cancun",
+   "visitas": 48,
+   "ultima": "2026-11-28T17:22:03.220Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/fotografia-propuesta-sorpresa-cancun",
+   "visitas": 23,
+   "ultima": "2026-11-28T17:20:41.083Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/sargassum-2026-forecast-beach-by-beach",
+   "visitas": 11,
+   "ultima": "2026-11-28T17:19:25.408Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/indian-wedding-photographer-cancun",
+   "visitas": 11,
+   "ultima": "2026-11-28T17:18:34.581Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-photos-with-adult-children-cancun",
+   "visitas": 41,
+   "ultima": "2026-11-28T17:18:12.708Z"
   },
   {
    "sitio": "ivaestudios.com",
    "ruta": "/es/blog/sesion-de-fotos-familiar-con-abuelos-cancun",
-   "visitas": 46,
-   "ultima": "2026-11-27T17:05:47.039Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/isla-mujeres-couples-photographer",
-   "visitas": 11,
-   "ultima": "2026-11-27T17:02:51.351Z"
-  },
-  {
-   "sitio": "ivaestudios.com",
-   "ruta": "/es/fotografo-parejas-tulum",
-   "visitas": 4,
-   "ultima": "2026-11-27T16:59:07.028Z"
+   "visitas": 52,
+   "ultima": "2026-11-28T17:17:34.554Z"
   },
   {
    "sitio": "bodasmx.com.mx",
-   "ruta": "/tramites/matrimonio-entre-extranjeros-quintana-roo",
-   "visitas": 47,
-   "ultima": "2026-11-27T16:57:37.498Z"
+   "ruta": "/tramites/requisitos-boda-civil-estado-de-mexico-2026",
+   "visitas": 15,
+   "ultima": "2026-11-28T17:16:53.714Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/ciudades/casarse-en-guadalajara-cuotas-del-municipio",
+   "visitas": 31,
+   "ultima": "2026-11-28T17:16:24.926Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/juez-a-domicilio-jalisco-boda-civil",
+   "visitas": 58,
+   "ultima": "2026-11-28T17:16:22.924Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/es/blog/permisos-dron-bodas-mexico-afac",
-   "visitas": 18,
-   "ultima": "2026-11-27T16:54:35.327Z"
+   "ruta": "/es/fotografo-bodas-oaxaca",
+   "visitas": 5,
+   "ultima": "2026-11-28T17:15:16.781Z"
   },
   {
    "sitio": "ivaestudios.com",
-   "ruta": "/blog/kids-birthday-photos-on-vacation-cancun",
+   "ruta": "/blog/family-trip-punta-cana-vs-cancun",
+   "visitas": 3,
+   "ultima": "2026-11-28T17:09:57.542Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/boda-civil-san-miguel-de-allende-requisitos",
+   "visitas": 6,
+   "ultima": "2026-11-28T17:09:29.281Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/cancun-in-december-weather-photos",
+   "visitas": 76,
+   "ultima": "2026-11-28T17:03:05.341Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/jw-marriott-costa-mujeres-photographer",
+   "visitas": 25,
+   "ultima": "2026-11-28T17:02:43.686Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/matrimonio-mixto-mexicano-extranjero-quintana-roo",
+   "visitas": 44,
+   "ultima": "2026-11-28T17:01:11.878Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/kimpton-tres-rios-family-photoshoot",
+   "visitas": 48,
+   "ultima": "2026-11-28T17:01:03.216Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/best-costa-mujeres-resorts-family-photos",
+   "visitas": 5,
+   "ultima": "2026-11-28T16:59:42.844Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/pagina-6",
+   "visitas": 19,
+   "ultima": "2026-11-28T16:57:57.847Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/requisitos-boda-civil-nayarit-2026",
+   "visitas": 64,
+   "ultima": "2026-11-28T16:57:51.110Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/about",
+   "visitas": 41,
+   "ultima": "2026-11-28T16:57:48.827Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/w-costa-mujeres-photographer",
+   "visitas": 1,
+   "ultima": "2026-11-28T16:56:19.205Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/st-regis-costa-mujeres-photographer",
+   "visitas": 33,
+   "ultima": "2026-11-28T16:56:17.218Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/majestic-elegance-costa-mujeres-photoshoot",
+   "visitas": 33,
+   "ultima": "2026-11-28T16:56:15.210Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/majestic-mirage-costa-mujeres-family-photoshoot",
+   "visitas": 35,
+   "ultima": "2026-11-28T16:56:13.269Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-photos-with-kids-6-to-12-cancun",
+   "visitas": 37,
+   "ultima": "2026-11-28T16:54:04.161Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/babymoon-photography-cancun",
+   "visitas": 22,
+   "ultima": "2026-11-28T16:53:05.554Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/lugares-sesion-fotos-cancun",
+   "visitas": 33,
+   "ultima": "2026-11-28T16:52:22.741Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/boda-civil-queretaro-costo-y-cita",
+   "visitas": 76,
+   "ultima": "2026-11-28T16:51:12.800Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/the-cape-thompson-los-cabos-photographer",
+   "visitas": 2,
+   "ultima": "2026-11-28T16:50:22.288Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/summer-2027-with-kids-cancun",
+   "visitas": 44,
+   "ultima": "2026-11-28T16:47:43.186Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/secrets-playa-mujeres-photoshoot",
+   "visitas": 23,
+   "ultima": "2026-11-28T16:45:06.459Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/royalton-splash-riviera-cancun-family-photoshoot",
+   "visitas": 24,
+   "ultima": "2026-11-28T16:43:56.343Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/what-to-wear-for-proposal-photos",
+   "visitas": 3,
+   "ultima": "2026-11-28T16:43:05.823Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/comparison/best-maternity-photographer-cancun",
+   "visitas": 43,
+   "ultima": "2026-11-28T16:42:40.021Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/calendario/pagina-3",
+   "visitas": 9,
+   "ultima": "2026-11-28T16:42:32.884Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/10-preguntas-fotografo-bodas-antes-reservar",
+   "visitas": 28,
+   "ultima": "2026-11-28T16:42:28.379Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/mia-reef-isla-mujeres-family-photoshoot",
+   "visitas": 50,
+   "ultima": "2026-11-28T16:40:42.640Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/calm-water-beaches-toddlers-riviera-maya",
+   "visitas": 37,
+   "ultima": "2026-11-28T16:38:55.666Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/fotografo-parejas-playa-del-carmen",
+   "visitas": 2,
+   "ultima": "2026-11-28T16:36:59.750Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/resort-day-pass-family-photos-cancun",
+   "visitas": 59,
+   "ultima": "2026-11-28T16:36:54.517Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/fotografo-tulum",
+   "visitas": 14,
+   "ultima": "2026-11-28T16:36:47.008Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-trip-bahamas-turks-caicos-vs-cancun",
+   "visitas": 38,
+   "ultima": "2026-11-28T16:36:21.507Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/costo-boda-civil-cdmx-oficina-vs-domicilio",
+   "visitas": 60,
+   "ultima": "2026-11-28T16:35:23.258Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/haven-riviera-cancun-wedding-photographer",
+   "visitas": 14,
+   "ultima": "2026-11-28T16:25:47.788Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/iberostar-selection-riviera-cancun-wedding-photographer",
+   "visitas": 16,
+   "ultima": "2026-11-28T16:25:45.777Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/mejores-lugares-proponer-cancun-riviera-maya",
+   "visitas": 39,
+   "ultima": "2026-11-28T16:25:10.204Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/acta-de-presentacion-matrimonial-puebla-8-dias",
+   "visitas": 36,
+   "ultima": "2026-11-28T16:24:32.789Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/presupuesto/cuanto-cuesta-el-juez-fuera-de-oficina-por-ciudad",
+   "visitas": 28,
+   "ultima": "2026-11-28T16:24:31.010Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/inscripcion-de-matrimonio-extranjero-en-qroo",
+   "visitas": 32,
+   "ultima": "2026-11-28T16:24:01.823Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/october-2027-thanksgiving-fall-break-cancun",
+   "visitas": 24,
+   "ultima": "2026-11-28T16:20:18.312Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/comparison/luxury-photographers-cancun",
+   "visitas": 26,
+   "ultima": "2026-11-28T16:20:07.580Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/es/blog/ivae-studios-prensa-cobertura-medios",
+   "visitas": 5,
+   "ultima": "2026-11-28T16:19:57.209Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/nichupte-lagoon-sunset-photoshoot",
+   "visitas": 48,
+   "ultima": "2026-11-28T16:18:24.367Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/is-downtown-cancun-worth-visiting",
+   "visitas": 31,
+   "ultima": "2026-11-28T16:10:00.317Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/day-before-family-photo-session-cancun",
    "visitas": 51,
-   "ultima": "2026-11-27T16:50:44.573Z"
+   "ultima": "2026-11-28T16:09:18.310Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/the-sens-cancun-photographer",
+   "visitas": 2,
+   "ultima": "2026-11-28T16:08:23.220Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-all-inclusive-jamaica-vs-cancun",
+   "visitas": 37,
+   "ultima": "2026-11-28T16:06:20.070Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/cancun-wedding-giveaway-rules",
+   "visitas": 40,
+   "ultima": "2026-11-28T16:06:06.884Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/secrets-playa-mujeres-proposal",
+   "visitas": 18,
+   "ultima": "2026-11-28T16:04:38.030Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/grand-fiesta-americana-coral-beach-proposal",
+   "visitas": 12,
+   "ultima": "2026-11-28T16:04:36.038Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/excellence-coral-playa-mujeres-proposal",
+   "visitas": 18,
+   "ultima": "2026-11-28T16:04:34.132Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/family-trip-los-cabos-vs-cancun",
+   "visitas": 51,
+   "ultima": "2026-11-28T16:03:16.992Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/tramites/boda-civil-cdmx-extranjeros-requisitos",
+   "visitas": 37,
+   "ultima": "2026-11-28T16:02:14.777Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/water-temperature-by-month-cancun",
+   "visitas": 55,
+   "ultima": "2026-11-28T16:01:54.760Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/maternity-photos-with-the-whole-family-cancun",
+   "visitas": 53,
+   "ultima": "2026-11-28T16:01:02.929Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/fine-art-vs-editorial-family-portraits",
+   "visitas": 52,
+   "ultima": "2026-11-28T16:00:16.058Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/royal-resorts-cancun-photoshoot",
+   "visitas": 25,
+   "ultima": "2026-11-28T16:00:08.525Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/amare-cancun-photoshoot",
+   "visitas": 13,
+   "ultima": "2026-11-28T16:00:06.526Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/calypso-hotel-cancun-photoshoot",
+   "visitas": 21,
+   "ultima": "2026-11-28T16:00:04.662Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/cancun-photo-spots",
+   "visitas": 7,
+   "ultima": "2026-11-28T15:57:12.077Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/majestic-mirage-costa-mujeres-wedding-photographer",
+   "visitas": 32,
+   "ultima": "2026-11-28T15:56:02.962Z"
+  },
+  {
+   "sitio": "bodasmx.com.mx",
+   "ruta": "/ciudades/casarse-en-zapopan-cuotas-del-municipio",
+   "visitas": 5,
+   "ultima": "2026-11-28T15:55:41.321Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/mayan-ruins-with-kids-near-cancun",
+   "visitas": 56,
+   "ultima": "2026-11-28T15:52:00.797Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/solo-parent-trip-family-photos-cancun",
+   "visitas": 53,
+   "ultima": "2026-11-28T15:50:29.541Z"
+  },
+  {
+   "sitio": "ivaestudios.com",
+   "ruta": "/blog/secrets-moxche-playa-del-carmen-photoshoot",
+   "visitas": 30,
+   "ultima": "2026-11-28T15:50:21.233Z"
   }
  ]
 }
